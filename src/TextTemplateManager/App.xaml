@@ -10,12 +10,7 @@
             </ResourceDictionary.MergedDictionaries>
 
             <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-            <helpers:EnumToCollectionConverter x:Key="EnumToCollectionConverter"/>
             <helpers:PasteModeLabelConverter x:Key="PasteModeLabelConverter"/>
-            <helpers:ObjectToBoolConverter x:Key="ObjectToBoolConverter"/>
-            <helpers:ItemTypeToIconConverter x:Key="IconConverter"/>
-            <helpers:ObjectToVisibilityConverter x:Key="ObjectToVisibilityConverter"/>
-            <helpers:BoolToErrorBrush x:Key="BoolToErrorBrush"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
