@@ -1,0 +1,51 @@
+# ---- Build output ----
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+[Aa][Rr][Mm]64/
+*.binlog
+
+# ---- Packaging output ----
+AppPackages/
+BundleArtifacts/
+*.appx
+*.appxbundle
+*.msix
+*.msixbundle
+*.msixupload
+_pkginfo.txt
+
+# ---- Visual Studio ----
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.opendb
+
+# ---- Rider / VS Code ----
+.idea/
+.vscode/
+
+# ---- NuGet ----
+*.nupkg
+.nuget/
+packages/
+
+# ---- Node ----
+node_modules/
+npm-debug.log*
+
+# ---- Secrets ----
+# Local signing certificates for test packages; never publish them.
+*.pfx
+
+# ---- OS cruft ----
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
