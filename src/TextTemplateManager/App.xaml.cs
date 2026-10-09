@@ -31,9 +31,13 @@ namespace TextTemplateManager
         // Pipe message a bare second launch sends to just surface the running window (no file).
         private const string ActivateSignal = "__activate__";
 
+        private readonly UnexpectedErrorHandler _errors;
+
         public App()
         {
             InitializeComponent();
+            _errors = new UnexpectedErrorHandler(ex => LogCrash("UnhandledException", ex),
+                PersistPendingAsync, AskQuitAfterErrorAsync, ExitAsync);
             UnhandledException += OnUnhandledException;
         }
 
@@ -116,8 +120,7 @@ namespace TextTemplateManager
 
             // Prewarm the Quick Paste window while idle so the first hotkey open isn't cold (builds its
             // UI + tree and starts the WebView2 preview). It stays hidden until the hotkey is pressed.
-            _uiDispatcher.TryEnqueue(DispatcherQueuePriority.Low, () => EnsurePasteWindow().Prewarm());
-        }
+            _uiDispatcher.TryEnqueue(DispatcherQueuePriority.Low, () => EnsurePasteWindow().Prewarm());        }
 
         // ---- File association (.ttmdata) ----
 
@@ -269,13 +272,20 @@ namespace TextTemplateManager
         private void RebuildConnectorSnapshot() =>
             _uiDispatcher?.TryEnqueue(() => { try { _connectorData?.Rebuild(); } catch { } });
 
-        // Last-resort net: an unhandled exception on the UI thread would terminate the app (async-void
-        // handlers make this easy to trip). Log it and keep running so the user doesn't lose their
-        // session; the crash log preserves the stack for diagnosis. Handled=true stops the shutdown.
-        private void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+        // Last-resort net for UI-thread exceptions (async-void handlers make this easy to trip). Handled=true
+        // stops the immediate termination so pending work can be saved; the user then decides whether to
+        // keep running in a possibly inconsistent state (see UnexpectedErrorHandler).
+        private async void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
         {
-            LogCrash("UnhandledException", e.Exception);
             e.Handled = true;
+            await _errors.HandleAsync(e.Exception);
+        }
+
+        private async Task<bool> AskQuitAfterErrorAsync(bool saved)
+        {
+            if (MainWindow?.Content is not MainPage page) return false;
+            ShowMainWindow();
+            return await page.AskQuitAfterErrorAsync(saved, StorageService.GetCrashLogPath());
         }
 
         private static void LogCrash(string source, Exception? ex)

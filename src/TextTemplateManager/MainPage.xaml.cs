@@ -867,9 +867,32 @@ namespace TextTemplateManager
         public async void ReportHotkeyUnavailable(string message) =>
             await ShowStartupMessageAsync("Quick Paste shortcut unavailable", message);
 
+        /// <summary>After an unexpected error: true when the user chooses to quit.</summary>
+        public async Task<bool> AskQuitAfterErrorAsync(bool saved, string crashLogPath)
+        {
+            await WaitUntilDialogCanOpenAsync();
+            var dialog = new ContentDialog
+            {
+                Title = "Something went wrong",
+                Content = (saved ? "An unexpected error occurred. Your changes have been saved."
+                                 : "An unexpected error occurred, and your latest changes may not have been saved.")
+                          + " To be safe, quit and restart Text Template Manager.\n\nDetails: " + crashLogPath,
+                PrimaryButtonText = "Quit",
+                CloseButtonText = "Keep running",
+                DefaultButton = ContentDialogButton.Primary,
+            };
+            return await ShowDialogAsync(dialog) == ContentDialogResult.Primary;
+        }
+
         // Startup notices can arrive before the page is loaded and while another one is still open; only
         // one ContentDialog may be open at a time, so wait for both instead of dropping the message.
         private async Task ShowStartupMessageAsync(string title, string message)
+        {
+            await WaitUntilDialogCanOpenAsync();
+            await ShowMessageAsync(title, message);
+        }
+
+        private async Task WaitUntilDialogCanOpenAsync()
         {
             if (!IsLoaded)
             {
@@ -880,7 +903,6 @@ namespace TextTemplateManager
                 await loaded.Task;
             }
             while (_dialogOpen) await Task.Delay(200);
-            await ShowMessageAsync(title, message);
         }
 
         private async Task ShowMessageAsync(string title, string message)
