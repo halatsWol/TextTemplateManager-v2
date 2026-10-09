@@ -2,7 +2,6 @@
   <Configurations>
     <Platform Name="ARM64" />
     <Platform Name="x64" />
-    <Platform Name="x86" />
   </Configurations>
   <Folder Name="/tests/">
     <Project Path="tests/TextTemplateManager.Tests/TextTemplateManager.Tests.csproj">
@@ -15,7 +14,6 @@
   <Project Path="src/TextTemplateManager/TextTemplateManager.csproj">
     <Platform Solution="*|ARM64" Project="ARM64" />
     <Platform Solution="*|x64" Project="x64" />
-    <Platform Solution="*|x86" Project="x86" />
     <Deploy />
   </Project>
 </Solution>

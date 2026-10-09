@@ -4,7 +4,6 @@
 [Dd]ebug/
 [Rr]elease/
 x64/
-x86/
 [Aa][Rr][Mm]64/
 *.binlog
 
