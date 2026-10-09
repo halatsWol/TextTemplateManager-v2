@@ -33,6 +33,22 @@ namespace TextTemplateManager.Services.Pasting
         private const uint CF_UNICODETEXT = 13;
         private static readonly uint CfHtml = RegisterClipboardFormat("HTML Format");
         private static readonly uint CfRtf = RegisterClipboardFormat("Rich Text Format");
+        private static readonly uint CfExcludeFromMonitors = RegisterClipboardFormat("ExcludeClipboardContentFromMonitorProcessing");
+        private static readonly uint CfCanIncludeInHistory = RegisterClipboardFormat("CanIncludeInClipboardHistory");
+        private static readonly uint CfCanUploadToCloud = RegisterClipboardFormat("CanUploadToCloudClipboard");
+
+        /// <summary>Marks a clipboard write as transient: kept out of Win+V history, the cloud clipboard
+        /// and clipboard managers. Used for the paste payload and for putting the user's own content back,
+        /// which is already in their history from when they copied it.</summary>
+        internal static Dictionary<uint, byte[]> AsTransient(Dictionary<uint, byte[]> formats)
+        {
+            var marked = new Dictionary<uint, byte[]>(formats);
+            byte[] zero = BitConverter.GetBytes(0);
+            marked[CfExcludeFromMonitors] = zero;
+            marked[CfCanIncludeInHistory] = zero;
+            marked[CfCanUploadToCloud] = zero;
+            return marked;
+        }
 
         private static byte[] Utf8Bytes(string s) => Encoding.UTF8.GetBytes((s ?? string.Empty) + "\0");
         private static byte[] UnicodeBytes(string s) => Encoding.Unicode.GetBytes((s ?? string.Empty) + "\0");
@@ -226,7 +242,7 @@ namespace TextTemplateManager.Services.Pasting
             // header ourselves, and avoids WinRT's Flush lock and stray "Preferred DropEffect".
             var formats = BuildFormatsForMode(html, plainText, mode);
 
-            await SetClipboardFormatsAsync(formats);
+            await SetClipboardFormatsAsync(AsTransient(formats));
 
             // 5. EXECUTE PASTE
             // Bring the original target back to the foreground first.
@@ -330,7 +346,7 @@ namespace TextTemplateManager.Services.Pasting
         {
             if (snapshot == null || snapshot.Count == 0) return;
             await Task.Delay(600);
-            await SetClipboardFormatsAsync(snapshot);
+            await SetClipboardFormatsAsync(AsTransient(snapshot));
         }
 
         /// <summary>
