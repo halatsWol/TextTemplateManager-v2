@@ -135,8 +135,6 @@ namespace TextTemplateManager.Models
                 string.Equals(Owner.GetEffectiveMultiKey(t), thisEffective, StringComparison.OrdinalIgnoreCase));
         }
 
-        public void ForceRevalidate() => ValidateShortcuts();
-
         #endregion
     }
 }

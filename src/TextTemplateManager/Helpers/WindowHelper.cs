@@ -7,40 +7,16 @@ namespace TextTemplateManager.Helpers
 {
     public static class WindowHelper
     {
-        public static CaretContext? TargetCaret { get; private set; }
         public static IntPtr TargetWindowHandle { get; set; }
 
-        public static void CaptureTargetContext()
-        {
-            TargetWindowHandle = GetForegroundWindow();
-            TargetCaret = CaretContext.Capture(TargetWindowHandle);
-        }
+        public static void CaptureTargetContext() => TargetWindowHandle = GetForegroundWindow();
 
-        // --- Helper Methods for Tracing ---
         public static IntPtr GetTargetWindow() => TargetWindowHandle;
-        public static uint GetCurrentPID() => (uint)Environment.ProcessId;
-        public static uint GetWindowPID(IntPtr hWnd)
-        {
-            _ = GetWindowThreadProcessId(hWnd, out uint pid);
-            return pid;
-        }
-        public static string GetWindowTitle(IntPtr hWnd)
-        {
-            StringBuilder sb = new StringBuilder(256);
-            GetWindowText(hWnd, sb, 256);
-            return sb.ToString();
-        }
 
         #region Win32 API Imports
 
         [DllImport("user32.dll")]
         public static extern IntPtr GetForegroundWindow();
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
-
-        [DllImport("user32.dll")]
-        public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -97,9 +73,6 @@ namespace TextTemplateManager.Helpers
         // --- Restored for App.xaml.cs ---
         [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr")]
         public static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
-
-        [DllImport("user32.dll", EntryPoint = "SetWindowLong")]
-        public static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
         [DllImport("user32.dll")]
         public static extern IntPtr CallWindowProc(IntPtr lpPrevWndFunc, IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
@@ -373,33 +346,5 @@ namespace TextTemplateManager.Helpers
             };
             FlashWindowEx(ref fw);
         }
-    }
-
-    public sealed class CaretContext
-    {
-        public IntPtr Hwnd;
-        public int X;
-        public int Y;
-
-        public static CaretContext? Capture(IntPtr hwnd)
-        {
-            if (hwnd == IntPtr.Zero || !GetCaretPos(out POINT pt)) return null;
-            ClientToScreen(hwnd, ref pt);
-            return new CaretContext { Hwnd = hwnd, X = pt.X, Y = pt.Y };
-        }
-
-        public void Restore()
-        {
-            WindowHelper.SetForegroundWindow(Hwnd);
-            SetCursorPos(X, Y);
-            mouse_event(0x0002, 0, 0, 0, UIntPtr.Zero); // down
-            mouse_event(0x0004, 0, 0, 0, UIntPtr.Zero); // up
-        }
-
-        [DllImport("user32.dll")] private static extern bool GetCaretPos(out POINT lpPoint);
-        [DllImport("user32.dll")] private static extern bool ClientToScreen(IntPtr hWnd, ref POINT lpPoint);
-        [DllImport("user32.dll")] private static extern bool SetCursorPos(int X, int Y);
-        [DllImport("user32.dll")] private static extern void mouse_event(uint dwFlags, int dx, int dy, uint dwData, UIntPtr dwExtraInfo);
-        [StructLayout(LayoutKind.Sequential)] private struct POINT { public int X; public int Y; }
     }
 }

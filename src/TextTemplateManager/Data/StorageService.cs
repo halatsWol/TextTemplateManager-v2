@@ -309,28 +309,6 @@ public static class StorageService
         });
     }
 
-    public static async Task<List<BaseItem>?> LoadAsync(string filePath)
-    {
-        if (!File.Exists(filePath)) return null;
-
-        try
-        {
-            using FileStream openStream = File.OpenRead(filePath);
-            return await JsonSerializer.DeserializeAsync<List<BaseItem>>(openStream, _options);
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Storage Error (Load): {ex.Message}");
-            return null;
-        }
-    }
-
-    public static async Task<Folder?> ImportBackupAsync(string fullPath)
-    {
-        if (!File.Exists(fullPath)) return null;
-        return await LoadRootAsync(fullPath);
-    }
-
     public static async Task<AppSettings> LoadSettingsAsync() =>
         await LoadOwnFileAsync<AppSettings>(GetSettingsPath()) ?? new AppSettings();
 
