@@ -10,8 +10,11 @@ Version 2 is distributed through the Microsoft Store and updated by it.
 
 | Folder | Contents |
 | --- | --- |
-| [`src/`](src/) | Application source |
-| [`tests/`](tests/) | Automated tests |
+| [`src/TextTemplateManager/`](src/TextTemplateManager/) | Application source (WinUI 3) |
+| [`src/editor/`](src/editor/) | TipTap editor sources, bundled into the app's assets |
+| [`tests/`](tests/) | Automated tests (`tests/run-tests.ps1`) |
+| [`tools/ManualGen/`](tools/ManualGen/) | Renders `docs/user/Manual.md` to the PDF shipped with the app |
+| [`docs/user/`](docs/user/) | User manual, admin guide, browser connector API |
 | [`docs/`](docs/) | Technical documentation: architecture, class diagrams |
 
 ## License

@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="TextTemplateManager.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="using:TextTemplateManager.Models"
+    xmlns:helpers="using:TextTemplateManager.Helpers"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    mc:Ignorable="d"
+    KeyboardAcceleratorPlacementMode="Hidden">
+
+    <Page.KeyboardAccelerators>
+        <!-- Ctrl+F focuses the search box from anywhere in the window. -->
+        <KeyboardAccelerator Modifiers="Control" Key="F" Invoked="SearchAccelerator_Invoked"/>
+    </Page.KeyboardAccelerators>
+
+    <Page.Resources>
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVis"/>
+
+        <!-- Compact tree rows -->
+        <Style TargetType="TreeViewItem">
+            <Setter Property="MinHeight" Value="22"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <!-- FOLDER DETAILS -->
+        <DataTemplate x:Key="FolderDetailTemplate">
+            <Grid RowSpacing="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBox Header="Folder Title"
+                         Text="{Binding Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.5">
+                    <FontIcon Glyph="&#xE8B7;" FontSize="80"/>
+                    <TextBlock Text="Folder selected" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+
+        <!-- EMPTY -->
+        <DataTemplate x:Key="EmptyDetailTemplate">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.3">
+                <FontIcon Glyph="&#xE12B;" FontSize="80"/>
+                <TextBlock Text="Select an item to view details" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- Fade-in animation -->
+        <Storyboard x:Key="ConflictFadeIn">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                             From="0"
+                             To="1"
+                             Duration="0:0:0.3" />
+        </Storyboard>
+
+    </Page.Resources>
+
+    <!-- Root grid stretches with the window so content reflows; the overlay Canvas below
+         hosts floating panels. (A Canvas root measured children with infinite width, so the
+         panes kept their width and were clipped instead of shrinking when the window narrowed.) -->
+    <Grid>
+
+        <!-- Main layout grid -->
+        <Grid x:Name="MainGrid">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- MenuBar -->
+                <RowDefinition Height="*"/>
+                <!-- Main content -->
+            </Grid.RowDefinitions>
+
+            <!-- Menu Bar -->
+            <MenuBar Grid.Row="0">
+                <MenuBarItem Title="File">
+                    <MenuFlyoutItem Text="Load Backup" Icon="OpenFile" Click="LoadBackup_Click"/>
+                    <MenuFlyoutItem Text="Save Backup" Icon="Save" Click="SaveBackup_Click"/>
+                    <MenuFlyoutSeparator/>
+                    <MenuFlyoutItem Text="Settings" Icon="Setting" Click="OpenPreferences_Click"/>
+                    <MenuFlyoutSeparator/>
+                    <MenuFlyoutItem Text="Exit" Click="Exit_Click"/>
+                </MenuBarItem>
+                <MenuBarItem Title="Help">
+                    <MenuFlyoutItem Text="Open Manual" Icon="Library" Click="OpenManual_Click"/>
+                    <MenuFlyoutItem x:Name="CheckForUpdatesMenuItem" Text="Check for Updates" Icon="Refresh" Click="CheckForUpdates_Click"/>
+                    <MenuFlyoutItem Text="Go to GitHub" Click="GoToGitHub_Click">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE774;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutSeparator/>
+                    <MenuFlyoutItem Text="About" Icon="Help" Click="About_Click"/>
+                </MenuBarItem>
+            </MenuBar>
+
+            <!-- Top-right actions at the File-menu height: update (when available) + quick help. -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right"
+                        VerticalAlignment="Center" Spacing="6" Margin="0,0,10,0">
+                <!-- Transient "Saved" indicator; fades in on save, out after 3s (see MainPage.xaml.cs). -->
+                <StackPanel x:Name="SaveNotification" Orientation="Horizontal" Spacing="4"
+                            VerticalAlignment="Center" Opacity="0" IsHitTestVisible="False">
+                    <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
+                    <TextBlock Text="Saved" FontSize="12" VerticalAlignment="Center"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                </StackPanel>
+                <!-- Update status: one of downloading indicator / "Update available" / "Update now". -->
+                <StackPanel x:Name="UpdateBusyIndicator" Orientation="Horizontal" Spacing="6"
+                            VerticalAlignment="Center" Visibility="Collapsed">
+                    <ProgressRing IsActive="True" Width="16" Height="16"/>
+                    <TextBlock x:Name="UpdateBusyText" Text="Downloading update…" FontSize="12"
+                               VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                </StackPanel>
+                <Button x:Name="UpdateAvailableButton" Visibility="Collapsed" Click="UpdateAvailableButton_Click"
+                        Style="{StaticResource SubtleButtonStyle}"
+                        ToolTipService.ToolTip="Download and install the available update">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE896;" FontSize="14" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+                        <TextBlock Text="Update available"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="UpdateButton" Visibility="Collapsed" Click="UpdateButton_Click"
+                        Style="{StaticResource AccentButtonStyle}"
+                        ToolTipService.ToolTip="Install the downloaded update">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE896;" FontSize="14"/>
+                        <TextBlock Text="Update now"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="MainHelpButton"
+                        Content="&#xE897;" FontFamily="Segoe MDL2 Assets" Click="MainHelpButton_Click"
+                        ToolTipService.ToolTip="Quick Help" Style="{StaticResource SubtleButtonStyle}"/>
+            </StackPanel>
+
+            <!-- Main Content Grid -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <!-- Tree pane: opens at 300 (Width is hardcoded, so never persisted),
+                         user-resizable via the splitter between 150 and 500. -->
+                    <ColumnDefinition Width="300" MinWidth="150" MaxWidth="500"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left Pane -->
+                <Grid Grid.Column="0" Background="{ThemeResource LayerFillColorDefaultBrush}"
+                      BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,1,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Buttons -->
+                    <StackPanel Orientation="Horizontal" Spacing="4" Margin="10,10,10,5">
+                        <Button Content="&#xE710;" FontFamily="Segoe MDL2 Assets" Click="AddTemplate_Click" ToolTipService.ToolTip="Add Template"
+                                IsEnabled="{x:Bind ViewModel.CanAddHere, Mode=OneWay}"/>
+                        <Button Content="&#xE8B7;" FontFamily="Segoe MDL2 Assets" Click="AddFolder_Click" ToolTipService.ToolTip="Add Folder"
+                                IsEnabled="{x:Bind ViewModel.CanAddHere, Mode=OneWay}"/>
+                        <Button Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" Click="DeleteItem_Click" ToolTipService.ToolTip="Delete Item"
+                                IsEnabled="{x:Bind ViewModel.CanDeleteSelection, Mode=OneWay}"/>
+                    </StackPanel>
+
+                    <!-- Search -->
+                    <StackPanel Grid.Row="1" Margin="10,5" Spacing="5">
+                        <AutoSuggestBox x:Name="SearchBox"
+                                        QueryIcon="Find"
+                                        PlaceholderText="Search templates..."
+                                        Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+
+                    <!-- TreeView -->
+                    <!-- KeyDown is attached in code with handledEventsToo so Enter/Space are seen
+                         even after the TreeView marks them handled (see the constructor). -->
+                    <TreeView x:Name="ItemTreeView"
+                              Grid.Row="2"
+                              SelectionMode="Single"
+                              CanDragItems="True"
+                              CanReorderItems="True"
+                              AllowDrop="True"
+                              ItemsSource="{x:Bind ViewModel.RootNodes, Mode=OneWay}"
+                              ItemInvoked="ItemTreeView_ItemInvoked"
+                              Tapped="ItemTreeView_Tapped"
+                              DragOver="ItemTreeView_DragOver"
+                              DragItemsStarting="ItemTreeView_DragItemsStarting"
+                              DragItemsCompleted="ItemTreeView_DragItemsCompleted"
+                              SelectedItem="{x:Bind ViewModel.SelectedItem, Mode=TwoWay}">
+                        <TreeView.ItemTemplate>
+                            <DataTemplate x:DataType="local:BaseItem">
+                                <TreeViewItem ItemsSource="{x:Bind ViewChildren, Mode=OneWay}"
+                                              IsExpanded="{x:Bind IsExpanded, Mode=TwoWay}"
+                                              HorizontalContentAlignment="Stretch"
+                                              RightTapped="Tree_RightTapped">
+                                    <!-- Background=Transparent so the whole row is hit-testable, not just the text. -->
+                                    <Grid Background="Transparent">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Grid VerticalAlignment="Center" Width="20" Height="20">
+                                            <SymbolIcon Symbol="{x:Bind Icon}"/>
+                                            <Border Visibility="{x:Bind IsSyncRoot, Converter={StaticResource BoolToVis}}"
+                                                    HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                                    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" CornerRadius="5">
+                                                <FontIcon Glyph="&#xE895;" FontSize="9"
+                                                          Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                            </Border>
+                                        </Grid>
+                                        <TextBlock Text="{x:Bind Title, Mode=OneWay}" VerticalAlignment="Center"/>
+                                        <FontIcon Glyph="&#xE7BA;" FontSize="12" Foreground="#E6A700" VerticalAlignment="Center"
+                                                  Visibility="{x:Bind SyncFileMissing, Converter={StaticResource BoolToVis}}"
+                                                  ToolTipService.ToolTip="Sync file not found — showing cached copy"/>
+                                    </StackPanel>
+                                    </Grid>
+                                </TreeViewItem>
+                            </DataTemplate>
+                        </TreeView.ItemTemplate>
+                    </TreeView>
+                </Grid>
+
+                <!-- Splitter: the gripper glyph shows you can click & drag here to resize the panes.
+                     The glyph is IsHitTestVisible=False so drags pass through to the GridSplitter, which
+                     stays a direct child of this Grid (column 1) so it still resizes the outer columns. -->
+                <controls:GridSplitter Grid.Column="1" Width="12" Background="Transparent" IsThumbVisible="False"/>
+                <FontIcon Grid.Column="1" Glyph="&#xE784;" FontSize="14" FontFamily="Segoe MDL2 Assets"
+                          IsHitTestVisible="False"
+                          Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                <!-- Right Pane: persistent editor + placeholders (WebView2 must not live in a DataTemplate) -->
+                <Grid Grid.Column="2" Padding="24">
+
+                    <!-- TEMPLATE: title + WebView2 editor + metadata -->
+                    <Grid x:Name="TemplatePanel"
+                          RowSpacing="12"
+                          DataContext="{x:Bind ViewModel.SelectedTemplate, Mode=OneWay}"
+                          Visibility="{x:Bind ViewModel.IsEditorEnabled, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBox x:Name="TemplateTitleBox" Header="Title"
+                                 IsReadOnly="{x:Bind ViewModel.IsSelectedReadOnly, Mode=OneWay}"
+                                 Text="{Binding Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                        <Border Grid.Row="1"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                MinHeight="180"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                            <WebView2 x:Name="EditorWebView" Loaded="EditorWebView_Loaded"/>
+                        </Border>
+
+                        <StackPanel x:Name="TemplateMetaPanel" Grid.Row="2" Spacing="10">
+                            <Grid ColumnSpacing="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" HorizontalAlignment="Left">
+                                    <TextBlock Text="Single Key" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                    <TextBox Width="50"
+                                             CharacterCasing="Upper"
+                                             MaxLength="1"
+                                             IsReadOnly="{x:Bind ViewModel.IsSelectedReadOnly, Mode=OneWay}"
+                                             TextChanged="Shortcut_TextChanged"
+                                             Text="{Binding SingleKeyShortcut, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             HorizontalContentAlignment="Center"
+                                             Padding="4"
+                                             CornerRadius="4"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" HorizontalAlignment="Left">
+                                    <TextBlock Text="Multi Key" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                    <TextBox Width="250"
+                                             MaxLength="20"
+                                             CharacterCasing="Upper"
+                                             IsReadOnly="{x:Bind ViewModel.IsSelectedReadOnly, Mode=OneWay}"
+                                             TextChanged="Shortcut_TextChanged"
+                                             Text="{Binding MultiKeyShortcut, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             HorizontalContentAlignment="Center"
+                                             Padding="4"
+                                             CornerRadius="4"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBox Header="Tags"
+                                     IsReadOnly="{x:Bind ViewModel.IsSelectedReadOnly, Mode=OneWay}"
+                                     Text="{Binding TagsCsv, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                            <ComboBox Header="Default Paste Mode"
+                                      HorizontalAlignment="Stretch"
+                                      IsEnabled="{x:Bind ViewModel.IsSelectedEditable, Mode=OneWay}"
+                                      ItemsSource="{Binding DataContext.ViewModel.PasteModes, ElementName=ItemTreeView}"
+                                      SelectedItem="{Binding DefaultPasteMode, Mode=TwoWay}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={StaticResource PasteModeLabelConverter}}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- FOLDER placeholder -->
+                    <Grid x:Name="FolderPanel"
+                          RowSpacing="20"
+                          DataContext="{x:Bind ViewModel.SelectedItem, Mode=OneWay}"
+                          Visibility="{x:Bind ViewModel.IsFolderSelected, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBox x:Name="FolderTitleBox" Header="Folder Title"
+                                 Text="{Binding Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.5">
+                            <FontIcon Glyph="&#xE8B7;" FontSize="80"/>
+                            <TextBlock Text="Folder selected" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- EMPTY placeholder -->
+                    <StackPanel x:Name="EmptyPanel"
+                                VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.3"
+                                Visibility="{x:Bind ViewModel.IsNoSelection, Mode=OneWay, Converter={StaticResource BoolToVis}}">
+                        <FontIcon Glyph="&#xE12B;" FontSize="80"/>
+                        <TextBlock Text="Select an item to view details" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <!-- Overlay layer for floating draggable panels. No Background, so empty areas are
+             hit-test transparent and pointer events pass through to the main grid below. -->
+        <Canvas x:Name="RootCanvas">
+
+        <!-- Floating Draggable Conflict Panel -->
+        <Border x:Name="ConflictPanel"
+            Width="360"
+            MaxHeight="260"
+            Background="#FFFDF3D6"
+            BorderBrush="#FFE6B800"
+            BorderThickness="1"
+            CornerRadius="8"
+            Padding="10"
+            Visibility="Collapsed"
+            Canvas.Left="0"
+            Canvas.Top="0"
+            PointerPressed="ConflictPanel_PointerPressed"
+            PointerReleased="ConflictPanel_PointerReleased"
+            PointerMoved="ConflictPanel_PointerMoved">
+
+            <Border.Shadow>
+                <ThemeShadow />
+            </Border.Shadow>
+
+            <StackPanel>
+                <Grid Margin="0,0,0,6">
+                    <TextBlock Text="⚠ Shortcut Conflicts" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <!-- Dismiss: only shown for purely cross-area (sync↔local) notes; same-area
+                         conflicts must be resolved, so the panel stays put for those. -->
+                    <Button x:Name="ConflictDismissButton" Visibility="Collapsed"
+                            HorizontalAlignment="Right" VerticalAlignment="Top"
+                            Padding="4" MinWidth="0" Background="Transparent" BorderThickness="0"
+                            Click="ConflictDismiss_Click" ToolTipService.ToolTip="Dismiss">
+                        <FontIcon Glyph="&#xE711;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    </Button>
+                </Grid>
+
+                <ScrollViewer MaxHeight="200">
+                    <StackPanel x:Name="ConflictStack"/>
+                </ScrollViewer>
+            </StackPanel>
+        </Border>
+        </Canvas>
+
+        <!-- Settings, shown in-place over the main content. The NavigationView back arrow
+             (top-left) closes it and reloads the tree. -->
+        <Grid x:Name="SettingsOverlay" Visibility="Collapsed"
+              Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            <NavigationView x:Name="SettingsNav"
+                            PaneDisplayMode="Left"
+                            IsSettingsVisible="False"
+                            IsBackButtonVisible="Visible"
+                            IsBackEnabled="True"
+                            BackRequested="SettingsNav_BackRequested"
+                            SelectionChanged="SettingsNav_SelectionChanged">
+                <NavigationView.MenuItems>
+                    <NavigationViewItem Content="General" Tag="General" Icon="Setting"/>
+                    <NavigationViewItem Content="Integrations" Tag="Integrations" Icon="Link"/>
+                    <NavigationViewItem Content="Sync" Tag="Sync" Icon="Sync"/>
+                </NavigationView.MenuItems>
+                <Frame x:Name="SettingsFrame" Padding="20"/>
+            </NavigationView>
+        </Grid>
+
+        <TeachingTip x:Name="MainHelpTip" Title="Template Manager Guide" Target="{x:Bind MainHelpButton}"
+                     PreferredPlacement="BottomLeft" IsLightDismissEnabled="True"
+                     ShouldConstrainToRootBounds="False">
+            <TeachingTip.Content>
+                <Grid MaxWidth="360" Margin="0,4" ColumnSpacing="8" RowSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="🗂️" VerticalAlignment="Top"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
+                        <Run FontWeight="SemiBold" Text="Organize:"/><Run Text=" add with the toolbar; drag to reorder or nest. Click empty space or press Esc to deselect (new items then go to the root). A template can't hold others — dropping onto one places a sibling below."/>
+                    </TextBlock>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="🔄" VerticalAlignment="Top"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
+                        <Run FontWeight="SemiBold" Text="Sync folders:"/><Run Text=" pinned at the top with a sync badge. Configure them in Settings ▸ Sync. Read-only ones are dimmed."/>
+                    </TextBlock>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="⌨️" VerticalAlignment="Top"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
+                        <Run FontWeight="SemiBold" Text="Shortcuts:"/><Run Text=" set a single- or multi-key shortcut per template. The same key may repeat across areas; the local one wins, then sync folders in order."/>
+                    </TextBlock>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="⚠" VerticalAlignment="Top" FontWeight="SemiBold"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
+                        <Run FontWeight="SemiBold" Text="Conflicts:"/><Run Text=" a duplicate shortcut inside the same area is blocked (a panel top-right lists it); across areas it's just a note you can dismiss."/>
+                    </TextBlock>
+
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="🖱️" VerticalAlignment="Top"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
+                        <Run FontWeight="SemiBold" Text="Right-click:"/><Run Text=" a template to Duplicate / Copy; a folder to Export; any nested item to Move to Root."/>
+                    </TextBlock>
+
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="🔍" VerticalAlignment="Top"/>
+                    <TextBlock Grid.Row="5" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
+                        <Run FontWeight="SemiBold" Text="Search:"/><Run Text=" filters the tree; toggle content search to look inside template text."/>
+                    </TextBlock>
+
+                    <TextBlock Grid.Row="6" Grid.Column="0" Text="🎨" VerticalAlignment="Top"/>
+                    <TextBlock Grid.Row="6" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
+                        <Run FontWeight="SemiBold" Text="Editor:"/><Run Text=" format with the toolbar — headings, lists, tables, colors, and Info/Note/Success/Warning/Error panels. Use the HTML/Jira paste mode to paste panels into Jira."/>
+                    </TextBlock>
+
+                    <TextBlock Grid.Row="7" Grid.Column="0" Text="⚡" VerticalAlignment="Top"/>
+                    <TextBlock Grid.Row="7" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
+                        <Run FontWeight="SemiBold" Text="Quick Paste:"/><Run Text=" press the global hotkey (Settings ▸ General) anywhere to paste a template into the active app."/>
+                    </TextBlock>
+                </Grid>
+            </TeachingTip.Content>
+        </TeachingTip>
+    </Grid>
+</Page>

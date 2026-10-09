@@ -4,6 +4,7 @@
 [Dd]ebug/
 [Rr]elease/
 x64/
+x86/
 [Aa][Rr][Mm]64/
 *.binlog
 
@@ -15,6 +16,7 @@ BundleArtifacts/
 *.msix
 *.msixbundle
 *.msixupload
+*.appxupload
 _pkginfo.txt
 
 # ---- Visual Studio ----
@@ -38,6 +40,14 @@ packages/
 # ---- Node ----
 node_modules/
 npm-debug.log*
+
+# ---- Generated app assets ----
+# Verbatim copy of src/editor/src/editor.html, rewritten by build.mjs on every build. The source is
+# the file worth reviewing; the copy is not. editor.bundle.js, editor.css, preview.bundle.js and
+# preview.html stay committed (prebuilt fallbacks; run `npm run build` in src/editor after a change).
+src/TextTemplateManager/Assets/editor/editor.html
+# Generated from docs/user/Manual.md by tools/ManualGen at build.
+src/TextTemplateManager/Assets/Manual.pdf
 
 # ---- Secrets ----
 # Local signing certificates for test packages; never publish them.

@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="editor.css" />
+    <style>
+        /* Read-only preview: reuse the editor content styles (.ProseMirror), no toolbar. */
+        .ProseMirror { min-height: auto; }
+        #editor-scroll { cursor: default; }
+        /* Empty paragraphs (blank lines between content) collapse here because there is no
+           ProseMirror trailing <br>; give them a line box so blank lines are preserved. */
+        #preview p:empty::after { content: "\00a0"; }
+    </style>
+</head>
+<body>
+    <div id="editor-scroll">
+        <div class="ProseMirror" id="preview"></div>
+    </div>
+    <script src="preview.bundle.js"></script>
+    <script>
+        var host = window.chrome && window.chrome.webview;
+        var previewEl = document.getElementById('preview');
+        window.previewApi = {
+            setContent: function (html) {
+                previewEl.innerHTML = html || '';
+                if (window.previewHighlight) window.previewHighlight(previewEl);
+            },
+            setTheme: function (dark) { document.body.classList.toggle('dark', !!dark); }
+        };
+        try { host && host.postMessage(JSON.stringify({ type: 'ready' })); } catch (e) {}
+    </script>
+</body>
+</html>

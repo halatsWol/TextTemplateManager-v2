@@ -1,0 +1,457 @@
+## Introduction
+
+Text Template Manager is a Windows application for storing reusable pieces of text — email
+replies, code snippets, standard responses, boilerplate — and inserting them into any other 
+application with a keystroke. Templates are organized in folders, can be given keyboard-
+shortcuts, and can optionally be shared with a team through a synchronized file.
+
+This manual describes every feature of the application. Throughout, a menu path is written in
+the form **Menu ▸ Item** (for example, **Settings ▸ General**), and keyboard input is shown in
+bold (for example, **Alt**). The installed version is shown under **Help ▸ About**.
+
+The application is self-contained: the .NET runtime and the Windows App SDK are bundled, so no
+separate installation is required. The bundled runtime is always the latest .NET 8 release
+available at the time that version was built.
+
+---
+
+## The main window
+
+The main window is divided into two panes:
+
+- The **left pane** contains the template tree and a search box. The tree holds your folders and 
+  templates, including any synchronized folders, which are pinned to the top.
+- The **right pane** shows the editor for the currently selected template, or the title field for 
+  a selected folder. When nothing is selected, it shows a placeholder.
+
+The toolbar above the tree provides buttons to add a template, add a folder, and delete the 
+selected item. The menu bar provides the **File** and **Help** menus, and the quick-help button
+in the top-right corner opens a short in-app reference.
+
+![The main window: the template tree and toolbar on the left, and the selected template's editor, properties, and paste-mode list on the right.](../../src/TextTemplateManager/Assets/ManualImages/TTM_MainWindow-Editor-PasteModes.png)
+
+---
+
+## Templates and folders
+
+### Creating items
+
+Use the toolbar to add a new template or folder. New items are placed relative to the current 
+selection: inside the selected folder, alongside a selected template, or at the top level when 
+nothing is selected. New items are given a unique default name, which you can change at any time.
+
+### Organizing the tree
+
+Drag items to reorder them or to move them between folders. Folders may contain both templates 
+and other folders; a template is always a leaf and can never contain other items — dropping an
+item onto a template places it as a sibling directly below. Expansion and 
+selection are preserved as you work.
+
+To move an item out to the top level, drag it there or right-click it and choose **Move to Root**.
+Click an empty area of the tree to clear the selection — with nothing selected, new templates and folders are created at the root. From the keyboard, **Esc** steps back one level at a time: from the tree to the search box, then it clears the search text, and with the search box already empty it clears the selection.
+
+From the search box, **↓** moves into the tree, the same way as in Quick Paste: if the text cursor isn't at the end yet, the first **↓** moves it there.
+
+### The template editor
+
+Selecting a template opens it in the editor, which supports bold, italic, underline, 
+strikethrough, text and highlight colors, headings, bulleted and numbered lists, links, tables, 
+callout panels, and code blocks with syntax highlighting. Changes are saved automatically a short time after you stop typing, so there is 
+no separate save step — a brief **Saved** indicator appears in the top-right corner each time your 
+data is written.
+
+**Ctrl+click** a link to open it in your default browser, and hover over a link to see where it 
+points. A plain click just places the cursor so you can edit the link.
+
+![A template open in the editor: a formatted body with an Info callout panel, its Single Key (M) and Multi Key (MSG) shortcuts, and the HTML/Jira default paste mode. The badge on the folder marks it as synchronized.](<../../src/TextTemplateManager/Assets/ManualImages/TTM_MainWindow_TemplateExample(syncedTemplate).png>)
+
+### Code blocks
+
+The **Code block** button on the toolbar formats the current block as monospaced code with a 
+line-number gutter (the **Preformat** entry in the text-format menu is the same style without the 
+numbers). A picker in the block's top-right corner sets the language: it **auto-detects** by 
+default, or you can choose PowerShell, Python, Batch/cmd, Bash, JSON, JavaScript, TypeScript, 
+HTML/XML, SQL, C#, YAML, Markdown, or **Plain text** to turn colouring off. Colours follow the 
+light/dark theme and also appear in the read-only preview; the template itself still stores plain 
+text.
+
+Long lines wrap to the next row instead of scrolling sideways, with the line numbers staying 
+aligned. Typing is indentation-aware: **Enter** keeps the current indentation and steps in after 
+an opening `(`, `[`, `{` or a backtick, while typing a closing `)`, `]` or `}` steps back out, and 
+pasting multi-line code re-indents it to fit where you drop it.
+
+### Callout panels
+
+The **Panel** button on the editor toolbar wraps the current block in a colored callout, in one 
+of five styles: **Info**, **Note**, **Success**, **Warning**, or **Error**. Choosing the panel's 
+current style again removes the panel; choosing a different style changes it.
+
+To move the cursor out of a panel, press **↓** or **→** at the end of its last line, or press 
+**Enter** on an empty last line (a first **Enter** adds a line inside the panel, a second steps 
+out) — the same way code blocks behave.
+
+Panels adapt to whichever paste mode you use (see *Paste modes*): they become native panels in 
+Atlassian Jira, colored boxes in email and word processors, and a labeled quote in Markdown.
+
+### Template properties
+
+Each template exposes the following properties:
+
+- **Title** — the display name, shown in the tree and searchable.
+- **Tags** — optional, comma-separated keywords that are also included in search.
+- **Default paste mode** — the format used when the template is pasted (see below).
+- **Single-key shortcut** and **Multi-key shortcut** — optional shortcuts for the Quick Paste window (see *Keyboard shortcuts and conflicts*). Shortcuts consist of letters and digits only; `-` and `.` are reserved as the separator between a synced folder's prefix and its shortcuts.
+
+### Paste modes
+
+The paste mode determines how a template is placed on the clipboard and inserted into the target 
+application:
+
+The modes are listed below in the order they appear in the app.
+
+| Mode | Description |
+| --- | --- |
+| Auto | Chooses the most suitable format for the target application — the most broadly compatible choice. Callout panels render as colored boxes. |
+| HTML/Jira | HTML tuned for Atlassian Jira: callout panels and text colors are preserved so Jira's comment editor rebuilds them natively (colors snap to Jira's nearest palette color). |
+| HTML | HTML markup. Callout panels are rendered as colored boxes, for broad compatibility with email clients, word processors, and web apps. |
+| RTF | Rich Text Format. Callout panels are rendered as shaded, bordered boxes. |
+| Markdown | Markdown source text. Callout panels become a labeled blockquote. |
+| Plaintext | Unformatted text only. |
+
+---
+
+## Quick Paste
+
+Quick Paste is a compact window that lets you insert a template into whichever application you 
+were using, without leaving the keyboard.
+
+Press the configured global hotkey (see **Settings ▸ General**) from any application to open it.
+Quick Paste remembers the application you came from and returns focus to it when a template is 
+pasted.
+
+> **Remote Desktop (RDP):** If Text Template Manager is running on both your local computer and a 
+> remote computer you connect to over RDP, the global hotkey always opens Quick Paste on the 
+> **local** computer — Windows delivers a registered global hotkey locally, so it never reaches the 
+> remote session. Give each machine a **different** hotkey (in **Settings ▸ General**), or run only 
+> one instance, to avoid the clash.
+
+### Inserting a template
+
+- **Single-key shortcut** — Quick Paste opens ready for shortcuts (the search box isn't focused), so 
+  just press the key assigned to a template to paste it immediately. If the same key is assigned in 
+  more than one area, the local template takes precedence, followed by synchronized folders in their 
+  configured order. You can also browse the list with the **↑ / ↓** arrow keys and press **Enter** to 
+  paste the highlighted row. A letter or digit with no template assigned sounds a short error tone 
+  rather than doing anything — the keyboard here is for shortcuts, so pressing **Tab** (or clicking) is 
+  how you move to the search box. (Once the search box has focus, letters filter instead of triggering 
+  shortcuts — see *Search*.)
+- **Multi-key shortcut** — hold **Alt** and type the shortcut. The list narrows as you type and 
+  highlights the top match; **release Alt** to paste it. You don't have to type the whole 
+  shortcut — a partial entry pastes the highlighted match. Use **↑ / ↓** while holding **Alt** to 
+  move the highlight (this doesn't change what you've typed), and press **Enter** to paste the 
+  highlighted row even before typing anything. If you type and then delete everything, releasing 
+  **Alt** pastes nothing. Shortcuts in synchronized folders carry the folder's prefix (for 
+  example, `AND-MSG`); the separator is `-`, `.` or *none* (set in **Settings ▸ Sync**). Press 
+  **Backspace** while holding **Alt** to correct a mistyped entry.
+- **Paste as plain text** — while still holding **Alt**, end a multi-key entry with **Shift + -** (which produces `_`) to 
+  insert the template as unformatted text, regardless of its default paste mode.
+- **Search** — click the search box (or press **Tab** or **Ctrl + F**) to filter the tree; matching templates display 
+  their folder path. While the search box has focus, every letter filters and never triggers a 
+  shortcut; press **Esc** to return to shortcut mode. In the search box the arrow keys move the text 
+  cursor — **↑** to the start, **↓** to the end — and pressing **↓** again once the cursor is at the 
+  end (or the box is empty) moves into the template tree, the same as **Tab**. From the tree, **Esc** 
+  returns to the search box with your text intact, and typing a letter carries straight on filtering. 
+  Double-click any template, in either the tree or the shortcut lists, to paste it.
+
+The shortcut lists at the bottom of the window show the available single-key and multi-key 
+shortcuts, together with the area each belongs to (a synchronized folder's name, or *local*). 
+Switch between them with the **Single Key** and **Multi Key** tabs.
+
+Whichever tab is showing, its first row is highlighted, **↑ / ↓** move the highlight, and **Enter** 
+pastes it — so the Multi Key list can be browsed with the mouse and keyboard without holding **Alt**. 
+(This applies in shortcut mode, when neither the search box nor the tree has focus; the arrows do 
+something different in each of those, as described above.) The arrow keys wrap around: pressing **↓** 
+on the last row returns to the first, and **↑** on the first row jumps to the last.
+
+![Quick Paste, Single Key tab: press the listed key to paste; the area (here, local) is shown on the right.](../../src/TextTemplateManager/Assets/ManualImages/TTM_QuickPaste_SingleKeyView.png)
+
+![Quick Paste, Multi Key tab: a synchronized shortcut carries its folder prefix (g.MSG); the local one does not (MSG).](../../src/TextTemplateManager/Assets/ManualImages/TTM_QuickPaste_multiKeyView.png)
+
+To paste with a format other than the template's default just this once, right-click it (in the 
+tree or a shortcut list) and choose **Paste As**:
+
+![Right-clicking a template offers Paste and a Paste As submenu with every paste mode.](../../src/TextTemplateManager/Assets/ManualImages/TTM_QuickPaste_TreeViewTemplateContextOptions.png)
+
+---
+
+## Keyboard shortcuts and conflicts
+
+Every shortcut belongs to an **area**. An area is either a specific synchronized folder or the 
+set of everything outside synchronization (referred to as *local*).
+
+- A **single-key** shortcut may be reused in different areas. When a key is assigned in more than 
+  one area, Quick Paste resolves it by priority: the local template first, then synchronized 
+  folders in the order configured in settings. Assigning the same single key twice **within the 
+  same area** is a conflict and is not permitted; the application reports it and does not save the 
+  duplicate.
+- A **multi-key** shortcut is compared on its *effective* form — a synchronized folder's prefix and 
+  separator are folded in first (so `MSG` in a folder prefixed `AND` becomes `AND-MSG`), which keeps 
+  otherwise-identical shortcuts in differently-prefixed folders apart. When two areas do resolve to 
+  the **same** effective shortcut — for example a local `ANDMSG` and a folder prefixed `AND` with the 
+  separator set to *none* holding `MSG` — it is treated just like a single-key cross-area duplicate: 
+  allowed, resolved local-first then sync order. A duplicate **within one area** is a conflict and is 
+  not saved.
+
+Cross-area duplicates (single- or multi-key) are permitted and are shown as an informational note 
+rather than an error. When you move a template into an area that already uses its shortcut, the 
+application resolves the clash automatically: a duplicate single-key shortcut is removed from the 
+moved template, and a duplicate multi-key shortcut receives a numeric suffix (for example, `MSG` 
+becomes `MSG1`).
+
+Any outstanding conflicts and notes are listed in a small panel in the top-right of the main 
+window. Same-area conflicts must be resolved, so the panel stays until they are; a panel showing 
+only cross-area notes can be dismissed with its **×** button, or hidden entirely with **Hide 
+cross-area shortcut warnings** in **Settings ▸ General**.
+
+---
+
+## Settings
+
+Open settings from **File ▸ Settings**. It has a **General**, an **Integrations** and a **Sync** tab.
+
+### General
+
+**Quick Paste**
+
+- **Global shortcut** — the hotkey that opens Quick Paste from any application; click the field and press the combination. If another application already uses that combination, a warning appears below the field (and once at startup); choose a different one.
+- **Default paste mode** — the mode applied to newly created templates (see *Paste modes*).
+
+**Startup**
+
+- **Run at Windows login** — start the app automatically when you sign in. When on, **Start hidden in the system tray** appears below it: enable that to launch minimized to the tray (no window) at sign-in — the Quick Paste hotkey and tray icon still work. This matches the on/off state in Windows' own **Startup Apps** list.
+
+![Settings ▸ General: the Quick Paste hotkey, the default paste mode for new templates, and startup.](../../src/TextTemplateManager/Assets/ManualImages/TTM_GeneralSettings1.png)
+
+**Updates**
+
+- **Automatically check for updates** — check for new releases and download them in the background.
+- **Install updates automatically** — install a downloaded update without asking, at a quiet moment (off by default).
+- **Allow beta updates** — also offer pre-release versions (off by default).
+- **Show update notifications** — (on by default) use a Windows notification when an update needs your attention while the window is closed to the system tray. With it off, updates are shown inside the application instead.
+
+See *Updates* for details.
+
+**Other**
+
+- **Hide cross-area shortcut warnings** — suppress the dismissible note shown when the same shortcut is used in more than one area (local and synchronized folders). Off by default; blocking same-area conflicts are always shown. See *Keyboard shortcuts and conflicts*.
+
+![Settings ▸ General (continued): the update options and Other.](../../src/TextTemplateManager/Assets/ManualImages/TTM_GeneralSettings2.png)
+
+### Integrations
+
+- **Browser extension** — enable a local connector for a companion browser extension (see below).
+- **File association** — **Set as default for .ttmdata** makes `.ttmdata` files open with this app (opening one adds it as a sync source — see the **Sync** tab). Use it if another program took the association over.
+
+![Settings ▸ Integrations: the browser connector with its port and pairing token, the extension store links, and the .ttmdata file association.](../../src/TextTemplateManager/Assets/ManualImages/TTM_IntegrationsSettings.png)
+
+#### Browser extension
+
+The browser connector lets a companion browser extension (Chrome, Edge, or Firefox) list your
+templates, paste them from the browser, and create new templates from selected text. It is **off by
+default**; turn it on with **Enable browser connector** in **Settings ▸ Integrations**.
+
+The companion extension is [TTM-Connect](https://github.com/halatsWol/TTM-Connect), available on:
+
+- [Chrome Web Store](https://chrome.google.com/webstore/detail/jclopjpjdldbknjdhmjldehlkgbihlmi)
+- [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/ttm-connect/fbpmhopmnaoedcnbegdkpfblekhaindm)
+- [Firefox Add-ons](https://addons.mozilla.org/addon/ttm-connect/)
+
+When enabled, the application runs a small local service (`127.0.0.1` — loopback only, never exposed
+to the network) that the extension talks to. Pairing is by **token**:
+
+- Turn on **Enable browser connector**. A random **token** is generated and shown, along with the
+  port. (only on first time Activation, a token is generated, future disable/re-enable will list the previous token)
+- Copy the token (and the port, if you changed it) into the extension's settings. Every request must
+  present the token, so only an extension you have paired can reach your templates.
+- **Regenerate** issues a new token and invalidates the old one — re-pair the extension afterwards.
+
+The connector serves template names, ids, and the available paste modes, and returns a template's
+content rendered in a chosen paste mode (or the template's default). It can also **create** a new
+template from content the extension sends (e.g. the current page selection); the new template is added
+to your local area. Only browser extensions may use it — an ordinary web page cannot — and the
+application must be running. Developers can find the full API (endpoints, security, examples) via the
+**View API documentation** link in settings.
+
+**Content safety.** Because a browser selection can contain untrusted markup, everything the extension
+sends is cleaned before it becomes a template, and the content the connector hands back is cleaned the
+same way. It uses a strict allow-list followed by a deny-list hardening pass:
+
+- **Kept:** ordinary formatting — text, headings, **bold**/*italic*/underline/strikethrough, sub- and
+  superscript, lists, tables, blockquotes, code blocks, text colour and highlighting, and links.
+- **Code blocks are preserved exactly.** Code in any language — including HTML or JavaScript shown as
+  text inside a code block — passes through untouched; it is treated as text, never as live markup.
+- **Removed:** anything that could run or load from the network — `<script>`, `<style>`, embedded
+  frames/objects, **images and other media**, form controls, SVG/MathML, and HTML comments (dropped
+  with their contents); event-handler attributes (`onclick`, `onerror`, …); `javascript:`, `vbscript:`
+  and `data:` links (only `http`, `https`, `mailto`, `tel` and relative links are kept); and active or
+  remote CSS (only inert style properties such as colour, background colour, text alignment and width
+  survive). Links that open a new tab get `rel="noopener noreferrer"`. Any other unrecognised tag is
+  unwrapped — its text is kept, the tag is dropped.
+
+### Sync
+
+Synchronization lets several people, or several of your own computers, share the same set of
+templates. A synchronized source is an ordinary template file stored in a shared location — most
+commonly a cloud folder such as OneDrive — and surfaced in the tree as a pinned folder at the top.
+Synchronized files are watched for external changes and reconciled automatically, so edits made
+elsewhere appear without restarting the application.
+
+![Settings ▸ Sync: set the shortcut-prefix separator at the top, then add a source with Add or Create.](../../src/TextTemplateManager/Assets/ManualImages/TTM_SyncSettings.png)
+
+To add a source, click **Add** to link a shared file that already exists, or **Create** to make a
+new one — for example in a OneDrive folder so it is shared automatically:
+
+![Create opens a Save dialog for a new shared .ttmdata file.](../../src/TextTemplateManager/Assets/ManualImages/TTM_SyncSettings_createFilePicker.png)
+
+The source then appears as a row, shown in the tree as a pinned folder:
+
+![A configured source: Active and Save checkboxes, an editable Name and Prefix, its file path, and the order-up/down and delete controls.](../../src/TextTemplateManager/Assets/ManualImages/TTM_SyncSettings_added-createdSyncFolder.png)
+
+Each source offers the following options:
+
+- **Active** — load the source into the tree as a pinned folder. Clearing this hides the folder
+  without deleting the underlying file, or removing it from the list completely.
+- **Save** — when enabled, the folder is editable and your changes are written back to the shared
+  file. When disabled, the folder is read-only and the shared file always takes precedence on reload.
+- **Name** — the folder's title as shown on this computer. It is set here only; the pinned sync
+  folder's name is read-only in the tree.
+- **Prefix** — the text that namespaces the folder's multi-key shortcuts (for example, a prefix of
+  `AND` turns the shortcut `MSG` into `AND-MSG`). The character joining the prefix and the shortcut is
+  chosen at the top of the page (**Shortcut prefix separator**): `-`, `.`, or *none* (the prefix joins
+  the shortcut directly, e.g. `ANDMSG`).
+- **Order** — the up and down arrows set the folder's priority (the up arrow is disabled on the top
+  row and the down arrow on the bottom row). This priority determines which template wins when a
+  shortcut is shared across areas, and is applied immediately.
+
+If a source's file cannot be found (for example, it has been moved or is temporarily offline), a
+warning icon is shown next to it. Click the icon to re-link the source to its file. The most recently
+cached contents remain visible in the meantime.
+
+You can also add a source by **opening a `.ttmdata` file** — double-click it in File Explorer, or use
+**Open with ▸ ttm**. The app comes to the front on this page with the file linked as an active
+source; if the file is already linked it is simply shown here, and the app's own data file is never
+added. (Text Template Manager runs as a single instance, so opening a file always uses the window that
+is already running.)
+
+---
+
+## Backup and export
+
+- **File ▸ Save Backup** exports your entire template tree as a single file.
+- **File ▸ Load Backup** replaces your local templates and folders with the contents of a backup file, after asking you to confirm. Synced folders are not affected: they always come from their shared files, so any copies of them inside the backup are skipped.
+- Right-clicking a folder and choosing **Export** saves just that folder and its contents to a 
+  standalone file, which is useful for creating a new shared source or sharing a subset of 
+  templates.
+
+Backups use the `.ttmdata` format. An older `.json` backup still loads after you rename it to 
+`.ttmdata` — the two are the same format.
+
+---
+
+## Updates
+
+When automatic update checking is enabled, the application checks for a newer release on startup 
+and periodically thereafter, and you can also check on demand from **Help ▸ Check for Updates**. 
+By default only stable releases are offered; enable **Allow beta updates** in **Settings ▸ General** 
+to also receive pre-release (beta / preview) versions.
+
+When a newer version is available, it is downloaded in the background and the top-right corner of the 
+main window shows what is happening — *Downloading update…* while it fetches, then an **Update now** 
+button once it is ready. The **Help ▸ Check for Updates** entry also carries a small marker while an 
+update is waiting. You are prompted to install immediately or to defer; deferring keeps the button 
+available. Installing closes the application, applies the update silently, and reopens it.
+
+If the window is closed to the system tray when an update becomes ready, a Windows notification appears 
+instead, with **Install now** on it — so an update is never announced somewhere you cannot see it.
+
+Turn **Show update notifications** off in **Settings ▸ General ▸ Updates** to suppress them. 
+Updates are then only shown inside the application, in the top-right corner of the main window, and you 
+will not hear about one until you open it. Everything else is unaffected: updates are still checked for, 
+still downloaded, and — if you enabled it — still installed automatically.
+
+### Installing updates automatically
+
+With **Install updates automatically** enabled in **Settings ▸ General ▸ Updates**, a downloaded update 
+installs without asking. It waits for a genuinely quiet moment first: several minutes with no keyboard 
+or mouse activity anywhere, no Quick Paste window on screen, and nothing being saved — so an update 
+never interrupts what you are doing. If no such moment comes, it installs the next time the application 
+starts. When the application was running only in the tray, it returns to the tray afterwards rather than 
+opening its window.
+
+The setting is off by default; with it off you are always asked before anything is installed. If an 
+update repeatedly fails to install, automatic attempts stop and you are asked to handle it yourself, 
+rather than the same update being retried indefinitely.
+
+From version 1.2 onward the application downloads a smaller **delta** update — only the files that 
+changed — instead of the full installer, when one applies to the version you are running. A release 
+carries a delta for every earlier version in the same series: updating to 1.3.9 works from any 1.3 
+version, and the first release of a new series (1.4.0) can be reached from any 1.3 version. Older 
+jumps, and releases without a matching delta, use the full installer. The process is the same either 
+way, and the full installer is always available on the Releases page.
+
+### For administrators
+
+Update behavior can be locked down centrally (a registry policy the app only reads), the Setup
+executable accepts command-line options for silent/scripted deployment, and a separate cleanup
+utility can force-remove an installation. These topics are covered in the **Administrator &
+Deployment Guide** (`TextTemplateManager-AdminManual.pdf`), attached to each release on the
+[Releases page](https://github.com/halatsWol/TextTemplateManager/releases).
+
+---
+
+## Keyboard reference
+
+| Context | Input | Action |
+| --- | --- | --- |
+| Main window | **Ctrl + F** | Focus the search box. |
+| Main window (Tree) | **Delete** | Delete the selected item (with confirmation). |
+| Main window (Tree) | **Ctrl + C** | Copy the selected template in its default paste mode. |
+| Main window (search box) | **↓** | Move the text cursor to the end; **↓** again at the end steps into the tree. |
+| Main window (search box) | **Esc** | Clear the search text; when it is already empty, clear the tree selection. |
+| Main window (Tree) | **Esc** | Return to the search box (the search text is kept). |
+| Quick Paste | *key* | Paste by single-key shortcut (search box empty). |
+| Quick Paste | **Ctrl + F** | Focus the search box. |
+| Quick Paste (list) | **↑ / ↓** | Move the highlight through the current shortcut list (wraps at both ends). |
+| Quick Paste (list) | **Enter** | Paste the highlighted shortcut. |
+| Quick Paste (search box) | **↑ / ↓** | Move the text cursor to the start / end; **↓** again at the end steps into the tree. |
+| Quick Paste (tree) | **↓** (at end of search) or **Tab** | Move focus into the template tree. |
+| Quick Paste | **Alt** + *keys* | Paste by multi-key shortcut; release **Alt** to insert the highlighted match. |
+| Quick Paste | **Alt** + *keys* + **_**| Paste by multi-key shortcut as Plain Text; release **Alt** to insert. |
+| Quick Paste | **Alt** + **Backspace** | Correct the current multi-key entry. |
+| Quick Paste | **Esc** | Close the Quick Paste window. |
+
+Additional actions are available from the right-click menu, including **Duplicate**, **Copy**,
+and **Copy As** for templates, **Export** for folders, and **Move to Root** for nested items.
+
+---
+
+## Data and file locations
+
+Application data is stored per user under:
+
+`%LocalAppData%\Marflow Software\TextTemplateManager`
+
+This folder contains your template data, application settings, and synchronization configuration.
+Downloaded update installers are staged in an `installer` subfolder. Shared synchronization files 
+are stored wherever you place them, and are not kept in this folder.
+
+Changes are saved automatically. Exiting from **File ▸ Exit** or the tray icon, and signing out of or shutting down Windows, first save anything still pending; if a synced file is slow to respond, a "Saving changes…" message appears until it is done.
+
+If one of these files can't be read at startup (for example after a crash during a save), the app keeps it as `<file>.broken-<date-time>` in this folder, tells you which file was affected, and starts without it. The original is never overwritten.
+
+---
+
+## Support
+
+For questions, permission requests, or to report an issue, contact 
+`contact@kmarflow.com`, or visit the project on GitHub via **Help ▸ Go to GitHub**.

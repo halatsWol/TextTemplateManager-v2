@@ -1,0 +1,144 @@
+<Page
+    x:Class="TextTemplateManager.GeneralSettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:common="using:TextTemplateManager.Common">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalScrollMode="Auto">
+    <StackPanel Spacing="25" Padding="20">
+        <TextBlock Text="General Settings" Style="{StaticResource TitleTextBlockStyle}"/>
+
+        <StackPanel Spacing="10">
+            <TextBlock Text="Quick Paste" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="Global shortcut"/>
+                <TextBlock Text="Opens the Quick Paste window from anywhere." Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <Grid ColumnSpacing="10" HorizontalAlignment="Left">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="HotkeyTextBox"
+                             IsReadOnly="True"
+                             PlaceholderText="Click to set shortcut..."
+                             GotFocus="HotkeyTextBox_GotFocus"
+                             LostFocus="HotkeyTextBox_LostFocus"
+                             KeyDown="HotkeyTextBox_KeyDown"
+                             KeyUp="HotkeyTextBox_KeyUp"/>
+                    <Button Grid.Column="1" Content="Clear" Click="ClearHotkey_Click"/>
+                </Grid>
+                <InfoBar x:Name="HotkeyUnavailableInfo"
+                         Severity="Warning"
+                         IsClosable="False"
+                         IsOpen="False"
+                         Message="Another app already uses this shortcut, so it won't open Quick Paste. Choose a different one."/>
+            </StackPanel>
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="Default paste mode"/>
+                <TextBlock Text="Used for newly created templates." Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <ComboBox x:Name="PasteModeCombo"
+                          MinWidth="200"
+                          SelectedItem="{x:Bind ViewModel.DefaultPasteMode, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource PasteModeLabelConverter}}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </StackPanel>
+        </StackPanel>
+
+        <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
+
+        <StackPanel Spacing="8">
+            <TextBlock Text="Startup" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <StackPanel Spacing="2">
+                <ToggleSwitch x:Name="StartupToggle"
+                              Header="Run at Windows login"
+                              Toggled="RunAtStartup_Toggled"/>
+                <ToggleSwitch x:Name="StartHiddenToggle"
+                              Header="Start hidden in the system tray"
+                              Margin="24,0,0,0"
+                              Toggled="StartHidden_Toggled"/>
+                <TextBlock Text="Starts in the tray instead of opening the window. The hotkey and tray icon still work."
+                           TextWrapping="Wrap"
+                           Margin="24,0,0,0"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
+        </StackPanel>
+
+        <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
+
+        <StackPanel Spacing="10">
+            <TextBlock Text="Updates" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+
+            <StackPanel Spacing="2">
+                <ToggleSwitch x:Name="AutoUpdateToggle"
+                              Header="Automatically check for updates"
+                              Toggled="AutoUpdate_Toggled"/>
+                <TextBlock Text="Downloads a found update in the background. Off = you're only told one is available."
+                           TextWrapping="Wrap"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
+
+            <StackPanel Spacing="2">
+                <ToggleSwitch x:Name="AutoInstallToggle"
+                              Header="Install updates automatically"
+                              Toggled="AutoInstall_Toggled"/>
+                <TextBlock Text="Installs when the app isn't in use. Off = you confirm each install."
+                           TextWrapping="Wrap"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
+
+            <StackPanel Spacing="2">
+                <ToggleSwitch x:Name="BetaToggle"
+                              Header="Allow beta updates"
+                              Toggled="Beta_Toggled"/>
+                <TextBlock Text="Also offers pre-release versions. Off = stable releases only."
+                           TextWrapping="Wrap"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
+
+            <StackPanel Spacing="2">
+                <ToggleSwitch x:Name="NotificationsToggle"
+                              Header="Show update notifications"
+                              Toggled="Notifications_Toggled"/>
+                <TextBlock Text="Uses a Windows notification when an update needs attention while the app is in the tray. Off = shown inside the app only."
+                           TextWrapping="Wrap"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
+
+            <!-- Shown only when an enterprise policy (registry) restricts updates. -->
+            <TextBlock x:Name="UpdatePolicyNote"
+                       Visibility="Collapsed"
+                       TextWrapping="Wrap"
+                       Style="{StaticResource CaptionTextBlockStyle}"
+                       Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+        </StackPanel>
+
+        <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
+
+        <StackPanel Spacing="10">
+            <TextBlock Text="Other" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+
+            <StackPanel Spacing="2">
+                <ToggleSwitch x:Name="HideCrossAreaWarningsToggle"
+                              Header="Hide cross-area shortcut warnings"
+                              IsOn="{x:Bind ViewModel.HideCrossAreaShortcutWarnings, Mode=TwoWay}"
+                              Toggled="HideCrossAreaWarnings_Toggled"/>
+                <TextBlock Text="Hides the notice when a shortcut is reused across areas (local + sync, or between sync folders). Same-area duplicates are always shown."
+                           TextWrapping="Wrap"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
+        </StackPanel>
+    </StackPanel>
+    </ScrollViewer>
+</Page>
