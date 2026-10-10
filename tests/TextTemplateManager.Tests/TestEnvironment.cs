@@ -8,7 +8,7 @@ namespace TextTemplateManager.Tests;
 ///
 /// This is not optional hygiene: StorageService resolves its root in a static field initializer, so the
 /// very first access freezes it for the process. Without this running first, tests would read and delete
-/// the user's real templates, settings and staged update installers under
+/// the user's real templates and settings under
 /// %LocalAppData%\Marflow Software\TextTemplateManager.
 ///
 /// [ModuleInitializer] is what guarantees the ordering — it runs when the test assembly loads, ahead of

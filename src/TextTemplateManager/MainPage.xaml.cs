@@ -26,7 +26,7 @@ using Windows.UI.Core;
 
 namespace TextTemplateManager
 {
-    public sealed partial class MainPage : Page, IUpdateHost
+    public sealed partial class MainPage : Page
     {
         public MainViewModel ViewModel { get; }
         private Timer _saveTimer;
@@ -37,16 +37,7 @@ namespace TextTemplateManager
         private string? _dismissedNotesSignature;   // cross-area note set the user dismissed (null = none)
         private string _currentNotesSignature = "";
 
-        // Auto-update. The state machine itself is UpdateCoordinator (no WinUI, so it is testable);
-        // this class supplies it with the window, dialogs and notifications via IUpdateHost.
-        private readonly UpdateService _updater = new();
-        private UpdateCoordinator? _updates;
-        private Microsoft.UI.Dispatching.DispatcherQueueTimer? _updateTimer;
-        private Microsoft.UI.Dispatching.DispatcherQueueTimer? _idleTimer;
         private bool _dialogOpen;                // only one ContentDialog may be open at a time
-        private UpdateNotifier? _notifier;
-
-        private const int IdlePollSeconds = 60;
 
 
 
@@ -142,41 +133,6 @@ namespace TextTemplateManager
                 ViewModel.ValidateAllShortcuts();
                 ShowShortcutConflicts();
             });
-
-            StartUpdateChecks();
-        }
-
-        // Check for updates on startup and every 10 minutes.
-        private void StartUpdateChecks()
-        {
-            _notifier = new UpdateNotifier(DispatcherQueue, OnNotificationAction);
-            _notifier.Register();
-
-            _updates = new UpdateCoordinator(this) { LaunchedHidden = App.IsHiddenLaunch() };
-
-            // An install a previous session armed but never got to runs now — at launch, before any work
-            // is in flight. Enqueued so it leaves the constructor's stack before shutting the app down
-            // again; the rest is still armed below, since a failed launch must keep checking as usual.
-            DispatcherQueue.TryEnqueue(() => _ = _updates.ResumeDeferredInstallAsync());
-
-            _idleTimer = DispatcherQueue.CreateTimer();
-            _idleTimer.Interval = TimeSpan.FromSeconds(IdlePollSeconds);
-            _idleTimer.Tick += (s, e) => { if (!_updates.Busy) _ = _updates.TryAutoInstallAsync(); };
-            _idleTimer.Start();
-
-            DataNode.Instance.CurrentSettings.PropertyChanged += Settings_UpdatePrefsChanged;
-
-            _updateTimer = DispatcherQueue.CreateTimer();
-            _updateTimer.Interval = TimeSpan.FromMinutes(10);
-            _updateTimer.Tick += (s, e) => _ = _updates.RunCheckAsync(UpdateTrigger.Auto);
-            _updateTimer.Start();
-            _ = _updates.RunCheckAsync(UpdateTrigger.Auto);
-        }
-
-        /// <summary>Called on exit — release the notification registration the unpackaged app created.</summary>
-        public void ShutdownUpdates()
-        {
-            try { _notifier?.Unregister(); } catch { }
         }
 
         private void Template_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -908,8 +864,8 @@ namespace TextTemplateManager
         }
 
         /// <summary>The single place a ContentDialog is opened. Only one may be open at a time — a second
-        /// ShowAsync throws — and update prompts now surface on their own schedule, so they could otherwise
-        /// collide with whatever dialog the user already had open. Returns None when it can't be shown.</summary>
+        /// ShowAsync throws — and notices like the error prompt surface on their own schedule, so they could
+        /// otherwise collide with whatever dialog the user already had open. Returns None when it can't be shown.</summary>
         private async Task<ContentDialogResult> ShowDialogAsync(ContentDialog dialog)
         {
             if (this.XamlRoot == null || _dialogOpen) return ContentDialogResult.None;
@@ -922,212 +878,6 @@ namespace TextTemplateManager
             catch { return ContentDialogResult.None; }
             finally { _dialogOpen = false; }
         }
-
-        // ---- Auto-update ----
-        //
-        // The decisions live in UpdateCoordinator, which is free of WinUI so it can be tested. This class
-        // is the adapter that lends it a window, dialogs, notifications and the Win32 probes.
-
-        private async void CheckForUpdates_Click(object sender, RoutedEventArgs e) =>
-            await _updates!.RunCheckAsync(UpdateTrigger.User);
-
-        private async void UpdateButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (_updates is { ReadyInstallerPath: string path, ReadyVersionLabel: string label })
-                await _updates.PromptAndInstallAsync(label, path, _updates.AutoInstallBlocked);
-        }
-
-        // "Update available" (shown only when auto-download is off): download now, then offer to install.
-        private async void UpdateAvailableButton_Click(object sender, RoutedEventArgs e) =>
-            await _updates!.RunCheckAsync(UpdateTrigger.User);
-
-        private void Settings_UpdatePrefsChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(AppSettings.AutoInstallUpdates))
-                _ = _updates!.OnAutoInstallSettingChangedAsync();
-        }
-
-        // A toast button came back while the app is running.
-        private void OnNotificationAction(string action) => _ = _updates!.OnNotificationActionAsync(action);
-
-        // Is the main window actually the foreground, visible window right now? (A hidden/tray window is not.)
-        private static bool ForegroundNow()
-        {
-            try
-            {
-                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
-                return WindowHelper.IsWindowVisible(hwnd) && WindowHelper.GetForegroundWindow() == hwnd;
-            }
-            catch { return false; }
-        }
-
-        // Is the window on screen at all? Decides whether a dialog would actually be seen — showing one on a
-        // window hidden in the tray leaves the user staring at nothing while the app waits for an answer.
-        private static bool WindowVisible()
-        {
-            try { return WindowHelper.IsWindowVisible(WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow)); }
-            catch { return false; }
-        }
-
-        // Reflect the update state in the top-right strip and the "Check for Updates" menu dot.
-        private void SetUpdateStatus(UpdateStatusKind kind, string busyText)
-        {
-            UpdateBusyIndicator.Visibility = kind == UpdateStatusKind.Downloading ? Visibility.Visible : Visibility.Collapsed;
-            if (kind == UpdateStatusKind.Downloading) UpdateBusyText.Text = busyText;
-            UpdateAvailableButton.Visibility = kind == UpdateStatusKind.Available ? Visibility.Visible : Visibility.Collapsed;
-            UpdateButton.Visibility = kind == UpdateStatusKind.Ready ? Visibility.Visible : Visibility.Collapsed;
-
-            // Keep the standard refresh glyph and mark it when an update is waiting. MenuFlyoutItem.Icon
-            // takes a single IconElement, so a badge dot cannot simply be layered on top of the glyph —
-            // the whole thing is drawn as one geometry instead (see UpdateMenuIcon).
-            bool known = kind is UpdateStatusKind.Available or UpdateStatusKind.Ready;
-            CheckForUpdatesMenuItem.Icon = UpdateMenuIcon(known);
-        }
-
-        private static readonly Windows.UI.Color UpdateAccentColor =
-            Windows.UI.Color.FromArgb(0xFF, 0xC8, 0xA0, 0x00);
-
-        /// <summary>Icon for "Check for Updates": the stock refresh symbol normally, and — when an update
-        /// is waiting — a refresh ring in the ordinary icon colour with a small accent dot in its
-        /// top-right corner.
-        ///
-        /// Rendered from SVG because the badged version needs two colours, and every IconElement paints
-        /// with a single Foreground; MenuFlyoutItem.Icon likewise takes one element, so there is no
-        /// container to layer a badge into. The ring colour is resolved from the theme at build time.</summary>
-        private static IconElement UpdateMenuIcon(bool updateWaiting)
-        {
-            if (!updateWaiting) return new SymbolIcon(Symbol.Refresh);
-
-            var ink = ThemeBrush("TextFillColorPrimaryBrush", Microsoft.UI.Colors.Black) is SolidColorBrush b
-                ? b.Color
-                : Microsoft.UI.Colors.Black;
-
-            // 16x16 box, ring centred (7,9): the outer arc runs from 12 o'clock anticlockwise round to
-            // 3 o'clock and back along the inner radius, leaving the top-right free for the badge.
-            string svg =
-                "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'>" +
-                $"<path d='M 7 4 A 5 5 0 1 0 12 9 L 10.4 9 A 3.4 3.4 0 1 1 7 5.6 Z' fill='{Hex(ink)}'/>" +
-                $"<path d='M 5.6 2.2 L 5.6 6.4 L 9.2 4.3 Z' fill='{Hex(ink)}'/>" +
-                $"<circle cx='13' cy='3' r='2.3' fill='{Hex(UpdateAccentColor)}'/>" +
-                "</svg>";
-
-            var source = new Microsoft.UI.Xaml.Media.Imaging.SvgImageSource();
-            _ = LoadSvgAsync(source, svg);
-            return new ImageIcon { Source = source, Width = 16, Height = 16 };
-        }
-
-        private static string Hex(Windows.UI.Color c) => $"#{c.R:X2}{c.G:X2}{c.B:X2}";
-
-        private static async Task LoadSvgAsync(Microsoft.UI.Xaml.Media.Imaging.SvgImageSource target, string svg)
-        {
-            try
-            {
-                using var stream = new Windows.Storage.Streams.InMemoryRandomAccessStream();
-                var writer = new Windows.Storage.Streams.DataWriter(stream.GetOutputStreamAt(0));
-                writer.WriteString(svg);
-                await writer.StoreAsync();
-                await writer.FlushAsync();
-                writer.DetachStream();
-                stream.Seek(0);
-                await target.SetSourceAsync(stream);
-            }
-            catch { /* the icon is cosmetic — never break the menu over it */ }
-        }
-
-        // ---- IUpdateHost: everything the coordinator needs from the running app ----
-
-        bool IUpdateHost.UpdatesAllowed => UpdatePolicy.UpdatesAllowed;
-        bool IUpdateHost.BetaAllowed => UpdatePolicy.BetaAllowed;
-        bool IUpdateHost.AutoCheckUpdates => DataNode.Instance.CurrentSettings.AutoCheckUpdates;
-        bool IUpdateHost.AutoInstallUpdates => DataNode.Instance.CurrentSettings.AutoInstallUpdates;
-        bool IUpdateHost.AllowBetaUpdates => DataNode.Instance.CurrentSettings.AllowBetaUpdates;
-
-        Task<UpdateService.UpdateInfo?> IUpdateHost.CheckAsync(bool allowBeta) => _updater.CheckAsync(allowBeta);
-        Task<string?> IUpdateHost.EnsureDownloadedAsync(UpdateService.UpdateInfo info) => _updater.EnsureDownloadedAsync(info);
-
-        string IUpdateHost.InstallerDir => StorageService.GetInstallerDir();
-        string IUpdateHost.InstalledVersion => UpdateService.InstalledVersionString();
-        string IUpdateHost.AppVersion => AppVersion();
-
-        void IUpdateHost.CleanInstallerDir(string? keep) =>
-            UpdateService.CleanInstallerDir(StorageService.GetInstallerDir(), keep);
-
-        bool IUpdateHost.HasUsableInstaller(string path)
-        {
-            try { return System.IO.File.Exists(path) && new System.IO.FileInfo(path).Length > 0; }
-            catch { return false; }
-        }
-
-        bool IUpdateHost.WindowVisible => WindowVisible();
-        bool IUpdateHost.WindowForeground => ForegroundNow();
-        bool IUpdateHost.PasteWindowVisible => (Application.Current as App)?.PasteWindowVisible == true;
-        uint IUpdateHost.IdleSeconds => WindowHelper.GetIdleSeconds();
-        bool IUpdateHost.WritesQuiet => StorageService.WritesQuiet();
-
-        void IUpdateHost.SetStatus(UpdateStatusKind kind, string busyText) =>
-            SetUpdateStatus(kind, string.IsNullOrEmpty(busyText) ? "Downloading update…" : busyText);
-
-        void IUpdateHost.SetBusy(bool busy) => UpdateAvailableButton.IsEnabled = !busy;
-
-        void IUpdateHost.FlashTaskbar() =>
-            WindowHelper.FlashTaskbar(WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow));
-
-        // The effective answer to "may I show an update notification?" — a future parent
-        // "show notifications" switch folds in here, leaving the coordinator unchanged.
-        bool IUpdateHost.NotificationsEnabled => DataNode.Instance.CurrentSettings.ShowUpdateNotifications;
-        bool IUpdateHost.NotificationsAvailable => _notifier?.IsAvailable == true;
-
-        void IUpdateHost.ShowToast(UpdateNote note, string versionLabel)
-        {
-            switch (note)
-            {
-                case UpdateNote.DownloadAvailable: _notifier?.ShowDownloadAvailable(versionLabel); break;
-                case UpdateNote.InstallReady: _notifier?.ShowInstallReady(versionLabel); break;
-                case UpdateNote.AutoInstallFailed: _notifier?.ShowAutoInstallFailed(versionLabel); break;
-            }
-        }
-
-        void IUpdateHost.ShowInstallingToast(string versionLabel) => _notifier?.ShowInstalling(versionLabel);
-
-        void IUpdateHost.ShowTrayBalloon(string title, string message) =>
-            (Application.Current as App)?.ShowTrayBalloon(title, message);
-
-        Task IUpdateHost.ClearNotificationsAsync() => _notifier?.ClearAsync() ?? Task.CompletedTask;
-
-        void IUpdateHost.SurfaceMainWindow() => App.SurfaceMainWindow();
-
-        async Task<bool> IUpdateHost.PromptInstallAsync(string versionLabel, bool autoFailed)
-        {
-            var dialog = new ContentDialog
-            {
-                Title = autoFailed ? "Update needs your attention" : "Update available",
-                Content = autoFailed
-                    ? $"Version {versionLabel} couldn't be installed automatically. Install it now, or download it yourself from GitHub."
-                    : $"Version {versionLabel} is ready to install. The app will close, update, and reopen.",
-                PrimaryButtonText = "Install now",
-                CloseButtonText = "Later",
-                DefaultButton = ContentDialogButton.Primary,
-            };
-            return await ShowDialogAsync(dialog) == ContentDialogResult.Primary;
-        }
-
-        Task IUpdateHost.ShowMessageAsync(string title, string message) => ShowMessageAsync(title, message);
-
-        // Persist first, then hand off to the silent installer and exit so files aren't locked.
-        Task IUpdateHost.PersistPendingWorkAsync() =>
-            (Application.Current as App)?.PersistPendingAsync() ?? Task.CompletedTask;
-
-        async Task IUpdateHost.DrainWritesAsync()
-        {
-            // Capped — a source that is permanently stuck must not block the update forever.
-            for (int i = 0; i < 25 && StorageService.WritesInFlight; i++)
-                await Task.Delay(100);
-        }
-
-        bool IUpdateHost.LaunchInstaller(string path, bool relaunchHidden) =>
-            UpdateService.LaunchInstaller(path, relaunchHidden);
-
-        void IUpdateHost.Shutdown() => (Application.Current as App)?.Shutdown();
 
         private async void Exit_Click(object sender, RoutedEventArgs e)
         {

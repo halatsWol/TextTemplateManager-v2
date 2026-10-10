@@ -158,26 +158,8 @@ namespace TextTemplateManager
             });
         }
 
-        /// <summary>True while the Quick Paste window is on screen. It is kept warm but hidden between
-        /// uses, so this is "the user is mid-paste" — never a moment to close the app for an update.</summary>
-        public bool PasteWindowVisible
-        {
-            get
-            {
-                try
-                {
-                    return _pasteWindow != null
-                        && WindowHelper.IsWindowVisible(WindowNative.GetWindowHandle(_pasteWindow));
-                }
-                catch { return false; }
-            }
-        }
-
-        /// <summary>Tray balloon — the fallback channel when toast notifications aren't registered.</summary>
+        /// <summary>A notice from the tray icon, for when the app started hidden and has no window to show it in.</summary>
         public void ShowTrayBalloon(string title, string message) => _trayService?.ShowBalloon(title, message);
-
-        /// <summary>Bring the main window up from the tray (e.g. the user pressed a toast's "Open app").</summary>
-        public static void SurfaceMainWindow() => ShowMainWindow();
 
         // Restore + foreground the main window (it may be hidden in the tray). Mirrors the tray's Open.
         private static void ShowMainWindow()
@@ -370,8 +352,6 @@ namespace TextTemplateManager
         public void Shutdown()
         {
             _isClosingFromTray = true;
-            // Unpackaged toast registration is process-wide COM state; release it before the hard exit.
-            try { (MainWindow?.Content as MainPage)?.ShutdownUpdates(); } catch { }
             try { _connector?.Stop(); } catch { }
             try { _singleInstance?.Dispose(); } catch { }
             try { _trayService?.Dispose(); } catch { }

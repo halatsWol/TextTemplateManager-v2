@@ -6,7 +6,7 @@ namespace TextTemplateManager.Tests;
 
 /// <summary>Persistence behaviour that other features quietly depend on: the skip-if-unchanged rule that
 /// keeps cloud-synced files from churning into conflict copies, the per-path write lock, and the
-/// write-activity signals the unattended updater uses to decide it is safe to end the process.</summary>
+/// write-activity signals that tell when the files are safe to copy or the process safe to end.</summary>
 [Collection(StorageCollection.Name)]
 public class StorageServiceTests
 {
@@ -137,6 +137,23 @@ public class StorageServiceTests
         Assert.Equal(new AppSettings().PasteWindowHotkey, settings.PasteWindowHotkey);
         var report = Assert.Single(StorageService.TakeUnreadableFiles());
         Assert.Equal("{ \"PasteWindowHotkey\": ", await File.ReadAllTextAsync(report.KeptAs!));
+    }
+
+    [Fact]
+    public async Task Settings_with_removed_update_fields_still_load()
+    {
+        // Settings written by a build that still had the in-app updater.
+        string path = StorageService.GetSettingsPath();
+        await File.WriteAllTextAsync(path,
+            "{ \"AutoCheckUpdates\": false, \"AutoInstallUpdates\": true, \"ShowUpdateNotifications\": false, " +
+            "\"AllowBetaUpdates\": true, \"PasteWindowHotkey\": \"Ctrl+Alt+Q\" }");
+        StorageService.TakeUnreadableFiles();
+
+        var settings = await StorageService.LoadSettingsAsync();
+
+        Assert.Equal("Ctrl+Alt+Q", settings.PasteWindowHotkey);
+        Assert.Empty(StorageService.TakeUnreadableFiles());
+        Assert.True(File.Exists(path));
     }
 
     // ---- the anti-churn rule ----
@@ -278,7 +295,7 @@ public class StorageServiceTests
         Assert.NotNull(await StorageService.LoadRootAsync(path));
     }
 
-    // ---- write-activity signals used by the unattended updater ----
+    // ---- write-activity signals ----
 
     [Fact]
     public async Task No_writes_means_quiet_and_nothing_in_flight()

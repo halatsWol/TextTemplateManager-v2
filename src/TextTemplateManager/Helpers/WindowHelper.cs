@@ -34,30 +34,6 @@ namespace TextTemplateManager.Helpers
         [DllImport("user32.dll")]
         public static extern uint GetDpiForWindow(IntPtr hWnd);
 
-        [StructLayout(LayoutKind.Sequential)]
-        private struct LASTINPUTINFO
-        {
-            public uint cbSize;
-            public uint dwTime;
-        }
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
-
-        [DllImport("kernel32.dll")]
-        private static extern uint GetTickCount();
-
-        /// <summary>Seconds since the last keyboard/mouse input anywhere in this session (0 if unavailable).
-        /// Both values are 32-bit tick counts, so the unchecked subtraction stays correct across the
-        /// ~49-day wrap that a plain comparison would get wrong.</summary>
-        public static uint GetIdleSeconds()
-        {
-            var lii = new LASTINPUTINFO { cbSize = (uint)Marshal.SizeOf<LASTINPUTINFO>() };
-            if (!GetLastInputInfo(ref lii)) return 0;
-            return unchecked(GetTickCount() - lii.dwTime) / 1000u;
-        }
-
         [DllImport("user32.dll")]
         public static extern IntPtr SetActiveWindow(IntPtr hWnd);
 
@@ -313,38 +289,6 @@ namespace TextTemplateManager.Helpers
             bool result = SetForegroundWindow(hWnd);
             SetActiveWindow(hWnd);
             return result;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct FLASHWINFO
-        {
-            public uint cbSize;
-            public IntPtr hwnd;
-            public uint dwFlags;
-            public uint uCount;
-            public uint dwTimeout;
-        }
-
-        [DllImport("user32.dll")]
-        private static extern bool FlashWindowEx(ref FLASHWINFO pwfi);
-
-        private const uint FLASHW_TRAY = 0x2;          // flash the taskbar button
-        private const uint FLASHW_TIMERNOFG = 0xC;     // keep flashing until the window is brought to the front
-
-        /// <summary>Flash the window's taskbar button until the user brings it to the foreground.
-        /// No-op if the window is already foreground.</summary>
-        public static void FlashTaskbar(IntPtr hWnd)
-        {
-            if (hWnd == IntPtr.Zero) return;
-            var fw = new FLASHWINFO
-            {
-                cbSize = (uint)Marshal.SizeOf<FLASHWINFO>(),
-                hwnd = hWnd,
-                dwFlags = FLASHW_TRAY | FLASHW_TIMERNOFG,
-                uCount = uint.MaxValue,
-                dwTimeout = 0,
-            };
-            FlashWindowEx(ref fw);
         }
     }
 }

@@ -21,7 +21,7 @@ public static class StorageService
         "TextTemplateManager");
 
     /// <summary>Env var that redirects the whole data root. Set by the test suite so tests can never
-    /// touch real templates, settings or staged installers; unset everywhere else.</summary>
+    /// touch real templates or settings; unset everywhere else.</summary>
     public const string DataDirOverrideVariable = "TTM_DATA_DIR";
 
     private static readonly string BaseDirectory = ResolveBaseDirectory();
@@ -66,9 +66,9 @@ public static class StorageService
     /// below, so this covers sync files, templates and settings alike.</summary>
     public static bool WritesInFlight => Volatile.Read(ref _writesInFlight) > 0;
 
-    /// <summary>True when nothing has been written for <paramref name="quietMs"/>. The auto-update path
-    /// requires this before it ends the process: a sync write interrupted partway is exactly how a file
-    /// ends up truncated or duplicated as a cloud conflict copy. A single idle instant isn't enough —
+    /// <summary>True when nothing has been written for <paramref name="quietMs"/>. Anything that copies the
+    /// files (a backup) waits for this: a sync write caught partway is exactly how a copy ends up truncated
+    /// or as a cloud conflict copy. A single idle instant isn't enough —
     /// the sync poll writes without any user input, so the quiet period is what makes it meaningful.</summary>
     public static bool WritesQuiet(int quietMs = 2000) =>
         !WritesInFlight && Environment.TickCount64 - Interlocked.Read(ref _lastWriteTicks) >= quietMs;
@@ -182,9 +182,6 @@ public static class StorageService
     public static string GetDataPath() => Path.Combine(BaseDirectory, DataFileName);
     public static string GetSettingsPath() => Path.Combine(BaseDirectory, SettingsFileName);
     public static string GetSyncSettingsPath() => Path.Combine(BaseDirectory, SyncSettingsFileName);
-
-    /// <summary>Folder where downloaded update installers are staged.</summary>
-    public static string GetInstallerDir() => Path.Combine(BaseDirectory, "installer");
 
     /// <summary>Append-only log for otherwise-fatal unhandled exceptions.</summary>
     public static string GetCrashLogPath() => Path.Combine(BaseDirectory, "crash.log");

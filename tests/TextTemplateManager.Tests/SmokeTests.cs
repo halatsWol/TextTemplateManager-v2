@@ -1,4 +1,6 @@
+using TextTemplateManager.Common;
 using TextTemplateManager.Data;
+using TextTemplateManager.Services.Pasting;
 using Xunit;
 
 namespace TextTemplateManager.Tests;
@@ -14,13 +16,13 @@ public class SmokeTests
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Marflow Software", "TextTemplateManager");
 
-        Assert.StartsWith(TestEnvironment.DataRoot, StorageService.GetInstallerDir(), StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain(real, StorageService.GetInstallerDir(), StringComparison.OrdinalIgnoreCase);
+        Assert.StartsWith(TestEnvironment.DataRoot, StorageService.GetDataPath(), StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(real, StorageService.GetDataPath(), StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
     public void App_assembly_non_ui_types_load()
     {
-        Assert.NotNull(Services.Platform.UpdateService.ParseRelease("v1.0.0", ghPrerelease: false));
+        Assert.Equal("hello", PasteService.RenderForMode("<p>hello</p>", PasteMode.Plaintext).content.Trim());
     }
 }

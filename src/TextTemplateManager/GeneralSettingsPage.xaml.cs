@@ -30,76 +30,7 @@ public sealed partial class GeneralSettingsPage : Page
         HotkeyTextBox.Text = FormatHotkey(ViewModel?.PasteWindowHotkey);
         HotkeyUnavailableInfo.IsOpen = Application.Current is App { HotkeyRegistered: false };
         InitStartupUi();
-        InitUpdatePolicyUi();
         base.OnNavigatedTo(e);
-    }
-
-    // Grays out the update toggles per enterprise policy without mutating the stored settings
-    // (the check itself is also gated in RunUpdateCheckAsync).
-    private bool _updatePolicyLoading;
-
-    private void InitUpdatePolicyUi()
-    {
-        if (ViewModel == null) return;
-        _updatePolicyLoading = true;
-
-        var policy = UpdatePolicy.Current;
-        bool updatesAllowed = policy != UpdatePolicyLevel.NoUpdate;
-        bool betaAllowed = policy == UpdatePolicyLevel.AllowAll;
-
-        AutoUpdateToggle.IsOn = updatesAllowed && ViewModel.AutoCheckUpdates;
-        AutoUpdateToggle.IsEnabled = updatesAllowed;
-
-        // Auto-install only matters while updates are allowed and auto-check (auto-download) is on.
-        AutoInstallToggle.IsOn = ViewModel.AutoInstallUpdates;
-        AutoInstallToggle.IsEnabled = updatesAllowed && AutoUpdateToggle.IsOn;
-
-        // Deliberately never disabled by policy: it only controls how update prompts are shown.
-        NotificationsToggle.IsOn = ViewModel.ShowUpdateNotifications;
-
-        BetaToggle.IsOn = betaAllowed && ViewModel.AllowBetaUpdates;
-        BetaToggle.IsEnabled = betaAllowed && AutoUpdateToggle.IsOn;
-
-        UpdatePolicyNote.Text = policy switch
-        {
-            UpdatePolicyLevel.NoUpdate => "Updates are disabled by your organization.",
-            UpdatePolicyLevel.NoBeta => "Beta updates are disabled by your organization.",
-            _ => "",
-        };
-        UpdatePolicyNote.Visibility = policy == UpdatePolicyLevel.AllowAll ? Visibility.Collapsed : Visibility.Visible;
-
-        _updatePolicyLoading = false;
-    }
-
-    private void AutoUpdate_Toggled(object sender, RoutedEventArgs e)
-    {
-        if (_updatePolicyLoading || ViewModel == null) return;
-        ViewModel.AutoCheckUpdates = AutoUpdateToggle.IsOn;
-        // Auto-install and beta only matter while auto-update is on (and policy permits it).
-        AutoInstallToggle.IsEnabled = UpdatePolicy.UpdatesAllowed && AutoUpdateToggle.IsOn;
-        BetaToggle.IsEnabled = UpdatePolicy.BetaAllowed && AutoUpdateToggle.IsOn;
-        _ = TextTemplateManager.Data.StorageService.SaveSettingsAsync(ViewModel);
-    }
-
-    private void AutoInstall_Toggled(object sender, RoutedEventArgs e)
-    {
-        if (_updatePolicyLoading || ViewModel == null) return;
-        ViewModel.AutoInstallUpdates = AutoInstallToggle.IsOn;
-        _ = TextTemplateManager.Data.StorageService.SaveSettingsAsync(ViewModel);
-    }
-
-    private void Notifications_Toggled(object sender, RoutedEventArgs e)
-    {
-        if (_updatePolicyLoading || ViewModel == null) return;
-        ViewModel.ShowUpdateNotifications = NotificationsToggle.IsOn;
-        _ = TextTemplateManager.Data.StorageService.SaveSettingsAsync(ViewModel);
-    }
-
-    private void Beta_Toggled(object sender, RoutedEventArgs e)
-    {
-        if (_updatePolicyLoading || ViewModel == null) return;
-        ViewModel.AllowBetaUpdates = BetaToggle.IsOn;
-        _ = TextTemplateManager.Data.StorageService.SaveSettingsAsync(ViewModel);
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)

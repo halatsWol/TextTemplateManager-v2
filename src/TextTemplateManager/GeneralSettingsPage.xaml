@@ -72,58 +72,6 @@
 
         <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
 
-        <StackPanel Spacing="10">
-            <TextBlock Text="Updates" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-
-            <StackPanel Spacing="2">
-                <ToggleSwitch x:Name="AutoUpdateToggle"
-                              Header="Automatically check for updates"
-                              Toggled="AutoUpdate_Toggled"/>
-                <TextBlock Text="Downloads a found update in the background. Off = you're only told one is available."
-                           TextWrapping="Wrap"
-                           Style="{StaticResource CaptionTextBlockStyle}"
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-            </StackPanel>
-
-            <StackPanel Spacing="2">
-                <ToggleSwitch x:Name="AutoInstallToggle"
-                              Header="Install updates automatically"
-                              Toggled="AutoInstall_Toggled"/>
-                <TextBlock Text="Installs when the app isn't in use. Off = you confirm each install."
-                           TextWrapping="Wrap"
-                           Style="{StaticResource CaptionTextBlockStyle}"
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-            </StackPanel>
-
-            <StackPanel Spacing="2">
-                <ToggleSwitch x:Name="BetaToggle"
-                              Header="Allow beta updates"
-                              Toggled="Beta_Toggled"/>
-                <TextBlock Text="Also offers pre-release versions. Off = stable releases only."
-                           TextWrapping="Wrap"
-                           Style="{StaticResource CaptionTextBlockStyle}"
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-            </StackPanel>
-
-            <StackPanel Spacing="2">
-                <ToggleSwitch x:Name="NotificationsToggle"
-                              Header="Show update notifications"
-                              Toggled="Notifications_Toggled"/>
-                <TextBlock Text="Uses a Windows notification when an update needs attention while the app is in the tray. Off = shown inside the app only."
-                           TextWrapping="Wrap"
-                           Style="{StaticResource CaptionTextBlockStyle}"
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-            </StackPanel>
-
-            <!-- Shown only when an enterprise policy (registry) restricts updates. -->
-            <TextBlock x:Name="UpdatePolicyNote"
-                       Visibility="Collapsed"
-                       TextWrapping="Wrap"
-                       Style="{StaticResource CaptionTextBlockStyle}"
-                       Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
-        </StackPanel>
-
-        <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
 
         <StackPanel Spacing="10">
             <TextBlock Text="Other" Style="{StaticResource BodyStrongTextBlockStyle}"/>
