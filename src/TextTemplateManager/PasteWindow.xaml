@@ -198,7 +198,7 @@
                 </Border>
 
                 <Grid Grid.Row="1">
-                    <ListView x:Name="SingleKeyList" SelectionMode="Single" IsTabStop="False">
+                    <ListView x:Name="SingleKeyList" SelectionMode="Single" IsTabStop="False" SelectionChanged="SingleKeyList_SelectionChanged">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -229,7 +229,7 @@
                         </ListView.ItemTemplate>
                     </ListView>
 
-                    <ListView x:Name="MultiKeyList" SelectionMode="Single" IsTabStop="False" Visibility="Collapsed">
+                    <ListView x:Name="MultiKeyList" SelectionMode="Single" IsTabStop="False" Visibility="Collapsed" SelectionChanged="MultiKeyList_SelectionChanged">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>

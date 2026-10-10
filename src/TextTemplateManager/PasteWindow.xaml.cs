@@ -24,18 +24,18 @@ namespace TextTemplateManager
 {
     public sealed partial class PasteWindow : Window
     {
-        private string _multiKeyBuffer = "";
-        private bool _isAltPressed = false;
         private bool _isProcessing = false;
         private bool _closingForPaste = false;   // a paste is destroying the window (let the real close through)
         private IntPtr _inputSiteHwnd = IntPtr.Zero;   // WinUI content-input child, subclassed for the Alt-beep
         private IntPtr _hwnd = IntPtr.Zero;
 
         private readonly DataNode _store;
+        private readonly QuickPasteController _entry;
 
         public PasteWindow(DataNode store)
         {
             _store = store;
+            _entry = new QuickPasteController(store.ShortcutEntries, () => store.CurrentSyncSettings.Sources, store.ResolveSingleKey);
             this.InitializeComponent();
             _hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
 
@@ -87,11 +87,7 @@ namespace TextTemplateManager
             this.RootGrid.GotFocus += OnContentGotFocus;
         }
 
-        private void LoadInitialData()
-        {
-            UpdateAllFilters("");
-            UpdateBufferUI();
-        }
+        private void LoadInitialData() => UpdateAllFilters("");
 
         /// <summary>Reveal the window for a hotkey press. Resets per-open state, arms the Alt+Esc hook,
         /// then shows + foregrounds + focuses shortcut mode. The instance is reused (hidden between
@@ -122,17 +118,13 @@ namespace TextTemplateManager
         private void ResetForShow()
         {
             _hasExecuted = false;
-            _isAltPressed = false;
-            _multiKeyBuffer = "";
-            _savedTab = null;
+            _entry.Open();
 
             _isProcessing = true;              // don't let clearing the box re-run the filter
             SearchBox.Text = "";
             _isProcessing = false;
-            ShortcutTabs.SelectedItem = TabSingle;
 
             UpdateAllFilters("");              // unfiltered tree + cleared preview
-            UpdateBufferUI();
             RootGrid.Focus(FocusState.Programmatic);   // shortcut mode: a single key pastes immediately
         }
 
@@ -201,51 +193,38 @@ namespace TextTemplateManager
                 }
             }
 
-            if (string.IsNullOrEmpty(_multiKeyBuffer))
+            _entry.SetSearch(searchFilter);
+            Render();
+        }
+
+        private bool _rendering;
+
+        // Shows the shortcut entry's state: both lists with their highlighted row, the tab and the typed key.
+        private void Render()
+        {
+            _rendering = true;   // the list and tab events below come from here, not from the user
+            try
             {
-                RefreshMultiKeyList(searchFilter);
-                RefreshSingleKeyList(searchFilter);
+                if (!ReferenceEquals(SingleKeyList.ItemsSource, _entry.SingleRows)) SingleKeyList.ItemsSource = _entry.SingleRows;
+                if (!ReferenceEquals(MultiKeyList.ItemsSource, _entry.MultiRows)) MultiKeyList.ItemsSource = _entry.MultiRows;
+                ShowHighlight(SingleKeyList, _entry.SingleIndex);
+                ShowHighlight(MultiKeyList, _entry.MultiIndex);
+
+                bool multi = _entry.Tab == ShortcutTab.Multi;
+                ShortcutTabs.SelectedItem = multi ? TabMulti : TabSingle;
+                SingleKeyList.Visibility = multi ? Visibility.Collapsed : Visibility.Visible;
+                MultiKeyList.Visibility = multi ? Visibility.Visible : Visibility.Collapsed;
             }
+            finally { _rendering = false; }
+            UpdateBufferUI();
         }
 
-        private void RefreshMultiKeyList(string searchFilter)
+        private static void ShowHighlight(ListView list, int index)
         {
-            var rows = ShortcutRows(multiKey: true);
-            MultiKeyList.ItemsSource = string.IsNullOrWhiteSpace(searchFilter)
-                ? rows
-                : rows.Where(r => r.Title.Contains(searchFilter, StringComparison.OrdinalIgnoreCase)).ToList();
-            MultiKeyList.SelectedIndex = -1;   // armed only while a buffer is typed under ALT
+            if (list.SelectedIndex == index) return;
+            list.SelectedIndex = index;
+            if (list.SelectedItem != null) list.ScrollIntoView(list.SelectedItem);
         }
-
-        private void RefreshSingleKeyList(string searchFilter)
-        {
-            // All single-key templates, local first then sync order — duplicates across areas are shown
-            // (a direct single-key press still resolves local-first via ResolveSingleKey).
-            var rows = ShortcutRows(multiKey: false);
-            SingleKeyList.ItemsSource = string.IsNullOrWhiteSpace(searchFilter)
-                ? rows
-                : rows.Where(r => r.Title.Contains(searchFilter, StringComparison.OrdinalIgnoreCase)).ToList();
-            // Highlight the first row only in shortcut mode — while search/tree has focus the list stays
-            // unselected (SyncShortcutHighlight re-selects it when focus returns).
-            SingleKeyList.SelectedIndex = (InShortcutMode() && SingleKeyList.Items.Count > 0) ? 0 : -1;
-        }
-
-        private void UpdateMultiKeyFilter(string shortcutBuffer)
-        {
-            string cleanKey = shortcutBuffer.TrimEnd('_');
-            var rows = ShortcutRows(multiKey: true);
-            MultiKeyList.ItemsSource = string.IsNullOrEmpty(cleanKey)
-                ? rows
-                : rows.Where(r => r.Key.StartsWith(cleanKey, StringComparison.OrdinalIgnoreCase)).ToList();
-            // Highlight the top match (what Enter/release commits); reset on every keystroke. The
-            // highlight stays even with an empty buffer so Enter can still paste it — release,
-            // though, only fires when something is typed (see OnKeyUp).
-            MultiKeyList.SelectedIndex = MultiKeyList.Items.Count > 0 ? 0 : -1;
-        }
-
-        // Local first, then sync order.
-        private List<ShortcutRow> ShortcutRows(bool multiKey) =>
-            ShortcutRow.For(_store.ShortcutEntries(), _store.CurrentSyncSettings.Sources, multiKey);
         #endregion
 
         #region TreeView Helpers
@@ -297,7 +276,7 @@ namespace TextTemplateManager
                     return;
                 }
 
-                if (altIsDown || _isAltPressed) return;   // Alt+Esc handled by the low-level hook
+                if (altIsDown || _entry.AltHeld) return;   // Alt+Esc handled by the low-level hook
 
                 // Esc steps focus back toward shortcut mode before it ever closes the window:
                 // tree → search box → shortcut mode → close (so from the tree the 3rd Esc closes).
@@ -330,11 +309,9 @@ namespace TextTemplateManager
 
             if (e.Key == VirtualKey.Menu)
             {
-                _isAltPressed = true;
-                // Holding ALT shows the multi-key list; remember the tab to restore on release.
-                _savedTab ??= ShortcutTabs.SelectedItem as SelectorBarItem;
-                ShortcutTabs.SelectedItem = TabMulti;
-                MultiKeyList.SelectedIndex = MultiKeyList.Items.Count > 0 ? 0 : -1;   // Enter can commit this
+                // Holding ALT shows the multi-key list (the tab before it comes back on release).
+                _entry.AltDown();
+                Render();
                 // Pull focus off the tree so arrows/typing drive the multi-key entry, not the tree.
                 if (IsTreeFocused()) RootGrid.Focus(FocusState.Programmatic);
                 e.Handled = true;
@@ -342,7 +319,7 @@ namespace TextTemplateManager
             }
 
             // Multi-key (ALT + key) — must precede the TextBox passthrough below.
-            if (altIsDown || _isAltPressed)
+            if (altIsDown || _entry.AltHeld)
             {
                 e.Handled = true;
                 HandleMultiKeyInput(e.Key);
@@ -463,27 +440,25 @@ namespace TextTemplateManager
             {
                 if (!ReferenceEquals(focused, list))   // if the list itself is focused, its own nav handles it
                 {
-                    NavigateList(list, e.Key == VirtualKey.Down ? 1 : -1);
+                    _entry.MoveHighlight(e.Key == VirtualKey.Down ? 1 : -1);
+                    Render();
                     e.Handled = true;
                 }
                 return;
             }
             if (e.Key == VirtualKey.Enter)
             {
-                if (list.SelectedItem is ShortcutRow sel) { e.Handled = true; ExecutePaste(sel.Template, false); }
+                if (_entry.CommitHighlighted() is { } highlighted) { e.Handled = true; ExecutePaste(highlighted); }
                 return;
             }
 
             // A single-key shortcut pastes immediately in shortcut mode. (A SearchBox.Text check isn't
             // enough to gate this — the text is still empty on the FIRST keystroke into search, so that
             // first letter would be hijacked into a paste; the focus split above is what gates it.)
-            var match = TryGetCharKey(e.Key, out char keyChar)
-                ? _store.ResolveSingleKey(keyChar.ToString())
-                : null;
-            if (match != null)
+            if (TryGetCharKey(e.Key, out char keyChar) && _entry.SingleKey(keyChar) is { } match)
             {
                 e.Handled = true;
-                ExecutePaste(match, false);
+                ExecutePaste(match);
                 return;
             }
 
@@ -504,59 +479,20 @@ namespace TextTemplateManager
 
         private void HandleMultiKeyInput(VirtualKey key)
         {
-            // Arrow up/down move the highlight without changing the buffer (so typing can continue
-            // where it left off). Enter commits the highlighted row even with an empty buffer.
+            // Arrow up/down move the highlight without changing the typed key (so typing can continue
+            // where it left off). Enter commits the highlighted row even with nothing typed.
             if (key == VirtualKey.Up || key == VirtualKey.Down)
+                _entry.MoveMultiHighlight(key == VirtualKey.Down ? 1 : -1);
+            else if (key == VirtualKey.Enter)
             {
-                NavigateList(MultiKeyList, key == VirtualKey.Down ? 1 : -1);
+                if (_entry.CommitMulti(requireBuffer: false) is { } paste) ExecutePaste(paste);
                 return;
             }
-            if (key == VirtualKey.Enter) { PasteHighlightedMulti(requireBuffer: false); return; }
-
-            if (key == VirtualKey.Back)
-            {
-                if (_multiKeyBuffer.Length > 0)
-                {
-                    _multiKeyBuffer = _multiKeyBuffer.Remove(_multiKeyBuffer.Length - 1);
-                    UpdateMultiKeyFilter(_multiKeyBuffer);
-                    UpdateBufferUI();
-                }
-                return;
-            }
-
-            // '-' and '.' are shortcut/prefix separators; '_' (Shift+'-') is the trailing
-            // paste-as-plaintext modifier, allowed only at the end.
-            if (TryGetSpecialChar(key, out char special))
-            {
-                if (_multiKeyBuffer.EndsWith("_")) return; // nothing types after a plaintext modifier
-                string cand = _multiKeyBuffer + special;
-
-                if (special == '_')
-                {
-                    // Only the trailing plaintext modifier; it can't start an entry.
-                    if (_multiKeyBuffer.Length == 0) { PlayNoMatchBeep(); return; }
-                }
-                else if (!IsMultiKeyPrefix(cand)) { PlayNoMatchBeep(); return; }
-
-                _multiKeyBuffer = cand;
-                UpdateMultiKeyFilter(_multiKeyBuffer);
-                UpdateBufferUI();
-                return;
-            }
-
-            if (TryGetCharKey(key, out char c))
-            {
-                if (_multiKeyBuffer.EndsWith("_")) return;   // nothing types after the plaintext modifier
-                string candidate = _multiKeyBuffer + c;
-                if (!IsMultiKeyPrefix(candidate))
-                {
-                    PlayNoMatchBeep();   // would no longer begin any shortcut -> reject + error
-                    return;
-                }
-                _multiKeyBuffer = candidate;
-                UpdateMultiKeyFilter(_multiKeyBuffer);
-                UpdateBufferUI();
-            }
+            else if (key == VirtualKey.Back)
+                _entry.Backspace();
+            else if ((TryGetSpecialChar(key, out char c) || TryGetCharKey(key, out c)) && !_entry.TypeMulti(c))
+                PlayNoMatchBeep();   // would no longer begin any shortcut
+            Render();
         }
 
         private void OnKeyUp(object sender, KeyRoutedEventArgs e)
@@ -564,29 +500,12 @@ namespace TextTemplateManager
             if (_hasExecuted) return;   // already pasted (e.g. via Enter) — window is closing
             if (e.Key == VirtualKey.Menu)
             {
-                _isAltPressed = false;
-                // Release is armed only if something is still typed: paste the highlighted row
-                // (trailing '_' = plaintext). Typing then deleting everything leaves nothing to
-                // paste; committing an untyped highlight is done with Enter instead.
-                if (PasteHighlightedMulti(requireBuffer: true)) return;   // window closing
-
-                // Nothing pasted → restore the tab active before ALT and clear the entry.
-                if (_savedTab != null) { ShortcutTabs.SelectedItem = _savedTab; _savedTab = null; }
-                _multiKeyBuffer = "";
-                UpdateBufferUI();
-                RefreshMultiKeyList(SearchBox.Text);
+                // Release pastes the highlighted row if something is typed (trailing '_' = plaintext);
+                // otherwise the entry is cleared and the tab from before ALT comes back.
+                if (_entry.AltUp() is { } paste) { ExecutePaste(paste); return; }
+                Render();
             }
         }
-
-        // True if `prefix` begins at least one EFFECTIVE multi-key shortcut (prefix-namespaced).
-        private bool IsMultiKeyPrefix(string prefix)
-        {
-            if (string.IsNullOrEmpty(prefix)) return true;
-            return _store.AllItems.Any(t =>
-                !string.IsNullOrEmpty(t.MultiKeyShortcut) &&
-                EffectiveMulti(t).StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
-        }
-
         // Maps a letter or digit key (top row or numpad) to its lowercase character; false for any other key.
         internal static bool TryGetCharKey(VirtualKey key, out char c)
         {
@@ -612,8 +531,6 @@ namespace TextTemplateManager
             => (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Control) & CoreVirtualKeyStates.Down)
                == CoreVirtualKeyStates.Down;
 
-        // The typed multikey shortcut (sync-prefixed, e.g. "and-msg").
-        private string EffectiveMulti(Template t) => _store.GetEffectiveMultiKey(t);
 
         // Maps the '-'/'_' and '.' keys to their character (Shift+'-' = '_').
         private static bool TryGetSpecialChar(VirtualKey key, out char c)
@@ -634,7 +551,7 @@ namespace TextTemplateManager
             }
         }
 
-        private bool IsSingleTabActive() => ReferenceEquals(ShortcutTabs.SelectedItem, TabSingle);
+        private bool IsSingleTabActive() => _entry.Tab == ShortcutTab.Single;
 
         // True while focus is inside the template tree (the TreeViewItem is focused, not the TreeView).
         private bool IsTreeFocused()
@@ -665,47 +582,8 @@ namespace TextTemplateManager
 
         private void SyncShortcutHighlight()
         {
-            if (InShortcutMode())
-            {
-                var list = IsSingleTabActive() ? SingleKeyList : MultiKeyList;
-                if (list.SelectedIndex < 0 && list.Items.Count > 0) list.SelectedIndex = 0;
-                if (list.SelectedItem != null) list.ScrollIntoView(list.SelectedItem);
-            }
-            else
-            {
-                SingleKeyList.SelectedIndex = -1;
-                MultiKeyList.SelectedIndex = -1;
-            }
-        }
-
-
-        // Pastes the highlighted multi-key row (trailing '_' = plaintext). Returns true if a paste
-        // fired. requireBuffer gates the passive ALT-release commit on having typed something;
-        // Enter passes false so it commits the highlight even with an empty buffer.
-        private bool PasteHighlightedMulti(bool requireBuffer)
-        {
-            if (requireBuffer && string.IsNullOrEmpty(_multiKeyBuffer)) return false;
-            if (MultiKeyList.SelectedItem is not ShortcutRow sel) return false;
-            ExecutePaste(sel.Template, _multiKeyBuffer.EndsWith("_"));
-            return true;
-        }
-
-        private static void NavigateList(ListView list, int delta)
-        {
-            int next = NextIndex(list.SelectedIndex, delta, list.Items.Count);
-            if (next < 0) return;
-            list.SelectedIndex = next;
-            if (list.SelectedItem != null) list.ScrollIntoView(list.SelectedItem);
-        }
-
-        /// <summary>Where an arrow-key step lands, wrapping at both ends: past the last item goes back to
-        /// the first, before the first goes to the last. With nothing selected yet, Down starts at the top
-        /// and Up at the bottom. Returns -1 when there is nothing to select.</summary>
-        internal static int NextIndex(int current, int delta, int count)
-        {
-            if (count <= 0) return -1;
-            if (current < 0) return delta > 0 ? 0 : count - 1;
-            return ((current + delta) % count + count) % count;   // stays in range for a negative delta
+            _entry.SetShortcutMode(InShortcutMode());
+            Render();
         }
 
         internal enum SearchDown { MoveCaretToEnd, EnterTree }
@@ -750,6 +628,8 @@ namespace TextTemplateManager
 
         private bool _hasExecuted = false;
 
+        private void ExecutePaste(PasteRequest paste) => ExecutePaste(paste.Template, paste.PlainText);
+
         private void ExecutePaste(Template item, bool forcePlain)
             => ExecutePaste(item, forcePlain ? PasteMode.Plaintext : item.DefaultPasteMode);
 
@@ -777,15 +657,8 @@ namespace TextTemplateManager
         // state is cleared and the tab restored too, since the ALT key-up will never arrive.
         private void CancelMultiKeyEntry(bool fullReset = true)
         {
-            if (fullReset)
-            {
-                _isAltPressed = false;
-                if (_savedTab != null) { ShortcutTabs.SelectedItem = _savedTab; _savedTab = null; }
-            }
-            if (string.IsNullOrEmpty(_multiKeyBuffer)) return;
-            _multiKeyBuffer = "";
-            UpdateBufferUI();
-            RefreshMultiKeyList(SearchBox.Text);
+            _entry.CancelEntry(altReleased: fullReset);
+            Render();
         }
         #endregion
 
@@ -968,7 +841,7 @@ namespace TextTemplateManager
             Brush GetThemeBrush(string key, Windows.UI.Color fallback) =>
                 (Application.Current.Resources.TryGetValue(key, out object val) && val is Brush b) ? b : new SolidColorBrush(fallback);
 
-            if (string.IsNullOrEmpty(_multiKeyBuffer))
+            if (_entry.Buffer.Length == 0)
             {
                 BufferDisplay.Text = "---";
                 BufferDisplay.Opacity = 0.5;
@@ -976,17 +849,10 @@ namespace TextTemplateManager
             }
             else
             {
-                string displayPart = _multiKeyBuffer.TrimEnd('_').ToUpper();
-                BufferDisplay.Text = displayPart;
+                BufferDisplay.Text = _entry.BufferKey.ToUpper();
                 BufferDisplay.Opacity = 1.0;
-
-                // Compare against the EFFECTIVE (sync-prefixed) shortcut, not the raw one, so a
-                // valid prefix like "AND-MSG" isn't flagged red just because the raw shortcut is "MSG".
-                bool exists = _store.AllItems.Any(t =>
-                    !string.IsNullOrEmpty(t.MultiKeyShortcut) &&
-                    EffectiveMulti(t).StartsWith(displayPart, StringComparison.OrdinalIgnoreCase));
-                BufferDisplay.Foreground = exists ? GetThemeBrush("AccentTextFillColorPrimaryBrush", Colors.DeepSkyBlue) : new SolidColorBrush(Colors.Crimson);
-                PlaintextBadge.Visibility = _multiKeyBuffer.EndsWith("_") ? Visibility.Visible : Visibility.Collapsed;
+                BufferDisplay.Foreground = _entry.BufferMatches ? GetThemeBrush("AccentTextFillColorPrimaryBrush", Colors.DeepSkyBlue) : new SolidColorBrush(Colors.Crimson);
+                PlaintextBadge.Visibility = _entry.IsPlainText ? Visibility.Visible : Visibility.Collapsed;
             }
         }
 
@@ -1033,18 +899,25 @@ namespace TextTemplateManager
         }
 
         // ---- Single Key / Multi Key tabs ----
-        private SelectorBarItem? _savedTab;   // tab active before ALT was pressed, restored on release
-
+        // The newly visible list highlights its first row so the arrows and Enter have somewhere to start
+        // — but only in shortcut mode, so switching tabs never lights a list up while focus is in the
+        // search box or the tree.
         private void ShortcutTabs_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
         {
-            bool multi = ReferenceEquals(sender.SelectedItem, TabMulti);
-            SingleKeyList.Visibility = multi ? Visibility.Collapsed : Visibility.Visible;
-            MultiKeyList.Visibility = multi ? Visibility.Visible : Visibility.Collapsed;
+            if (_rendering) return;
+            _entry.SelectTab(ReferenceEquals(sender.SelectedItem, TabMulti) ? ShortcutTab.Multi : ShortcutTab.Single);
+            Render();
+        }
 
-            // Highlight the newly-visible list's first row so the arrows and Enter have somewhere to start
-            // — but only in shortcut mode, so switching tabs never lights a list up while focus is in the
-            // search box or the tree.
-            SyncShortcutHighlight();
+        // A clicked row becomes the highlighted one (what Enter pastes).
+        private void SingleKeyList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!_rendering) _entry.Select(ShortcutTab.Single, SingleKeyList.SelectedIndex);
+        }
+
+        private void MultiKeyList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!_rendering) _entry.Select(ShortcutTab.Multi, MultiKeyList.SelectedIndex);
         }
 
         private void ShortcutItem_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)

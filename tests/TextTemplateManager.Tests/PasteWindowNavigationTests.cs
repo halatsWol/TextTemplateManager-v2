@@ -1,4 +1,5 @@
 using TextTemplateManager;
+using TextTemplateManager.ViewModels;
 using Xunit;
 
 namespace TextTemplateManager.Tests;
@@ -41,19 +42,19 @@ public class PasteWindowNavigationTests
     [InlineData(1, -1, 5, 0)]
     public void Stepping_within_the_list_moves_one_place(int current, int delta, int count, int expected)
     {
-        Assert.Equal(expected, PasteWindow.NextIndex(current, delta, count));
+        Assert.Equal(expected, QuickPasteController.NextIndex(current, delta, count));
     }
 
     [Fact]
     public void Down_from_the_last_item_wraps_to_the_first()
     {
-        Assert.Equal(0, PasteWindow.NextIndex(current: 4, delta: 1, count: 5));
+        Assert.Equal(0, QuickPasteController.NextIndex(current: 4, delta: 1, count: 5));
     }
 
     [Fact]
     public void Up_from_the_first_item_wraps_to_the_last()
     {
-        Assert.Equal(4, PasteWindow.NextIndex(current: 0, delta: -1, count: 5));
+        Assert.Equal(4, QuickPasteController.NextIndex(current: 0, delta: -1, count: 5));
     }
 
     [Fact]
@@ -63,8 +64,8 @@ public class PasteWindowNavigationTests
         // the multi-key list on the top match as soon as a buffer is typed. The unselected case is the
         // narrow one: arrowing the multi-key list while ALT is held but nothing typed yet, where
         // RefreshMultiKeyList has left it at -1.
-        Assert.Equal(0, PasteWindow.NextIndex(current: -1, delta: 1, count: 5));
-        Assert.Equal(4, PasteWindow.NextIndex(current: -1, delta: -1, count: 5));
+        Assert.Equal(0, QuickPasteController.NextIndex(current: -1, delta: 1, count: 5));
+        Assert.Equal(4, QuickPasteController.NextIndex(current: -1, delta: -1, count: 5));
     }
 
     [Theory]
@@ -72,7 +73,7 @@ public class PasteWindowNavigationTests
     [InlineData(-1)]
     public void A_single_item_list_stays_on_that_item(int delta)
     {
-        Assert.Equal(0, PasteWindow.NextIndex(current: 0, delta: delta, count: 1));
+        Assert.Equal(0, QuickPasteController.NextIndex(current: 0, delta: delta, count: 1));
     }
 
     [Theory]
@@ -81,7 +82,7 @@ public class PasteWindowNavigationTests
     public void An_empty_list_selects_nothing(int current, int delta)
     {
         // Guards the caller: -1 means "leave the selection alone" rather than selecting index 0.
-        Assert.Equal(-1, PasteWindow.NextIndex(current, delta, count: 0));
+        Assert.Equal(-1, QuickPasteController.NextIndex(current, delta, count: 0));
     }
 
     [Fact]
@@ -89,8 +90,8 @@ public class PasteWindowNavigationTests
     {
         // Not reachable from the arrow keys today, but the modulo has to stay in range regardless of
         // what a future page-up/down step passes in.
-        Assert.Equal(1, PasteWindow.NextIndex(current: 0, delta: 4, count: 3));
-        Assert.Equal(2, PasteWindow.NextIndex(current: 0, delta: -4, count: 3));
+        Assert.Equal(1, QuickPasteController.NextIndex(current: 0, delta: 4, count: 3));
+        Assert.Equal(2, QuickPasteController.NextIndex(current: 0, delta: -4, count: 3));
     }
 
     [Fact]
