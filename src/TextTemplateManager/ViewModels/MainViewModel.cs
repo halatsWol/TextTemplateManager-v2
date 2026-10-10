@@ -65,10 +65,9 @@ public partial class MainViewModel : ObservableObject
     // Null when a Folder is selected — avoids cast exceptions in XAML.
     public Template? SelectedTemplate => SelectedItem as Template;
 
-    public MainViewModel()
+    public MainViewModel(DataNode store)
     {
-        // Shared singleton so editor, PasteWindow and Preferences share one in-memory tree.
-        _dataNode = DataNode.Instance;
+        _dataNode = store;
         _ui = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
 
         // Re-project on sync re-apply; re-select if the refresh dropped the selection.

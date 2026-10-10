@@ -29,6 +29,7 @@ namespace TextTemplateManager
     public sealed partial class MainPage : Page
     {
         public MainViewModel ViewModel { get; }
+        private readonly DataNode _store;
         private Timer _saveTimer;
 
         private bool _conflictUserMoved = false;   // user dragged the panel; stop auto-anchoring it
@@ -41,8 +42,9 @@ namespace TextTemplateManager
 
 
 
-        public MainPage()
+        public MainPage(DataNode store)
         {
+            _store = store;
             this.InitializeComponent();
 
             // handledEventsToo: the TreeView marks Enter/Space handled, so a plain KeyDown handler
@@ -62,14 +64,14 @@ namespace TextTemplateManager
                     PositionConflictTopRight();
             };
 
-            ViewModel = new MainViewModel();
+            ViewModel = new MainViewModel(store);
             // Keep the panels from inheriting the page until x:Bind sets their DataContext,
             // otherwise their {Binding}s briefly resolve against MainPage and log path errors.
             TemplatePanel.DataContext = null;
             FolderPanel.DataContext = null;
             this.DataContext = this;
 
-            DataNode.Instance.DataSaved += () => DispatcherQueue.TryEnqueue(ShowSaveNotification);
+            _store.DataSaved += () => DispatcherQueue.TryEnqueue(ShowSaveNotification);
 
             ViewModel.PropertyChanged += (s, e) =>
             {
@@ -589,13 +591,13 @@ namespace TextTemplateManager
         private void NavigateSettings(string? tag)
         {
             if (tag == "General")
-                SettingsFrame.Navigate(typeof(GeneralSettingsPage), DataNode.Instance.CurrentSettings);
+                SettingsFrame.Navigate(typeof(GeneralSettingsPage), _store.CurrentSettings);
             else if (tag == "Integrations")
-                SettingsFrame.Navigate(typeof(IntegrationsSettingsPage), DataNode.Instance.CurrentSettings);
+                SettingsFrame.Navigate(typeof(IntegrationsSettingsPage), _store.CurrentSettings);
             else if (tag == "Sync")
             {
                 var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
-                SettingsFrame.Navigate(typeof(SyncSettingsPage), hwnd.ToInt64());
+                SettingsFrame.Navigate(typeof(SyncSettingsPage), new SyncSettingsPage.Parameters(_store, hwnd));
             }
         }
 
@@ -641,7 +643,7 @@ namespace TextTemplateManager
             if (!System.IO.File.Exists(full)) return;
 
             // The app's own primary data file is never linked as a sync source.
-            if (string.Equals(full, DataNode.Instance.Storage.GetDataPath(), StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(full, _store.Storage.GetDataPath(), StringComparison.OrdinalIgnoreCase))
             {
                 OpenSyncSettings();
                 await ShowMessageAsync("Not added as a sync source",
@@ -649,7 +651,7 @@ namespace TextTemplateManager
                 return;
             }
 
-            var sync = DataNode.Instance.CurrentSyncSettings;
+            var sync = _store.CurrentSyncSettings;
             bool already = sync.Sources.Any(s => string.Equals(s.Path, full, StringComparison.OrdinalIgnoreCase));
             if (!already)
             {
@@ -660,8 +662,8 @@ namespace TextTemplateManager
                     IsActive = true,
                     AllowSave = false,
                 });
-                await DataNode.Instance.SaveSyncSettingsAsync();
-                await DataNode.Instance.ReapplySyncAsync();
+                await _store.SaveSyncSettingsAsync();
+                await _store.ReapplySyncAsync();
             }
 
             OpenSyncSettings();
@@ -1209,7 +1211,7 @@ namespace TextTemplateManager
                 .ToList();
 
             // Setting: hide the dismissible cross-area notices (blocking same-area conflicts still show).
-            if (DataNode.Instance.CurrentSettings.HideCrossAreaShortcutWarnings)
+            if (_store.CurrentSettings.HideCrossAreaShortcutWarnings)
             {
                 crossAreaNotes.Clear();
                 multiCrossAreaNotes.Clear();

@@ -15,6 +15,10 @@ namespace TextTemplateManager
     /// <summary>Lists the sync sources and persists changes to sync.ttmsettings.</summary>
     public sealed partial class SyncSettingsPage : Page
     {
+        /// <summary>What MainPage passes on navigation: the store and the window that owns the file pickers.</summary>
+        public sealed record Parameters(DataNode Store, IntPtr Hwnd);
+
+        private DataNode _store = null!;   // set in OnNavigatedTo
         private SyncSettings _sync = new();
         private IntPtr _hwnd;
         private bool _loading;
@@ -26,9 +30,11 @@ namespace TextTemplateManager
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is long h) _hwnd = new IntPtr(h);
+            var parameters = (Parameters)e.Parameter;
+            _store = parameters.Store;
+            _hwnd = parameters.Hwnd;
 
-            _sync = DataNode.Instance.CurrentSyncSettings;
+            _sync = _store.CurrentSyncSettings;
 
             // Valid separators are '-', '.', or "" (none); migrate any legacy value (e.g. '_') to '-'.
             if (_sync.Separator is not ("." or "-" or ""))
@@ -59,7 +65,7 @@ namespace TextTemplateManager
         private void SyncHelpButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e) => SyncHelpTip.IsOpen = true;
 
         // ---- Persistence ----
-        private static System.Threading.Tasks.Task SaveAsync() => DataNode.Instance.SaveSyncSettingsAsync();
+        private System.Threading.Tasks.Task SaveAsync() => _store.SaveSyncSettingsAsync();
 
         private void Subscribe(SyncSource s) => s.PropertyChanged += Source_PropertyChanged;
         private void Unsubscribe(SyncSource s) => s.PropertyChanged -= Source_PropertyChanged;
@@ -75,7 +81,7 @@ namespace TextTemplateManager
             {
                 case nameof(SyncSource.IsActive):   // load/drop the folder
                 case nameof(SyncSource.Path):       // re-link to a different file
-                    await DataNode.Instance.ReapplySyncAsync();
+                    await _store.ReapplySyncAsync();
                     break;
                 case nameof(SyncSource.Name):       // just rename the folder live
                     if (sender is SyncSource s) UpdateFolderTitle(s);
@@ -84,9 +90,9 @@ namespace TextTemplateManager
             }
         }
 
-        private static void UpdateFolderTitle(SyncSource s)
+        private void UpdateFolderTitle(SyncSource s)
         {
-            if (DataNode.Instance.LocalItems.FirstOrDefault(c => c.Id == s.Id) is BaseItem folder)
+            if (_store.LocalItems.FirstOrDefault(c => c.Id == s.Id) is BaseItem folder)
                 folder.Title = s.Name;
         }
 
@@ -97,7 +103,7 @@ namespace TextTemplateManager
             UpdateMoveAffordances();
             await SaveAsync();
             if (e.Action != NotifyCollectionChangedAction.Move)
-                await DataNode.Instance.ReapplySyncAsync();   // add / remove -> refresh tree (Move handled by buttons)
+                await _store.ReapplySyncAsync();   // add / remove -> refresh tree (Move handled by buttons)
         }
 
         private async void Separator_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -149,7 +155,7 @@ namespace TextTemplateManager
             if (file == null) return;
 
             // Write an empty, valid sync file (a serialized root Folder).
-            await DataNode.Instance.Storage.SaveAsync(file.Path, new Folder { Id = Guid.Empty, Title = "Root" });
+            await _store.Storage.SaveAsync(file.Path, new Folder { Id = Guid.Empty, Title = "Root" });
 
             _sync.Sources.Add(new SyncSource
             {
@@ -203,10 +209,10 @@ namespace TextTemplateManager
             }
         }
 
-        private static async Task ReapplyAsync()
+        private async Task ReapplyAsync()
         {
             await SaveAsync();
-            await DataNode.Instance.ReapplySyncAsync();
+            await _store.ReapplySyncAsync();
         }
 
         private void Remove_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)

@@ -21,6 +21,9 @@ public sealed class AppConnectorData : IConnectorDataSource
     private sealed record TemplateEntry(string Name, string Content, PasteMode Default);
 
     private volatile Snap _snap = new(new(), new());
+    private readonly DataNode _store;
+
+    public AppConnectorData(DataNode store) => _store = store;
 
     // Captured on the UI thread (this is constructed there); writes marshal back to it.
     private readonly DispatcherQueue? _ui = DispatcherQueue.GetForCurrentThread();
@@ -54,7 +57,7 @@ public sealed class AppConnectorData : IConnectorDataSource
         {
             try
             {
-                string title = UniqueTitle(CleanName(name), DataNode.Instance.LocalItems);
+                string title = UniqueTitle(CleanName(name), _store.LocalItems);
                 var item = new Template
                 {
                     Id = Guid.NewGuid(),
@@ -62,11 +65,11 @@ public sealed class AppConnectorData : IConnectorDataSource
                     // Content is untrusted HTML (a browser selection) — strip active content so a
                     // stored template can't carry script into paste targets or connector replies.
                     Content = HtmlSanitizer.Sanitize(content),
-                    DefaultPasteMode = DataNode.Instance.CurrentSettings.DefaultPasteMode,
+                    DefaultPasteMode = _store.CurrentSettings.DefaultPasteMode,
                 };
-                await DataNode.Instance.AddItemAsync(item);   // parent null -> local root
+                await _store.AddItemAsync(item);   // parent null -> local root
                 Rebuild();                                     // include it in the served snapshot
-                DataNode.Instance.NotifyTreeChanged();         // refresh the main-window tree projection
+                _store.NotifyTreeChanged();         // refresh the main-window tree projection
                 tcs.TrySetResult(new CreatedTemplateDto(item.Id.ToString(), title));
             }
             catch (Exception ex) { tcs.TrySetException(ex); }
@@ -111,17 +114,17 @@ public sealed class AppConnectorData : IConnectorDataSource
     public void Rebuild()
     {
         var templates = new Dictionary<string, TemplateEntry>();
-        var tree = BuildNodes(DataNode.Instance.LocalItems, templates);
+        var tree = BuildNodes(_store.LocalItems, templates);
         _snap = new Snap(tree, templates);
     }
 
-    private static List<ConnectorNodeDto> BuildNodes(IEnumerable<BaseItem> items, Dictionary<string, TemplateEntry> templates)
+    private List<ConnectorNodeDto> BuildNodes(IEnumerable<BaseItem> items, Dictionary<string, TemplateEntry> templates)
     {
         var list = new List<ConnectorNodeDto>();
         foreach (var item in items)
         {
             string id = item.Id.ToString();
-            string source = DataNode.Instance.GetSyncSourceForItem(item)?.Name ?? "local";
+            string source = _store.GetSyncSourceForItem(item)?.Name ?? "local";
             if (item is Template t)
             {
                 templates[id] = new TemplateEntry(t.Title, t.Content, t.DefaultPasteMode);

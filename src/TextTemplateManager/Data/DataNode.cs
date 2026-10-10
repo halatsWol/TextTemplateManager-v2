@@ -17,9 +17,6 @@ public class DataNode
     private bool _isInitialized = false;
     private bool _isMoving = false;
 
-    private static DataNode? _instance;
-    public static DataNode Instance => _instance ??= new DataNode(StorageService.CreateDefault());
-
     /// <summary>The file IO for this store's data folder.</summary>
     public StorageService Storage { get; }
 

@@ -27,6 +27,7 @@ namespace TextTemplateManager
         private BrowserConnector? _connector;
         private AppConnectorData? _connectorData;
         private SingleInstance _singleInstance = null!;   // set in OnLaunched
+        private readonly DataNode _store;
 
         // Pipe message a bare second launch sends to just surface the running window (no file).
         private const string ActivateSignal = "__activate__";
@@ -36,6 +37,7 @@ namespace TextTemplateManager
         public App()
         {
             InitializeComponent();
+            _store = new DataNode(StorageService.CreateDefault());
             _errors = new UnexpectedErrorHandler(ex => LogCrash("UnhandledException", ex),
                 PersistPendingAsync, AskQuitAfterErrorAsync, ExitAsync);
             UnhandledException += OnUnhandledException;
@@ -63,15 +65,15 @@ namespace TextTemplateManager
 
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
-            await DataNode.Instance.InitializeAsync();
-            var unreadableFiles = DataNode.Instance.Storage.TakeUnreadableFiles();
+            await _store.InitializeAsync();
+            var unreadableFiles = _store.Storage.TakeUnreadableFiles();
 
             _hotkeyListener = new HotkeyListener();
             _hotkeyListener.HotkeyPressed += OnGlobalHotkeyPressed;
-            UpdateGlobalHotkey(DataNode.Instance.CurrentSettings.PasteWindowHotkey);
+            UpdateGlobalHotkey(_store.CurrentSettings.PasteWindowHotkey);
 
             MainWindow = new Window();
-            MainWindow.Content = new MainPage();
+            MainWindow.Content = new MainPage(_store);
             MainWindow.Title = "Text Template Manager";
 
             IntPtr hwnd = WindowNative.GetWindowHandle(MainWindow);
@@ -189,7 +191,7 @@ namespace TextTemplateManager
         {
             if (_pasteWindow == null)
             {
-                _pasteWindow = new PasteWindow();
+                _pasteWindow = new PasteWindow(_store);
                 _pasteWindow.Closed += OnPasteWindowClosed;
             }
             return _pasteWindow;
@@ -216,7 +218,7 @@ namespace TextTemplateManager
         // At startup: a dialog when the window is shown, a tray notice when started hidden.
         private void ReportHotkeyUnavailable(bool startedHidden)
         {
-            string hotkey = DataNode.Instance.CurrentSettings.PasteWindowHotkey;
+            string hotkey = _store.CurrentSettings.PasteWindowHotkey;
             string message = $"The Quick Paste shortcut {hotkey} is already used by another app, so it won't open Quick Paste. " +
                              "Choose a different shortcut in Settings › General.";
             if (startedHidden) ShowTrayBalloon("Quick Paste shortcut unavailable", message);
@@ -227,7 +229,7 @@ namespace TextTemplateManager
         /// Safe to call at launch and whenever the connector settings change.</summary>
         public void ApplyBrowserConnectorSettings()
         {
-            var s = DataNode.Instance.CurrentSettings;
+            var s = _store.CurrentSettings;
             if (!s.BrowserConnectorEnabled) { _connector?.Stop(); return; }
 
             // Generate the shared token on first enable (saved with the other settings changes).
@@ -236,9 +238,9 @@ namespace TextTemplateManager
 
             if (_connectorData == null)
             {
-                _connectorData = new AppConnectorData();
-                DataNode.Instance.TreeChanged += RebuildConnectorSnapshot;
-                DataNode.Instance.DataSaved += RebuildConnectorSnapshot;
+                _connectorData = new AppConnectorData(_store);
+                _store.TreeChanged += RebuildConnectorSnapshot;
+                _store.DataSaved += RebuildConnectorSnapshot;
             }
             _connectorData.Rebuild();   // on the UI thread here
 
@@ -264,16 +266,16 @@ namespace TextTemplateManager
         {
             if (MainWindow?.Content is not MainPage page) return false;
             ShowMainWindow();
-            return await page.AskQuitAfterErrorAsync(saved, DataNode.Instance.Storage.GetCrashLogPath());
+            return await page.AskQuitAfterErrorAsync(saved, _store.Storage.GetCrashLogPath());
         }
 
-        private static void LogCrash(string source, Exception? ex)
+        private void LogCrash(string source, Exception? ex)
         {
             System.Diagnostics.Debug.WriteLine($"[{source}] {ex}");
             try
             {
                 System.IO.File.AppendAllText(
-                    DataNode.Instance.Storage.GetCrashLogPath(),
+                    _store.Storage.GetCrashLogPath(),
                     $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} [{source}] {ex}{Environment.NewLine}{Environment.NewLine}");
             }
             catch { /* logging must never throw */ }
@@ -297,9 +299,9 @@ namespace TextTemplateManager
                 try { await flush(); }
                 catch (Exception ex) { LogCrash("ExitFlush", ex); }
             }
-            try { await DataNode.Instance.FlushPendingSaveAsync(); }
+            try { await _store.FlushPendingSaveAsync(); }
             catch (Exception ex) { LogCrash("ExitFlush", ex); }
-            await DataNode.Instance.Storage.WaitForWritesAsync();
+            await _store.Storage.WaitForWritesAsync();
         }
 
         private void StopAcceptingWork()

@@ -30,8 +30,11 @@ namespace TextTemplateManager
         private IntPtr _inputSiteHwnd = IntPtr.Zero;   // WinUI content-input child, subclassed for the Alt-beep
         private IntPtr _hwnd = IntPtr.Zero;
 
-        public PasteWindow()
+        private readonly DataNode _store;
+
+        public PasteWindow(DataNode store)
         {
+            _store = store;
             this.InitializeComponent();
             _hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
 
@@ -185,12 +188,12 @@ namespace TextTemplateManager
 
             if (string.IsNullOrWhiteSpace(searchFilter))
             {
-                foreach (var item in DataNode.Instance.LocalItems)
+                foreach (var item in _store.LocalItems)
                     TemplateTree.RootNodes.Add(CreateNode(item));
             }
             else
             {
-                foreach (var item in DataNode.Instance.LocalItems)
+                foreach (var item in _store.LocalItems)
                 {
                     var node = BuildFilteredNode(item, searchFilter);
                     if (node != null) TemplateTree.RootNodes.Add(node);
@@ -206,9 +209,9 @@ namespace TextTemplateManager
 
         private void RefreshMultiKeyList(string searchFilter)
         {
-            var allShortcuts = DataNode.Instance.AllItems
+            var allShortcuts = _store.AllItems
                 .Where(t => !string.IsNullOrEmpty(t.MultiKeyShortcut))
-                .OrderBy(DataNode.Instance.GetSourcePriority)   // local first, then sync order
+                .OrderBy(_store.GetSourcePriority)   // local first, then sync order
                 .ToList();
             foreach (var t in allShortcuts) t.EffectiveMultiKey = EffectiveMulti(t);
             StampSource(allShortcuts);
@@ -222,9 +225,9 @@ namespace TextTemplateManager
         {
             // All single-key templates, local first then sync order — duplicates across areas are shown
             // (a direct single-key press still resolves local-first via ResolveSingleKey).
-            var all = DataNode.Instance.AllItems
+            var all = _store.AllItems
                 .Where(t => !string.IsNullOrWhiteSpace(t.SingleKeyShortcut))
-                .OrderBy(DataNode.Instance.GetSourcePriority)
+                .OrderBy(_store.GetSourcePriority)
                 .ToList();
             StampSource(all);
             SingleKeyList.ItemsSource = string.IsNullOrWhiteSpace(searchFilter)
@@ -238,9 +241,9 @@ namespace TextTemplateManager
         private void UpdateMultiKeyFilter(string shortcutBuffer)
         {
             string cleanKey = shortcutBuffer.TrimEnd('_');
-            var allShortcuts = DataNode.Instance.AllItems
+            var allShortcuts = _store.AllItems
                 .Where(t => !string.IsNullOrEmpty(t.MultiKeyShortcut))
-                .OrderBy(DataNode.Instance.GetSourcePriority)   // local first, then sync order
+                .OrderBy(_store.GetSourcePriority)   // local first, then sync order
                 .ToList();
             foreach (var t in allShortcuts) t.EffectiveMultiKey = EffectiveMulti(t);
             StampSource(allShortcuts);
@@ -254,11 +257,11 @@ namespace TextTemplateManager
         }
 
         // Stamp the source label (sync-folder name or "local") for the lists.
-        private static void StampSource(IEnumerable<Template> items)
+        private void StampSource(IEnumerable<Template> items)
         {
             foreach (var t in items)
             {
-                var src = DataNode.Instance.GetSyncSourceForItem(t);
+                var src = _store.GetSyncSourceForItem(t);
                 t.IsLocalSource = src == null;
                 t.SourceLabel = src?.Name ?? "local";
             }
@@ -496,7 +499,7 @@ namespace TextTemplateManager
             // enough to gate this — the text is still empty on the FIRST keystroke into search, so that
             // first letter would be hijacked into a paste; the focus split above is what gates it.)
             var match = TryGetCharKey(e.Key, out char keyChar)
-                ? DataNode.Instance.ResolveSingleKey(keyChar.ToString())
+                ? _store.ResolveSingleKey(keyChar.ToString())
                 : null;
             if (match != null)
             {
@@ -597,10 +600,10 @@ namespace TextTemplateManager
         }
 
         // True if `prefix` begins at least one EFFECTIVE multi-key shortcut (prefix-namespaced).
-        private static bool IsMultiKeyPrefix(string prefix)
+        private bool IsMultiKeyPrefix(string prefix)
         {
             if (string.IsNullOrEmpty(prefix)) return true;
-            return DataNode.Instance.AllItems.Any(t =>
+            return _store.AllItems.Any(t =>
                 !string.IsNullOrEmpty(t.MultiKeyShortcut) &&
                 EffectiveMulti(t).StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
         }
@@ -631,7 +634,7 @@ namespace TextTemplateManager
                == CoreVirtualKeyStates.Down;
 
         // The typed multikey shortcut (sync-prefixed, e.g. "and-msg").
-        private static string EffectiveMulti(Template t) => DataNode.Instance.GetEffectiveMultiKey(t);
+        private string EffectiveMulti(Template t) => _store.GetEffectiveMultiKey(t);
 
         // Maps the '-'/'_' and '.' keys to their character (Shift+'-' = '_').
         private static bool TryGetSpecialChar(VirtualKey key, out char c)
@@ -1000,7 +1003,7 @@ namespace TextTemplateManager
 
                 // Compare against the EFFECTIVE (sync-prefixed) shortcut, not the raw one, so a
                 // valid prefix like "AND-MSG" isn't flagged red just because the raw shortcut is "MSG".
-                bool exists = DataNode.Instance.AllItems.Any(t =>
+                bool exists = _store.AllItems.Any(t =>
                     !string.IsNullOrEmpty(t.MultiKeyShortcut) &&
                     EffectiveMulti(t).StartsWith(displayPart, StringComparison.OrdinalIgnoreCase));
                 BufferDisplay.Foreground = exists ? GetThemeBrush("AccentTextFillColorPrimaryBrush", Colors.DeepSkyBlue) : new SolidColorBrush(Colors.Crimson);
