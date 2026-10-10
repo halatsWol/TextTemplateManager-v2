@@ -7,9 +7,10 @@ namespace TextTemplateManager.Tests;
 /// <summary>Persistence behaviour that other features quietly depend on: the skip-if-unchanged rule that
 /// keeps cloud-synced files from churning into conflict copies, the per-path write lock, and the
 /// write-activity signals that tell when the files are safe to copy or the process safe to end.</summary>
-[Collection(StorageCollection.Name)]
 public class StorageServiceTests
 {
+    private readonly StorageService _storage = new(TestEnvironment.NewScratchDir());
+
     /// <summary>Ids are normally random per instance, which would make two logically identical trees
     /// serialise differently and defeat the skip-if-unchanged check. Deriving them from the title keeps
     /// the fixture stable across calls — matching production, where the same objects are reused.</summary>
@@ -37,7 +38,7 @@ public class StorageServiceTests
     {
         string path = Path.Combine(TestEnvironment.NewScratchDir(), "data.ttmdata");
 
-        await StorageService.SaveAsync(path, Tree("Root", "Alpha", "Beta"));
+        await _storage.SaveAsync(path, Tree("Root", "Alpha", "Beta"));
         var loaded = await StorageService.LoadRootAsync(path);
 
         Assert.NotNull(loaded);
@@ -74,13 +75,13 @@ public class StorageServiceTests
         string dir = TestEnvironment.NewScratchDir();
         string path = Path.Combine(dir, "data.ttmdata");
         await File.WriteAllTextAsync(path, content);
-        StorageService.TakeUnreadableFiles();
+        _storage.TakeUnreadableFiles();
 
-        var loaded = await StorageService.LoadOwnFileAsync<Folder>(path);
+        var loaded = await _storage.LoadOwnFileAsync<Folder>(path);
 
         Assert.Null(loaded);
         Assert.False(File.Exists(path));
-        var report = Assert.Single(StorageService.TakeUnreadableFiles());
+        var report = Assert.Single(_storage.TakeUnreadableFiles());
         Assert.Equal(path, report.Path);
         Assert.NotNull(report.KeptAs);
         Assert.Equal(content, await File.ReadAllTextAsync(report.KeptAs!));
@@ -89,24 +90,24 @@ public class StorageServiceTests
     [Fact]
     public async Task A_missing_own_file_is_not_reported()
     {
-        StorageService.TakeUnreadableFiles();
+        _storage.TakeUnreadableFiles();
 
-        Assert.Null(await StorageService.LoadOwnFileAsync<Folder>(
+        Assert.Null(await _storage.LoadOwnFileAsync<Folder>(
             Path.Combine(TestEnvironment.NewScratchDir(), "absent.ttmdata")));
-        Assert.Empty(StorageService.TakeUnreadableFiles());
+        Assert.Empty(_storage.TakeUnreadableFiles());
     }
 
     [Fact]
     public async Task A_readable_own_file_loads_normally()
     {
         string path = Path.Combine(TestEnvironment.NewScratchDir(), "data.ttmdata");
-        await StorageService.SaveAsync(path, Tree("Root", "Alpha"));
-        StorageService.TakeUnreadableFiles();
+        await _storage.SaveAsync(path, Tree("Root", "Alpha"));
+        _storage.TakeUnreadableFiles();
 
-        var loaded = await StorageService.LoadOwnFileAsync<Folder>(path);
+        var loaded = await _storage.LoadOwnFileAsync<Folder>(path);
 
         Assert.Equal("Alpha", Assert.Single(loaded!.Children).Title);
-        Assert.Empty(StorageService.TakeUnreadableFiles());
+        Assert.Empty(_storage.TakeUnreadableFiles());
     }
 
     [Fact]
@@ -114,28 +115,28 @@ public class StorageServiceTests
     {
         string path = Path.Combine(TestEnvironment.NewScratchDir(), "data.ttmdata");
         await File.WriteAllTextAsync(path, "original");
-        StorageService.TakeUnreadableFiles();
+        _storage.TakeUnreadableFiles();
 
         using (new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None))
-            Assert.Null(await StorageService.LoadOwnFileAsync<Folder>(path));
+            Assert.Null(await _storage.LoadOwnFileAsync<Folder>(path));
 
-        var report = Assert.Single(StorageService.TakeUnreadableFiles());
+        var report = Assert.Single(_storage.TakeUnreadableFiles());
         Assert.Null(report.KeptAs);
-        await StorageService.SaveAsync(path, Tree("Root", "Alpha"));
+        await _storage.SaveAsync(path, Tree("Root", "Alpha"));
         Assert.Equal("original", await File.ReadAllTextAsync(path));
     }
 
     [Fact]
     public async Task Unreadable_settings_fall_back_to_defaults_but_keep_the_original()
     {
-        string path = StorageService.GetSettingsPath();
+        string path = _storage.GetSettingsPath();
         await File.WriteAllTextAsync(path, "{ \"PasteWindowHotkey\": ");
-        StorageService.TakeUnreadableFiles();
+        _storage.TakeUnreadableFiles();
 
-        var settings = await StorageService.LoadSettingsAsync();
+        var settings = await _storage.LoadSettingsAsync();
 
         Assert.Equal(new AppSettings().PasteWindowHotkey, settings.PasteWindowHotkey);
-        var report = Assert.Single(StorageService.TakeUnreadableFiles());
+        var report = Assert.Single(_storage.TakeUnreadableFiles());
         Assert.Equal("{ \"PasteWindowHotkey\": ", await File.ReadAllTextAsync(report.KeptAs!));
     }
 
@@ -143,16 +144,16 @@ public class StorageServiceTests
     public async Task Settings_with_removed_update_fields_still_load()
     {
         // Settings written by a build that still had the in-app updater.
-        string path = StorageService.GetSettingsPath();
+        string path = _storage.GetSettingsPath();
         await File.WriteAllTextAsync(path,
             "{ \"AutoCheckUpdates\": false, \"AutoInstallUpdates\": true, \"ShowUpdateNotifications\": false, " +
             "\"AllowBetaUpdates\": true, \"PasteWindowHotkey\": \"Ctrl+Alt+Q\" }");
-        StorageService.TakeUnreadableFiles();
+        _storage.TakeUnreadableFiles();
 
-        var settings = await StorageService.LoadSettingsAsync();
+        var settings = await _storage.LoadSettingsAsync();
 
         Assert.Equal("Ctrl+Alt+Q", settings.PasteWindowHotkey);
-        Assert.Empty(StorageService.TakeUnreadableFiles());
+        Assert.Empty(_storage.TakeUnreadableFiles());
         Assert.True(File.Exists(path));
     }
 
@@ -164,11 +165,11 @@ public class StorageServiceTests
         // The fix behind the OneDrive conflict copies: an unchanged save must not bump the modified time,
         // or every device rewrites the shared file on load and they fight each other.
         string path = Path.Combine(TestEnvironment.NewScratchDir(), "shared.ttmdata");
-        await StorageService.SaveAsync(path, Tree("Root", "Alpha"));
+        await _storage.SaveAsync(path, Tree("Root", "Alpha"));
         var before = File.GetLastWriteTimeUtc(path);
 
         await Task.Delay(50);
-        await StorageService.SaveAsync(path, Tree("Root", "Alpha"));
+        await _storage.SaveAsync(path, Tree("Root", "Alpha"));
 
         Assert.Equal(before, File.GetLastWriteTimeUtc(path));
     }
@@ -177,9 +178,9 @@ public class StorageServiceTests
     public async Task Changed_content_does_rewrite_the_file()
     {
         string path = Path.Combine(TestEnvironment.NewScratchDir(), "shared.ttmdata");
-        await StorageService.SaveAsync(path, Tree("Root", "Alpha"));
+        await _storage.SaveAsync(path, Tree("Root", "Alpha"));
 
-        await StorageService.SaveAsync(path, Tree("Root", "Alpha", "Beta"));
+        await _storage.SaveAsync(path, Tree("Root", "Alpha", "Beta"));
         var loaded = await StorageService.LoadRootAsync(path);
 
         Assert.Equal(2, loaded!.Children.Count);
@@ -189,11 +190,11 @@ public class StorageServiceTests
     public async Task Shared_save_applies_the_same_skip_if_unchanged_rule()
     {
         string path = Path.Combine(TestEnvironment.NewScratchDir(), "sync.ttmdata");
-        await StorageService.SaveSharedAsync(path, Tree("Root", "Alpha"));
+        await _storage.SaveSharedAsync(path, Tree("Root", "Alpha"));
         var before = File.GetLastWriteTimeUtc(path);
 
         await Task.Delay(50);
-        await StorageService.SaveSharedAsync(path, Tree("Root", "Alpha"));
+        await _storage.SaveSharedAsync(path, Tree("Root", "Alpha"));
 
         Assert.Equal(before, File.GetLastWriteTimeUtc(path));
     }
@@ -202,7 +203,7 @@ public class StorageServiceTests
     public async Task Shared_save_leaves_no_temp_file_behind()
     {
         string dir = TestEnvironment.NewScratchDir();
-        await StorageService.SaveSharedAsync(Path.Combine(dir, "sync.ttmdata"), Tree("Root", "Alpha"));
+        await _storage.SaveSharedAsync(Path.Combine(dir, "sync.ttmdata"), Tree("Root", "Alpha"));
 
         Assert.Empty(Directory.GetFiles(dir, "*.tmp"));
     }
@@ -216,10 +217,10 @@ public class StorageServiceTests
         // swap: the existing file must still hold the last good content, not a truncated one.
         string dir = TestEnvironment.NewScratchDir();
         string path = Path.Combine(dir, "data.ttmdata");
-        await StorageService.SaveAsync(path, Tree("Root", "Alpha"));
+        await _storage.SaveAsync(path, Tree("Root", "Alpha"));
         Directory.CreateDirectory(path + ".tmp");
 
-        await Assert.ThrowsAnyAsync<Exception>(() => StorageService.SaveAsync(path, Tree("Root", "Alpha", "Beta")));
+        await Assert.ThrowsAnyAsync<Exception>(() => _storage.SaveAsync(path, Tree("Root", "Alpha", "Beta")));
 
         var loaded = await StorageService.LoadRootAsync(path);
         Assert.Equal(new[] { "Alpha" }, loaded!.Children.Select(c => c.Title));
@@ -232,7 +233,7 @@ public class StorageServiceTests
         string path = Path.Combine(dir, "data.ttmdata");
         await File.WriteAllTextAsync(path + ".tmp", "{ half written");
 
-        await StorageService.SaveAsync(path, Tree("Root", "Alpha"));
+        await _storage.SaveAsync(path, Tree("Root", "Alpha"));
 
         Assert.NotNull(await StorageService.LoadRootAsync(path));
         Assert.Empty(Directory.GetFiles(dir, "*.tmp"));
@@ -243,26 +244,26 @@ public class StorageServiceTests
     {
         var settings = new AppSettings { PasteWindowHotkey = "Ctrl+Alt+Q", BrowserConnectorPort = 50123 };
 
-        await StorageService.SaveSettingsAsync(settings);
-        var loaded = await StorageService.LoadSettingsAsync();
+        await _storage.SaveSettingsAsync(settings);
+        var loaded = await _storage.LoadSettingsAsync();
 
         Assert.Equal("Ctrl+Alt+Q", loaded.PasteWindowHotkey);
         Assert.Equal(50123, loaded.BrowserConnectorPort);
-        Assert.False(File.Exists(StorageService.GetSettingsPath() + ".tmp"));
+        Assert.False(File.Exists(_storage.GetSettingsPath() + ".tmp"));
     }
 
     [Fact]
     public async Task A_failed_settings_write_keeps_the_previous_settings()
     {
-        await StorageService.SaveSettingsAsync(new AppSettings { PasteWindowHotkey = "Ctrl+Alt+K" });
-        string tmp = StorageService.GetSettingsPath() + ".tmp";
+        await _storage.SaveSettingsAsync(new AppSettings { PasteWindowHotkey = "Ctrl+Alt+K" });
+        string tmp = _storage.GetSettingsPath() + ".tmp";
         Directory.CreateDirectory(tmp);
         try
         {
             await Assert.ThrowsAnyAsync<Exception>(
-                () => StorageService.SaveSettingsAsync(new AppSettings { PasteWindowHotkey = "Ctrl+Alt+L" }));
+                () => _storage.SaveSettingsAsync(new AppSettings { PasteWindowHotkey = "Ctrl+Alt+L" }));
 
-            Assert.Equal("Ctrl+Alt+K", (await StorageService.LoadSettingsAsync()).PasteWindowHotkey);
+            Assert.Equal("Ctrl+Alt+K", (await _storage.LoadSettingsAsync()).PasteWindowHotkey);
         }
         finally { Directory.Delete(tmp); }
     }
@@ -273,12 +274,12 @@ public class StorageServiceTests
         var sync = new SyncSettings { Separator = "." };
         sync.Sources.Add(new SyncSource { Name = "Team", Path = @"C:\shared\team.ttmdata", IsActive = true });
 
-        await StorageService.SaveSyncSettingsAsync(sync);
-        var loaded = await StorageService.LoadSyncSettingsAsync();
+        await _storage.SaveSyncSettingsAsync(sync);
+        var loaded = await _storage.LoadSyncSettingsAsync();
 
         Assert.Equal(".", loaded.Separator);
         Assert.Equal("Team", Assert.Single(loaded.Sources).Name);
-        Assert.False(File.Exists(StorageService.GetSyncSettingsPath() + ".tmp"));
+        Assert.False(File.Exists(_storage.GetSyncSettingsPath() + ".tmp"));
     }
 
     // ---- concurrency ----
@@ -290,7 +291,7 @@ public class StorageServiceTests
         string path = Path.Combine(TestEnvironment.NewScratchDir(), "contended.ttmdata");
 
         await Task.WhenAll(Enumerable.Range(0, 12)
-            .Select(i => StorageService.SaveAsync(path, Tree("Root", $"Item{i}"))));
+            .Select(i => _storage.SaveAsync(path, Tree("Root", $"Item{i}"))));
 
         Assert.NotNull(await StorageService.LoadRootAsync(path));
     }
@@ -302,8 +303,8 @@ public class StorageServiceTests
     {
         await Task.Delay(2100);   // outlast the default quiet window
 
-        Assert.False(StorageService.WritesInFlight);
-        Assert.True(StorageService.WritesQuiet());
+        Assert.False(_storage.WritesInFlight);
+        Assert.True(_storage.WritesQuiet());
     }
 
     [Fact]
@@ -313,10 +314,10 @@ public class StorageServiceTests
         bool sawInFlight = false;
 
         var writes = Task.WhenAll(Enumerable.Range(0, 40)
-            .Select(i => StorageService.SaveAsync(path, Tree("Root", $"Item{i}"))));
+            .Select(i => _storage.SaveAsync(path, Tree("Root", $"Item{i}"))));
         while (!writes.IsCompleted)
         {
-            if (StorageService.WritesInFlight) { sawInFlight = true; break; }
+            if (_storage.WritesInFlight) { sawInFlight = true; break; }
             await Task.Yield();
         }
         await writes;
@@ -330,21 +331,21 @@ public class StorageServiceTests
         // The distinction that matters: the sync poll writes with no user input, so "idle" alone is not
         // enough to declare it safe to end the process — recent write activity has to count too.
         string path = Path.Combine(TestEnvironment.NewScratchDir(), "recent.ttmdata");
-        await StorageService.SaveAsync(path, Tree("Root", "Alpha"));
+        await _storage.SaveAsync(path, Tree("Root", "Alpha"));
 
-        Assert.False(StorageService.WritesQuiet(2000));
-        Assert.False(StorageService.WritesInFlight);   // finished, but still too recent to be quiet
+        Assert.False(_storage.WritesQuiet(2000));
+        Assert.False(_storage.WritesInFlight);   // finished, but still too recent to be quiet
     }
 
     [Fact]
     public async Task Quiet_returns_once_the_window_elapses()
     {
         string path = Path.Combine(TestEnvironment.NewScratchDir(), "settling.ttmdata");
-        await StorageService.SaveAsync(path, Tree("Root", "Alpha"));
+        await _storage.SaveAsync(path, Tree("Root", "Alpha"));
 
         await Task.Delay(250);
 
-        Assert.False(StorageService.WritesQuiet(2000));   // still inside a long window
-        Assert.True(StorageService.WritesQuiet(100));     // but past a short one
+        Assert.False(_storage.WritesQuiet(2000));   // still inside a long window
+        Assert.True(_storage.WritesQuiet(100));     // but past a short one
     }
 }

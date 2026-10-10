@@ -64,7 +64,7 @@ namespace TextTemplateManager
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
             await DataNode.Instance.InitializeAsync();
-            var unreadableFiles = StorageService.TakeUnreadableFiles();
+            var unreadableFiles = DataNode.Instance.Storage.TakeUnreadableFiles();
 
             _hotkeyListener = new HotkeyListener();
             _hotkeyListener.HotkeyPressed += OnGlobalHotkeyPressed;
@@ -264,7 +264,7 @@ namespace TextTemplateManager
         {
             if (MainWindow?.Content is not MainPage page) return false;
             ShowMainWindow();
-            return await page.AskQuitAfterErrorAsync(saved, StorageService.GetCrashLogPath());
+            return await page.AskQuitAfterErrorAsync(saved, DataNode.Instance.Storage.GetCrashLogPath());
         }
 
         private static void LogCrash(string source, Exception? ex)
@@ -273,7 +273,7 @@ namespace TextTemplateManager
             try
             {
                 System.IO.File.AppendAllText(
-                    StorageService.GetCrashLogPath(),
+                    DataNode.Instance.Storage.GetCrashLogPath(),
                     $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} [{source}] {ex}{Environment.NewLine}{Environment.NewLine}");
             }
             catch { /* logging must never throw */ }
@@ -299,7 +299,7 @@ namespace TextTemplateManager
             }
             try { await DataNode.Instance.FlushPendingSaveAsync(); }
             catch (Exception ex) { LogCrash("ExitFlush", ex); }
-            await StorageService.WaitForWritesAsync();
+            await DataNode.Instance.Storage.WaitForWritesAsync();
         }
 
         private void StopAcceptingWork()

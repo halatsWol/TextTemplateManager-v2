@@ -6,15 +6,13 @@ namespace TextTemplateManager.Tests;
 
 /// <summary>Loading a backup replaces the local items only: the pinned sync folders stay, and the
 /// replacement is written once, never as an intermediate empty tree.</summary>
-[Collection(StorageCollection.Name)]
 public class DataNodeTests
 {
     private static async Task<(DataNode node, string path)> NewNodeAsync()
     {
-        string path = Path.Combine(TestEnvironment.NewScratchDir(), "data.ttmdata");
-        var node = new DataNode(path);
+        var node = new DataNode(new StorageService(TestEnvironment.NewScratchDir()));
         await node.InitializeAsync();
-        return (node, path);
+        return (node, node.Storage.GetDataPath());
     }
 
     [Fact]
@@ -65,7 +63,7 @@ public class DataNodeTests
         node.CurrentSettings.PasteWindowHotkey = "Ctrl+Alt+P";
         await Task.Delay(1000);   // past the settings debounce
 
-        var saved = await StorageService.LoadSettingsAsync();
+        var saved = await node.Storage.LoadSettingsAsync();
         Assert.Equal("Ctrl+Alt+P", saved.PasteWindowHotkey);
     }
 
@@ -78,7 +76,7 @@ public class DataNodeTests
         node.CurrentSettings.HideCrossAreaShortcutWarnings = true;
         await node.FlushPendingSaveAsync();
 
-        var saved = await StorageService.LoadSettingsAsync();
+        var saved = await node.Storage.LoadSettingsAsync();
         Assert.Equal(48000, saved.BrowserConnectorPort);
         Assert.True(saved.HideCrossAreaShortcutWarnings);
     }
@@ -86,14 +84,15 @@ public class DataNodeTests
     [Fact]
     public async Task Waiting_for_writes_completes_after_the_last_write()
     {
+        var storage = new StorageService(TestEnvironment.NewScratchDir());
         string path = Path.Combine(TestEnvironment.NewScratchDir(), "busy.ttmdata");
         var writes = Task.WhenAll(Enumerable.Range(0, 20).Select(i =>
-            StorageService.SaveAsync(path, new Folder { Title = $"Root {i}" })));
+            storage.SaveAsync(path, new Folder { Title = $"Root {i}" })));
 
-        await StorageService.WaitForWritesAsync();
+        await storage.WaitForWritesAsync();
 
         Assert.True(writes.IsCompleted);
-        Assert.False(StorageService.WritesInFlight);
+        Assert.False(storage.WritesInFlight);
     }
 
     [Fact]
@@ -108,12 +107,4 @@ public class DataNodeTests
 
         Assert.Equal(1, saves);
     }
-}
-
-[CollectionDefinition(Name)]
-public class StorageCollection
-{
-    // Tests that read or write the shared test data root (settings, sync settings, unreadable-file
-    // reports) run one at a time.
-    public const string Name = "Storage";
 }

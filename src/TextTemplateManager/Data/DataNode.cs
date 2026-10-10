@@ -18,7 +18,10 @@ public class DataNode
     private bool _isMoving = false;
 
     private static DataNode? _instance;
-    public static DataNode Instance => _instance ??= new DataNode();
+    public static DataNode Instance => _instance ??= new DataNode(StorageService.CreateDefault());
+
+    /// <summary>The file IO for this store's data folder.</summary>
+    public StorageService Storage { get; }
 
     public IEnumerable<Template> AllItems => GetAllTemplates(RootFolder);
 
@@ -57,11 +60,10 @@ public class DataNode
     /// <summary>Last observed write time per source, so the poller ignores our own writes.</summary>
     private readonly Dictionary<Guid, DateTime> _lastSeenWrite = new();
 
-    public DataNode() : this(StorageService.GetDataPath()) { }
-
-    internal DataNode(string localDataPath)
+    public DataNode(StorageService storage)
     {
-        _localDataPath = localDataPath;
+        Storage = storage;
+        _localDataPath = storage.GetDataPath();
     }
 
     #region Initialization
@@ -71,7 +73,7 @@ public class DataNode
     {
         if (_isInitialized) return;
 
-        var loadedRoot = await StorageService.LoadOwnFileAsync<Folder>(_localDataPath);
+        var loadedRoot = await Storage.LoadOwnFileAsync<Folder>(_localDataPath);
         if (loadedRoot != null)
         {
             _isMoving = true;   // no save-loops during load
@@ -92,10 +94,10 @@ public class DataNode
         }
 
         // Autostart is registry-only now (see StartupManager) — nothing to seed or reconcile here.
-        CurrentSettings = await StorageService.LoadSettingsAsync();
+        CurrentSettings = await Storage.LoadSettingsAsync();
         CurrentSettings.PropertyChanged += (_, _) => ScheduleSettingsSave();
 
-        CurrentSyncSettings = await StorageService.LoadSyncSettingsAsync();
+        CurrentSyncSettings = await Storage.LoadSyncSettingsAsync();
         // Valid separators are '-', '.', or "" (none); migrate any legacy value (e.g. '_') so
         // multi-key shortcuts resolve consistently even before Sync settings is opened.
         if (CurrentSyncSettings.Separator is not ("." or "-" or ""))
@@ -117,7 +119,7 @@ public class DataNode
             await SaveDataAsync();
     }
 
-    public Task SaveSyncSettingsAsync() => StorageService.SaveSyncSettingsAsync(CurrentSyncSettings);
+    public Task SaveSyncSettingsAsync() => Storage.SaveSyncSettingsAsync(CurrentSyncSettings);
 
     #endregion
 
@@ -163,7 +165,7 @@ public class DataNode
 
     public async Task ExportDataAsync(string path)
     {
-        await StorageService.SaveAsync(path, RootFolder);
+        await Storage.SaveAsync(path, RootFolder);
     }
 
     /// <summary>Export a folder's subtree to a standalone file (the folder becomes the root).</summary>
@@ -171,7 +173,7 @@ public class DataNode
     {
         var root = new Folder { Id = folder.Id, Title = folder.Title, LastChange = folder.LastChange };
         foreach (var child in folder.Children) root.Children.Add(child);
-        await StorageService.SaveAsync(path, root);
+        await Storage.SaveAsync(path, root);
     }
 
     public async Task MoveItemAsync(BaseItem item, Folder? targetFolder)
@@ -282,7 +284,7 @@ public class DataNode
         if (_settingsSaveDebounce is { IsCancellationRequested: false } pending)
         {
             pending.Cancel();
-            await StorageService.SaveSettingsAsync(CurrentSettings);
+            await Storage.SaveSettingsAsync(CurrentSettings);
         }
     }
 
@@ -302,7 +304,7 @@ public class DataNode
         await Task.Delay(500);
         if (cts.IsCancellationRequested) return;
         cts.Cancel();   // marks it done, so a flush doesn't write it a second time
-        await StorageService.SaveSettingsAsync(CurrentSettings);
+        await Storage.SaveSettingsAsync(CurrentSettings);
     }
 
     private async Task SaveAfterDelayAsync(CancellationToken ct)
@@ -331,7 +333,7 @@ public class DataNode
         bool saved = false;
         try
         {
-            await StorageService.SaveAsync(_localDataPath, RootFolder);
+            await Storage.SaveAsync(_localDataPath, RootFolder);
             await WriteSyncSourcesAsync();
             saved = true;
         }
@@ -522,7 +524,7 @@ public class DataNode
             if (folder.SyncFileMissing) continue;
             try
             {
-                await StorageService.SaveSharedAsync(source.Path, BuildFileTree(folder));
+                await Storage.SaveSharedAsync(source.Path, BuildFileTree(folder));
                 _lastSeenWrite[source.Id] = GetLastWriteSafe(source.Path); // don't treat our write as external
             }
             catch { /* best effort */ }

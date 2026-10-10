@@ -16,8 +16,8 @@ public class SmokeTests
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "Marflow Software", "TextTemplateManager");
 
-        Assert.StartsWith(TestEnvironment.DataRoot, StorageService.GetDataPath(), StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain(real, StorageService.GetDataPath(), StringComparison.OrdinalIgnoreCase);
+        Assert.StartsWith(TestEnvironment.DataRoot, StorageService.CreateDefault().GetDataPath(), StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(real, StorageService.CreateDefault().GetDataPath(), StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

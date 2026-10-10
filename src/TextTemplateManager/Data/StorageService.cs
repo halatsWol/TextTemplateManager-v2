@@ -12,7 +12,10 @@ using TextTemplateManager.Models;
 
 namespace TextTemplateManager.Data;
 
-public static class StorageService
+/// <summary>All file IO for one data folder: the app's own files (data, settings, sync settings),
+/// exports and the shared sync files. Every write goes through one per-path lock, which also feeds
+/// the write-activity signals.</summary>
+public sealed class StorageService
 {
     // Path: %localappdata%\Marflow Software\TextTemplateManager\
     private static readonly string DefaultBaseDirectory = Path.Combine(
@@ -20,23 +23,13 @@ public static class StorageService
         "Marflow Software",
         "TextTemplateManager");
 
-    /// <summary>Env var that redirects the whole data root. Set by the test suite so tests can never
-    /// touch real templates or settings; unset everywhere else.</summary>
+    /// <summary>Env var that redirects the whole data root. Set by the test suite and by dev/UI test runs
+    /// so they can never touch real templates or settings; unset everywhere else.</summary>
     public const string DataDirOverrideVariable = "TTM_DATA_DIR";
 
-    private static readonly string BaseDirectory = ResolveBaseDirectory();
-    private static readonly bool IsRedirected =
-        !string.Equals(BaseDirectory, DefaultBaseDirectory, StringComparison.OrdinalIgnoreCase);
-
-    private static string ResolveBaseDirectory()
-    {
-        string? overridden = Environment.GetEnvironmentVariable(DataDirOverrideVariable);
-        return string.IsNullOrWhiteSpace(overridden) ? DefaultBaseDirectory : Path.GetFullPath(overridden);
-    }
-
-    private static readonly string DataFileName = "data.ttmdata";
-    private static readonly string SettingsFileName = "settings.ttmsettings";
-    private static readonly string SyncSettingsFileName = "sync.ttmsettings";
+    private const string DataFileName = "data.ttmdata";
+    private const string SettingsFileName = "settings.ttmsettings";
+    private const string SyncSettingsFileName = "sync.ttmsettings";
 
     private static readonly JsonSerializerOptions _options = new()
     {
@@ -46,40 +39,74 @@ public static class StorageService
         Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
-    static StorageService()
+    private readonly string _baseDirectory;
+
+    /// <summary>Storage rooted at <paramref name="baseDirectory"/>. Touches no files; the folder must
+    /// exist before the first write (see <see cref="CreateDefault"/>).</summary>
+    public StorageService(string baseDirectory)
     {
-        MigrateLegacyFolder();   // rename the old plural folder before creating the new one
-        EnsureDirectories();
+        _baseDirectory = baseDirectory;
+    }
+
+    /// <summary>The app's storage: the default data folder, or the one <see cref="DataDirOverrideVariable"/>
+    /// points to. Migrates the legacy folder name and creates the folder.</summary>
+    public static StorageService CreateDefault()
+    {
+        string? overridden = Environment.GetEnvironmentVariable(DataDirOverrideVariable);
+        bool redirected = !string.IsNullOrWhiteSpace(overridden);
+        string baseDirectory = redirected ? Path.GetFullPath(overridden!) : DefaultBaseDirectory;
+
+        // Never migrate into a redirected root — that would move the user's real data into a test folder.
+        if (!redirected) MigrateLegacyFolder(baseDirectory);
+        Directory.CreateDirectory(baseDirectory);
+        return new StorageService(baseDirectory);
+    }
+
+    // One-time migration: the data folder was historically named "TextTemplatesManager" (plural).
+    // Rename it to the correct singular name so upgrading users keep their templates, settings, and
+    // sync config. Runs before the folder is created, so the destination doesn't exist yet.
+    private static void MigrateLegacyFolder(string baseDirectory)
+    {
+        try
+        {
+            string legacy = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Marflow Software",
+                "TextTemplatesManager");
+            if (Directory.Exists(legacy) && !Directory.Exists(baseDirectory))
+                Directory.Move(legacy, baseDirectory);
+        }
+        catch { /* best effort — CreateDirectory still yields a usable folder */ }
     }
 
     // Serialize writes per file path so concurrent saves (e.g. rapid Sync-settings edits, which fire
     // two writes per click) can't open the same file at once -> ERROR_SHARING_VIOLATION. Single-
     // instance app, so an in-process lock per path suffices, and it isolates a slow/locked file (a
     // retrying OneDrive source) from unrelated writes the way one global lock would not.
-    private static readonly ConcurrentDictionary<string, SemaphoreSlim> _writeLocks =
+    private readonly ConcurrentDictionary<string, SemaphoreSlim> _writeLocks =
         new(StringComparer.OrdinalIgnoreCase);
 
-    private static int _writesInFlight;
-    private static long _lastWriteTicks;
+    private int _writesInFlight;
+    private long _lastWriteTicks;
 
     /// <summary>True while any persisted write is queued or running. Every write goes through the lock
     /// below, so this covers sync files, templates and settings alike.</summary>
-    public static bool WritesInFlight => Volatile.Read(ref _writesInFlight) > 0;
+    public bool WritesInFlight => Volatile.Read(ref _writesInFlight) > 0;
 
     /// <summary>True when nothing has been written for <paramref name="quietMs"/>. Anything that copies the
     /// files (a backup) waits for this: a sync write caught partway is exactly how a copy ends up truncated
     /// or as a cloud conflict copy. A single idle instant isn't enough —
     /// the sync poll writes without any user input, so the quiet period is what makes it meaningful.</summary>
-    public static bool WritesQuiet(int quietMs = 2000) =>
+    public bool WritesQuiet(int quietMs = 2000) =>
         !WritesInFlight && Environment.TickCount64 - Interlocked.Read(ref _lastWriteTicks) >= quietMs;
 
     /// <summary>Completes once no write is queued or running.</summary>
-    public static async Task WaitForWritesAsync()
+    public async Task WaitForWritesAsync()
     {
         while (WritesInFlight) await Task.Delay(50);
     }
 
-    private static async Task WithWriteLock(string path, Func<Task> write)
+    private async Task WithWriteLock(string path, Func<Task> write)
     {
         if (_protectedPaths.ContainsKey(path)) return;   // unreadable and couldn't be set aside — never overwrite
 
@@ -104,11 +131,11 @@ public static class StorageService
     /// the original was moved; null when it couldn't be moved either (then it is never written this session).</summary>
     public sealed record UnreadableFile(string Path, string? KeptAs);
 
-    private static readonly ConcurrentQueue<UnreadableFile> _unreadable = new();
-    private static readonly ConcurrentDictionary<string, byte> _protectedPaths = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentQueue<UnreadableFile> _unreadable = new();
+    private readonly ConcurrentDictionary<string, byte> _protectedPaths = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Returns and clears the files reported unreadable since the last call.</summary>
-    public static IReadOnlyList<UnreadableFile> TakeUnreadableFiles()
+    public IReadOnlyList<UnreadableFile> TakeUnreadableFiles()
     {
         var files = new List<UnreadableFile>();
         while (_unreadable.TryDequeue(out var f)) files.Add(f);
@@ -118,7 +145,7 @@ public static class StorageService
     /// <summary>Loads one of the app's own files (data, settings, sync settings). One that exists but can't
     /// be read or parsed is moved aside and reported, so the next save can't overwrite it with an empty
     /// tree or defaults. Returns null when the file is missing or was set aside.</summary>
-    internal static async Task<T?> LoadOwnFileAsync<T>(string path) where T : class
+    internal async Task<T?> LoadOwnFileAsync<T>(string path) where T : class
     {
         if (!File.Exists(path)) return null;
         for (int attempt = 0; ; attempt++)
@@ -136,7 +163,7 @@ public static class StorageService
         return null;
     }
 
-    private static void SetAside(string path)
+    private void SetAside(string path)
     {
         string keptAs = $"{path}.broken-{DateTime.Now:yyyyMMdd-HHmmss}";
         try
@@ -151,46 +178,18 @@ public static class StorageService
         }
     }
 
-    // One-time migration: the data folder was historically named "TextTemplatesManager" (plural).
-    // Rename it to the correct singular name so upgrading users keep their templates, settings, and
-    // sync config. Runs before EnsureDirectories, so the destination doesn't exist yet.
-    private static void MigrateLegacyFolder()
-    {
-        // Never migrate into a redirected root — that would move the user's real data into a test
-        // (or portable) folder. The migration only makes sense for the real default location.
-        if (IsRedirected) return;
-        try
-        {
-            string legacy = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "Marflow Software",
-                "TextTemplatesManager");
-            if (Directory.Exists(legacy) && !Directory.Exists(BaseDirectory))
-                Directory.Move(legacy, BaseDirectory);
-        }
-        catch { /* best effort — EnsureDirectories still yields a usable folder */ }
-    }
-
-    public static void EnsureDirectories()
-    {
-        if (!Directory.Exists(BaseDirectory))
-        {
-            Directory.CreateDirectory(BaseDirectory);
-        }
-    }
-
-    public static string GetDataPath() => Path.Combine(BaseDirectory, DataFileName);
-    public static string GetSettingsPath() => Path.Combine(BaseDirectory, SettingsFileName);
-    public static string GetSyncSettingsPath() => Path.Combine(BaseDirectory, SyncSettingsFileName);
+    public string GetDataPath() => Path.Combine(_baseDirectory, DataFileName);
+    public string GetSettingsPath() => Path.Combine(_baseDirectory, SettingsFileName);
+    public string GetSyncSettingsPath() => Path.Combine(_baseDirectory, SyncSettingsFileName);
 
     /// <summary>Append-only log for otherwise-fatal unhandled exceptions.</summary>
-    public static string GetCrashLogPath() => Path.Combine(BaseDirectory, "crash.log");
+    public string GetCrashLogPath() => Path.Combine(_baseDirectory, "crash.log");
 
     /// <summary>Load the sync config, or a new empty one if none exists (or it was unreadable and set aside).</summary>
-    public static async Task<SyncSettings> LoadSyncSettingsAsync() =>
+    public async Task<SyncSettings> LoadSyncSettingsAsync() =>
         await LoadOwnFileAsync<SyncSettings>(GetSyncSettingsPath()) ?? new SyncSettings();
 
-    public static async Task SaveSyncSettingsAsync(SyncSettings settings)
+    public async Task SaveSyncSettingsAsync(SyncSettings settings)
     {
         string json = JsonSerializer.Serialize(settings, _options);
         string path = GetSyncSettingsPath();
@@ -217,7 +216,7 @@ public static class StorageService
     }
 
     /// <summary>Save the root Folder to path (local or sync location).</summary>
-    public static async Task SaveAsync(string path, Folder root)
+    public async Task SaveAsync(string path, Folder root)
     {
         string json = JsonSerializer.Serialize(root, _options);
         await WithWriteLock(path, async () =>
@@ -287,7 +286,7 @@ public static class StorageService
 
     /// <summary>Write a sync file: skip if unchanged, else temp-then-atomic-move, retrying if the
     /// target is briefly locked (OneDrive).</summary>
-    public static async Task SaveSharedAsync(string path, Folder root)
+    public async Task SaveSharedAsync(string path, Folder root)
     {
         string json = JsonSerializer.Serialize(root, _options);
         await WithWriteLock(path, async () =>
@@ -306,10 +305,10 @@ public static class StorageService
         });
     }
 
-    public static async Task<AppSettings> LoadSettingsAsync() =>
+    public async Task<AppSettings> LoadSettingsAsync() =>
         await LoadOwnFileAsync<AppSettings>(GetSettingsPath()) ?? new AppSettings();
 
-    public static async Task SaveSettingsAsync(AppSettings settings)
+    public async Task SaveSettingsAsync(AppSettings settings)
     {
         string path = GetSettingsPath();
         string json = JsonSerializer.Serialize(settings, _options);

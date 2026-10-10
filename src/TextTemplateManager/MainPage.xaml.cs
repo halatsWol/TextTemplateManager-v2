@@ -641,7 +641,7 @@ namespace TextTemplateManager
             if (!System.IO.File.Exists(full)) return;
 
             // The app's own primary data file is never linked as a sync source.
-            if (string.Equals(full, StorageService.GetDataPath(), StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(full, DataNode.Instance.Storage.GetDataPath(), StringComparison.OrdinalIgnoreCase))
             {
                 OpenSyncSettings();
                 await ShowMessageAsync("Not added as a sync source",

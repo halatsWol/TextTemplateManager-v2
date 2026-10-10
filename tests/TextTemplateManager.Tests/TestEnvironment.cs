@@ -3,16 +3,12 @@ using TextTemplateManager.Data;
 
 namespace TextTemplateManager.Tests;
 
-/// <summary>Redirects the app's data root to a throwaway folder before any test touches
-/// <see cref="StorageService"/>.
+/// <summary>Test data lives under a throwaway folder. Tests build their own <see cref="StorageService"/> on
+/// a scratch folder; the redirected data root is the safety net for anything that still asks for the
+/// app's default storage (<see cref="StorageService.CreateDefault"/>), which would otherwise read and
+/// write the user's real templates and settings under %LocalAppData%\Marflow Software\TextTemplateManager.
 ///
-/// This is not optional hygiene: StorageService resolves its root in a static field initializer, so the
-/// very first access freezes it for the process. Without this running first, tests would read and delete
-/// the user's real templates and settings under
-/// %LocalAppData%\Marflow Software\TextTemplateManager.
-///
-/// [ModuleInitializer] is what guarantees the ordering — it runs when the test assembly loads, ahead of
-/// any test, fixture or class constructor.</summary>
+/// [ModuleInitializer] runs when the test assembly loads, ahead of any test, fixture or class constructor.</summary>
 internal static class TestEnvironment
 {
     /// <summary>The per-run data root. Left on disk after the run for post-mortem inspection; it lives

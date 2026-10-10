@@ -149,7 +149,7 @@ namespace TextTemplateManager
             if (file == null) return;
 
             // Write an empty, valid sync file (a serialized root Folder).
-            await StorageService.SaveAsync(file.Path, new Folder { Id = Guid.Empty, Title = "Root" });
+            await DataNode.Instance.Storage.SaveAsync(file.Path, new Folder { Id = Guid.Empty, Title = "Root" });
 
             _sync.Sources.Add(new SyncSource
             {
