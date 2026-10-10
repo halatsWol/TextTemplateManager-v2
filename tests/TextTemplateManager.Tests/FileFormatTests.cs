@@ -109,4 +109,17 @@ public class FileFormatTests
 
         Assert.Equal(await File.ReadAllTextAsync(first), await File.ReadAllTextAsync(second));
     }
+
+    [Fact]
+    public async Task Settings_files_round_trip_to_the_same_bytes()
+    {
+        File.Copy(Fixture("format-settings.ttmsettings"), _storage.GetSettingsPath());
+        File.Copy(Fixture("format-sync.ttmsettings"), _storage.GetSyncSettingsPath());
+
+        await _storage.SaveSettingsAsync(await _storage.LoadSettingsAsync());
+        await _storage.SaveSyncSettingsAsync(await _storage.LoadSyncSettingsAsync());
+
+        Assert.Equal(await File.ReadAllTextAsync(Fixture("format-settings.ttmsettings")), await File.ReadAllTextAsync(_storage.GetSettingsPath()));
+        Assert.Equal(await File.ReadAllTextAsync(Fixture("format-sync.ttmsettings")), await File.ReadAllTextAsync(_storage.GetSyncSettingsPath()));
+    }
 }

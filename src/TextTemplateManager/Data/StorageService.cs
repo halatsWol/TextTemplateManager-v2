@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 using TextTemplateManager.Models;
@@ -31,13 +32,13 @@ public sealed class StorageService
     private const string SettingsFileName = "settings.ttmsettings";
     private const string SyncSettingsFileName = "sync.ttmsettings";
 
-    private static readonly JsonSerializerOptions _options = new()
+    private static readonly StorageJsonContext Json = new(new JsonSerializerOptions
     {
         WriteIndented = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         // Relaxed escaping keeps '<' '>' '&' literal — readable, and safe for a local file.
         Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-    };
+    });
 
     private readonly string _baseDirectory;
 
@@ -148,11 +149,12 @@ public sealed class StorageService
     internal async Task<T?> LoadOwnFileAsync<T>(string path) where T : class
     {
         if (!File.Exists(path)) return null;
+        var typeInfo = (JsonTypeInfo<T>)Json.GetTypeInfo(typeof(T))!;
         for (int attempt = 0; ; attempt++)
         {
             try
             {
-                var value = JsonSerializer.Deserialize<T>(await File.ReadAllTextAsync(path), _options);
+                var value = JsonSerializer.Deserialize(await File.ReadAllTextAsync(path), typeInfo);
                 if (value != null) return value;
                 break;
             }
@@ -191,7 +193,7 @@ public sealed class StorageService
 
     public async Task SaveSyncSettingsAsync(SyncSettings settings)
     {
-        string json = JsonSerializer.Serialize(settings, _options);
+        string json = JsonSerializer.Serialize(settings, Json.SyncSettings);
         string path = GetSyncSettingsPath();
         await WithWriteLock(path, () => WriteAtomicAsync(path, json));
     }
@@ -218,7 +220,7 @@ public sealed class StorageService
     /// <summary>Save the root Folder to path (local or sync location).</summary>
     public async Task SaveAsync(string path, Folder root)
     {
-        string json = JsonSerializer.Serialize(root, _options);
+        string json = JsonSerializer.Serialize(root, Json.Folder);
         await WithWriteLock(path, async () =>
         {
             // Skip the write if the file already matches, so its modified-time doesn't churn.
@@ -239,7 +241,7 @@ public sealed class StorageService
         try
         {
             string json = await File.ReadAllTextAsync(filePath);
-            return JsonSerializer.Deserialize<Folder>(json, _options);
+            return JsonSerializer.Deserialize(json, Json.Folder);
         }
         catch (Exception ex)
         {
@@ -260,7 +262,7 @@ public sealed class StorageService
             {
                 using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read,
                     FileShare.ReadWrite | FileShare.Delete);
-                return await JsonSerializer.DeserializeAsync<Folder>(fs, _options);
+                return await JsonSerializer.DeserializeAsync(fs, Json.Folder);
             }
             catch (IOException) { await Task.Delay(150); }        // transient lock -> retry
             catch (Exception ex)
@@ -288,7 +290,7 @@ public sealed class StorageService
     /// target is briefly locked (OneDrive).</summary>
     public async Task SaveSharedAsync(string path, Folder root)
     {
-        string json = JsonSerializer.Serialize(root, _options);
+        string json = JsonSerializer.Serialize(root, Json.Folder);
         await WithWriteLock(path, async () =>
         {
             string? existing = File.Exists(path) ? await ReadAllTextSharedAsync(path) : null;
@@ -311,7 +313,7 @@ public sealed class StorageService
     public async Task SaveSettingsAsync(AppSettings settings)
     {
         string path = GetSettingsPath();
-        string json = JsonSerializer.Serialize(settings, _options);
+        string json = JsonSerializer.Serialize(settings, Json.AppSettings);
         await WithWriteLock(path, () => WriteAtomicAsync(path, json));
     }
 }
