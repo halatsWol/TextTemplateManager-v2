@@ -16,6 +16,7 @@
           IsTabStop="True">
         <Grid.Resources>
             <helpers:BoolToVisibilityConverter x:Key="BoolToVis"/>
+            <helpers:ItemIconConverter x:Key="ItemIcon"/>
             <MenuFlyout x:Key="TreeItemContextMenu">
                 <MenuFlyoutItem Text="Paste" Click="CtxPaste_Click" Icon="Paste"/>
                 <MenuFlyoutSubItem Text="Paste As">
@@ -92,7 +93,7 @@
                               DoubleTapped="Tree_DoubleTapped" RightTapped="Tree_RightTapped">
                             <StackPanel Orientation="Horizontal" Spacing="10">
                                 <Grid VerticalAlignment="Center" Width="20" Height="20">
-                                    <SymbolIcon Symbol="{Binding Content.Icon}" />
+                                    <SymbolIcon Symbol="{Binding Content, Converter={StaticResource ItemIcon}}" />
                                     <Border Visibility="{Binding Content.IsSyncRoot, Converter={StaticResource BoolToVis}}"
                                             HorizontalAlignment="Right" VerticalAlignment="Bottom"
                                             Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="5">

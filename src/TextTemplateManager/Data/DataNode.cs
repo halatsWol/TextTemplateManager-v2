@@ -273,11 +273,10 @@ public class DataNode
         }
     }
 
-    // Transient/derived properties (expansion, conflict flags) are not real data edits: changing them
-    // must not bump LastChange or save, which would churn the sync file.
+    // Derived properties (conflict flags) are not real data edits: changing them must not bump LastChange
+    // or save, which would churn the sync file.
     private static readonly HashSet<string> _nonPersistedProps = new()
     {
-        nameof(BaseItem.IsExpanded),
         nameof(Template.HasSingleKeyConflict),
         nameof(Template.HasMultiKeyConflict),
         nameof(Template.HasSingleKeyCrossAreaWarning),

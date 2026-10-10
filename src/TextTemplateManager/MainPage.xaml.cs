@@ -394,7 +394,7 @@ namespace TextTemplateManager
         /// Export for non-root folders.</summary>
         private void Tree_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
-            if (sender is not FrameworkElement fe || fe.DataContext is not BaseItem item) return;
+            if (sender is not FrameworkElement fe || fe.DataContext is not TreeNode { Item: var item }) return;
 
             ViewModel.SelectedItem = item;   // so the panel and delete act on it
 
@@ -871,7 +871,7 @@ namespace TextTemplateManager
 
         private void ItemTreeView_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
         {
-            if (args.InvokedItem is BaseItem selected)
+            if (args.InvokedItem is TreeNode { Item: var selected })
             {
                 ViewModel.SelectedItem = selected;
                 PushTemplateToEditor();
@@ -916,10 +916,10 @@ namespace TextTemplateManager
             }
 
             // Enter/Space on a folder: expand/collapse it.
-            if ((e.Key is VirtualKey.Enter or VirtualKey.Space) && ViewModel.SelectedItem is Folder f)
+            if ((e.Key is VirtualKey.Enter or VirtualKey.Space) && ViewModel.SelectedNode is { Item: Folder } folderNode)
             {
                 e.Handled = true;
-                f.IsExpanded = !f.IsExpanded;
+                folderNode.IsExpanded = !folderNode.IsExpanded;
             }
         }
 
@@ -965,14 +965,14 @@ namespace TextTemplateManager
         // Focus the selected item, or select and focus the first one, so the arrow keys continue from there.
         private void FocusTree()
         {
-            if (ViewModel.SelectedItem is BaseItem selected
+            if (ViewModel.SelectedNode is TreeNode selected
                 && ItemTreeView.ContainerFromItem(selected) is TreeViewItem selectedContainer)
             {
                 selectedContainer.Focus(FocusState.Keyboard);
                 return;
             }
-            if (ViewModel.RootNodes.FirstOrDefault() is not BaseItem first) return;
-            ViewModel.SelectedItem = first;
+            if (ViewModel.RootNodes.FirstOrDefault() is not TreeNode first) return;
+            ViewModel.SelectedNode = first;
             if (ItemTreeView.ContainerFromItem(first) is TreeViewItem firstContainer)
                 firstContainer.Focus(FocusState.Keyboard);
         }
@@ -993,7 +993,7 @@ namespace TextTemplateManager
         private void TreeItem_DragStarting(UIElement sender, DragStartingEventArgs args)
         {
             // Pinned sync roots and read-only items can't be moved.
-            if (sender is not FrameworkElement { DataContext: BaseItem item } || !ViewModel.CanMove(item, null))
+            if (sender is not FrameworkElement { DataContext: TreeNode { Item: var item } } || !ViewModel.CanMove(item, null))
             {
                 args.Cancel = true;
                 return;
@@ -1009,7 +1009,7 @@ namespace TextTemplateManager
         private (Folder? Folder, int Index, string Caption) DropDestination(DragEventArgs e)
         {
             var row = RowAt(e);
-            if (row?.DataContext is not BaseItem target)
+            if (row?.DataContext is not TreeNode { Item: var target } node)
                 return (null, ViewModel.AllItems.Count, "Move to the end");
 
             double y = Math.Clamp(e.GetPosition(row).Y, 0, row.ActualHeight), height = row.ActualHeight;
@@ -1017,7 +1017,7 @@ namespace TextTemplateManager
                 ? y < height / 4 ? MainViewModel.DropSpot.Before : y > height * 3 / 4 ? MainViewModel.DropSpot.After : MainViewModel.DropSpot.Into
                 : y < height / 2 ? MainViewModel.DropSpot.Before : MainViewModel.DropSpot.After;
 
-            if (spot == MainViewModel.DropSpot.After && target is Folder { IsExpanded: true } open && open.ViewChildren.Count > 0)
+            if (spot == MainViewModel.DropSpot.After && target is Folder open && node.IsExpanded && node.Children.Count > 0)
                 return (open, 0, $"Move into \"{target.Title}\"");
 
             var (folder, index) = ViewModel.DropDestination(target, spot);
@@ -1081,7 +1081,7 @@ namespace TextTemplateManager
             var el = source as DependencyObject;
             while (el != null)
             {
-                if (el is FrameworkElement fe && fe.DataContext is BaseItem item) return item;
+                if (el is FrameworkElement fe && fe.DataContext is TreeNode node) return node.Item;
                 el = VisualTreeHelper.GetParent(el);
             }
             return null;

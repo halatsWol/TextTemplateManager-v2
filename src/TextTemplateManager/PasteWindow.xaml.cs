@@ -249,8 +249,7 @@ namespace TextTemplateManager
         #endregion
 
         #region TreeView Helpers
-        // Quick Paste owns its own node tree, so expansion lives on the nodes — never write
-        // BaseItem.IsExpanded here: that model is shared with the main window and would collapse it.
+        // Quick Paste owns its own node tree, so its expansion is independent of the main window's.
         private TreeViewNode CreateNode(BaseItem item)
         {
             var node = new TreeViewNode() { Content = item, IsExpanded = false };

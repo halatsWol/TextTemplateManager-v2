@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:local="using:TextTemplateManager.Models"
+    xmlns:viewmodels="using:TextTemplateManager.ViewModels"
     xmlns:helpers="using:TextTemplateManager.Helpers"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     mc:Ignorable="d"
@@ -166,10 +166,10 @@
                               ItemsSource="{x:Bind ViewModel.RootNodes, Mode=OneWay}"
                               ItemInvoked="ItemTreeView_ItemInvoked"
                               Tapped="ItemTreeView_Tapped"
-                              SelectedItem="{x:Bind ViewModel.SelectedItem, Mode=TwoWay}">
+                              SelectedItem="{x:Bind ViewModel.SelectedNode, Mode=TwoWay}">
                         <TreeView.ItemTemplate>
-                            <DataTemplate x:DataType="local:BaseItem">
-                                <TreeViewItem ItemsSource="{x:Bind ViewChildren, Mode=OneWay}"
+                            <DataTemplate x:DataType="viewmodels:TreeNode">
+                                <TreeViewItem ItemsSource="{x:Bind Children}"
                                               IsExpanded="{x:Bind IsExpanded, Mode=TwoWay}"
                                               HorizontalContentAlignment="Stretch"
                                               CanDrag="True"
@@ -183,16 +183,16 @@
                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                         <Grid VerticalAlignment="Center" Width="20" Height="20">
                                             <SymbolIcon Symbol="{x:Bind Icon}"/>
-                                            <Border Visibility="{x:Bind IsSyncRoot, Converter={StaticResource BoolToVis}}"
+                                            <Border Visibility="{x:Bind Item.IsSyncRoot, Converter={StaticResource BoolToVis}}"
                                                     HorizontalAlignment="Right" VerticalAlignment="Bottom"
                                                     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" CornerRadius="5">
                                                 <FontIcon Glyph="&#xE895;" FontSize="9"
                                                           Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
                                             </Border>
                                         </Grid>
-                                        <TextBlock Text="{x:Bind Title, Mode=OneWay}" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{x:Bind Item.Title, Mode=OneWay}" VerticalAlignment="Center"/>
                                         <FontIcon Glyph="&#xE7BA;" FontSize="12" Foreground="#E6A700" VerticalAlignment="Center"
-                                                  Visibility="{x:Bind SyncFileMissing, Converter={StaticResource BoolToVis}}"
+                                                  Visibility="{x:Bind Item.SyncFileMissing, Converter={StaticResource BoolToVis}}"
                                                   ToolTipService.ToolTip="Sync file not found — showing cached copy"/>
                                     </StackPanel>
                                     </Grid>

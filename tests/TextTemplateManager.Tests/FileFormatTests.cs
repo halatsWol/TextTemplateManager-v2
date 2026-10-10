@@ -26,7 +26,6 @@ public class FileFormatTests
             SyncId = new Guid("99999999-9999-9999-9999-999999999999"),
             Title = "Folder <A> & \"B\"",
             LastChange = "20260101120001",
-            IsExpanded = true,          // never persisted
             IsSyncRoot = true,          // never persisted
         };
         folder.Children.Add(new Template

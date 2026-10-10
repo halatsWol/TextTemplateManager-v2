@@ -55,7 +55,27 @@ public partial class MainViewModel : ObservableObject
         SelectedItem != null && !SelectedItem.IsSyncRoot && !_dataNode.IsItemReadOnly(SelectedItem);
 
     [ObservableProperty]
-    public partial ObservableCollection<BaseItem> RootNodes { get; set; } = new();
+    public partial ObservableCollection<TreeNode> RootNodes { get; set; } = new();
+
+    /// <summary>The tree's selection; kept in step with <see cref="SelectedItem"/>.</summary>
+    [ObservableProperty]
+    public partial TreeNode? SelectedNode { get; set; }
+
+    partial void OnSelectedNodeChanged(TreeNode? value) => SelectedItem = value?.Item;
+
+    private readonly Dictionary<BaseItem, TreeNode> _nodes = new();
+
+    /// <summary>The tree node of <paramref name="item"/>; the same one for as long as the item exists.</summary>
+    public TreeNode NodeFor(BaseItem item)
+    {
+        if (!_nodes.TryGetValue(item, out var node)) _nodes[item] = node = new TreeNode(item);
+        return node;
+    }
+
+    private void Expand(BaseItem? item)
+    {
+        if (item != null) NodeFor(item).IsExpanded = true;
+    }
 
     [ObservableProperty] public partial string SearchText { get; set; } = string.Empty;
     [ObservableProperty] public partial bool IncludeContentSearch { get; set; }
@@ -151,7 +171,7 @@ public partial class MainViewModel : ObservableObject
     /// the whole collection instead of moving items in place.</summary>
     public void ReloadTree()
     {
-        RootNodes = new ObservableCollection<BaseItem>();
+        RootNodes = new ObservableCollection<TreeNode>();
         ApplyFilter();
     }
 
@@ -165,8 +185,8 @@ public partial class MainViewModel : ObservableObject
         bool orderDiffers = false;
         for (int i = 0; i < desired.Count; i++)
         {
-            if (!RootNodes.Contains(desired[i])) return false; // membership differs -> in-place is safe
-            if (!ReferenceEquals(RootNodes[i], desired[i])) orderDiffers = true;
+            if (!RootNodes.Any(n => ReferenceEquals(n.Item, desired[i]))) return false; // membership differs -> in-place is safe
+            if (!ReferenceEquals(RootNodes[i].Item, desired[i])) orderDiffers = true;
         }
         return orderDiffers;
     }
@@ -178,8 +198,8 @@ public partial class MainViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(SearchText))
         {
             // No search: mirror the real tree.
-            MirrorViewChildren(source);
-            SyncCollection(RootNodes, source);
+            MirrorChildren(source);
+            SyncCollection(RootNodes, source.Select(NodeFor).ToList());
         }
         else
         {
@@ -187,11 +207,15 @@ public partial class MainViewModel : ObservableObject
             var filtered = FilterRecursive(source, SearchText);
             SyncCollection(RootNodes, filtered);
         }
+
+        // Forget the nodes of items that are gone (deleted, or dropped by a sync re-apply).
+        var present = source.Descendants().ToHashSet();
+        foreach (var gone in _nodes.Keys.Where(i => !present.Contains(i)).ToList()) _nodes.Remove(gone);
     }
 
     /// <summary>In-place add/remove/move so TreeView containers (and expansion state) survive,
     /// which a wholesale collection swap would destroy.</summary>
-    private static void SyncCollection(ObservableCollection<BaseItem> target, IList<BaseItem> desired)
+    private static void SyncCollection(ObservableCollection<TreeNode> target, IList<TreeNode> desired)
     {
         for (int i = target.Count - 1; i >= 0; i--)
         {
@@ -211,21 +235,21 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    /// <summary>Mirror Children into ViewChildren so the tree shows the full, unpruned hierarchy.</summary>
-    private void MirrorViewChildren(IEnumerable<BaseItem> items)
+    /// <summary>Show every child under each node, so the tree is the full, unpruned hierarchy.</summary>
+    private void MirrorChildren(IEnumerable<BaseItem> items)
     {
         foreach (var item in items)
         {
-            SyncCollection(item.ViewChildren, item.Children);
-            MirrorViewChildren(item.Children);
+            SyncCollection(NodeFor(item).Children, item.Children.Select(NodeFor).ToList());
+            MirrorChildren(item.Children);
         }
     }
 
     /// <summary>Pruned tree for the query: an item survives if it matches or has a matching
-    /// descendant; each survivor's ViewChildren holds only its matches. Returns the survivors.</summary>
-    private List<BaseItem> FilterRecursive(IEnumerable<BaseItem> items, string query)
+    /// descendant; each survivor's node shows only its matches. Returns the survivors' nodes.</summary>
+    private List<TreeNode> FilterRecursive(IEnumerable<BaseItem> items, string query)
     {
-        var matched = new List<BaseItem>();
+        var matched = new List<TreeNode>();
 
         foreach (var item in items)
         {
@@ -247,13 +271,14 @@ public partial class MainViewModel : ObservableObject
 
             if (isMatch || matchedChildren.Count > 0)
             {
-                SyncCollection(item.ViewChildren, matchedChildren);
+                var node = NodeFor(item);
+                SyncCollection(node.Children, matchedChildren);
 
                 // Expand so matches are visible.
-                if (item is Folder f)
-                    f.IsExpanded = true;
+                if (item is Folder)
+                    node.IsExpanded = true;
 
-                matched.Add(item);
+                matched.Add(node);
             }
         }
         return matched;
@@ -281,7 +306,7 @@ public partial class MainViewModel : ObservableObject
             DefaultPasteMode = _dataNode.CurrentSettings.DefaultPasteMode
         };
 
-        if (parent != null) parent.IsExpanded = true;   // reveal the new item
+        Expand(parent);   // reveal the new item
 
         await _dataNode.AddItemAsync(item, parent);
         ApplyFilter();
@@ -301,7 +326,7 @@ public partial class MainViewModel : ObservableObject
             Id = Guid.NewGuid()
         };
 
-        if (parent != null) parent.IsExpanded = true;   // reveal the new item
+        Expand(parent);   // reveal the new item
 
         await _dataNode.AddItemAsync(item, parent);
         ApplyFilter();
@@ -453,7 +478,7 @@ public partial class MainViewModel : ObservableObject
     public async Task MoveAsync(BaseItem item, Folder? folder, int index)
     {
         if (!await _dataNode.MoveItemAsync(item, folder, index)) return;
-        if (folder != null) folder.IsExpanded = true;   // reveal the moved item
+        Expand(folder);   // reveal the moved item
 
         // The TreeView crashes on an in-place Move of its bound root collection (see TreeChanged).
         if (RootOrderChanged()) ReloadTree();
@@ -468,7 +493,11 @@ public partial class MainViewModel : ObservableObject
     #endregion
 
     // Re-raise so MainPage re-syncs the editor to the new selection.
-    partial void OnSelectedItemChanged(BaseItem? value) => OnPropertyChanged(nameof(SelectedItem));
+    partial void OnSelectedItemChanged(BaseItem? value)
+    {
+        SelectedNode = value == null ? null : NodeFor(value);
+        OnPropertyChanged(nameof(SelectedItem));
+    }
 
     /// <summary>Raised on the UI thread after the conflict flags were recomputed.</summary>
     public event Action? ConflictsChanged;
