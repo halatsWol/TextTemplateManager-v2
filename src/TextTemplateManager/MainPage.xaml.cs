@@ -73,20 +73,12 @@ namespace TextTemplateManager
             this.DataContext = this;
 
             _store.DataSaved += () => DispatcherQueue.TryEnqueue(ShowSaveNotification);
+            ViewModel.ConflictsChanged += ShowShortcutConflicts;
 
             ViewModel.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(ViewModel.SelectedItem))
                 {
-                    // Ensure the template being edited fires live shortcut validation. The one-time
-                    // subscription below only covers items present at startup; sync-folder templates
-                    // (and any added later) load afterward, so subscribe the selection here too.
-                    if (ViewModel.SelectedItem is TextTemplateManager.Models.Template selectedTemplate)
-                    {
-                        selectedTemplate.PropertyChanged -= Template_PropertyChanged;
-                        selectedTemplate.PropertyChanged += Template_PropertyChanged;
-                    }
-
                     DispatcherQueue.TryEnqueue(() =>
                     {
                         PushTemplateToEditor();
@@ -102,44 +94,12 @@ namespace TextTemplateManager
                         FolderTitleBox.IsReadOnly = isSyncRoot || !editable;
                         ToolTipService.SetToolTip(FolderTitleBox,
                             isSyncRoot ? "The sync folder name is set in Settings ▸ Sync" : null);
-
-                        // Surface conflicts for the newly selected item — including sync-folder ones
-                        // that loaded after startup, which the initial validation pass never saw.
-                        ViewModel.ValidateAllShortcuts();
-                        ShowShortcutConflicts();
                     });
                 }
             };
 
-            foreach (var t in ViewModel.AllItems
-                           .Descendants()
-                           .OfType<TextTemplateManager.Models.Template>())
-            {
-                t.PropertyChanged += Template_PropertyChanged;
-            }
-
             // On exit, take the editor's content that it hasn't reported yet; the data save runs after.
             (Application.Current as App)?.AddExitFlush(FlushEditorAsync);
-
-            DispatcherQueue.TryEnqueue(() =>
-            {
-                ViewModel.ValidateAllShortcuts();
-                ShowShortcutConflicts();
-            });
-        }
-
-        private void Template_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (sender is TextTemplateManager.Models.Template t &&
-                (e.PropertyName == nameof(TextTemplateManager.Models.Template.SingleKeyShortcut) ||
-                 e.PropertyName == nameof(TextTemplateManager.Models.Template.MultiKeyShortcut)))
-            {
-                DispatcherQueue.TryEnqueue(() =>
-                {
-                    ViewModel.ValidateAllShortcuts();
-                    ShowShortcutConflicts();
-                });
-            }
         }
 
         // Strips what the stored shortcut can't hold while typing, keeping the caret in place (the binding
@@ -472,11 +432,7 @@ namespace TextTemplateManager
                 && ViewModel.AllItems.ParentOf(item) != null)
             {
                 var toRoot = new MenuFlyoutItem { Text = "Move to Root" };
-                toRoot.Click += async (_, _) =>
-                {
-                    await ViewModel.MoveToRootAsync(item);
-                    ShowShortcutConflicts();
-                };
+                toRoot.Click += async (_, _) => await ViewModel.MoveToRootAsync(item);
                 flyout.Items.Add(toRoot);
             }
 
@@ -601,7 +557,7 @@ namespace TextTemplateManager
         {
             SettingsOverlay.Visibility = Visibility.Collapsed;
             ViewModel.ReloadTree();   // full rebuild so sync-folder order changes are reflected
-            ShowShortcutConflicts();  // reflect the "hide cross-area warnings" setting
+            ViewModel.ValidateAllShortcuts();   // prefixes may have changed; also reflects "hide cross-area warnings"
         }
 
         // ---- File association (.ttmdata) ----
@@ -1118,7 +1074,6 @@ namespace TextTemplateManager
 
             var (folder, index, _) = DropDestination(e);
             await ViewModel.MoveAsync(item, folder, index);
-            ShowShortcutConflicts();
         }
 
         private static BaseItem? FindItemFromSource(object source)

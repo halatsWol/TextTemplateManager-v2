@@ -1,10 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System;
-using System.Linq;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using TextTemplateManager.Common;
-using TextTemplateManager.ViewModels;
 
 
 namespace TextTemplateManager.Models
@@ -66,10 +64,6 @@ namespace TextTemplateManager.Models
         [JsonIgnore]
         public partial bool IsLocalSource { get; set; }
 
-        /// <summary>Owning ViewModel, required for conflict validation.</summary>
-        [JsonIgnore]
-        public MainViewModel? Owner { get; set; }
-
         private static readonly Regex _shortcutFilter = new(@"[^A-Z0-9]", RegexOptions.Compiled);
 
         /// <summary>A shortcut as stored: trimmed, uppercase, letters A-Z and digits only. '-' and '.' are
@@ -92,47 +86,8 @@ namespace TextTemplateManager.Models
         private void SetShortcut(ref string field, string? value, [System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null)
         {
             string clean = CleanShortcut(value);
-            if (SetProperty(ref field, clean, propertyName)) ValidateShortcuts();
-            else if (!string.Equals(value, clean, StringComparison.Ordinal)) OnPropertyChanged(propertyName);
-        }
-
-        #endregion
-
-        #region Shortcut Conflict Validation
-
-        /// <summary>Flag this template's shortcut conflicts against the rest of the Owner's tree.</summary>
-        public void ValidateShortcuts()
-        {
-            if (Owner == null) return;
-
-            var otherTemplates = Owner.AllItems
-                .Descendants()
-                .OfType<Template>()
-                .Where(t => t != this)
-                .ToList();
-
-            Guid thisArea = Owner.GetAreaKey(this);
-
-            // Single-key: same key in the SAME area is a conflict; the same key in another area is
-            // allowed (local wins, then sync order) and only flagged as a warning.
-            bool hasSingle = !string.IsNullOrWhiteSpace(SingleKeyShortcut);
-            HasSingleKeyConflict = hasSingle && otherTemplates.Any(t =>
-                Owner.GetAreaKey(t) == thisArea &&
-                string.Equals(t.SingleKeyShortcut, SingleKeyShortcut, StringComparison.OrdinalIgnoreCase));
-            HasSingleKeyCrossAreaWarning = hasSingle && !HasSingleKeyConflict && otherTemplates.Any(t =>
-                Owner.GetAreaKey(t) != thisArea &&
-                string.Equals(t.SingleKeyShortcut, SingleKeyShortcut, StringComparison.OrdinalIgnoreCase));
-
-            // Multi-key compared on the effective (prefixed) shortcut, same rule as single-key: a
-            // same-area clash is a conflict, across areas it's an allowed warning.
-            string thisEffective = Owner.GetEffectiveMultiKey(this);
-            bool hasMulti = !string.IsNullOrWhiteSpace(MultiKeyShortcut);
-            HasMultiKeyConflict = hasMulti && otherTemplates.Any(t =>
-                Owner.GetAreaKey(t) == thisArea &&
-                string.Equals(Owner.GetEffectiveMultiKey(t), thisEffective, StringComparison.OrdinalIgnoreCase));
-            HasMultiKeyCrossAreaWarning = hasMulti && !HasMultiKeyConflict && otherTemplates.Any(t =>
-                Owner.GetAreaKey(t) != thisArea &&
-                string.Equals(Owner.GetEffectiveMultiKey(t), thisEffective, StringComparison.OrdinalIgnoreCase));
+            if (!SetProperty(ref field, clean, propertyName) && !string.Equals(value, clean, StringComparison.Ordinal))
+                OnPropertyChanged(propertyName);
         }
 
         #endregion

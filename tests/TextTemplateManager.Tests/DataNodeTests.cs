@@ -122,6 +122,44 @@ public class DataNodeTests
     }
 
     [Fact]
+    public async Task Shortcut_entries_carry_the_area_and_the_typed_multi_key()
+    {
+        var (node, _) = await NewNodeAsync();
+        var syncRoot = AddSyncFolder(node, allowSave: true);
+        var source = node.CurrentSyncSettings.Sources.Single();
+        source.ShortcutPrefix = "tm";
+        var shared = new Template { Title = "Shared", MultiKeyShortcut = "MSG" };
+        syncRoot.Children.Add(new Folder { Title = "Sub", Children = { shared } });
+        var local = new Template { Title = "Local", MultiKeyShortcut = "MSG" };
+        await node.AddItemAsync(local);
+
+        var entries = node.ShortcutEntries();
+
+        Assert.Equal(2, entries.Count);
+        var sharedEntry = entries.Single(e => e.Template == shared);
+        Assert.Equal(source.Id, sharedEntry.Area);
+        Assert.Equal("tm-MSG", sharedEntry.EffectiveMultiKey);
+        var localEntry = entries.Single(e => e.Template == local);
+        Assert.Equal(Guid.Empty, localEntry.Area);
+        Assert.Equal("MSG", localEntry.EffectiveMultiKey);
+    }
+
+    [Fact]
+    public async Task A_shortcut_edit_on_a_template_added_later_is_announced()
+    {
+        var (node, _) = await NewNodeAsync();
+        var template = new Template { Title = "Added after load" };
+        await node.AddItemAsync(template);
+        int announced = 0;
+        node.ShortcutsChanged += () => announced++;
+
+        template.SingleKeyShortcut = "Q";
+        template.Title = "Renamed";
+
+        Assert.Equal(1, announced);
+    }
+
+    [Fact]
     public async Task Deleting_a_nested_item_removes_it_and_saves()
     {
         var (node, path) = await NewNodeAsync();

@@ -44,6 +44,9 @@ public class DataNode
     /// <summary>Raised after template data is successfully written to disk (may be off the UI thread).</summary>
     public event Action? DataSaved;
 
+    /// <summary>Raised when a template's shortcut changes, from any thread (an edit, a sync apply).</summary>
+    public event Action? ShortcutsChanged;
+
     /// <summary>Last observed write time per source, so the poller ignores our own writes.</summary>
     private readonly Dictionary<Guid, DateTime> _lastSeenWrite = new();
 
@@ -289,6 +292,9 @@ public class DataNode
 
     private void OnItemPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
+        if (e.PropertyName is nameof(Template.SingleKeyShortcut) or nameof(Template.MultiKeyShortcut))
+            ShortcutsChanged?.Invoke();
+
         if (SavesSuppressed || e.PropertyName == null || _nonPersistedProps.Contains(e.PropertyName)) return;
         if (sender is BaseItem item)
         {
@@ -465,13 +471,25 @@ public class DataNode
 
     /// <summary>The multikey as it must be TYPED: prefix-namespaced in a sync folder (and-msg),
     /// else the raw shortcut. The template still stores just "msg".</summary>
-    public string GetEffectiveMultiKey(Template t)
-    {
-        if (t == null || string.IsNullOrEmpty(t.MultiKeyShortcut)) return t?.MultiKeyShortcut ?? string.Empty;
-        var src = GetSyncSourceForItem(t);
-        return src != null && !string.IsNullOrWhiteSpace(src.ShortcutPrefix)
-            ? src.ShortcutPrefix + (CurrentSyncSettings.Separator ?? "-") + t.MultiKeyShortcut
+    public string GetEffectiveMultiKey(Template t) => EffectiveMultiKey(t, GetSyncSourceForItem(t));
+
+    private string EffectiveMultiKey(Template t, SyncSource? source) =>
+        source != null && !string.IsNullOrEmpty(t.MultiKeyShortcut) && !string.IsNullOrWhiteSpace(source.ShortcutPrefix)
+            ? source.ShortcutPrefix + (CurrentSyncSettings.Separator ?? "-") + t.MultiKeyShortcut
             : t.MultiKeyShortcut;
+
+    /// <summary>Every template with its area and its multi key as typed, for <see cref="ShortcutValidator"/>.
+    /// Looks up each top-level folder's sync source once instead of once per template.</summary>
+    public IReadOnlyList<ShortcutValidator.Entry> ShortcutEntries()
+    {
+        var entries = new List<ShortcutValidator.Entry>();
+        foreach (var top in RootFolder.Children)
+        {
+            var source = CurrentSyncSettings.Sources.FirstOrDefault(s => s.Id == top.Id);
+            foreach (var t in top.SelfAndDescendants().OfType<Template>())
+                entries.Add(new(t, source?.Id ?? Guid.Empty, EffectiveMultiKey(t, source)));
+        }
+        return entries;
     }
 
     /// <summary>Reconcile the tree with the sync sources: a pinned folder per active source

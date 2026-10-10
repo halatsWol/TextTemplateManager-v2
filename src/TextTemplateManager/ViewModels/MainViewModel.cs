@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using TextTemplateManager.Common;
 using TextTemplateManager.Data;
@@ -86,6 +87,7 @@ public partial class MainViewModel : ObservableObject
                     ApplyFilter();
                 if (prev != null && !ReferenceEquals(SelectedItem, prev) && AllItems.Descendants().Contains(prev))
                     SelectedItem = prev;
+                ValidateAllShortcuts();
             }
             catch (Exception ex)
             {
@@ -95,27 +97,34 @@ public partial class MainViewModel : ObservableObject
             }
         });
 
+        _dataNode.ShortcutsChanged += QueueValidation;
+
         _ = Task.Run(async () =>
         {
             await _dataNode.InitializeAsync();
             _ui?.TryEnqueue(() =>
             {
+                _loaded = true;
                 ApplyFilter();
+                ValidateAllShortcuts();
                 StartSyncPolling();
             });
+        });
+    }
 
-            foreach (var t in AllItems.Descendants().OfType<Template>())
-            {
-                t.PropertyChanged += (_, e) =>
-                {
-                    if (e.PropertyName is nameof(Template.SingleKeyShortcut)
-                        or nameof(Template.MultiKeyShortcut))
-                    {
-                        ValidateAllShortcuts();
-                    }
-                };
-            }
+    // Set on the UI thread once the store has loaded. Before that the tree is still being filled on a
+    // background thread, so validating would read it mid-change; the load ends with one validation.
+    private bool _loaded;
+    private int _validationQueued;
 
+    // Shortcut edits and sync applies can change many templates in a row: validate once, on the UI thread.
+    private void QueueValidation()
+    {
+        if (Interlocked.Exchange(ref _validationQueued, 1) == 1) return;
+        _ui.TryEnqueue(() =>
+        {
+            Interlocked.Exchange(ref _validationQueued, 0);
+            if (_loaded) ValidateAllShortcuts();
         });
     }
 
@@ -269,7 +278,6 @@ public partial class MainViewModel : ObservableObject
         {
             Title = GetUniqueTitle("New Template", siblings),
             Id = Guid.NewGuid(),
-            Owner = this,
             DefaultPasteMode = _dataNode.CurrentSettings.DefaultPasteMode
         };
 
@@ -335,7 +343,6 @@ public partial class MainViewModel : ObservableObject
                 DefaultPasteMode = t.DefaultPasteMode,
                 SingleKeyShortcut = t.SingleKeyShortcut,
                 MultiKeyShortcut = t.MultiKeyShortcut,
-                Owner = this
             }
             : new Folder { Title = cloneTitle };
 
@@ -343,6 +350,7 @@ public partial class MainViewModel : ObservableObject
 
         ApplyFilter();
         SelectedItem = clone;
+        ValidateAllShortcuts();   // a clone repeats the original's shortcuts
     }
 
     [RelayCommand]
@@ -353,12 +361,10 @@ public partial class MainViewModel : ObservableObject
         await _dataNode.DeleteItemAsync(SelectedItem);
         ApplyFilter();
         SelectedItem = null;
+        ValidateAllShortcuts();
     }
 
     public bool IsReadOnly(BaseItem item) => _dataNode.IsItemReadOnly(item);
-    public string GetEffectiveMultiKey(Template t) => _dataNode.GetEffectiveMultiKey(t);
-
-    public Guid GetAreaKey(BaseItem item) => _dataNode.GetAreaKey(item);
 
     #endregion
 
@@ -414,7 +420,6 @@ public partial class MainViewModel : ObservableObject
         if (root == null) return LoadBackupResult.Unreadable;
         if (!await confirmReplace(file.Name)) return LoadBackupResult.Cancelled;
 
-        foreach (var t in root.Children.Descendants().OfType<Template>()) t.Owner = this;
         await _dataNode.ReplaceLocalItemsAsync(root.Children.ToList());
 
         SelectedItem = null;
@@ -462,68 +467,18 @@ public partial class MainViewModel : ObservableObject
 
     #endregion
 
-    partial void OnSelectedItemChanged(BaseItem? value)
-    {
-        // Re-raise so MainPage re-syncs the editor to the new selection.
-        OnPropertyChanged(nameof(SelectedItem));
-        ValidateAllShortcuts();
-    }
+    // Re-raise so MainPage re-syncs the editor to the new selection.
+    partial void OnSelectedItemChanged(BaseItem? value) => OnPropertyChanged(nameof(SelectedItem));
 
+    /// <summary>Raised on the UI thread after the conflict flags were recomputed.</summary>
+    public event Action? ConflictsChanged;
+
+    /// <summary>Recomputes every template's conflict flags. Call on the UI thread after a change to the
+    /// tree or to the sync settings; shortcut edits are picked up on their own.</summary>
     public void ValidateAllShortcuts()
     {
-        var templates = AllItems.Descendants()
-            .OfType<Template>()
-            .ToList();
-
-        foreach (var t in templates)
-        {
-            t.HasSingleKeyConflict = false;
-            t.HasMultiKeyConflict = false;
-            t.HasSingleKeyCrossAreaWarning = false;
-            t.HasMultiKeyCrossAreaWarning = false;
-        }
-
-        // Single-key conflicts are per-area; the same key in different areas is allowed.
-        var singleGroups = templates
-            .Where(t => !string.IsNullOrWhiteSpace(t.SingleKeyShortcut))
-            .GroupBy(t => (Area: _dataNode.GetAreaKey(t), Key: t.SingleKeyShortcut.Trim().ToUpperInvariant()))
-            .Where(g => g.Count() > 1);
-
-        foreach (var g in singleGroups)
-            foreach (var t in g)
-                t.HasSingleKeyConflict = true;
-
-        // Same key across areas: allowed, flagged as a warning only.
-        var crossAreaGroups = templates
-            .Where(t => !string.IsNullOrWhiteSpace(t.SingleKeyShortcut))
-            .GroupBy(t => t.SingleKeyShortcut.Trim().ToUpperInvariant())
-            .Where(g => g.Select(t => _dataNode.GetAreaKey(t)).Distinct().Count() > 1);
-
-        foreach (var g in crossAreaGroups)
-            foreach (var t in g)
-                if (!t.HasSingleKeyConflict)
-                    t.HasSingleKeyCrossAreaWarning = true;
-
-        // Multi-key on the effective (prefixed) shortcut, same rule as single-key: same key in the
-        // SAME area is a conflict; the same key across areas is allowed (local wins, then sync order).
-        var multiSameArea = templates
-            .Where(t => !string.IsNullOrWhiteSpace(t.MultiKeyShortcut))
-            .GroupBy(t => (Area: _dataNode.GetAreaKey(t), Key: _dataNode.GetEffectiveMultiKey(t).Trim().ToUpperInvariant()))
-            .Where(g => g.Count() > 1);
-
-        foreach (var g in multiSameArea)
-            foreach (var t in g)
-                t.HasMultiKeyConflict = true;
-
-        var multiCrossArea = templates
-            .Where(t => !string.IsNullOrWhiteSpace(t.MultiKeyShortcut))
-            .GroupBy(t => _dataNode.GetEffectiveMultiKey(t).Trim(), StringComparer.OrdinalIgnoreCase)
-            .Where(g => g.Select(t => _dataNode.GetAreaKey(t)).Distinct().Count() > 1);
-
-        foreach (var g in multiCrossArea)
-            foreach (var t in g)
-                if (!t.HasMultiKeyConflict)
-                    t.HasMultiKeyCrossAreaWarning = true;
+        ShortcutValidator.Apply(_dataNode.ShortcutEntries());
+        ConflictsChanged?.Invoke();
     }
 
 
