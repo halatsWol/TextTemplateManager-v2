@@ -609,11 +609,8 @@ namespace TextTemplateManager
             if (SettingsOverlay.Visibility == Visibility.Visible) CloseSettings();
         }
 
-        private async void CloseSettings()
+        private void CloseSettings()
         {
-            // Persist app settings (autostart is registry-only now — see StartupManager).
-            await StorageService.SaveSettingsAsync(DataNode.Instance.CurrentSettings);
-
             SettingsOverlay.Visibility = Visibility.Collapsed;
             ViewModel.ReloadTree();   // full rebuild so sync-folder order changes are reflected
             ShowShortcutConflicts();  // reflect the "hide cross-area warnings" setting

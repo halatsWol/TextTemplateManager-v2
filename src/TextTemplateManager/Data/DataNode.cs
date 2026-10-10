@@ -93,6 +93,7 @@ public class DataNode
 
         // Autostart is registry-only now (see StartupManager) — nothing to seed or reconcile here.
         CurrentSettings = await StorageService.LoadSettingsAsync();
+        CurrentSettings.PropertyChanged += (_, _) => ScheduleSettingsSave();
 
         CurrentSyncSettings = await StorageService.LoadSyncSettingsAsync();
         // Valid separators are '-', '.', or "" (none); migrate any legacy value (e.g. '_') so
@@ -273,11 +274,35 @@ public class DataNode
         _ = SaveAfterDelayAsync(cts.Token);
     }
 
-    /// <summary>Writes a debounced edit now instead of after the delay (on exit).</summary>
+    /// <summary>Writes debounced edits and settings changes now instead of after the delay (on exit).</summary>
     public async Task FlushPendingSaveAsync()
     {
         _editSaveDebounce?.Cancel();
         await SaveDataAsync();
+        if (_settingsSaveDebounce is { IsCancellationRequested: false } pending)
+        {
+            pending.Cancel();
+            await StorageService.SaveSettingsAsync(CurrentSettings);
+        }
+    }
+
+    private CancellationTokenSource? _settingsSaveDebounce;
+
+    // Every settings change (a toggle, the hotkey, a generated connector token) is saved here, once,
+    // shortly after the last change, so the pages never have to remember to save.
+    private void ScheduleSettingsSave()
+    {
+        _settingsSaveDebounce?.Cancel();
+        var cts = _settingsSaveDebounce = new CancellationTokenSource();
+        _ = SaveSettingsAfterDelayAsync(cts);
+    }
+
+    private async Task SaveSettingsAfterDelayAsync(CancellationTokenSource cts)
+    {
+        await Task.Delay(500);
+        if (cts.IsCancellationRequested) return;
+        cts.Cancel();   // marks it done, so a flush doesn't write it a second time
+        await StorageService.SaveSettingsAsync(CurrentSettings);
     }
 
     private async Task SaveAfterDelayAsync(CancellationToken ct)

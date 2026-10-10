@@ -230,12 +230,9 @@ namespace TextTemplateManager
             var s = DataNode.Instance.CurrentSettings;
             if (!s.BrowserConnectorEnabled) { _connector?.Stop(); return; }
 
-            // Generate the shared token on first enable and persist it.
+            // Generate the shared token on first enable (saved with the other settings changes).
             if (string.IsNullOrEmpty(s.BrowserConnectorToken))
-            {
                 s.BrowserConnectorToken = Guid.NewGuid().ToString("N");
-                _ = StorageService.SaveSettingsAsync(s);
-            }
 
             if (_connectorData == null)
             {

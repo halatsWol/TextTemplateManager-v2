@@ -58,6 +58,32 @@ public class DataNodeTests
     }
 
     [Fact]
+    public async Task A_settings_change_is_saved_without_an_explicit_save()
+    {
+        var (node, _) = await NewNodeAsync();
+
+        node.CurrentSettings.PasteWindowHotkey = "Ctrl+Alt+P";
+        await Task.Delay(1000);   // past the settings debounce
+
+        var saved = await StorageService.LoadSettingsAsync();
+        Assert.Equal("Ctrl+Alt+P", saved.PasteWindowHotkey);
+    }
+
+    [Fact]
+    public async Task A_pending_settings_change_is_written_at_once_when_flushed()
+    {
+        var (node, _) = await NewNodeAsync();
+
+        node.CurrentSettings.BrowserConnectorPort = 48000;
+        node.CurrentSettings.HideCrossAreaShortcutWarnings = true;
+        await node.FlushPendingSaveAsync();
+
+        var saved = await StorageService.LoadSettingsAsync();
+        Assert.Equal(48000, saved.BrowserConnectorPort);
+        Assert.True(saved.HideCrossAreaShortcutWarnings);
+    }
+
+    [Fact]
     public async Task Waiting_for_writes_completes_after_the_last_write()
     {
         string path = Path.Combine(TestEnvironment.NewScratchDir(), "busy.ttmdata");

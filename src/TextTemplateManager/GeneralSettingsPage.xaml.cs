@@ -74,7 +74,6 @@ public sealed partial class GeneralSettingsPage : Page
     {
         if (ViewModel == null || sender is not ToggleSwitch ts) return;
         ViewModel.HideCrossAreaShortcutWarnings = ts.IsOn;
-        _ = TextTemplateManager.Data.StorageService.SaveSettingsAsync(ViewModel);
         // The conflict panel re-evaluates when Settings closes (MainPage.CloseSettings).
     }
 
@@ -142,7 +141,6 @@ public sealed partial class GeneralSettingsPage : Page
         if (ViewModel == null) return;
         if (Application.Current is App app)
             HotkeyUnavailableInfo.IsOpen = !app.UpdateGlobalHotkey(ViewModel.PasteWindowHotkey);
-        _ = TextTemplateManager.Data.StorageService.SaveSettingsAsync(ViewModel);
     }
 
     private bool IsModifierKey(VirtualKey key)

@@ -71,7 +71,6 @@ public sealed partial class IntegrationsSettingsPage : Page
     {
         if (_connectorLoading || ViewModel == null) return;
         ViewModel.BrowserConnectorEnabled = ConnectorToggle.IsOn;
-        _ = TextTemplateManager.Data.StorageService.SaveSettingsAsync(ViewModel);
         (Application.Current as App)?.ApplyBrowserConnectorSettings();   // start/stop; generates the token on first enable
         RefreshConnectorUi();                                           // reflect the generated token + visibility
     }
@@ -84,7 +83,6 @@ public sealed partial class IntegrationsSettingsPage : Page
             if (port != ViewModel.BrowserConnectorPort)
             {
                 ViewModel.BrowserConnectorPort = port;
-                _ = TextTemplateManager.Data.StorageService.SaveSettingsAsync(ViewModel);
                 if (ViewModel.BrowserConnectorEnabled) (Application.Current as App)?.ApplyBrowserConnectorSettings();
             }
         }
@@ -102,7 +100,6 @@ public sealed partial class IntegrationsSettingsPage : Page
     {
         if (ViewModel == null) return;
         ViewModel.BrowserConnectorToken = Guid.NewGuid().ToString("N");
-        _ = TextTemplateManager.Data.StorageService.SaveSettingsAsync(ViewModel);
         if (ViewModel.BrowserConnectorEnabled) (Application.Current as App)?.ApplyBrowserConnectorSettings();
         RefreshConnectorUi();
     }
