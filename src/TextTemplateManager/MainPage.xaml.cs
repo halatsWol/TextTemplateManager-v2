@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Timers;
 using TextTemplateManager.Common;
 using TextTemplateManager.Data;
 using TextTemplateManager.Helpers;
@@ -30,7 +29,6 @@ namespace TextTemplateManager
     {
         public MainViewModel ViewModel { get; }
         private readonly DataNode _store;
-        private Timer _saveTimer;
 
         private bool _conflictUserMoved = false;   // user dragged the panel; stop auto-anchoring it
         private bool _conflictVisible = false;
@@ -117,18 +115,8 @@ namespace TextTemplateManager
                 t.PropertyChanged += Template_PropertyChanged;
             }
 
-            _saveTimer = new Timer(1000) { AutoReset = false };
-            _saveTimer.Elapsed += (s, e) =>
-            {
-                DispatcherQueue.TryEnqueue(async () => await ViewModel.SaveCurrentStateAsync());
-            };
-
             // On exit, take the editor's content that it hasn't reported yet; the data save runs after.
-            (Application.Current as App)?.AddExitFlush(async () =>
-            {
-                await FlushEditorAsync();
-                _saveTimer.Stop();
-            });
+            (Application.Current as App)?.AddExitFlush(FlushEditorAsync);
 
             DispatcherQueue.TryEnqueue(() =>
             {
@@ -362,12 +350,7 @@ namespace TextTemplateManager
                 // ExecuteScriptAsync returns the result JSON-encoded (a quoted string).
                 string result = await EditorWebView.CoreWebView2.ExecuteScriptAsync("window.editorApi.getContent()");
                 string html = System.Text.Json.JsonSerializer.Deserialize<string>(result) ?? string.Empty;
-                if (t.Content != html)
-                {
-                    t.Content = html;
-                    _saveTimer.Stop();
-                    _saveTimer.Start();
-                }
+                if (t.Content != html) t.Content = html;
             }
             catch (Exception ex)
             {
@@ -417,12 +400,8 @@ namespace TextTemplateManager
             var t = _currentEditorTemplate;
             if (t == null) return;
 
-            if (t.Content != html)
-            {
-                t.Content = html;
-                _saveTimer.Stop();
-                _saveTimer.Start();
-            }
+            // The store saves the change (debounced); nothing else to schedule here.
+            if (t.Content != html) t.Content = html;
         }
 
         private void ApplyEditorTheme()

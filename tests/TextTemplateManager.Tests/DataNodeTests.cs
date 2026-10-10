@@ -56,6 +56,21 @@ public class DataNodeTests
     }
 
     [Fact]
+    public async Task A_content_edit_is_saved_by_the_store_alone()
+    {
+        // The editor only sets Content; the store's debounced save is the one save path.
+        var (node, path) = await NewNodeAsync();
+        var template = new Template { Title = "Typed", Content = "<p>a</p>" };
+        await node.AddItemAsync(template);
+
+        template.Content = "<p>a typed</p>";
+        await Task.Delay(1000);   // past the edit debounce
+
+        var saved = await StorageService.LoadRootAsync(path);
+        Assert.Equal("<p>a typed</p>", Assert.IsType<Template>(Assert.Single(saved!.Children)).Content);
+    }
+
+    [Fact]
     public async Task A_sync_reapply_during_a_drag_does_not_switch_saving_back_on()
     {
         var (node, _) = await NewNodeAsync();
