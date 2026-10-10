@@ -14,50 +14,58 @@ namespace TextTemplateManager.Models
     public partial class Template : BaseItem
     {
         [ObservableProperty]
-        private string _content = string.Empty;
+        public partial string Content { get; set; } = string.Empty;
 
-        [ObservableProperty]
+        public string SingleKeyShortcut
+        {
+            get => _singleKeyShortcut;
+            set => SetShortcut(ref _singleKeyShortcut, value);
+        }
         private string _singleKeyShortcut = string.Empty;
 
-        [ObservableProperty]
+        public string MultiKeyShortcut
+        {
+            get => _multiKeyShortcut;
+            set => SetShortcut(ref _multiKeyShortcut, value);
+        }
         private string _multiKeyShortcut = string.Empty;
 
         [ObservableProperty]
-        private string _tagsCsv = string.Empty;
+        public partial string TagsCsv { get; set; } = string.Empty;
 
         [ObservableProperty]
-        private PasteMode _defaultPasteMode;
+        public partial PasteMode DefaultPasteMode { get; set; }
 
         [ObservableProperty]
-        private bool _hasSingleKeyConflict;
+        public partial bool HasSingleKeyConflict { get; set; }
 
         [ObservableProperty]
-        private bool _hasMultiKeyConflict;
+        public partial bool HasMultiKeyConflict { get; set; }
 
         /// <summary>Same single key used in another area — allowed, surfaced as a warning. Transient.</summary>
         [ObservableProperty]
-        [property: JsonIgnore]
-        private bool _hasSingleKeyCrossAreaWarning;
+        [JsonIgnore]
+        public partial bool HasSingleKeyCrossAreaWarning { get; set; }
 
         /// <summary>Same effective multikey used in another area — allowed, surfaced as a warning. Transient.</summary>
         [ObservableProperty]
-        [property: JsonIgnore]
-        private bool _hasMultiKeyCrossAreaWarning;
+        [JsonIgnore]
+        public partial bool HasMultiKeyCrossAreaWarning { get; set; }
 
         /// <summary>Display-only: the multikey as typed (sync-prefixed, e.g. "and-msg").</summary>
         [ObservableProperty]
-        [property: JsonIgnore]
-        private string _effectiveMultiKey = string.Empty;
+        [JsonIgnore]
+        public partial string EffectiveMultiKey { get; set; } = string.Empty;
 
         /// <summary>Display-only: the parent root — a sync folder's name, or "local".</summary>
         [ObservableProperty]
-        [property: JsonIgnore]
-        private string _sourceLabel = string.Empty;
+        [JsonIgnore]
+        public partial string SourceLabel { get; set; } = string.Empty;
 
         /// <summary>Display-only: true when not inside a sync folder.</summary>
         [ObservableProperty]
-        [property: JsonIgnore]
-        private bool _isLocalSource;
+        [JsonIgnore]
+        public partial bool IsLocalSource { get; set; }
 
         /// <summary>Owning ViewModel, required for conflict validation.</summary>
         [JsonIgnore]
@@ -80,21 +88,14 @@ namespace TextTemplateManager.Models
 
         #region Observable Property Handlers
 
-        partial void OnSingleKeyShortcutChanged(string value)
+        // Stores the cleaned value, so only that is ever announced. Raw input that cleans to the stored value
+        // ("a" over "A") is still announced, so an editing TextBox shows the cleaned text again.
+        private void SetShortcut(ref string field, string? value, [System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null)
         {
-            NormalizeShortcut(ref _singleKeyShortcut, value);
-            ValidateShortcuts();
+            string clean = CleanShortcut(value);
+            if (SetProperty(ref field, clean, propertyName)) ValidateShortcuts();
+            else if (!string.Equals(value, clean, StringComparison.Ordinal)) OnPropertyChanged(propertyName);
         }
-
-        partial void OnMultiKeyShortcutChanged(string value)
-        {
-            NormalizeShortcut(ref _multiKeyShortcut, value);
-            ValidateShortcuts();
-        }
-
-        // Runs inside the generated setter, after the field is set and before its PropertyChanged, so the
-        // cleaned value is what gets announced.
-        private static void NormalizeShortcut(ref string field, string value) => field = CleanShortcut(value);
 
         #endregion
 

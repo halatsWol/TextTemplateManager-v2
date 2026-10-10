@@ -1,0 +1,2 @@
+# Expected serializer output, compared byte for byte by FileFormatTests: never convert line endings.
+tests/TextTemplateManager.Tests/Fixtures/** -text

@@ -1,0 +1,8 @@
+{
+  "DefaultPasteMode": 5,
+  "PasteWindowHotkey": "Ctrl+Alt+Q",
+  "HideCrossAreaShortcutWarnings": true,
+  "BrowserConnectorEnabled": true,
+  "BrowserConnectorPort": 47700,
+  "BrowserConnectorToken": "token"
+}

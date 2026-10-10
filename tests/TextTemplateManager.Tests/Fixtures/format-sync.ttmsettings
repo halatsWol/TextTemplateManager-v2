@@ -1,0 +1,13 @@
+{
+  "Sources": [
+    {
+      "Id": "44444444-4444-4444-4444-444444444444",
+      "Name": "Team",
+      "Path": "C:\\Shared\\team.ttmdata",
+      "IsActive": true,
+      "AllowSave": true,
+      "ShortcutPrefix": "tm"
+    }
+  ],
+  "Separator": "."
+}

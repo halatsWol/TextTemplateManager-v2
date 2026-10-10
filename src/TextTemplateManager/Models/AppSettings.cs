@@ -5,17 +5,16 @@ namespace TextTemplateManager.Models;
 
 public partial class AppSettings : ObservableObject
 {
-    [ObservableProperty] private PasteMode _defaultPasteMode = PasteMode.Auto;
-    [ObservableProperty] private string _pasteWindowHotkey = "Shift+Alt+Y";
+    [ObservableProperty] public partial PasteMode DefaultPasteMode { get; set; } = PasteMode.Auto;
+    [ObservableProperty] public partial string PasteWindowHotkey { get; set; } = "Shift+Alt+Y";
 
     // When on, hides the dismissible cross-area shortcut warnings (the same shortcut used in local +
     // sync, or across sync folders). Same-area duplicate conflicts still block. Off by default.
-    [ObservableProperty] private bool _hideCrossAreaShortcutWarnings = false;
+    [ObservableProperty] public partial bool HideCrossAreaShortcutWarnings { get; set; } = false;
 
     // Local loopback connector for browser extensions. Off by default (opens a 127.0.0.1 port);
     // the token is generated when first enabled and required on every request.
-    [ObservableProperty] private bool _browserConnectorEnabled = false;
-    [ObservableProperty] private int _browserConnectorPort = 47615;
-    [ObservableProperty] private string _browserConnectorToken = "";
+    [ObservableProperty] public partial bool BrowserConnectorEnabled { get; set; } = false;
+    [ObservableProperty] public partial int BrowserConnectorPort { get; set; } = 47615;
+    [ObservableProperty] public partial string BrowserConnectorToken { get; set; } = "";
 }
-

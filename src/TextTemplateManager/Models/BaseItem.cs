@@ -11,14 +11,17 @@ namespace TextTemplateManager.Models
     [JsonDerivedType(typeof(Template), typeDiscriminator: "template")]
     public abstract partial class BaseItem : ObservableObject
     {
+        // Written last, as the field-based [ObservableProperty] used to put it; the file format (shared
+        // with 1.x via the sync files) must not change. Pinned by FileFormatTests.
         [ObservableProperty]
-        private string _title = string.Empty;
+        [JsonPropertyOrder(1)]
+        public partial string Title { get; set; } = string.Empty;
 
         // TreeView expansion state. [property: JsonIgnore] targets the GENERATED property; a plain
         // [JsonIgnore] would only hit the field, leaking expansion state into data.ttmdata.
         [ObservableProperty]
-        [property: JsonIgnore]
-        private bool _isExpanded;
+        [JsonIgnore]
+        public partial bool IsExpanded { get; set; }
         public Guid Id { get; set; } = Guid.NewGuid();
         public Guid? ParentId { get; set; }
 

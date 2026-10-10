@@ -36,6 +36,32 @@ public class TemplateShortcutTests
     }
 
     [Fact]
+    public void Raw_input_that_cleans_to_the_stored_key_is_still_announced()
+    {
+        // The editing TextBox shows "a" after the user typed it; the announcement makes it show "A" again.
+        var t = new Template { SingleKeyShortcut = "A" };
+        var announced = new List<string?>();
+        t.PropertyChanged += (_, e) => announced.Add(e.PropertyName);
+
+        t.SingleKeyShortcut = "a";
+
+        Assert.Equal("A", t.SingleKeyShortcut);
+        Assert.Equal(new[] { nameof(Template.SingleKeyShortcut) }, announced);
+    }
+
+    [Fact]
+    public void Setting_the_same_clean_key_again_announces_nothing()
+    {
+        var t = new Template { MultiKeyShortcut = "MSG" };
+        var announced = new List<string?>();
+        t.PropertyChanged += (_, e) => announced.Add(e.PropertyName);
+
+        t.MultiKeyShortcut = "MSG";
+
+        Assert.Empty(announced);
+    }
+
+    [Fact]
     public void A_single_key_that_is_not_a_letter_or_digit_is_dropped()
     {
         var t = new Template { SingleKeyShortcut = "-" };

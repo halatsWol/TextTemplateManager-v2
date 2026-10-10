@@ -33,7 +33,7 @@ public partial class MainViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(IsSelectedEditable))]
     [NotifyPropertyChangedFor(nameof(CanAddHere))]
     [NotifyPropertyChangedFor(nameof(CanDeleteSelection))]
-    private BaseItem? _selectedItem;
+    public partial BaseItem? SelectedItem { get; set; }
 
     public bool IsFolderSelected => SelectedItem is Folder;
     public bool IsNoSelection => SelectedItem is null;
@@ -54,11 +54,11 @@ public partial class MainViewModel : ObservableObject
         SelectedItem != null && !SelectedItem.IsSyncRoot && !_dataNode.IsItemReadOnly(SelectedItem);
 
     [ObservableProperty]
-    private ObservableCollection<BaseItem> _rootNodes = new();
+    public partial ObservableCollection<BaseItem> RootNodes { get; set; } = new();
 
-    [ObservableProperty] private string _searchText = string.Empty;
-    [ObservableProperty] private bool _includeContentSearch;
-    [ObservableProperty] private bool _strictSearch;
+    [ObservableProperty] public partial string SearchText { get; set; } = string.Empty;
+    [ObservableProperty] public partial bool IncludeContentSearch { get; set; }
+    [ObservableProperty] public partial bool StrictSearch { get; set; }
 
     public bool IsEditorEnabled => SelectedItem is Template;
 
