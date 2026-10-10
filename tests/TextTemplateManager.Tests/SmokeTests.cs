@@ -21,6 +21,6 @@ public class SmokeTests
     [Fact]
     public void App_assembly_non_ui_types_load()
     {
-        Assert.NotNull(Services.System.UpdateService.ParseRelease("v1.0.0", ghPrerelease: false));
+        Assert.NotNull(Services.Platform.UpdateService.ParseRelease("v1.0.0", ghPrerelease: false));
     }
 }

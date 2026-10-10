@@ -1,5 +1,5 @@
 using TextTemplateManager.Data;
-using TextTemplateManager.Services.System;
+using TextTemplateManager.Services.Platform;
 using Xunit;
 
 namespace TextTemplateManager.Tests;

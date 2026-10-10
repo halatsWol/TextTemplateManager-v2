@@ -1,6 +1,6 @@
 using Microsoft.Win32;
 
-namespace TextTemplateManager.Services.System;
+namespace TextTemplateManager.Services.Platform;
 
 public enum UpdatePolicyLevel
 {

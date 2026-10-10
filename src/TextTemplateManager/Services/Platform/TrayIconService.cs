@@ -8,7 +8,7 @@ using System;
 using TextTemplateManager.Helpers;
 using WinRT.Interop;
 
-namespace TextTemplateManager.Services.System
+namespace TextTemplateManager.Services.Platform
 {
     public sealed class TrayIconService : IDisposable
     {

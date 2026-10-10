@@ -1,7 +1,7 @@
 using Microsoft.Win32;
 using System;
 
-namespace TextTemplateManager.Services.System;
+namespace TextTemplateManager.Services.Platform;
 
 /// <summary>Autostart on Windows login, driven entirely by the registry (nothing is stored in settings).
 /// Two keys, mirroring how Task Manager / Settings › Startup work:
@@ -24,7 +24,7 @@ public static class StartupManager
 
     private static string ExePath =>
         Environment.ProcessPath
-        ?? global::System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName
+        ?? System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName
         ?? string.Empty;
 
     /// <summary>True when a Run value exists and it isn't disabled in StartupApproved.</summary>

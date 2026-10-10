@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TextTemplateManager.Services.System;
+namespace TextTemplateManager.Services.Platform;
 
 // ---- Wire DTOs (serialized as camelCase JSON) ----
 public sealed record PasteModeDto(string Id, string Label);
@@ -49,7 +49,7 @@ public sealed class BrowserConnector : IDisposable
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         // Loopback JSON consumed by JSON.parse — relaxed escaping keeps HTML content readable.
-        Encoder = global::System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
     public BrowserConnector(IConnectorDataSource data) => _data = data;

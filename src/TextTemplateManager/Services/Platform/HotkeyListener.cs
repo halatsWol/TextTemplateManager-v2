@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using Windows.System;
 
-namespace TextTemplateManager.Services.System;
+namespace TextTemplateManager.Services.Platform;
 
 public class HotkeyListener : IDisposable
 {

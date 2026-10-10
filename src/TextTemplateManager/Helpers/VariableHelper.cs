@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace MarflowSoftware.Helpers
+namespace TextTemplateManager.Helpers
 {
     public static class VariableHelper
     {

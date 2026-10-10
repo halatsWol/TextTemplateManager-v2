@@ -4,7 +4,7 @@ using Microsoft.Windows.AppNotifications.Builder;
 using System;
 using System.Threading.Tasks;
 
-namespace TextTemplateManager.Services.System;
+namespace TextTemplateManager.Services.Platform;
 
 /// <summary>Windows toast notifications for updates (Windows App SDK). Entirely best-effort: any failure
 /// is swallowed so the app never breaks if notifications aren't available. Button presses route back via
@@ -53,10 +53,10 @@ public sealed class UpdateNotifier
 
     private static void Log(string message)
     {
-        global::System.Diagnostics.Debug.WriteLine($"[Notifications] {message}");
+        System.Diagnostics.Debug.WriteLine($"[Notifications] {message}");
         try
         {
-            global::System.IO.File.AppendAllText(
+            System.IO.File.AppendAllText(
                 TextTemplateManager.Data.StorageService.GetCrashLogPath(),
                 $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} [Notifications] {message}{Environment.NewLine}");
         }

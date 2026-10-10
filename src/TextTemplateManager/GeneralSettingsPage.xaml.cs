@@ -5,10 +5,9 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
 using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
+using TextTemplateManager.Services.Platform;
 using Windows.System;
 using Windows.UI.Core;
-using UpdatePolicy = TextTemplateManager.Services.System.UpdatePolicy;
-using UpdatePolicyLevel = TextTemplateManager.Services.System.UpdatePolicyLevel;
 
 namespace TextTemplateManager;
 
@@ -119,8 +118,8 @@ public sealed partial class GeneralSettingsPage : Page
     private void InitStartupUi()
     {
         _startupLoading = true;
-        StartupToggle.IsOn = TextTemplateManager.Services.System.StartupManager.IsEnabled();
-        StartHiddenToggle.IsOn = TextTemplateManager.Services.System.StartupManager.IsHiddenEnabled();
+        StartupToggle.IsOn = StartupManager.IsEnabled();
+        StartHiddenToggle.IsOn = StartupManager.IsHiddenEnabled();
         StartHiddenToggle.IsEnabled = StartupToggle.IsOn;   // "start hidden" is meaningless without autostart
         _startupLoading = false;
     }
@@ -129,7 +128,7 @@ public sealed partial class GeneralSettingsPage : Page
     {
         if (_startupLoading) return;
         bool on = StartupToggle.IsOn;
-        TextTemplateManager.Services.System.StartupManager.SetEnabled(on, StartHiddenToggle.IsOn);
+        StartupManager.SetEnabled(on, StartHiddenToggle.IsOn);
         StartHiddenToggle.IsEnabled = on;
     }
 
@@ -137,7 +136,7 @@ public sealed partial class GeneralSettingsPage : Page
     {
         // Only reachable while autostart is on — rewrite the Run entry with/without the hidden flag.
         if (_startupLoading) return;
-        TextTemplateManager.Services.System.StartupManager.SetEnabled(true, StartHiddenToggle.IsOn);
+        StartupManager.SetEnabled(true, StartHiddenToggle.IsOn);
     }
 
     private void HideCrossAreaWarnings_Toggled(object sender, RoutedEventArgs e)

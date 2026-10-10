@@ -18,19 +18,11 @@ using TextTemplateManager.Data;
 using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
 using TextTemplateManager.Services.Pasting;
+using TextTemplateManager.Services.Platform;
 using TextTemplateManager.ViewModels;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
 using Windows.UI.Core;
-using UpdatePolicy = TextTemplateManager.Services.System.UpdatePolicy;
-using UpdateService = TextTemplateManager.Services.System.UpdateService;
-using BrowserConnector = TextTemplateManager.Services.System.BrowserConnector;
-// Aliased rather than a plain using: the namespace ends in ".System", which would shadow System.* here.
-using UpdateCoordinator = TextTemplateManager.Services.System.UpdateCoordinator;
-using IUpdateHost = TextTemplateManager.Services.System.IUpdateHost;
-using UpdateStatusKind = TextTemplateManager.Services.System.UpdateStatusKind;
-using UpdateTrigger = TextTemplateManager.Services.System.UpdateTrigger;
-using UpdateNote = TextTemplateManager.Services.System.UpdateNote;
 
 namespace TextTemplateManager
 {
@@ -52,7 +44,7 @@ namespace TextTemplateManager
         private Microsoft.UI.Dispatching.DispatcherQueueTimer? _updateTimer;
         private Microsoft.UI.Dispatching.DispatcherQueueTimer? _idleTimer;
         private bool _dialogOpen;                // only one ContentDialog may be open at a time
-        private Services.System.UpdateNotifier? _notifier;
+        private UpdateNotifier? _notifier;
 
         private const int IdlePollSeconds = 60;
 
@@ -157,7 +149,7 @@ namespace TextTemplateManager
         // Check for updates on startup and every 10 minutes.
         private void StartUpdateChecks()
         {
-            _notifier = new Services.System.UpdateNotifier(DispatcherQueue, OnNotificationAction);
+            _notifier = new UpdateNotifier(DispatcherQueue, OnNotificationAction);
             _notifier.Register();
 
             _updates = new UpdateCoordinator(this) { LaunchedHidden = App.IsHiddenLaunch() };

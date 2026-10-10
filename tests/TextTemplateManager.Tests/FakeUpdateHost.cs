@@ -1,4 +1,4 @@
-using TextTemplateManager.Services.System;
+using TextTemplateManager.Services.Platform;
 
 namespace TextTemplateManager.Tests;
 

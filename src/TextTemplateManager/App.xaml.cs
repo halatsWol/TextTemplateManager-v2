@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TextTemplateManager.Data;
 using TextTemplateManager.Helpers;
-using TextTemplateManager.Services.System;
+using TextTemplateManager.Services.Platform;
 using WinRT.Interop;
 
 

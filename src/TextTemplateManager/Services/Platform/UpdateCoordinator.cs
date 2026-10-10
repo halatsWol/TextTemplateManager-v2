@@ -1,10 +1,8 @@
 using System;
-// Imported rather than qualified: this namespace itself ends in ".System", so a written-out
-// "System.IO.Path" would bind to TextTemplateManager.Services.System.IO and fail to compile.
 using System.IO;
 using System.Threading.Tasks;
 
-namespace TextTemplateManager.Services.System;
+namespace TextTemplateManager.Services.Platform;
 
 public enum UpdateStatusKind { None, Downloading, Available, Ready }
 

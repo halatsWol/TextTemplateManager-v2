@@ -3,7 +3,7 @@ using System.IO;
 using System.Text.Json;
 using TextTemplateManager.Data;
 
-namespace TextTemplateManager.Services.System;
+namespace TextTemplateManager.Services.Platform;
 
 /// <summary>Persisted state for an unattended update: which release is armed to install, and how many
 /// attempts have already been launched for it. Survives the process, so an install deferred at exit

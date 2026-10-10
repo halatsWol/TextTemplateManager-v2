@@ -10,7 +10,7 @@ using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
 using TextTemplateManager.Services.Pasting;
 
-namespace TextTemplateManager.Services.System;
+namespace TextTemplateManager.Services.Platform;
 
 /// <summary>Serves the connector from the live template tree. The tree is snapshotted on the UI
 /// thread (<see cref="Rebuild"/>) into an immutable structure the connector's background threads

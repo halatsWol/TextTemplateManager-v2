@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TextTemplateManager.Data;
 
-namespace TextTemplateManager.Services.System;
+namespace TextTemplateManager.Services.Platform;
 
 /// <summary>
 /// Checks GitHub Releases for a newer version, downloads its installer, and launches it silently.
