@@ -151,25 +151,32 @@
 
                     <!-- TreeView -->
                     <!-- KeyDown is attached in code with handledEventsToo so Enter/Space are seen
-                         even after the TreeView marks them handled (see the constructor). -->
+                         even after the TreeView marks them handled (see the constructor), and so are
+                         DragOver/Drop. Items are dragged by their own CanDrag and dropped by those
+                         handlers; the TreeView's built-in reorder would move them inside the view
+                         collections only. The transparent background makes the space below the rows a
+                         drop target too. -->
                     <TreeView x:Name="ItemTreeView"
                               Grid.Row="2"
+                              Background="Transparent"
                               SelectionMode="Single"
-                              CanDragItems="True"
-                              CanReorderItems="True"
+                              CanDragItems="False"
+                              CanReorderItems="False"
                               AllowDrop="True"
                               ItemsSource="{x:Bind ViewModel.RootNodes, Mode=OneWay}"
                               ItemInvoked="ItemTreeView_ItemInvoked"
                               Tapped="ItemTreeView_Tapped"
-                              DragOver="ItemTreeView_DragOver"
-                              DragItemsStarting="ItemTreeView_DragItemsStarting"
-                              DragItemsCompleted="ItemTreeView_DragItemsCompleted"
                               SelectedItem="{x:Bind ViewModel.SelectedItem, Mode=TwoWay}">
                         <TreeView.ItemTemplate>
                             <DataTemplate x:DataType="local:BaseItem">
                                 <TreeViewItem ItemsSource="{x:Bind ViewChildren, Mode=OneWay}"
                                               IsExpanded="{x:Bind IsExpanded, Mode=TwoWay}"
                                               HorizontalContentAlignment="Stretch"
+                                              CanDrag="True"
+                                              AllowDrop="True"
+                                              DragEnter="TreeItem_DragEnter"
+                                              DragStarting="TreeItem_DragStarting"
+                                              DropCompleted="TreeItem_DropCompleted"
                                               RightTapped="Tree_RightTapped">
                                     <!-- Background=Transparent so the whole row is hit-testable, not just the text. -->
                                     <Grid Background="Transparent">

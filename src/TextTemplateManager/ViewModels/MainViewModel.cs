@@ -446,236 +446,39 @@ public partial class MainViewModel : ObservableObject
 
     #endregion
 
-    #region Drag & Drop Reordering
+    #region Moving Items
 
-    // Suppress auto-save while WinUI mutates the shared collections mid-drag.
-    public void BeginDrag() => _dataNode.BeginDrag();
-    public void EndDrag() => _dataNode.EndDrag();
+    public enum DropSpot { Before, Into, After }
 
-    private sealed record DragOrigin(SyncSource? Source, BaseItem? Parent, int Index);
-    private readonly Dictionary<BaseItem, DragOrigin> _dragOrigins = new();
-
-    /// <summary>Remember an item's origin (source + parent + index) so a bad drop can be reverted
-    /// and a boundary crossing detected.</summary>
-    public void CaptureDragOrigin(BaseItem item)
+    /// <summary>Where a drop on <paramref name="target"/> puts an item: the folder (null = top level) and the
+    /// index among its children.</summary>
+    public (Folder? Folder, int Index) DropDestination(BaseItem target, DropSpot spot)
     {
-        var source = _dataNode.GetSyncSourceForItem(item);
-        var parent = FindParent(AllItems, item);
-        var coll = (parent as Folder)?.Children ?? AllItems;
-        _dragOrigins[item] = new DragOrigin(source, parent, coll.IndexOf(item));
+        if (spot == DropSpot.Into && target is Folder folder) return (folder, folder.Children.Count);
+        var parent = FindParent(AllItems, target) as Folder;
+        var siblings = parent?.Children ?? AllItems;
+        int index = siblings.IndexOf(target);
+        return (parent, spot == DropSpot.After ? index + 1 : index);
     }
 
-    public void ClearDragOrigins() => _dragOrigins.Clear();
+    public bool CanMove(BaseItem item, Folder? folder) => _dataNode.CanMove(item, folder);
 
-    /// <summary>Enforce drop rules on the reconciled tree: templates can't be parents (a drop onto
-    /// one becomes a sibling), read-only drops are reverted, and SyncIds are handed off across
-    /// boundaries. Returns true if the tree was changed (so it must be rebuilt).</summary>
-    private bool ApplyDropRules()
+    /// <summary>Moves an item and keeps it selected. Moving into another area may have cleared or renamed
+    /// shortcuts, so the conflict flags are refreshed too.</summary>
+    public async Task MoveAsync(BaseItem item, Folder? folder, int index)
     {
-        bool changed = false;
-        foreach (var (item, origin) in _dragOrigins)
-        {
-            // Templates can never have children: a drop onto a template lands as a sibling below it.
-            if (FindParent(AllItems, item) is Template target)
-            {
-                ReparentAsSibling(item, target);
-                changed = true;
-            }
+        if (!await _dataNode.MoveItemAsync(item, folder, index)) return;
+        if (folder != null) folder.IsExpanded = true;   // reveal the moved item
 
-            var dest = _dataNode.GetSyncSourceForItem(item);
-
-            // Nothing may land in a read-only (save-off) sync folder — revert entirely.
-            if (dest != null && !dest.AllowSave)
-            {
-                RevertToOrigin(item, origin);
-                changed = true;
-                continue;
-            }
-
-            // Crossed a sync-folder boundary: drop the old SyncId (write-through reassigns) and
-            // de-conflict shortcuts against the new area.
-            if (!ReferenceEquals(origin.Source, dest))
-            {
-                ClearSyncIdRecursive(item);
-                EnforceAreaShortcutsOnMove(item);
-            }
-        }
-        return changed;
+        // The TreeView crashes on an in-place Move of its bound root collection (see TreeChanged).
+        if (RootOrderChanged()) ReloadTree();
+        else ApplyFilter();
+        SelectedItem = item;
+        ValidateAllShortcuts();
     }
 
-    /// <summary>Moves <paramref name="item"/> to sit directly below <paramref name="target"/> in the
-    /// target's parent — used when something is dropped onto a (leaf) template.</summary>
-    private void ReparentAsSibling(BaseItem item, Template target)
-    {
-        var siblings = (FindParent(AllItems, target) as Folder)?.Children ?? AllItems;
-        RemoveFromTree(item);
-        int idx = siblings.IndexOf(target);
-        siblings.Insert(idx < 0 ? siblings.Count : idx + 1, item);
-    }
-
-    /// <summary>On a move into a new area, fix shortcut clashes with templates already there: a
-    /// duplicate single key is cleared; a duplicate multi key gets a numeric suffix (MSG → MSG1).</summary>
-    private void EnforceAreaShortcutsOnMove(BaseItem movedItem)
-    {
-        var movedTemplates = Flatten(new[] { movedItem }).OfType<Template>().ToList();
-        if (movedTemplates.Count == 0) return;
-
-        var movedSet = new HashSet<Template>(movedTemplates);
-        Guid areaKey = _dataNode.GetAreaKey(movedItem);
-
-        // Existing templates in the destination area (excluding the moved subtree).
-        var areaTemplates = Flatten(AllItems).OfType<Template>()
-            .Where(t => !movedSet.Contains(t) && _dataNode.GetAreaKey(t) == areaKey)
-            .ToList();
-
-        foreach (var t in movedTemplates)
-        {
-            if (!string.IsNullOrWhiteSpace(t.SingleKeyShortcut) &&
-                areaTemplates.Any(o => string.Equals(o.SingleKeyShortcut, t.SingleKeyShortcut, StringComparison.OrdinalIgnoreCase)))
-            {
-                t.SingleKeyShortcut = string.Empty;
-            }
-
-            if (!string.IsNullOrWhiteSpace(t.MultiKeyShortcut))
-            {
-                var taken = new HashSet<string>(
-                    areaTemplates.Where(o => !string.IsNullOrWhiteSpace(o.MultiKeyShortcut))
-                                 .Select(o => o.MultiKeyShortcut),
-                    StringComparer.OrdinalIgnoreCase);
-
-                if (taken.Contains(t.MultiKeyShortcut))
-                {
-                    string baseKey = t.MultiKeyShortcut;
-                    int n = 1;
-                    string candidate = baseKey + n;
-                    while (taken.Contains(candidate)) { n++; candidate = baseKey + n; }
-                    t.MultiKeyShortcut = candidate;
-                }
-            }
-
-            areaTemplates.Add(t);   // so later moved siblings avoid it too
-        }
-    }
-
-    private void RevertToOrigin(BaseItem item, DragOrigin origin)
-    {
-        RemoveFromTree(item);
-        var coll = (origin.Parent as Folder)?.Children ?? AllItems;
-        int idx = Math.Clamp(origin.Index, 0, coll.Count);
-        if (!coll.Contains(item)) coll.Insert(idx, item);
-    }
-
-    private void RemoveFromTree(BaseItem item)
-    {
-        if (AllItems.Remove(item)) return;
-        foreach (var top in AllItems) if (RemoveFromChildren(top, item)) return;
-    }
-
-    private static bool RemoveFromChildren(BaseItem parent, BaseItem item)
-    {
-        if (parent.Children.Remove(item)) return true;
-        foreach (var c in parent.Children) if (RemoveFromChildren(c, item)) return true;
-        return false;
-    }
-
-    private static void ClearSyncIdRecursive(BaseItem item)
-    {
-        item.SyncId = null;
-        foreach (var c in item.Children) ClearSyncIdRecursive(c);
-    }
-
-    /// <summary>Moves an item out to the root level (as a local item, after the pinned sync
-    /// folders). A reliable alternative to dragging an item out of a folder.</summary>
-    public void MoveToRoot(BaseItem item)
-    {
-        if (FindParent(AllItems, item) is null) return;   // already at root
-
-        var origin = _dataNode.GetSyncSourceForItem(item);
-
-        _dataNode.BeginDrag();   // suppress the transient auto-saves
-        try
-        {
-            RemoveFromTree(item);
-            AllItems.Add(item);            // append after the pinned sync folders / existing locals
-            item.ParentId = Guid.Empty;
-
-            if (origin != null)            // left a sync source -> now local
-            {
-                ClearSyncIdRecursive(item);
-                EnforceAreaShortcutsOnMove(item);
-            }
-        }
-        finally { _dataNode.EndDrag(); }
-
-        ReloadTree();
-        _ = SaveCurrentStateAsync();
-    }
-
-    public Task SyncMasterAfterDragAsync()
-    {
-        DispatcherQueue.GetForCurrentThread().TryEnqueue(async () =>
-        {
-            try
-            {
-                // Skip while searching: the pruned view isn't the real order, so the drag is
-                // discarded when search clears and ViewChildren rebuilds from Children.
-                if (!string.IsNullOrWhiteSpace(SearchText)) return;
-
-                // The drag mutated RootNodes/ViewChildren, not the real data — rebuild from them.
-                var currentTree = RootNodes.ToList();
-                AllItems.Clear();
-                foreach (var item in currentTree)
-                    AllItems.Add(item);
-
-                foreach (var item in AllItems)
-                    ReconcileChildrenFromView(item);
-
-                NormalizeParentIds(AllItems, Guid.Empty);
-
-                // A rule (template-sibling, revert, ...) changed the data — rebuild the tree so the
-                // visual result matches (TreeView doesn't reflect in-place moves reliably).
-                if (ApplyDropRules()) ReloadTree();
-                ClearDragOrigins();
-            }
-            finally
-            {
-                _dataNode.EndDrag();   // re-enable saving before the final save
-            }
-
-            await SaveCurrentStateAsync();   // single authoritative save for the drag
-        });
-
-        return Task.CompletedTask;
-    }
-
-    /// <summary>Set each item's ParentId to its actual container, so the stored field doesn't go
-    /// stale after a move.</summary>
-    private void NormalizeParentIds(IEnumerable<BaseItem> items, Guid parentId)
-    {
-        foreach (var item in items)
-        {
-            item.ParentId = parentId;
-
-            if (item is Folder folder)
-                NormalizeParentIds(folder.Children, folder.Id);
-        }
-    }
-
-    /// <summary>Rebuild real Children from ViewChildren (what the drag mutated). Reconciles ALL
-    /// items, not just folders: a drag can drop an item into a template's ViewChildren, and this
-    /// captures it into Children so ApplyDropRules can re-parent it as a sibling.</summary>
-    private void ReconcileChildrenFromView(BaseItem item)
-    {
-        var ordered = item.ViewChildren.ToList();
-        item.Children.Clear();
-        foreach (var child in ordered)
-            item.Children.Add(child);
-
-        foreach (var child in item.ViewChildren)
-            ReconcileChildrenFromView(child);
-    }
-
-    public Task SaveCurrentStateAsync() => _dataNode.SaveDataAsync();
+    /// <summary>Moves an item out to the top level, after the pinned sync folders and the local items.</summary>
+    public Task MoveToRootAsync(BaseItem item) => MoveAsync(item, null, AllItems.Count);
 
     #endregion
 

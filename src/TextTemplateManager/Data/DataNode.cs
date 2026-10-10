@@ -16,7 +16,6 @@ public class DataNode
     private readonly string _localDataPath;
     private bool _isInitialized = false;
     private int _saveSuppressions;   // open SuppressSaves() scopes: load, move, replace, sync apply
-    private bool _dragInProgress;    // the TreeView's own drag, from BeginDrag to EndDrag
 
     /// <summary>The file IO for this store's data folder.</summary>
     public StorageService Storage { get; }
@@ -168,29 +167,100 @@ public class DataNode
         await Storage.SaveAsync(path, root);
     }
 
-    public async Task MoveItemAsync(BaseItem item, Folder? targetFolder)
+    /// <summary>Whether <paramref name="item"/> may move into <paramref name="target"/> (null = top level):
+    /// not a pinned sync root, nothing read-only on either side, never into itself or its own subtree.</summary>
+    public bool CanMove(BaseItem item, Folder? target)
     {
-        if (item == null) return;
+        if (item.IsSyncRoot || IsItemReadOnly(item) || FindContainer(RootFolder.Children, item) == null) return false;
+        if (target == null) return true;
+        if (FindContainer(RootFolder.Children, target) == null || IsItemReadOnly(target)) return false;
+        return !ReferenceEquals(item, target) && !ContainsRecursive(item, target);
+    }
 
-        try
+    /// <summary>Moves <paramref name="item"/> to <paramref name="index"/> among <paramref name="target"/>'s
+    /// children (null = top level, after the pinned sync folders) with one save. Moving into another area
+    /// (sync folder or local) gives the item new file ids and resolves its shortcut clashes there.</summary>
+    public async Task<bool> MoveItemAsync(BaseItem item, Folder? target, int index)
+    {
+        if (!CanMove(item, target)) return false;
+
+        using (SuppressSaves())
         {
-            using var _ = SuppressSaves();
-            var destination = targetFolder ?? RootFolder;
+            var originArea = GetAreaKey(item);
+            var from = FindContainer(RootFolder.Children, item)!;
+            var to = target?.Children ?? RootFolder.Children;
+            int oldIndex = from.IndexOf(item);
+            if (ReferenceEquals(from, to) && oldIndex < index) index--;
 
-            RemoveFromTreeById(RootFolder.Children, item.Id);   // no duplicates
-            item.ParentId = destination.Id;
-            item.LastChange = DateTime.Now.ToString("yyyyMMddHHmmss");
+            from.RemoveAt(oldIndex);
+            int first = target == null ? to.Count(c => c.IsSyncRoot) : 0;
+            to.Insert(Math.Clamp(index, first, to.Count), item);
+            item.ParentId = target?.Id ?? Guid.Empty;
 
-            if (!destination.Children.Contains(item))
-                destination.Children.Insert(0, item);
-
-            AttachChangeTracking(item);
+            if (GetAreaKey(item) != originArea)
+            {
+                ClearSyncIds(item);
+                ResolveShortcutClashes(item);
+            }
         }
-        finally
+        await SaveDataAsync();
+        return true;
+    }
+
+    private static ObservableCollection<BaseItem>? FindContainer(ObservableCollection<BaseItem> collection, BaseItem item)
+    {
+        if (collection.Contains(item)) return collection;
+        foreach (var child in collection)
+            if (FindContainer(child.Children, item) is { } found) return found;
+        return null;
+    }
+
+    private static void ClearSyncIds(BaseItem item)
+    {
+        item.SyncId = null;   // the sync write assigns fresh ones
+        foreach (var child in item.Children) ClearSyncIds(child);
+    }
+
+    private static IEnumerable<Template> TemplatesIn(BaseItem item) =>
+        item is Template t ? new[] { t } : item.Children.SelectMany(TemplatesIn);
+
+    // A duplicate single key is cleared; a duplicate multi key gets a numeric suffix (MSG -> MSG1).
+    private void ResolveShortcutClashes(BaseItem movedItem)
+    {
+        var moved = TemplatesIn(movedItem).ToList();
+        if (moved.Count == 0) return;
+
+        var movedSet = new HashSet<Template>(moved);
+        Guid area = GetAreaKey(movedItem);
+        var areaTemplates = AllItems.Where(t => !movedSet.Contains(t) && GetAreaKey(t) == area).ToList();
+
+        foreach (var t in moved)
         {
-            await SaveDataAsync();
+            if (!string.IsNullOrWhiteSpace(t.SingleKeyShortcut) &&
+                areaTemplates.Any(o => string.Equals(o.SingleKeyShortcut, t.SingleKeyShortcut, StringComparison.OrdinalIgnoreCase)))
+            {
+                t.SingleKeyShortcut = string.Empty;
+            }
+
+            if (!string.IsNullOrWhiteSpace(t.MultiKeyShortcut))
+            {
+                var taken = new HashSet<string>(
+                    areaTemplates.Where(o => !string.IsNullOrWhiteSpace(o.MultiKeyShortcut)).Select(o => o.MultiKeyShortcut),
+                    StringComparer.OrdinalIgnoreCase);
+
+                if (taken.Contains(t.MultiKeyShortcut))
+                {
+                    string baseKey = t.MultiKeyShortcut;
+                    int n = 1;
+                    while (taken.Contains(baseKey + n)) n++;
+                    t.MultiKeyShortcut = baseKey + n;
+                }
+            }
+
+            areaTemplates.Add(t);   // so later moved siblings avoid it too
         }
     }
+
     private void RemoveFromTreeById(ObservableCollection<BaseItem> collection, Guid id)
     {
         for (int i = collection.Count - 1; i >= 0; i--)
@@ -211,15 +281,8 @@ public class DataNode
 
     #region Tracking & Persistence
 
-    /// <summary>Suppress auto-save during a drag; the drag's final save is authoritative.</summary>
-    public void BeginDrag() => _dragInProgress = true;
-
-    /// <summary>Re-enable auto-save. Call BEFORE the final save so it isn't suppressed.</summary>
-    public void EndDrag() => _dragInProgress = false;
-
-    // The drag is a flag, not a count: a drag whose completion never arrived must not keep saving
-    // off for good. Everything else nests, so a sync re-apply mid-drag can't switch saving back on.
-    private bool SavesSuppressed => Volatile.Read(ref _saveSuppressions) > 0 || _dragInProgress;
+    // Counted, so a sync re-apply nested in another suppressed change can't switch saving back on.
+    private bool SavesSuppressed => Volatile.Read(ref _saveSuppressions) > 0;
 
     private SaveSuppression SuppressSaves()
     {

@@ -70,25 +70,119 @@ public class DataNodeTests
         Assert.Equal("<p>a typed</p>", Assert.IsType<Template>(Assert.Single(saved!.Children)).Content);
     }
 
+    private static Folder AddSyncFolder(DataNode node, bool allowSave)
+    {
+        var source = new SyncSource
+        {
+            Name = "Team",
+            Path = Path.Combine(TestEnvironment.NewScratchDir(), "team.ttmdata"),
+            IsActive = true,
+            AllowSave = allowSave,
+        };
+        node.CurrentSyncSettings.Sources.Add(source);
+        var root = new Folder { Id = source.Id, Title = "Team", IsSyncRoot = true, SyncId = Guid.Empty };
+        node.LocalItems.Insert(0, root);
+        return root;
+    }
+
     [Fact]
-    public async Task A_sync_reapply_during_a_drag_does_not_switch_saving_back_on()
+    public async Task Moving_within_a_folder_puts_the_item_at_the_drop_index()
     {
         var (node, _) = await NewNodeAsync();
-        var template = new Template { Title = "Before" };
+        var a = new Template { Title = "A" };
+        var b = new Template { Title = "B" };
+        var c = new Template { Title = "C" };
+        foreach (var t in new[] { a, b, c }) await node.AddItemAsync(t);
+
+        Assert.True(await node.MoveItemAsync(a, null, 2));   // above C
+        Assert.Equal(new[] { "B", "A", "C" }, node.LocalItems.Select(i => i.Title));
+
+        Assert.True(await node.MoveItemAsync(c, null, 0));   // above B
+        Assert.Equal(new[] { "C", "B", "A" }, node.LocalItems.Select(i => i.Title));
+    }
+
+    [Fact]
+    public async Task Moving_into_a_folder_reparents_and_saves_once()
+    {
+        var (node, path) = await NewNodeAsync();
+        var folder = new Folder { Title = "Folder" };
+        var template = new Template { Title = "Moved" };
+        await node.AddItemAsync(folder);
         await node.AddItemAsync(template);
         int saves = 0;
         node.DataSaved += () => Interlocked.Increment(ref saves);
 
-        node.BeginDrag();
-        await node.ReapplySyncAsync();   // the sync poll can land mid-drag
-        template.Title = "Edited mid-drag";
-        await Task.Delay(800);           // past the edit debounce
+        Assert.True(await node.MoveItemAsync(template, folder, folder.Children.Count));
 
-        Assert.Equal(0, saves);
-
-        node.EndDrag();
-        await node.SaveDataAsync();      // the drag's single authoritative save
         Assert.Equal(1, saves);
+        Assert.Same(template, Assert.Single(folder.Children));
+        Assert.Equal(folder.Id, template.ParentId);
+        var saved = await StorageService.LoadRootAsync(path);
+        Assert.Equal("Moved", Assert.Single(Assert.Single(saved!.Children).Children).Title);
+    }
+
+    [Fact]
+    public async Task A_folder_cannot_move_into_its_own_subtree()
+    {
+        var (node, _) = await NewNodeAsync();
+        var outer = new Folder { Title = "Outer" };
+        var inner = new Folder { Title = "Inner" };
+        await node.AddItemAsync(outer);
+        await node.AddItemAsync(inner, outer);
+
+        Assert.False(await node.MoveItemAsync(outer, inner, 0));
+        Assert.False(await node.MoveItemAsync(outer, outer, 0));
+        Assert.Same(outer, Assert.Single(node.LocalItems));
+        Assert.Same(inner, Assert.Single(outer.Children));
+    }
+
+    [Fact]
+    public async Task Top_level_moves_stay_below_the_sync_folders()
+    {
+        var (node, _) = await NewNodeAsync();
+        var syncRoot = AddSyncFolder(node, allowSave: true);
+        var template = new Template { Title = "Local" };
+        await node.AddItemAsync(template);
+
+        Assert.True(await node.MoveItemAsync(template, null, 0));
+
+        Assert.Equal(new BaseItem[] { syncRoot, template }, node.LocalItems);
+        Assert.False(node.CanMove(syncRoot, null));
+    }
+
+    [Fact]
+    public async Task Nothing_moves_into_or_out_of_a_read_only_sync_folder()
+    {
+        var (node, _) = await NewNodeAsync();
+        var syncRoot = AddSyncFolder(node, allowSave: false);
+        var shared = new Template { Title = "Shared", SyncId = Guid.NewGuid() };
+        syncRoot.Children.Add(shared);
+        var local = new Template { Title = "Local" };
+        await node.AddItemAsync(local);
+
+        Assert.False(await node.MoveItemAsync(local, syncRoot, 0));
+        Assert.False(await node.MoveItemAsync(shared, null, 0));
+        Assert.Same(shared, Assert.Single(syncRoot.Children));
+        Assert.Contains(local, node.LocalItems);
+    }
+
+    [Fact]
+    public async Task Moving_to_another_area_drops_file_ids_and_resolves_shortcut_clashes()
+    {
+        var (node, _) = await NewNodeAsync();
+        var syncRoot = AddSyncFolder(node, allowSave: true);
+        var folder = new Folder { Title = "Shared folder", SyncId = Guid.NewGuid() };
+        var shared = new Template { Title = "Shared", SyncId = Guid.NewGuid(), SingleKeyShortcut = "G", MultiKeyShortcut = "MSG" };
+        folder.Children.Add(shared);
+        syncRoot.Children.Add(folder);
+        await node.AddItemAsync(new Template { Title = "Local", SingleKeyShortcut = "G", MultiKeyShortcut = "MSG" });
+
+        Assert.True(await node.MoveItemAsync(folder, null, node.LocalItems.Count));
+
+        Assert.Null(folder.SyncId);
+        Assert.Null(shared.SyncId);
+        Assert.Equal("", shared.SingleKeyShortcut);
+        Assert.Equal("MSG1", shared.MultiKeyShortcut);
     }
 
     [Fact]

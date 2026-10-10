@@ -48,6 +48,9 @@ namespace TextTemplateManager
             // handledEventsToo: the TreeView marks Enter/Space handled, so a plain KeyDown handler
             // never sees them — attach here to still get folder expand/collapse on those keys.
             ItemTreeView.AddHandler(UIElement.KeyDownEvent, new KeyEventHandler(ItemTreeView_KeyDown), true);
+            // The list marks drag events over its empty space handled; a drop there moves to the end.
+            ItemTreeView.AddHandler(UIElement.DragOverEvent, new DragEventHandler(ItemTreeView_DragOver), true);
+            ItemTreeView.AddHandler(UIElement.DropEvent, new DragEventHandler(ItemTreeView_Drop), true);
             // Same for the search box: the AutoSuggestBox takes the arrow keys for its suggestion list.
             SearchBox.AddHandler(UIElement.KeyDownEvent, new KeyEventHandler(SearchBox_KeyDown), true);
             // Esc is taken before the AutoSuggestBox sees it: its own Esc restores the last typed text.
@@ -469,7 +472,11 @@ namespace TextTemplateManager
                 && ViewModel.FindParent(ViewModel.AllItems, item) != null)
             {
                 var toRoot = new MenuFlyoutItem { Text = "Move to Root" };
-                toRoot.Click += (_, _) => ViewModel.MoveToRoot(item);
+                toRoot.Click += async (_, _) =>
+                {
+                    await ViewModel.MoveToRootAsync(item);
+                    ShowShortcutConflicts();
+                };
                 flyout.Items.Add(toRoot);
             }
 
@@ -1025,13 +1032,93 @@ namespace TextTemplateManager
             return null;
         }
 
+        private BaseItem? _draggedItem;
+
+        private void TreeItem_DragStarting(UIElement sender, DragStartingEventArgs args)
+        {
+            // Pinned sync roots and read-only items can't be moved.
+            if (sender is not FrameworkElement { DataContext: BaseItem item } || !ViewModel.CanMove(item, null))
+            {
+                args.Cancel = true;
+                return;
+            }
+            _draggedItem = item;
+            args.AllowedOperations = DataPackageOperation.Move;
+        }
+
+        private void TreeItem_DropCompleted(UIElement sender, DropCompletedEventArgs args) => _draggedItem = null;
+
+        // Folders: the top and bottom quarter of a row drop beside the folder, the middle into it. A drop
+        // below an expanded folder lands at the top of its children, which is what the rows below show.
+        private (Folder? Folder, int Index, string Caption) DropDestination(DragEventArgs e)
+        {
+            var row = RowAt(e);
+            if (row?.DataContext is not BaseItem target)
+                return (null, ViewModel.AllItems.Count, "Move to the end");
+
+            double y = Math.Clamp(e.GetPosition(row).Y, 0, row.ActualHeight), height = row.ActualHeight;
+            var spot = target is Folder
+                ? y < height / 4 ? MainViewModel.DropSpot.Before : y > height * 3 / 4 ? MainViewModel.DropSpot.After : MainViewModel.DropSpot.Into
+                : y < height / 2 ? MainViewModel.DropSpot.Before : MainViewModel.DropSpot.After;
+
+            if (spot == MainViewModel.DropSpot.After && target is Folder { IsExpanded: true } open && open.ViewChildren.Count > 0)
+                return (open, 0, $"Move into \"{target.Title}\"");
+
+            var (folder, index) = ViewModel.DropDestination(target, spot);
+            string caption = spot switch
+            {
+                MainViewModel.DropSpot.Into => $"Move into \"{target.Title}\"",
+                MainViewModel.DropSpot.Before => $"Move above \"{target.Title}\"",
+                _ => $"Move below \"{target.Title}\"",
+            };
+            return (folder, index, caption);
+        }
+
+        // The row under the pointer, or the nearest one when the pointer is in the gap between two rows;
+        // null below the last row. (A drag event's OriginalSource is the list, not the row.)
+        private TreeViewItem? RowAt(DragEventArgs e)
+        {
+            var bounds = ItemTreeView.TransformToVisual(null)
+                .TransformBounds(new Windows.Foundation.Rect(0, 0, ItemTreeView.ActualWidth, ItemTreeView.ActualHeight));
+            TreeViewItem? nearest = null;
+            double nearestDistance = double.MaxValue;
+            bool belowAll = true;
+            foreach (var row in VisualTreeHelper.FindElementsInHostCoordinates(bounds, ItemTreeView).OfType<TreeViewItem>())
+            {
+                double y = e.GetPosition(row).Y;
+                if (y < row.ActualHeight) belowAll = false;
+                double distance = y < 0 ? -y : y > row.ActualHeight ? y - row.ActualHeight : 0;
+                if (distance < nearestDistance) (nearest, nearestDistance) = (row, distance);
+            }
+            return belowAll ? null : nearest;
+        }
+
+        // A row resets the result to None when the pointer enters it, and that enter doesn't reach the
+        // TreeView. With no DragOver after it (the pointer stopped on the row) the drop would be refused.
+        private void TreeItem_DragEnter(object sender, DragEventArgs e) => ItemTreeView_DragOver(sender, e);
+
         private void ItemTreeView_DragOver(object sender, DragEventArgs e)
         {
-            e.AcceptedOperation = DataPackageOperation.Move;
+            e.AcceptedOperation = DataPackageOperation.None;
+            if (_draggedItem is not BaseItem item) return;
+            var (folder, _, caption) = DropDestination(e);
+            if (!ViewModel.CanMove(item, folder)) return;
 
-            // Reject drops onto a read-only sync folder.
-            if (FindItemFromSource(e.OriginalSource) is BaseItem target && ViewModel.IsReadOnly(target))
-                e.AcceptedOperation = DataPackageOperation.None;
+            e.AcceptedOperation = DataPackageOperation.Move;
+            e.DragUIOverride.Caption = caption;
+            e.DragUIOverride.IsGlyphVisible = false;
+        }
+
+        private async void ItemTreeView_Drop(object sender, DragEventArgs e)
+        {
+            e.Handled = true;
+            var item = _draggedItem;
+            _draggedItem = null;
+            if (item == null) return;
+
+            var (folder, index, _) = DropDestination(e);
+            await ViewModel.MoveAsync(item, folder, index);
+            ShowShortcutConflicts();
         }
 
         private static BaseItem? FindItemFromSource(object source)
@@ -1043,39 +1130,6 @@ namespace TextTemplateManager
                 el = VisualTreeHelper.GetParent(el);
             }
             return null;
-        }
-
-        private void ItemTreeView_DragItemsStarting(TreeView sender, TreeViewDragItemsStartingEventArgs args)
-        {
-            // Pinned sync roots and read-only items can't be dragged.
-            ViewModel.ClearDragOrigins();
-            foreach (var obj in args.Items)
-            {
-                if (obj is BaseItem item)
-                {
-                    if (item.IsSyncRoot || ViewModel.IsReadOnly(item)) { args.Cancel = true; return; }
-                    ViewModel.CaptureDragOrigin(item);
-                }
-            }
-
-            ViewModel.BeginDrag();   // suppress auto-save mid-drag; saved once on completion
-        }
-
-        private async void ItemTreeView_DragItemsCompleted(TreeView sender, TreeViewDragItemsCompletedEventArgs args)
-        {
-            var movedItem = args.Items.FirstOrDefault() as BaseItem;
-            if (movedItem == null)
-            {
-                // Nothing moved: still clear the suppression flag we set on start.
-                ViewModel.EndDrag();
-                return;
-            }
-            await ViewModel.SyncMasterAfterDragAsync();
-
-            // A boundary-crossing move may have cleared/renamed shortcuts (area rules) — refresh
-            // the conflict flags and the floating panel.
-            ViewModel.ValidateAllShortcuts();
-            ShowShortcutConflicts();
         }
 
         #endregion
