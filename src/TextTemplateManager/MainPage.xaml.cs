@@ -112,7 +112,7 @@ namespace TextTemplateManager
             };
 
             foreach (var t in ViewModel.AllItems
-                           .SelectMany(i => Flatten(i))
+                           .Descendants()
                            .OfType<TextTemplateManager.Models.Template>())
             {
                 t.PropertyChanged += Template_PropertyChanged;
@@ -469,7 +469,7 @@ namespace TextTemplateManager
 
             // Move to Root — for a nested, editable item (a reliable alternative to dragging it out).
             if (!item.IsSyncRoot && !ViewModel.IsReadOnly(item)
-                && ViewModel.FindParent(ViewModel.AllItems, item) != null)
+                && ViewModel.AllItems.ParentOf(item) != null)
             {
                 var toRoot = new MenuFlyoutItem { Text = "Move to Root" };
                 toRoot.Click += async (_, _) =>
@@ -505,7 +505,7 @@ namespace TextTemplateManager
 
             if (item is Folder folder && folder.Children.Count > 0)
             {
-                int childCount = Flatten(folder).Count() - 1; // exclude the folder itself
+                int childCount = folder.SelfAndDescendants().Count() - 1; // exclude the folder itself
                 message = $"Delete the folder \"{item.Title}\" and its {childCount} item(s)?\n\n" +
                           "All items inside this folder will be deleted as well. This cannot be undone.";
             }
@@ -1220,7 +1220,7 @@ namespace TextTemplateManager
 
             ConflictStack.Children.Clear();
 
-            var allTemplates = ViewModel.AllItems.SelectMany(i => Flatten(i)).OfType<TextTemplateManager.Models.Template>().ToList();
+            var allTemplates = ViewModel.AllItems.Descendants().OfType<TextTemplateManager.Models.Template>().ToList();
 
             var singleConflicts = allTemplates
                 .Where(t => t.HasSingleKeyConflict)
@@ -1371,17 +1371,6 @@ namespace TextTemplateManager
             AddNotes("Note — same multi-key in different areas (allowed; local wins, then sync order):", multiCrossAreaNotes);
         }
 
-
-        #endregion
-
-        #region Helpers
-
-        private IEnumerable<BaseItem> Flatten(BaseItem root)
-        {
-            yield return root;
-            foreach (var child in root.Children.SelectMany(c => Flatten(c)))
-                yield return child;
-        }
 
         #endregion
     }

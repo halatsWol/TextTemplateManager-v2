@@ -84,7 +84,7 @@ public partial class MainViewModel : ObservableObject
                     ReloadTree();
                 else
                     ApplyFilter();
-                if (prev != null && !ReferenceEquals(SelectedItem, prev) && Flatten(AllItems).Contains(prev))
+                if (prev != null && !ReferenceEquals(SelectedItem, prev) && AllItems.Descendants().Contains(prev))
                     SelectedItem = prev;
             }
             catch (Exception ex)
@@ -104,7 +104,7 @@ public partial class MainViewModel : ObservableObject
                 StartSyncPolling();
             });
 
-            foreach (var t in Flatten(AllItems).OfType<Template>())
+            foreach (var t in AllItems.Descendants().OfType<Template>())
             {
                 t.PropertyChanged += (_, e) =>
                 {
@@ -256,7 +256,7 @@ public partial class MainViewModel : ObservableObject
 
     /// <summary>Target for a new item: the selected folder, a selected template's parent, else root.</summary>
     private Folder? AddTargetFolder() =>
-        SelectedItem as Folder ?? (SelectedItem != null ? FindParent(AllItems, SelectedItem) as Folder : null);
+        SelectedItem as Folder ?? (SelectedItem != null ? AllItems.ParentOf(SelectedItem) as Folder : null);
 
     [RelayCommand]
     private async Task AddTemplate()
@@ -322,7 +322,7 @@ public partial class MainViewModel : ObservableObject
         // Read-only item → clone locally (outside the sync folder); else sibling of the original.
         Folder? parent = _dataNode.IsItemReadOnly(SelectedItem)
             ? null
-            : FindParent(AllItems, SelectedItem) as Folder;
+            : AllItems.ParentOf(SelectedItem) as Folder;
         var siblings = parent?.Children ?? AllItems;
         string cloneTitle = GetUniqueTitle($"{SelectedItem.Title} (Copy)", siblings);
 
@@ -359,17 +359,6 @@ public partial class MainViewModel : ObservableObject
     public string GetEffectiveMultiKey(Template t) => _dataNode.GetEffectiveMultiKey(t);
 
     public Guid GetAreaKey(BaseItem item) => _dataNode.GetAreaKey(item);
-
-    public BaseItem? FindParent(IEnumerable<BaseItem> items, BaseItem child)
-    {
-        foreach (var item in items)
-        {
-            if (item.Children.Contains(child)) return item;
-            var found = FindParent(item.Children, child);
-            if (found != null) return found;
-        }
-        return null;
-    }
 
     #endregion
 
@@ -425,22 +414,13 @@ public partial class MainViewModel : ObservableObject
         if (root == null) return LoadBackupResult.Unreadable;
         if (!await confirmReplace(file.Name)) return LoadBackupResult.Cancelled;
 
-        foreach (var item in root.Children) AttachOwnerRecursive(item);
+        foreach (var t in root.Children.Descendants().OfType<Template>()) t.Owner = this;
         await _dataNode.ReplaceLocalItemsAsync(root.Children.ToList());
 
         SelectedItem = null;
         ValidateAllShortcuts();
         ApplyFilter();
         return LoadBackupResult.Replaced;
-    }
-
-    private void AttachOwnerRecursive(BaseItem item)
-    {
-        if (item is Template t)
-            t.Owner = this;
-
-        foreach (var child in item.Children)
-            AttachOwnerRecursive(child);
     }
 
 
@@ -455,7 +435,7 @@ public partial class MainViewModel : ObservableObject
     public (Folder? Folder, int Index) DropDestination(BaseItem target, DropSpot spot)
     {
         if (spot == DropSpot.Into && target is Folder folder) return (folder, folder.Children.Count);
-        var parent = FindParent(AllItems, target) as Folder;
+        var parent = AllItems.ParentOf(target) as Folder;
         var siblings = parent?.Children ?? AllItems;
         int index = siblings.IndexOf(target);
         return (parent, spot == DropSpot.After ? index + 1 : index);
@@ -489,20 +469,9 @@ public partial class MainViewModel : ObservableObject
         ValidateAllShortcuts();
     }
 
-    private IEnumerable<BaseItem> Flatten(IEnumerable<BaseItem> source)
-    {
-        foreach (var item in source)
-        {
-            yield return item;
-
-            foreach (var child in Flatten(item.Children))
-                yield return child;
-        }
-    }
-
     public void ValidateAllShortcuts()
     {
-        var templates = Flatten(AllItems)
+        var templates = AllItems.Descendants()
             .OfType<Template>()
             .ToList();
 

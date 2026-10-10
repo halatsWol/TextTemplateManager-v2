@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using TextTemplateManager.Common;
-using TextTemplateManager.Helpers;
 using TextTemplateManager.ViewModels;
 
 
@@ -107,7 +106,7 @@ namespace TextTemplateManager.Models
             if (Owner == null) return;
 
             var otherTemplates = Owner.AllItems
-                .SelectManyRecursive(i => i.Children)
+                .Descendants()
                 .OfType<Template>()
                 .Where(t => t != this)
                 .ToList();

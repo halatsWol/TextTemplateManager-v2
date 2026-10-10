@@ -20,18 +20,8 @@ public class DataNode
     /// <summary>The file IO for this store's data folder.</summary>
     public StorageService Storage { get; }
 
-    public IEnumerable<Template> AllItems => GetAllTemplates(RootFolder);
-
-    private IEnumerable<Template> GetAllTemplates(Folder folder)
-    {
-        var list = new List<Template>();
-        foreach (var item in folder.Children)
-        {
-            if (item is Template template) list.Add(template);
-            else if (item is Folder subFolder) list.AddRange(GetAllTemplates(subFolder));
-        }
-        return list;
-    }
+    /// <summary>A snapshot of every template in the tree.</summary>
+    public IEnumerable<Template> AllItems => RootFolder.Children.Descendants().OfType<Template>().ToList();
 
     // Guid.Empty = root level.
     private Folder RootFolder { get; set; } = new Folder
@@ -130,7 +120,8 @@ public class DataNode
     public async Task DeleteItemAsync(BaseItem item)
     {
         if (item == null) return;
-        RemoveFromTreeById(RootFolder.Children, item.Id);
+        if (RootFolder.Children.Descendants().FirstOrDefault(i => i.Id == item.Id) is { } stored)
+            RootFolder.Children.ContainerOf(stored)!.Remove(stored);
         await SaveDataAsync();
     }
 
@@ -171,10 +162,10 @@ public class DataNode
     /// not a pinned sync root, nothing read-only on either side, never into itself or its own subtree.</summary>
     public bool CanMove(BaseItem item, Folder? target)
     {
-        if (item.IsSyncRoot || IsItemReadOnly(item) || FindContainer(RootFolder.Children, item) == null) return false;
+        if (item.IsSyncRoot || IsItemReadOnly(item) || RootFolder.Children.ContainerOf(item) == null) return false;
         if (target == null) return true;
-        if (FindContainer(RootFolder.Children, target) == null || IsItemReadOnly(target)) return false;
-        return !ReferenceEquals(item, target) && !ContainsRecursive(item, target);
+        if (RootFolder.Children.ContainerOf(target) == null || IsItemReadOnly(target)) return false;
+        return !item.SelfAndDescendants().Contains(target);
     }
 
     /// <summary>Moves <paramref name="item"/> to <paramref name="index"/> among <paramref name="target"/>'s
@@ -187,7 +178,7 @@ public class DataNode
         using (SuppressSaves())
         {
             var originArea = GetAreaKey(item);
-            var from = FindContainer(RootFolder.Children, item)!;
+            var from = RootFolder.Children.ContainerOf(item)!;
             var to = target?.Children ?? RootFolder.Children;
             int oldIndex = from.IndexOf(item);
             if (ReferenceEquals(from, to) && oldIndex < index) index--;
@@ -199,7 +190,7 @@ public class DataNode
 
             if (GetAreaKey(item) != originArea)
             {
-                ClearSyncIds(item);
+                foreach (var moved in item.SelfAndDescendants()) moved.SyncId = null;   // the sync write assigns fresh ones
                 ResolveShortcutClashes(item);
             }
         }
@@ -207,27 +198,10 @@ public class DataNode
         return true;
     }
 
-    private static ObservableCollection<BaseItem>? FindContainer(ObservableCollection<BaseItem> collection, BaseItem item)
-    {
-        if (collection.Contains(item)) return collection;
-        foreach (var child in collection)
-            if (FindContainer(child.Children, item) is { } found) return found;
-        return null;
-    }
-
-    private static void ClearSyncIds(BaseItem item)
-    {
-        item.SyncId = null;   // the sync write assigns fresh ones
-        foreach (var child in item.Children) ClearSyncIds(child);
-    }
-
-    private static IEnumerable<Template> TemplatesIn(BaseItem item) =>
-        item is Template t ? new[] { t } : item.Children.SelectMany(TemplatesIn);
-
     // A duplicate single key is cleared; a duplicate multi key gets a numeric suffix (MSG -> MSG1).
     private void ResolveShortcutClashes(BaseItem movedItem)
     {
-        var moved = TemplatesIn(movedItem).ToList();
+        var moved = movedItem.SelfAndDescendants().OfType<Template>().ToList();
         if (moved.Count == 0) return;
 
         var movedSet = new HashSet<Template>(moved);
@@ -261,22 +235,6 @@ public class DataNode
         }
     }
 
-    private void RemoveFromTreeById(ObservableCollection<BaseItem> collection, Guid id)
-    {
-        for (int i = collection.Count - 1; i >= 0; i--)
-        {
-            if (collection[i].Id == id)
-            {
-                collection.RemoveAt(i);
-                return;
-            }
-            if (collection[i] is Folder folder)
-            {
-                RemoveFromTreeById(folder.Children, id);
-            }
-        }
-    }
-
     #endregion
 
     #region Tracking & Persistence
@@ -303,14 +261,12 @@ public class DataNode
 
     public void AttachChangeTracking(BaseItem item)
     {
-        item.PropertyChanged -= OnItemPropertyChanged;
-        item.PropertyChanged += OnItemPropertyChanged;
-        item.Children.CollectionChanged -= OnChildrenCollectionChanged;
-        item.Children.CollectionChanged += OnChildrenCollectionChanged;
-
-        foreach (var child in item.Children)
+        foreach (var each in item.SelfAndDescendants())
         {
-            AttachChangeTracking(child);
+            each.PropertyChanged -= OnItemPropertyChanged;
+            each.PropertyChanged += OnItemPropertyChanged;
+            each.Children.CollectionChanged -= OnChildrenCollectionChanged;
+            each.Children.CollectionChanged += OnChildrenCollectionChanged;
         }
     }
 
@@ -473,7 +429,7 @@ public class DataNode
     /// if the item is local.</summary>
     public SyncSource? GetSyncSourceForItem(BaseItem item)
     {
-        var top = FindTopLevelAncestor(item);
+        var top = RootFolder.Children.TopLevelOf(item);
         return top == null ? null : CurrentSyncSettings.Sources.FirstOrDefault(s => s.Id == top.Id);
     }
 
@@ -516,20 +472,6 @@ public class DataNode
         return src != null && !string.IsNullOrWhiteSpace(src.ShortcutPrefix)
             ? src.ShortcutPrefix + (CurrentSyncSettings.Separator ?? "-") + t.MultiKeyShortcut
             : t.MultiKeyShortcut;
-    }
-
-    private BaseItem? FindTopLevelAncestor(BaseItem item)
-    {
-        foreach (var top in RootFolder.Children)
-            if (ReferenceEquals(top, item) || ContainsRecursive(top, item)) return top;
-        return null;
-    }
-
-    private static bool ContainsRecursive(BaseItem parent, BaseItem target)
-    {
-        foreach (var c in parent.Children)
-            if (ReferenceEquals(c, target) || ContainsRecursive(c, target)) return true;
-        return false;
     }
 
     /// <summary>Reconcile the tree with the sync sources: a pinned folder per active source

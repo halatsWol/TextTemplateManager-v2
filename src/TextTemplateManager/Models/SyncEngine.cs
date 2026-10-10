@@ -14,7 +14,8 @@ namespace TextTemplateManager.Models
         public static void Merge(Folder target, Folder fileRoot, string name, Guid sourceId, bool allowSave)
         {
             var cache = new Dictionary<Guid, BaseItem>();
-            IndexBySyncId(target.Children, cache);
+            foreach (var item in target.Children.Descendants())
+                if (item.SyncId is Guid sid) cache[sid] = item;
 
             var merged = fileRoot.Children.Select(fc => BuildMerged(fc, cache, allowSave)).ToList();
 
@@ -28,15 +29,6 @@ namespace TextTemplateManager.Models
             target.LastChange = fileRoot.LastChange;
 
             SyncChildren(target.Children, merged);
-        }
-
-        private static void IndexBySyncId(IEnumerable<BaseItem> items, Dictionary<Guid, BaseItem> map)
-        {
-            foreach (var it in items)
-            {
-                if (it.SyncId is Guid sid) map[sid] = it;
-                IndexBySyncId(it.Children, map);
-            }
         }
 
         private static BaseItem BuildMerged(BaseItem fileItem, Dictionary<Guid, BaseItem> cache, bool allowSave)

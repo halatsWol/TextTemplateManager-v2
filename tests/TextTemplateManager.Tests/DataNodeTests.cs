@@ -122,6 +122,24 @@ public class DataNodeTests
     }
 
     [Fact]
+    public async Task Deleting_a_nested_item_removes_it_and_saves()
+    {
+        var (node, path) = await NewNodeAsync();
+        var folder = new Folder { Title = "Folder" };
+        var keep = new Template { Title = "Keep" };
+        var gone = new Template { Title = "Gone" };
+        await node.AddItemAsync(folder);
+        await node.AddItemAsync(keep, folder);
+        await node.AddItemAsync(gone, folder);
+
+        await node.DeleteItemAsync(gone);
+
+        Assert.Same(keep, Assert.Single(folder.Children));
+        var saved = await StorageService.LoadRootAsync(path);
+        Assert.Equal("Keep", Assert.Single(Assert.Single(saved!.Children).Children).Title);
+    }
+
+    [Fact]
     public async Task A_folder_cannot_move_into_its_own_subtree()
     {
         var (node, _) = await NewNodeAsync();
