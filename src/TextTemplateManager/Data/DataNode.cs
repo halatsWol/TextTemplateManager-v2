@@ -15,7 +15,8 @@ public class DataNode
     private readonly System.Threading.SemaphoreSlim _syncApplyLock = new(1, 1);
     private readonly string _localDataPath;
     private bool _isInitialized = false;
-    private bool _isMoving = false;
+    private int _saveSuppressions;   // open SuppressSaves() scopes: load, move, replace, sync apply
+    private bool _dragInProgress;    // the TreeView's own drag, from BeginDrag to EndDrag
 
     /// <summary>The file IO for this store's data folder.</summary>
     public StorageService Storage { get; }
@@ -73,8 +74,7 @@ public class DataNode
         var loadedRoot = await Storage.LoadOwnFileAsync<Folder>(_localDataPath);
         if (loadedRoot != null)
         {
-            _isMoving = true;   // no save-loops during load
-            try
+            using (SuppressSaves())   // no save-loops during load
             {
                 // Keep persisted root metadata so an unchanged tree re-saves identically.
                 RootFolder.Id = loadedRoot.Id;
@@ -87,7 +87,6 @@ public class DataNode
                     AttachChangeTracking(item);
                 }
             }
-            finally { _isMoving = false; }
         }
 
         // Autostart is registry-only now (see StartupManager) — nothing to seed or reconcile here.
@@ -104,9 +103,7 @@ public class DataNode
         }
 
         // Merge active sources; guard the churn from autosaving.
-        _isMoving = true;
-        try { await ApplySyncAsync(); }
-        finally { _isMoving = false; }
+        using (SuppressSaves()) await ApplySyncAsync();
         foreach (var item in RootFolder.Children) AttachChangeTracking(item);
 
         _isInitialized = true;
@@ -143,8 +140,7 @@ public class DataNode
     /// snapshots of them) are skipped, since the sync files themselves are the source of truth.</summary>
     public async Task ReplaceLocalItemsAsync(IEnumerable<BaseItem> items)
     {
-        _isMoving = true;
-        try
+        using (SuppressSaves())
         {
             var syncRoots = RootFolder.Children.Where(c => c.IsSyncRoot).ToList();
             RootFolder.Children.Clear();
@@ -156,7 +152,6 @@ public class DataNode
                 AttachChangeTracking(item);
             }
         }
-        finally { _isMoving = false; }
         await SaveDataAsync();
     }
 
@@ -177,9 +172,9 @@ public class DataNode
     {
         if (item == null) return;
 
-        _isMoving = true;
         try
         {
+            using var _ = SuppressSaves();
             var destination = targetFolder ?? RootFolder;
 
             RemoveFromTreeById(RootFolder.Children, item.Id);   // no duplicates
@@ -193,7 +188,6 @@ public class DataNode
         }
         finally
         {
-            _isMoving = false;
             await SaveDataAsync();
         }
     }
@@ -218,10 +212,31 @@ public class DataNode
     #region Tracking & Persistence
 
     /// <summary>Suppress auto-save during a drag; the drag's final save is authoritative.</summary>
-    public void BeginDrag() => _isMoving = true;
+    public void BeginDrag() => _dragInProgress = true;
 
     /// <summary>Re-enable auto-save. Call BEFORE the final save so it isn't suppressed.</summary>
-    public void EndDrag() => _isMoving = false;
+    public void EndDrag() => _dragInProgress = false;
+
+    // The drag is a flag, not a count: a drag whose completion never arrived must not keep saving
+    // off for good. Everything else nests, so a sync re-apply mid-drag can't switch saving back on.
+    private bool SavesSuppressed => Volatile.Read(ref _saveSuppressions) > 0 || _dragInProgress;
+
+    private SaveSuppression SuppressSaves()
+    {
+        Interlocked.Increment(ref _saveSuppressions);
+        return new SaveSuppression(this);
+    }
+
+    private sealed class SaveSuppression(DataNode node) : IDisposable
+    {
+        private int _disposed;
+
+        public void Dispose()
+        {
+            if (Interlocked.Exchange(ref _disposed, 1) == 0)
+                Interlocked.Decrement(ref node._saveSuppressions);
+        }
+    }
 
     public void AttachChangeTracking(BaseItem item)
     {
@@ -255,7 +270,7 @@ public class DataNode
 
     private void OnItemPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (_isMoving || e.PropertyName == null || _nonPersistedProps.Contains(e.PropertyName)) return;
+        if (SavesSuppressed || e.PropertyName == null || _nonPersistedProps.Contains(e.PropertyName)) return;
         if (sender is BaseItem item)
         {
             item.LastChange = DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -315,7 +330,7 @@ public class DataNode
 
     private async void OnChildrenCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
     {
-        if (_isMoving) return;
+        if (SavesSuppressed) return;
         if (e.NewItems != null)
         {
             foreach (BaseItem newItem in e.NewItems) AttachChangeTracking(newItem);
@@ -325,7 +340,7 @@ public class DataNode
 
     public async Task SaveDataAsync()
     {
-        if (_isMoving || !_isInitialized) return;
+        if (SavesSuppressed || !_isInitialized) return;
         await _saveLock.WaitAsync();
         bool saved = false;
         try
@@ -358,9 +373,7 @@ public class DataNode
         await _syncApplyLock.WaitAsync();
         try
         {
-            _isMoving = true;
-            try { await ApplySyncAsync(); }
-            finally { _isMoving = false; }
+            using (SuppressSaves()) await ApplySyncAsync();
 
             foreach (var item in RootFolder.Children) AttachChangeTracking(item);
             TreeChanged?.Invoke();

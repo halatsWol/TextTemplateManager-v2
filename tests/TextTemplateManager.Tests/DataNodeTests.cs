@@ -56,6 +56,27 @@ public class DataNodeTests
     }
 
     [Fact]
+    public async Task A_sync_reapply_during_a_drag_does_not_switch_saving_back_on()
+    {
+        var (node, _) = await NewNodeAsync();
+        var template = new Template { Title = "Before" };
+        await node.AddItemAsync(template);
+        int saves = 0;
+        node.DataSaved += () => Interlocked.Increment(ref saves);
+
+        node.BeginDrag();
+        await node.ReapplySyncAsync();   // the sync poll can land mid-drag
+        template.Title = "Edited mid-drag";
+        await Task.Delay(800);           // past the edit debounce
+
+        Assert.Equal(0, saves);
+
+        node.EndDrag();
+        await node.SaveDataAsync();      // the drag's single authoritative save
+        Assert.Equal(1, saves);
+    }
+
+    [Fact]
     public async Task A_settings_change_is_saved_without_an_explicit_save()
     {
         var (node, _) = await NewNodeAsync();
