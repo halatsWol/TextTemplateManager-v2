@@ -16,6 +16,7 @@ using TextTemplateManager.Data;
 using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
 using TextTemplateManager.Services.Pasting;
+using TextTemplateManager.ViewModels;
 using Windows.System;
 using Windows.UI.Core;
 
@@ -209,15 +210,10 @@ namespace TextTemplateManager
 
         private void RefreshMultiKeyList(string searchFilter)
         {
-            var allShortcuts = _store.AllItems
-                .Where(t => !string.IsNullOrEmpty(t.MultiKeyShortcut))
-                .OrderBy(_store.GetSourcePriority)   // local first, then sync order
-                .ToList();
-            foreach (var t in allShortcuts) t.EffectiveMultiKey = EffectiveMulti(t);
-            StampSource(allShortcuts);
+            var rows = ShortcutRows(multiKey: true);
             MultiKeyList.ItemsSource = string.IsNullOrWhiteSpace(searchFilter)
-                ? allShortcuts
-                : allShortcuts.Where(t => t.Title.Contains(searchFilter, StringComparison.OrdinalIgnoreCase)).ToList();
+                ? rows
+                : rows.Where(r => r.Title.Contains(searchFilter, StringComparison.OrdinalIgnoreCase)).ToList();
             MultiKeyList.SelectedIndex = -1;   // armed only while a buffer is typed under ALT
         }
 
@@ -225,14 +221,10 @@ namespace TextTemplateManager
         {
             // All single-key templates, local first then sync order — duplicates across areas are shown
             // (a direct single-key press still resolves local-first via ResolveSingleKey).
-            var all = _store.AllItems
-                .Where(t => !string.IsNullOrWhiteSpace(t.SingleKeyShortcut))
-                .OrderBy(_store.GetSourcePriority)
-                .ToList();
-            StampSource(all);
+            var rows = ShortcutRows(multiKey: false);
             SingleKeyList.ItemsSource = string.IsNullOrWhiteSpace(searchFilter)
-                ? all
-                : all.Where(t => t.Title.Contains(searchFilter, StringComparison.OrdinalIgnoreCase)).ToList();
+                ? rows
+                : rows.Where(r => r.Title.Contains(searchFilter, StringComparison.OrdinalIgnoreCase)).ToList();
             // Highlight the first row only in shortcut mode — while search/tree has focus the list stays
             // unselected (SyncShortcutHighlight re-selects it when focus returns).
             SingleKeyList.SelectedIndex = (InShortcutMode() && SingleKeyList.Items.Count > 0) ? 0 : -1;
@@ -241,31 +233,19 @@ namespace TextTemplateManager
         private void UpdateMultiKeyFilter(string shortcutBuffer)
         {
             string cleanKey = shortcutBuffer.TrimEnd('_');
-            var allShortcuts = _store.AllItems
-                .Where(t => !string.IsNullOrEmpty(t.MultiKeyShortcut))
-                .OrderBy(_store.GetSourcePriority)   // local first, then sync order
-                .ToList();
-            foreach (var t in allShortcuts) t.EffectiveMultiKey = EffectiveMulti(t);
-            StampSource(allShortcuts);
+            var rows = ShortcutRows(multiKey: true);
             MultiKeyList.ItemsSource = string.IsNullOrEmpty(cleanKey)
-                ? allShortcuts
-                : allShortcuts.Where(t => t.EffectiveMultiKey.StartsWith(cleanKey, StringComparison.OrdinalIgnoreCase)).ToList();
+                ? rows
+                : rows.Where(r => r.Key.StartsWith(cleanKey, StringComparison.OrdinalIgnoreCase)).ToList();
             // Highlight the top match (what Enter/release commits); reset on every keystroke. The
             // highlight stays even with an empty buffer so Enter can still paste it — release,
             // though, only fires when something is typed (see OnKeyUp).
             MultiKeyList.SelectedIndex = MultiKeyList.Items.Count > 0 ? 0 : -1;
         }
 
-        // Stamp the source label (sync-folder name or "local") for the lists.
-        private void StampSource(IEnumerable<Template> items)
-        {
-            foreach (var t in items)
-            {
-                var src = _store.GetSyncSourceForItem(t);
-                t.IsLocalSource = src == null;
-                t.SourceLabel = src?.Name ?? "local";
-            }
-        }
+        // Local first, then sync order.
+        private List<ShortcutRow> ShortcutRows(bool multiKey) =>
+            ShortcutRow.For(_store.ShortcutEntries(), _store.CurrentSyncSettings.Sources, multiKey);
         #endregion
 
         #region TreeView Helpers
@@ -491,7 +471,7 @@ namespace TextTemplateManager
             }
             if (e.Key == VirtualKey.Enter)
             {
-                if (list.SelectedItem is Template sel) { e.Handled = true; ExecutePaste(sel, false); }
+                if (list.SelectedItem is ShortcutRow sel) { e.Handled = true; ExecutePaste(sel.Template, false); }
                 return;
             }
 
@@ -706,8 +686,8 @@ namespace TextTemplateManager
         private bool PasteHighlightedMulti(bool requireBuffer)
         {
             if (requireBuffer && string.IsNullOrEmpty(_multiKeyBuffer)) return false;
-            if (MultiKeyList.SelectedItem is not Template sel) return false;
-            ExecutePaste(sel, _multiKeyBuffer.EndsWith("_"));
+            if (MultiKeyList.SelectedItem is not ShortcutRow sel) return false;
+            ExecutePaste(sel.Template, _multiKeyBuffer.EndsWith("_"));
             return true;
         }
 
@@ -1070,8 +1050,8 @@ namespace TextTemplateManager
 
         private void ShortcutItem_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            if (sender is FrameworkElement fe && fe.DataContext is Template t)
-                ExecutePaste(t, false);   // default paste — same as pressing the shortcut
+            if (sender is FrameworkElement fe && fe.DataContext is ShortcutRow row)
+                ExecutePaste(row.Template, false);   // default paste — same as pressing the shortcut
         }
         #endregion
     }

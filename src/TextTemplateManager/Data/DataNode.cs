@@ -273,15 +273,11 @@ public class DataNode
         }
     }
 
-    // Transient/derived properties (expansion, list display projections, conflict flags) are not
-    // real data edits: changing them must not bump LastChange or save, which would churn the sync
-    // file — e.g. Quick Paste stamps EffectiveMultiKey/SourceLabel on the tree templates when it opens.
+    // Transient/derived properties (expansion, conflict flags) are not real data edits: changing them
+    // must not bump LastChange or save, which would churn the sync file.
     private static readonly HashSet<string> _nonPersistedProps = new()
     {
         nameof(BaseItem.IsExpanded),
-        nameof(Template.EffectiveMultiKey),
-        nameof(Template.SourceLabel),
-        nameof(Template.IsLocalSource),
         nameof(Template.HasSingleKeyConflict),
         nameof(Template.HasMultiKeyConflict),
         nameof(Template.HasSingleKeyCrossAreaWarning),

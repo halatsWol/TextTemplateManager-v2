@@ -2,7 +2,7 @@
     x:Class="TextTemplateManager.PasteWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:models="using:TextTemplateManager.Models"
+    xmlns:viewmodels="using:TextTemplateManager.ViewModels"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:helpers="using:TextTemplateManager.Helpers"
     Title="Quick Paste">
@@ -211,7 +211,7 @@
                             </Style>
                         </ListView.ItemContainerStyle>
                         <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="models:Template">
+                            <DataTemplate x:DataType="viewmodels:ShortcutRow">
                                 <!-- Background=Transparent so the whole row is hit-testable, not just the text. -->
                                 <Grid Padding="12,6" Background="Transparent" DoubleTapped="ShortcutItem_DoubleTapped">
                                     <Grid.ColumnDefinitions>
@@ -219,14 +219,10 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{x:Bind SingleKeyShortcut}" FontWeight="Bold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <TextBlock Text="{x:Bind Key}" FontWeight="Bold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
                                     <TextBlock Grid.Column="1" Text="{x:Bind Title}" Margin="10,0,0,0"/>
-                                    <TextBlock Grid.Column="2" Text="{x:Bind SourceLabel, Mode=OneWay}" Margin="10,0,0,0" VerticalAlignment="Center"
-                                               FontStyle="Italic" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                               Visibility="{Binding IsLocalSource, Converter={StaticResource BoolToVis}}"/>
-                                    <TextBlock Grid.Column="2" Text="{x:Bind SourceLabel, Mode=OneWay}" Margin="10,0,0,0" VerticalAlignment="Center"
-                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                               Visibility="{Binding IsLocalSource, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"/>
+                                    <TextBlock Grid.Column="2" Text="{x:Bind Source}" FontStyle="{x:Bind SourceStyle}" Margin="10,0,0,0"
+                                               VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
@@ -246,7 +242,7 @@
                             </Style>
                         </ListView.ItemContainerStyle>
                         <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="models:Template">
+                            <DataTemplate x:DataType="viewmodels:ShortcutRow">
                                 <!-- Background=Transparent so the whole row is hit-testable, not just the text. -->
                                 <Grid Padding="12,6" Background="Transparent" DoubleTapped="ShortcutItem_DoubleTapped">
                                     <Grid.ColumnDefinitions>
@@ -254,14 +250,10 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{x:Bind EffectiveMultiKey, Mode=OneWay}" FontWeight="Bold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <TextBlock Text="{x:Bind Key}" FontWeight="Bold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
                                     <TextBlock Grid.Column="1" Text="{x:Bind Title}" Margin="10,0,0,0"/>
-                                    <TextBlock Grid.Column="2" Text="{x:Bind SourceLabel, Mode=OneWay}" Margin="10,0,0,0" VerticalAlignment="Center"
-                                               FontStyle="Italic" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                               Visibility="{Binding IsLocalSource, Converter={StaticResource BoolToVis}}"/>
-                                    <TextBlock Grid.Column="2" Text="{x:Bind SourceLabel, Mode=OneWay}" Margin="10,0,0,0" VerticalAlignment="Center"
-                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                               Visibility="{Binding IsLocalSource, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"/>
+                                    <TextBlock Grid.Column="2" Text="{x:Bind Source}" FontStyle="{x:Bind SourceStyle}" Margin="10,0,0,0"
+                                               VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>

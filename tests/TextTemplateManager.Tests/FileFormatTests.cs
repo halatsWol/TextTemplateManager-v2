@@ -40,8 +40,8 @@ public class FileFormatTests
             TagsCsv = "mail, hello",
             DefaultPasteMode = PasteMode.RTF,
             LastChange = "20260101120002",
-            EffectiveMultiKey = "x-msg",   // never persisted
-            SourceLabel = "local",         // never persisted
+            HasSingleKeyCrossAreaWarning = true,   // never persisted
+            HasMultiKeyCrossAreaWarning = true,    // never persisted
         });
         root.Children.Add(folder);
         root.Children.Add(new Template

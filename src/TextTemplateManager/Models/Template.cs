@@ -49,21 +49,6 @@ namespace TextTemplateManager.Models
         [JsonIgnore]
         public partial bool HasMultiKeyCrossAreaWarning { get; set; }
 
-        /// <summary>Display-only: the multikey as typed (sync-prefixed, e.g. "and-msg").</summary>
-        [ObservableProperty]
-        [JsonIgnore]
-        public partial string EffectiveMultiKey { get; set; } = string.Empty;
-
-        /// <summary>Display-only: the parent root — a sync folder's name, or "local".</summary>
-        [ObservableProperty]
-        [JsonIgnore]
-        public partial string SourceLabel { get; set; } = string.Empty;
-
-        /// <summary>Display-only: true when not inside a sync folder.</summary>
-        [ObservableProperty]
-        [JsonIgnore]
-        public partial bool IsLocalSource { get; set; }
-
         private static readonly Regex _shortcutFilter = new(@"[^A-Z0-9]", RegexOptions.Compiled);
 
         /// <summary>A shortcut as stored: trimmed, uppercase, letters A-Z and digits only. '-' and '.' are
