@@ -3,6 +3,7 @@ using Microsoft.UI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
+using Microsoft.Windows.AppLifecycle;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -26,14 +27,14 @@ namespace TextTemplateManager
         private DispatcherQueue _uiDispatcher = null!;    // set in OnLaunched
         private BrowserConnector? _connector;
         private AppConnectorData? _connectorData;
-        private SingleInstance _singleInstance = null!;   // set in OnLaunched
         private readonly DataNode _store;
         private readonly IAppEnvironment _environment = AppEnvironment.Detect();   // packaged or a dev run
 
         public IAppEnvironment HostEnvironment => _environment;
 
-        // Pipe message a bare second launch sends to just surface the running window (no file).
-        private const string ActivateSignal = "__activate__";
+        // Single-instance key (Windows App SDK). 1.x uses its own mutex and pipe, so neither version takes
+        // over the other's launches.
+        private const string InstanceKey = "main";
 
         private readonly UnexpectedErrorHandler _errors;
 
@@ -48,23 +49,23 @@ namespace TextTemplateManager
 
         protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            // Single-instance guard. A .ttmdata opened from Explorer starts another ttm.exe with the
-            // file as an argument; hand it to the running instance and exit rather than run twice.
+            // Single instance: a later launch (a .ttmdata opened from Explorer, the Start menu) hands its
+            // activation to the running instance and exits rather than run twice.
             _uiDispatcher = DispatcherQueue.GetForCurrentThread();
-            _singleInstance = new SingleInstance();
             string? fileArg = _environment.OpenedFile;
-            if (!_singleInstance.TryAcquire())
+            var instance = AppInstance.FindOrRegisterForKey(InstanceKey);
+            if (!instance.IsCurrent)
             {
                 // A redundant hidden autostart (no file) shouldn't surface the running window — just exit.
-                if (fileArg != null)
-                    SingleInstance.SendToRunningInstance(fileArg);
-                else if (!_environment.IsAutostartLaunch)
-                    SingleInstance.SendToRunningInstance(ActivateSignal);
+                if (fileArg != null || !_environment.IsAutostartLaunch)
+                {
+                    try { await instance.RedirectActivationToAsync(AppInstance.GetCurrent().GetActivatedEventArgs()); }
+                    catch { /* the running instance may be shutting down — nothing we can do */ }
+                }
                 Environment.Exit(0);
                 return;
             }
-            _singleInstance.MessageReceived += OnOtherInstanceMessage;
-            _singleInstance.StartServer();
+            instance.Activated += OnRedirected;
 
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
@@ -129,13 +130,16 @@ namespace TextTemplateManager
             _uiDispatcher.TryEnqueue(DispatcherQueuePriority.Low, () => EnsurePasteWindow().Prewarm());        }
 
         // Another launch reached the running instance: surface the window and open its file (if any).
-        private void OnOtherInstanceMessage(string message)
+        // Raised on a background thread.
+        private void OnRedirected(object? sender, AppActivationArguments activation)
         {
+            var request = _environment.ReadRedirected(activation);
+            if (request.IsAutostart && request.File == null) return;
             _uiDispatcher?.TryEnqueue(() =>
             {
                 ShowMainWindow();
-                if (message != ActivateSignal)
-                    (MainWindow.Content as MainPage)?.HandleOpenTtmDataFile(message);
+                if (request.File != null)
+                    (MainWindow.Content as MainPage)?.HandleOpenTtmDataFile(request.File);
             });
         }
 
@@ -336,7 +340,8 @@ namespace TextTemplateManager
         {
             _isClosingFromTray = true;
             try { _connector?.Stop(); } catch { }
-            try { _singleInstance?.Dispose(); } catch { }
+            // From here a new launch starts fresh instead of redirecting to this exiting instance.
+            try { AppInstance.GetCurrent().UnregisterKey(); } catch { }
             try { _trayService?.Dispose(); } catch { }
 
             // 1.x hard-exited because Exit()'s teardown threw (0xc000027b); that no longer reproduces.

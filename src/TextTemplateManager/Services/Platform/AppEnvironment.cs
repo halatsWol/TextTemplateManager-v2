@@ -23,6 +23,9 @@ public enum AutostartState
     OffByPolicy,
 }
 
+/// <summary>What a launch asks for: started by Windows at sign-in, and/or a .ttmdata to open.</summary>
+public readonly record struct LaunchRequest(bool IsAutostart, string? File);
+
 /// <summary>What differs between the Store package and an unpackaged dev run. Chosen once at startup
 /// (<see cref="AppEnvironment.Detect"/>) and passed to whatever needs it.</summary>
 public interface IAppEnvironment
@@ -39,6 +42,9 @@ public interface IAppEnvironment
 
     /// <summary>The .ttmdata this launch was asked to open (double-click in Explorer, Open with), or null.</summary>
     string? OpenedFile { get; }
+
+    /// <summary>What a later launch, redirected to this running instance, asks for.</summary>
+    LaunchRequest ReadRedirected(AppActivationArguments activation);
 
     Task<AutostartState> GetAutostartAsync();
 
@@ -78,27 +84,61 @@ public static class AppEnvironment
         return null;
     }
 
+    /// <summary>A launch from its command-line arguments. --hidden only counts in dev runs, where it stands in
+    /// for Windows starting the app.</summary>
+    internal static LaunchRequest FromArguments(IReadOnlyList<string> args, bool hiddenFlag) => new(
+        hiddenFlag && args.Any(a => string.Equals(a, "--hidden", StringComparison.OrdinalIgnoreCase)),
+        FirstTtmDataFile(args));
+
+    internal static LaunchRequest FromActivation(AppActivationArguments activation, bool hiddenFlag) => activation.Kind switch
+    {
+        ExtendedActivationKind.StartupTask => new(true, null),
+        ExtendedActivationKind.File when activation.Data is IFileActivatedEventArgs file =>
+            new(false, FirstTtmDataFile(file.Files.Select(f => f.Path))),
+        ExtendedActivationKind.Launch when activation.Data is ILaunchActivatedEventArgs launch =>
+            FromArguments(SplitCommandLine(launch.Arguments), hiddenFlag),
+        _ => default,
+    };
+
+    /// <summary>Splits a command line the way Windows passes it to Main.</summary>
+    internal static string[] SplitCommandLine(string? commandLine)
+    {
+        // CommandLineToArgvW turns an empty string into the current exe's path.
+        if (string.IsNullOrWhiteSpace(commandLine)) return [];
+        IntPtr argv = CommandLineToArgvW(commandLine, out int count);
+        if (argv == IntPtr.Zero) return [];
+        try
+        {
+            var args = new string[count];
+            for (int i = 0; i < count; i++)
+                args[i] = Marshal.PtrToStringUni(Marshal.ReadIntPtr(argv, i * IntPtr.Size)) ?? "";
+            return args;
+        }
+        finally { LocalFree(argv); }
+    }
+
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern IntPtr CommandLineToArgvW(string lpCmdLine, out int pNumArgs);
+
+    [DllImport("kernel32.dll")]
+    private static extern IntPtr LocalFree(IntPtr hMem);
+
     private sealed class Packaged : IAppEnvironment
     {
         private const string StartupTaskId = "TtmStartup";   // Package.appxmanifest
 
-        private readonly AppActivationArguments _activation = Microsoft.Windows.AppLifecycle.AppInstance.GetCurrent().GetActivatedEventArgs();
-
-        public Packaged()
-        {
-            IsAutostartLaunch = _activation.Kind == ExtendedActivationKind.StartupTask;
-            OpenedFile = _activation.Kind == ExtendedActivationKind.File && _activation.Data is IFileActivatedEventArgs file
-                ? FirstTtmDataFile(file.Files.Select(f => f.Path))
-                : FirstTtmDataFile(Environment.GetCommandLineArgs().Skip(1));
-        }
+        private readonly LaunchRequest _launch =
+            FromActivation(Microsoft.Windows.AppLifecycle.AppInstance.GetCurrent().GetActivatedEventArgs(), hiddenFlag: false);
 
         public bool IsPackaged => true;
 
         // %LocalAppData%\Packages\<family name>\LocalState: wiped by Reset and uninstall.
         public string DataDirectory => Windows.Storage.ApplicationData.Current.LocalFolder.Path;
 
-        public bool IsAutostartLaunch { get; }
-        public string? OpenedFile { get; }
+        public bool IsAutostartLaunch => _launch.IsAutostart;
+        public string? OpenedFile => _launch.File;
+
+        public LaunchRequest ReadRedirected(AppActivationArguments activation) => FromActivation(activation, hiddenFlag: false);
 
         public async Task<AutostartState> GetAutostartAsync() => Map((await StartupTask.GetAsync(StartupTaskId)).State);
 
@@ -128,11 +168,12 @@ public static class AppEnvironment
         public string DataDirectory { get; } = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Marflow Software", "TextTemplateManager 2 Dev");
 
-        // A dev run can't be started by Windows; --hidden stands in for that when testing hidden start.
-        public bool IsAutostartLaunch { get; } =
-            Environment.GetCommandLineArgs().Skip(1).Any(a => string.Equals(a, "--hidden", StringComparison.OrdinalIgnoreCase));
+        private readonly LaunchRequest _launch = FromArguments(Environment.GetCommandLineArgs()[1..], hiddenFlag: true);
 
-        public string? OpenedFile { get; } = FirstTtmDataFile(Environment.GetCommandLineArgs().Skip(1));
+        public bool IsAutostartLaunch => _launch.IsAutostart;
+        public string? OpenedFile => _launch.File;
+
+        public LaunchRequest ReadRedirected(AppActivationArguments activation) => FromActivation(activation, hiddenFlag: true);
 
         public Task<AutostartState> GetAutostartAsync() => Task.FromResult(AutostartState.NotAvailable);
         public Task<AutostartState> SetAutostartAsync(bool on) => Task.FromResult(AutostartState.NotAvailable);

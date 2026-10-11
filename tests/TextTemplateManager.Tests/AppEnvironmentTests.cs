@@ -47,6 +47,31 @@ public class AppEnvironmentTests
         Assert.Null(AppEnvironment.FirstTtmDataFile(new[] { Path.Combine(dir, "missing.ttmdata"), "a\0b.ttmdata" }));
     }
 
+    [Theory]
+    [InlineData("", 0)]
+    [InlineData("   ", 0)]
+    [InlineData(@"""C:\Program Files\TTM\ttm.exe"" --hidden", 2)]
+    [InlineData(@"--hidden ""C:\My Files\team.ttmdata""", 2)]
+    public void A_command_line_splits_like_main_args(string commandLine, int count)
+    {
+        var args = AppEnvironment.SplitCommandLine(commandLine);
+
+        Assert.Equal(count, args.Length);
+        Assert.DoesNotContain(args, a => a.Contains('"'));
+    }
+
+    [Fact]
+    public void A_redirected_launch_reads_the_file_and_the_hidden_flag_of_dev_runs_only()
+    {
+        string file = Path.Combine(TestEnvironment.NewScratchDir(), "team.ttmdata");
+        File.WriteAllText(file, "{}");
+        var args = AppEnvironment.SplitCommandLine($@"""C:\x\ttm.exe"" --hidden ""{file}""");
+
+        Assert.Equal(new LaunchRequest(true, file), AppEnvironment.FromArguments(args, hiddenFlag: true));
+        Assert.Equal(new LaunchRequest(false, file), AppEnvironment.FromArguments(args, hiddenFlag: false));
+        Assert.Equal(default, AppEnvironment.FromArguments(AppEnvironment.SplitCommandLine(""), hiddenFlag: true));
+    }
+
     [Fact]
     public void The_data_folder_override_wins()
     {
