@@ -229,7 +229,7 @@
                                 CornerRadius="6"
                                 MinHeight="180"
                                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-                            <WebView2 x:Name="EditorWebView" Loaded="EditorWebView_Loaded"/>
+                            <appcontrols:TemplateEditor x:Name="Editor"/>
                         </Border>
 
                         <StackPanel x:Name="TemplateMetaPanel" Grid.Row="2" Spacing="10">
