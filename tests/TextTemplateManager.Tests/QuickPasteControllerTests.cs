@@ -139,6 +139,18 @@ public class QuickPasteControllerTests
     }
 
     [Fact]
+    public void Search_matches_the_lists_like_the_tree_by_tags_and_letters_in_order()
+    {
+        _memo.TagsCsv = "internal";
+
+        _entry.SetSearch("intern");
+        Assert.Equal(new[] { "Memo" }, MultiTitles);
+
+        _entry.SetSearch("note tm");
+        Assert.Equal(new[] { "Team note" }, MultiTitles);
+    }
+
+    [Fact]
     public void Losing_focus_mid_entry_resets_alt_the_tab_and_the_typed_key()
     {
         _entry.AltDown();

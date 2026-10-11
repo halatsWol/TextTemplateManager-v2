@@ -47,7 +47,7 @@ public sealed class QuickPasteController(
         SetSearch("");
     }
 
-    /// <summary>The search text filters both lists by title (not while a multi key is being typed).</summary>
+    /// <summary>The search text filters both lists, as in the tree (not while a multi key is being typed).</summary>
     public void SetSearch(string text)
     {
         _search = text;
@@ -200,22 +200,22 @@ public sealed class QuickPasteController(
 
     private List<ShortcutRow> Rows(bool multiKey) => ShortcutRow.For(entries(), sources(), multiKey);
 
-    private List<ShortcutRow> FilterByTitle(List<ShortcutRow> rows) =>
+    private List<ShortcutRow> FilterBySearch(List<ShortcutRow> rows) =>
         string.IsNullOrWhiteSpace(_search)
             ? rows
-            : rows.Where(r => r.Title.Contains(_search, StringComparison.OrdinalIgnoreCase)).ToList();
+            : rows.Where(r => TemplateSearch.Matches(_search, r.Template)).ToList();
 
     // Armed only while a multi key is typed under Alt.
     private void RefreshMulti()
     {
-        MultiRows = FilterByTitle(Rows(multiKey: true));
+        MultiRows = FilterBySearch(Rows(multiKey: true));
         MultiIndex = -1;
     }
 
     // The first row is highlighted only in shortcut mode.
     private void RefreshSingle()
     {
-        SingleRows = FilterByTitle(Rows(multiKey: false));
+        SingleRows = FilterBySearch(Rows(multiKey: false));
         SingleIndex = _shortcutMode && SingleRows.Count > 0 ? 0 : -1;
     }
 

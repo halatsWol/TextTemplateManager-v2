@@ -186,11 +186,8 @@ namespace TextTemplateManager
             }
             else
             {
-                foreach (var item in _store.LocalItems)
-                {
-                    var node = BuildFilteredNode(item, searchFilter);
-                    if (node != null) TemplateTree.RootNodes.Add(node);
-                }
+                foreach (var node in TemplateSearch.Prune<TreeViewNode>(_store.LocalItems, searchFilter, false, FilteredNode))
+                    TemplateTree.RootNodes.Add(node);
             }
 
             _entry.SetSearch(searchFilter);
@@ -237,26 +234,13 @@ namespace TextTemplateManager
             return node;
         }
 
-        // A node with only the matching descendants (matched folders expanded); null if nothing matches.
-        private TreeViewNode? BuildFilteredNode(BaseItem item, string query)
+        // A search result's node: only its remaining children, expanded when it has any.
+        private static TreeViewNode FilteredNode(BaseItem item, List<TreeViewNode> children)
         {
-            var childNodes = new List<TreeViewNode>();
-            foreach (var child in item.Children)
-            {
-                var cn = BuildFilteredNode(child, query);
-                if (cn != null) childNodes.Add(cn);
-            }
-
-            if (!ItemMatches(item, query) && childNodes.Count == 0) return null;
-
-            var node = new TreeViewNode { Content = item, IsExpanded = childNodes.Count > 0 };
-            foreach (var cn in childNodes) node.Children.Add(cn);
+            var node = new TreeViewNode { Content = item, IsExpanded = children.Count > 0 };
+            foreach (var child in children) node.Children.Add(child);
             return node;
         }
-
-        private static bool ItemMatches(BaseItem item, string query)
-            => item.Title.Contains(query, StringComparison.OrdinalIgnoreCase)
-               || (item is Template t && (t.TagsCsv?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false));
         #endregion
 
         #region Input & Paste Logic

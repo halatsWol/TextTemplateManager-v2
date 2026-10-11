@@ -79,7 +79,6 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty] public partial string SearchText { get; set; } = string.Empty;
     [ObservableProperty] public partial bool IncludeContentSearch { get; set; }
-    [ObservableProperty] public partial bool StrictSearch { get; set; }
 
     public bool IsEditorEnabled => SelectedItem is Template;
 
@@ -164,7 +163,6 @@ public partial class MainViewModel : ObservableObject
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
     partial void OnIncludeContentSearchChanged(bool value) => ApplyFilter();
-    partial void OnStrictSearchChanged(bool value) => ApplyFilter();
 
     /// <summary>Full tree rebuild with a fresh RootNodes instance. TreeView does not reliably
     /// reflect a Move on its bound collection (e.g. reordered sync folders), so a reload re-binds
@@ -245,44 +243,16 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    /// <summary>Pruned tree for the query: an item survives if it matches or has a matching
-    /// descendant; each survivor's node shows only its matches. Returns the survivors' nodes.</summary>
-    private List<TreeNode> FilterRecursive(IEnumerable<BaseItem> items, string query)
-    {
-        var matched = new List<TreeNode>();
-
-        foreach (var item in items)
+    /// <summary>The nodes of the items left by the search, each showing only its remaining children,
+    /// folders expanded so the matches are visible.</summary>
+    private List<TreeNode> FilterRecursive(IEnumerable<BaseItem> items, string query) =>
+        TemplateSearch.Prune<TreeNode>(items, query, IncludeContentSearch, (item, children) =>
         {
-            string searchPool = item.Title;
-
-            if (item is Template t)
-            {
-                searchPool += $" {t.TagsCsv}";
-                if (IncludeContentSearch)
-                {
-                    string plainContent = HtmlUtils.ToPlainText(t.Content);
-                    searchPool += $" {plainContent}";
-                }
-            }
-
-            bool isMatch = FuzzySearchEngine.IsMatch(query, searchPool, StrictSearch);
-
-            var matchedChildren = FilterRecursive(item.Children, query);
-
-            if (isMatch || matchedChildren.Count > 0)
-            {
-                var node = NodeFor(item);
-                SyncCollection(node.Children, matchedChildren);
-
-                // Expand so matches are visible.
-                if (item is Folder)
-                    node.IsExpanded = true;
-
-                matched.Add(node);
-            }
-        }
-        return matched;
-    }
+            var node = NodeFor(item);
+            SyncCollection(node.Children, children);
+            if (item is Folder) node.IsExpanded = true;
+            return node;
+        });
 
     #endregion
 
