@@ -687,6 +687,19 @@ namespace TextTemplateManager
         // TreeView. With no DragOver after it (the pointer stopped on the row) the drop would be refused.
         private void TreeItem_DragEnter(object sender, DragEventArgs e) => ItemTreeView_DragOver(sender, e);
 
+        // A row reused for an item the TreeView re-adds (e.g. a search brings a folder back) is reset to
+        // collapsed after it takes the item, and the two-way binding copies that into the node. Put
+        // back the expansion the node had when the row took it.
+        private void TreeItem_DataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
+        {
+            if (args.NewValue is not TreeNode { IsExpanded: true } node) return;
+            var row = (TreeViewItem)sender;
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                if (ReferenceEquals(row.DataContext, node) && !row.IsExpanded) row.IsExpanded = true;
+            });
+        }
+
         private void ItemTreeView_DragOver(object sender, DragEventArgs e)
         {
             e.AcceptedOperation = DataPackageOperation.None;
