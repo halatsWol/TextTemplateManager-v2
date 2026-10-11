@@ -155,7 +155,7 @@ public sealed class StorageService
             try
             {
                 var value = JsonSerializer.Deserialize(await File.ReadAllTextAsync(path), typeInfo);
-                if (value != null) return value;
+                if (value != null) return LegacyRtf.ConvertTree(value);
                 break;
             }
             catch (IOException) when (attempt < 2) { await Task.Delay(200); }   // briefly locked (antivirus, backup tool)
@@ -241,7 +241,7 @@ public sealed class StorageService
         try
         {
             string json = await File.ReadAllTextAsync(filePath);
-            return JsonSerializer.Deserialize(json, Json.Folder);
+            return LegacyRtf.ConvertTree(JsonSerializer.Deserialize(json, Json.Folder));
         }
         catch (Exception ex)
         {
@@ -262,7 +262,7 @@ public sealed class StorageService
             {
                 using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read,
                     FileShare.ReadWrite | FileShare.Delete);
-                return await JsonSerializer.DeserializeAsync(fs, Json.Folder);
+                return LegacyRtf.ConvertTree(await JsonSerializer.DeserializeAsync(fs, Json.Folder));
             }
             catch (IOException) { await Task.Delay(150); }        // transient lock -> retry
             catch (Exception ex)

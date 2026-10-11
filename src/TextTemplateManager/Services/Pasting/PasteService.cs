@@ -110,17 +110,11 @@ namespace TextTemplateManager.Services.Pasting
             }
         }
 
-        /// <summary>Prepares a template's stored content the way a paste does: legacy RTF is
-        /// migrated to HTML, template variables are substituted, colours normalized to hex.</summary>
+        /// <summary>Prepares a template's stored HTML the way a paste does: template variables are
+        /// substituted, colours normalized to hex.</summary>
         private static (string html, string plainText) PrepareContent(string rawContent)
         {
-            string sanitized = new string((rawContent ?? string.Empty).Where(ch => ch != (char)0).ToArray()).Trim();
-            string html = sanitized;
-            if (HtmlUtils.LooksLikeRtf(html))
-            {
-                try { html = RtfPipe.Rtf.ToHtml(html); }
-                catch { html = string.Empty; }
-            }
+            string html = new string((rawContent ?? string.Empty).Where(ch => ch != (char)0).ToArray()).Trim();
             html = VariableHelper.ProcessVariables(html);
             html = HtmlUtils.NormalizeColorsToHex(html);
             html = HtmlUtils.StripLeadingEmptyLines(html);
@@ -207,7 +201,7 @@ namespace TextTemplateManager.Services.Pasting
             };
         }
 
-        public static async Task HandlePaste(string rtfContent, PasteMode mode)
+        public static async Task HandlePaste(string content, PasteMode mode)
         {
             IntPtr targetHwnd = WindowHelper.GetTargetWindow();
 
@@ -216,15 +210,7 @@ namespace TextTemplateManager.Services.Pasting
             var previousClipboard = await SnapshotClipboardAsync();
 
             // 2. Prepare Content
-            string sanitizedRtf = rtfContent?.Replace("\u0000", "").Trim() ?? "";
-            // Templates are now stored as HTML (WebView editor). Convert any legacy RTF so old
-            // templates still paste correctly until they migrate to HTML on next edit.
-            string html = sanitizedRtf;
-            if (HtmlUtils.LooksLikeRtf(html))
-            {
-                try { html = RtfPipe.Rtf.ToHtml(html); }
-                catch { html = string.Empty; }
-            }
+            string html = content?.Replace("\u0000", "").Trim() ?? "";
 
             // Substitute template variables ($[DATE], $[TIME], $[YEAR]) in the HTML, then derive
             // plain text from it so both representations stay consistent.

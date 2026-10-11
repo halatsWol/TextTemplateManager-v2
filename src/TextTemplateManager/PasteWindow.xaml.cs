@@ -816,11 +816,6 @@ namespace TextTemplateManager
         private void UpdatePreview(string content)
         {
             string html = content ?? string.Empty;
-            // Legacy RTF templates are converted so they preview too.
-            if (HtmlUtils.LooksLikeRtf(html))
-            {
-                try { html = RtfPipe.Rtf.ToHtml(html); } catch { html = string.Empty; }
-            }
             _pendingPreviewHtml = html;
             PushPreview(html);
         }

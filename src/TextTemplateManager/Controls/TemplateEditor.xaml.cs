@@ -156,7 +156,7 @@ public sealed partial class TemplateEditor : UserControl
         }
     }
 
-    /// <summary>Loads the requested template's HTML into the editor (migrating legacy RTF).</summary>
+    /// <summary>Loads the requested template's HTML into the editor.</summary>
     private async void LoadRequested()
     {
         if (!_ready || EditorWebView?.CoreWebView2 == null) return;
@@ -183,25 +183,9 @@ public sealed partial class TemplateEditor : UserControl
         catch { }
     }
 
-    /// <summary>Template content as HTML; legacy RTF is converted once and written back.</summary>
     private static string GetHtmlForEditing(Template t)
     {
         string content = (t.Content ?? string.Empty).TrimEnd('\0');
-
-        if (content.TrimStart().StartsWith("{\\rtf1", StringComparison.OrdinalIgnoreCase))
-        {
-            try
-            {
-                string html = RtfPipe.Rtf.ToHtml(content);
-                t.Content = html; // migrate: store HTML from now on
-                return html;
-            }
-            catch
-            {
-                return "<p></p>";
-            }
-        }
-
         return string.IsNullOrWhiteSpace(content) ? "<p></p>" : content;
     }
 

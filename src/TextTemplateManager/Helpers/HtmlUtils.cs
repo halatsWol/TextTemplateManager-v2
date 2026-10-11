@@ -80,8 +80,5 @@ namespace TextTemplateManager.Helpers
 
             return result.TrimStart();
         }
-
-        public static bool LooksLikeRtf(string? content)
-            => content != null && content.TrimStart().StartsWith(@"{\rtf1", StringComparison.OrdinalIgnoreCase);
     }
 }
