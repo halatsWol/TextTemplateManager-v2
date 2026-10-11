@@ -8,6 +8,7 @@
     xmlns:viewmodels="using:TextTemplateManager.ViewModels"
     xmlns:helpers="using:TextTemplateManager.Helpers"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:appcontrols="using:TextTemplateManager.Controls"
     mc:Ignorable="d"
     KeyboardAcceleratorPlacementMode="Hidden">
 
@@ -51,13 +52,6 @@
             </StackPanel>
         </DataTemplate>
 
-        <!-- Fade-in animation -->
-        <Storyboard x:Key="ConflictFadeIn">
-            <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                             From="0"
-                             To="1"
-                             Duration="0:0:0.3" />
-        </Storyboard>
 
     </Page.Resources>
 
@@ -322,44 +316,7 @@
              hit-test transparent and pointer events pass through to the main grid below. -->
         <Canvas x:Name="RootCanvas">
 
-        <!-- Floating Draggable Conflict Panel -->
-        <Border x:Name="ConflictPanel"
-            Width="360"
-            MaxHeight="260"
-            Background="#FFFDF3D6"
-            BorderBrush="#FFE6B800"
-            BorderThickness="1"
-            CornerRadius="8"
-            Padding="10"
-            Visibility="Collapsed"
-            Canvas.Left="0"
-            Canvas.Top="0"
-            PointerPressed="ConflictPanel_PointerPressed"
-            PointerReleased="ConflictPanel_PointerReleased"
-            PointerMoved="ConflictPanel_PointerMoved">
-
-            <Border.Shadow>
-                <ThemeShadow />
-            </Border.Shadow>
-
-            <StackPanel>
-                <Grid Margin="0,0,0,6">
-                    <TextBlock Text="⚠ Shortcut Conflicts" FontWeight="Bold" VerticalAlignment="Center"/>
-                    <!-- Dismiss: only shown for purely cross-area (sync↔local) notes; same-area
-                         conflicts must be resolved, so the panel stays put for those. -->
-                    <Button x:Name="ConflictDismissButton" Visibility="Collapsed"
-                            HorizontalAlignment="Right" VerticalAlignment="Top"
-                            Padding="4" MinWidth="0" Background="Transparent" BorderThickness="0"
-                            Click="ConflictDismiss_Click" ToolTipService.ToolTip="Dismiss">
-                        <FontIcon Glyph="&#xE711;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                    </Button>
-                </Grid>
-
-                <ScrollViewer MaxHeight="200">
-                    <StackPanel x:Name="ConflictStack"/>
-                </ScrollViewer>
-            </StackPanel>
-        </Border>
+            <appcontrols:ConflictPanel x:Name="ConflictPanel" Canvas.Left="0" Canvas.Top="0"/>
         </Canvas>
 
         <!-- Settings, shown in-place over the main content. The NavigationView back arrow
