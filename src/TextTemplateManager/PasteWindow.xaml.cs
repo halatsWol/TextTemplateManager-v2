@@ -145,7 +145,7 @@ namespace TextTemplateManager
 
             // The X hides the window (keeping it warm) instead of destroying it, like the main window.
             // A paste sets _closingForPaste so the real close goes through (App then rebuilds a fresh
-            // warm one). The app only really exits via the tray's Quit (Environment.Exit), which bypasses this.
+            // warm one). Quitting the app (App.Shutdown) ends it without going through this.
             appWindow.Closing += (s, e) =>
             {
                 if (_closingForPaste) return;

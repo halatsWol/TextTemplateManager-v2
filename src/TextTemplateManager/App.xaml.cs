@@ -345,16 +345,19 @@ namespace TextTemplateManager
             Shutdown();
         }
 
-        /// <summary>Quit: remove the tray icon, then hard-exit. Uses Environment.Exit because
-        /// Application.Current.Exit()'s teardown throws a stowed exception (0xc000027b) here.
-        /// Persist pending state before calling (<see cref="ExitAsync"/> does).</summary>
+        /// <summary>Quit: remove the tray icon, then exit normally. Persist pending state before calling
+        /// (<see cref="ExitAsync"/> does).</summary>
         public void Shutdown()
         {
             _isClosingFromTray = true;
             try { _connector?.Stop(); } catch { }
             try { _singleInstance?.Dispose(); } catch { }
             try { _trayService?.Dispose(); } catch { }
-            Environment.Exit(0);
+
+            // 1.x hard-exited because Exit()'s teardown threw (0xc000027b); that no longer reproduces.
+            // Should the teardown ever hang, a quit still ends the process.
+            new System.Threading.Thread(() => { System.Threading.Thread.Sleep(5000); Environment.Exit(0); }) { IsBackground = true }.Start();
+            Exit();
         }
     }
 }
