@@ -85,7 +85,7 @@ namespace TextTemplateManager
             WindowHelper.OnSessionEnd(hwnd, OnQueryEndSession, OnEndSession);
 
 
-            _trayService = new TrayIconService(MainWindow);
+            _trayService = new TrayIconService(ShowMainWindow);
 
             ApplyBrowserConnectorSettings();   // start the loopback connector if enabled
 
@@ -163,12 +163,12 @@ namespace TextTemplateManager
         /// <summary>A notice from the tray icon, for when the app started hidden and has no window to show it in.</summary>
         public void ShowTrayBalloon(string title, string message) => _trayService?.ShowBalloon(title, message);
 
-        // Restore + foreground the main window (it may be hidden in the tray). Mirrors the tray's Open.
+        // Restore + foreground the main window (it may be hidden in the tray); also the tray's Open.
         private static void ShowMainWindow()
         {
             MainWindow.Show();
             IntPtr hWnd = WindowNative.GetWindowHandle(MainWindow);
-            WindowHelper.ShowWindow(hWnd, 9);          // SW_RESTORE
+            WindowHelper.ShowWindow(hWnd, WindowHelper.SW_RESTORE);
             WindowHelper.SetForegroundWindow(hWnd);
             MainWindow.Activate();
         }

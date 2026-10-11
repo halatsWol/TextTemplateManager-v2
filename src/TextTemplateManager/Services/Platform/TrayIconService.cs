@@ -5,8 +5,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
-using TextTemplateManager.Helpers;
-using WinRT.Interop;
 
 namespace TextTemplateManager.Services.Platform
 {
@@ -14,15 +12,16 @@ namespace TextTemplateManager.Services.Platform
     {
         private readonly TaskbarIcon _trayIcon;
         private readonly DispatcherQueue _dispatcher;
-        private readonly Window _mainWindow;
+        private readonly Action _showMainWindow;
 
         public IRelayCommand OpenCommand { get; }
         public IRelayCommand ExitCommand { get; }
 
 
-        public TrayIconService(Window mainWindow)
+        /// <param name="showMainWindow">Brings the main window back; the tray's Open and double-click.</param>
+        public TrayIconService(Action showMainWindow)
         {
-            _mainWindow = mainWindow;
+            _showMainWindow = showMainWindow;
             _dispatcher = DispatcherQueue.GetForCurrentThread();
 
             OpenCommand = new RelayCommand(OpenWindow);
@@ -58,19 +57,7 @@ namespace TextTemplateManager.Services.Platform
             _trayIcon.ForceCreate();
         }
 
-        private void OpenWindow()
-        {
-            _dispatcher.TryEnqueue(() =>
-            {
-                _mainWindow.Show();
-
-                IntPtr hWnd = WindowNative.GetWindowHandle(_mainWindow);
-                WindowHelper.ShowWindow(hWnd, 9);
-                WindowHelper.SetForegroundWindow(hWnd);
-
-                _mainWindow.Activate();
-            });
-        }
+        private void OpenWindow() => _dispatcher.TryEnqueue(() => _showMainWindow());
 
         private void ExitApp()
         {
