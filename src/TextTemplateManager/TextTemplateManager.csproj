@@ -62,12 +62,9 @@
   <ItemGroup>
     <Content Remove="Assets\**" />
     <None Remove="Assets\**" />
-    <Content Include="Assets\**" Exclude="Assets\ManualImages\**;Assets\Manual.pdf;Assets\editor\editor.html" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Assets\**" Exclude="Assets\ManualImages\**;Assets\Manual.pdf" CopyToOutputDirectory="PreserveNewest" />
     <!-- Generated from docs/user/Manual.md (target below); Link puts it at the output root. -->
     <Content Include="Assets\Manual.pdf" Link="Manual.pdf" CopyToOutputDirectory="PreserveNewest" />
-    <!-- build.mjs only copies editor.html verbatim, so it isn't committed; take it from the editor
-         sources so a fresh clone still gets an editor pane (MainPage reads all three files at init). -->
-    <Content Include="..\editor\src\editor.html" Link="Assets\editor\editor.html" CopyToOutputDirectory="PreserveNewest" />
     <!-- Help ▸ About displays the LICENSE. -->
     <Content Include="..\..\LICENSE" Link="LICENSE" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

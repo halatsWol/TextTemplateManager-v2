@@ -73,22 +73,7 @@ public sealed partial class TemplateEditor : UserControl
             core.Settings.AreBrowserAcceleratorKeysEnabled = false;
             core.ContextMenuRequested += Editor_ContextMenuRequested;
 
-            // Inline CSS+JS (no fetch), so WebView2's cache can't serve a stale bundle.
-            string assetsDir = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "editor");
-            string html = System.IO.File.ReadAllText(System.IO.Path.Combine(assetsDir, "editor.html"));
-            string css = System.IO.File.ReadAllText(System.IO.Path.Combine(assetsDir, "editor.css"));
-            string js = System.IO.File.ReadAllText(System.IO.Path.Combine(assetsDir, "editor.bundle.js"));
-
-            // Stop an accidental </script> in the bundle from closing the inline tag.
-            js = js.Replace("</script", "<\\/script");
-
-            // MatchEvaluator replacement avoids $-substitution mangling the content.
-            html = System.Text.RegularExpressions.Regex.Replace(
-                html, "<link[^>]*editor\\.css[^>]*>", _ => $"<style>{css}</style>");
-            html = System.Text.RegularExpressions.Regex.Replace(
-                html, "<script[^>]*editor\\.bundle\\.js[^>]*></script>", _ => $"<script>{js}</script>");
-
-            EditorWebView.NavigateToString(html);
+            EditorWebView.NavigateToString(EditorPages.Editor);
         }
         catch (Exception ex)
         {
