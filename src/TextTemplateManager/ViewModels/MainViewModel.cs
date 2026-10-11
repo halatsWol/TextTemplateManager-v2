@@ -98,7 +98,7 @@ public partial class MainViewModel : ObservableObject
             {
                 var prev = SelectedItem;
                 // A sync-folder reorder is the one refresh that needs a top-level Move. WinUI's TreeView
-                // crashes on an in-place Move of its bound root collection (the reason CloseSettings uses
+                // crashes on an in-place Move of its bound root collection (the reason leaving Settings uses
                 // ReloadTree), so rebind the whole collection in that case; otherwise refresh in place to
                 // keep expansion state for the frequent content-only refreshes (sync poll, connector add).
                 if (RootOrderChanged())

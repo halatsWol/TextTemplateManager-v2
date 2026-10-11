@@ -74,7 +74,7 @@ public sealed partial class GeneralSettingsPage : Page
     {
         if (ViewModel == null || sender is not ToggleSwitch ts) return;
         ViewModel.HideCrossAreaShortcutWarnings = ts.IsOn;
-        // The conflict panel re-evaluates when Settings closes (MainPage.CloseSettings).
+        // The conflict panel re-evaluates when Settings closes (MainPage.Settings_Closed).
     }
 
     // True once a full modifier(s)+key combo is committed; reset when a new bare modifier starts one.

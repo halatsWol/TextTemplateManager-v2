@@ -319,25 +319,8 @@
             <appcontrols:ConflictPanel x:Name="ConflictPanel" Canvas.Left="0" Canvas.Top="0"/>
         </Canvas>
 
-        <!-- Settings, shown in-place over the main content. The NavigationView back arrow
-             (top-left) closes it and reloads the tree. -->
-        <Grid x:Name="SettingsOverlay" Visibility="Collapsed"
-              Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <NavigationView x:Name="SettingsNav"
-                            PaneDisplayMode="Left"
-                            IsSettingsVisible="False"
-                            IsBackButtonVisible="Visible"
-                            IsBackEnabled="True"
-                            BackRequested="SettingsNav_BackRequested"
-                            SelectionChanged="SettingsNav_SelectionChanged">
-                <NavigationView.MenuItems>
-                    <NavigationViewItem Content="General" Tag="General" Icon="Setting"/>
-                    <NavigationViewItem Content="Integrations" Tag="Integrations" Icon="Link"/>
-                    <NavigationViewItem Content="Sync" Tag="Sync" Icon="Sync"/>
-                </NavigationView.MenuItems>
-                <Frame x:Name="SettingsFrame" Padding="20"/>
-            </NavigationView>
-        </Grid>
+        <!-- Settings, shown in place over the main content. -->
+        <appcontrols:SettingsView x:Name="Settings"/>
 
         <TeachingTip x:Name="MainHelpTip" Title="Template Manager Guide" Target="{x:Bind MainHelpButton}"
                      PreferredPlacement="BottomLeft" IsLightDismissEnabled="True"

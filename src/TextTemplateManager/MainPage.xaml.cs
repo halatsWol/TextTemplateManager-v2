@@ -86,6 +86,9 @@ namespace TextTemplateManager
 
             // On exit, take the editor's content that it hasn't reported yet; the data save runs after.
             (Application.Current as App)?.AddExitFlush(Editor.FlushAsync);
+
+            Settings.Store = store;
+            Settings.Closed += Settings_Closed;
             Editor.FocusSearchRequested += (_, _) => FocusSearchBox();
         }
 
@@ -267,70 +270,28 @@ namespace TextTemplateManager
         }
         private void SaveBackup_Click(object sender, RoutedEventArgs e) => ViewModel.SaveBackupCommand.Execute(null);
 
-        private void OpenPreferences_Click(object sender, RoutedEventArgs e) => ShowSettings();
-
-        // ---- In-window settings view ----
-
-        private void ShowSettings()
-        {
-            SettingsOverlay.Visibility = Visibility.Visible;
-            var general = SettingsNav.MenuItems[0];
-            if (ReferenceEquals(SettingsNav.SelectedItem, general))
-                NavigateSettings("General");                 // already selected -> navigate manually
-            else
-                SettingsNav.SelectedItem = general;          // fires SelectionChanged -> navigate
-        }
-
-        private void SettingsNav_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
-        {
-            if (args.SelectedItem is NavigationViewItem item)
-                NavigateSettings(item.Tag?.ToString());
-        }
-
-        private void NavigateSettings(string? tag)
-        {
-            if (tag == "General")
-                SettingsFrame.Navigate(typeof(GeneralSettingsPage), _store.CurrentSettings);
-            else if (tag == "Integrations")
-                SettingsFrame.Navigate(typeof(IntegrationsSettingsPage), _store.CurrentSettings);
-            else if (tag == "Sync")
-            {
-                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
-                SettingsFrame.Navigate(typeof(SyncSettingsPage), new SyncSettingsPage.Parameters(_store, hwnd));
-            }
-        }
-
-        private void SettingsNav_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args) => CloseSettings();
+        private void OpenPreferences_Click(object sender, RoutedEventArgs e) => Settings.Open();
 
         /// <summary>Leaves the Settings view if it is open. Called when the window is hidden to the tray so
         /// that reopening lands on the template list, rather than resuming wherever Settings was left —
-        /// and so its normal teardown (persist, reload the tree, refresh conflicts) still runs.</summary>
+        /// and so its normal teardown (reload the tree, refresh conflicts) still runs.</summary>
         public void CloseSettingsIfOpen()
         {
-            if (SettingsOverlay.Visibility == Visibility.Visible) CloseSettings();
+            if (Settings.IsOpen) Settings.Close();
         }
 
-        private void CloseSettings()
+        // Leaving Settings: rebuild the tree so sync-folder order changes are reflected, and revalidate
+        // (prefixes may have changed; also reflects "hide cross-area warnings").
+        private void Settings_Closed(object? sender, EventArgs e)
         {
-            SettingsOverlay.Visibility = Visibility.Collapsed;
-            ViewModel.ReloadTree();   // full rebuild so sync-folder order changes are reflected
-            ViewModel.ValidateAllShortcuts();   // prefixes may have changed; also reflects "hide cross-area warnings"
+            ViewModel.ReloadTree();
+            ViewModel.ValidateAllShortcuts();
         }
 
         // ---- File association (.ttmdata) ----
 
         /// <summary>Opens the in-window Settings directly on the Sync page.</summary>
-        public void OpenSyncSettings()
-        {
-            SettingsOverlay.Visibility = Visibility.Visible;
-            var syncItem = SettingsNav.MenuItems.OfType<NavigationViewItem>()
-                .FirstOrDefault(i => (i.Tag as string) == "Sync");
-            if (syncItem == null) return;
-            if (ReferenceEquals(SettingsNav.SelectedItem, syncItem))
-                NavigateSettings("Sync");                // already selected -> navigate manually
-            else
-                SettingsNav.SelectedItem = syncItem;     // fires SelectionChanged -> navigate
-        }
+        public void OpenSyncSettings() => Settings.Open(SettingsPage.Sync);
 
         /// <summary>Handles a .ttmdata opened via the file association: links it as a sync source
         /// (unless it's this app's own data file or already linked), then shows Sync settings.</summary>
