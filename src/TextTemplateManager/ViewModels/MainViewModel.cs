@@ -278,7 +278,7 @@ public partial class MainViewModel : ObservableObject
 
         var item = new Template
         {
-            Title = GetUniqueTitle("New Template", siblings),
+            Title = ItemTitles.Unique("New Template", siblings),
             Id = Guid.NewGuid(),
             DefaultPasteMode = _dataNode.CurrentSettings.DefaultPasteMode
         };
@@ -299,7 +299,7 @@ public partial class MainViewModel : ObservableObject
 
         var item = new Folder
         {
-            Title = GetUniqueTitle("New Folder", siblings),
+            Title = ItemTitles.Unique("New Folder", siblings),
             Id = Guid.NewGuid()
         };
 
@@ -308,20 +308,6 @@ public partial class MainViewModel : ObservableObject
         await _dataNode.AddItemAsync(item, parent);
         ApplyFilter();
         SelectedItem = item;
-    }
-
-    /// <summary>baseName, else the first free "baseName N" (fills gaps).</summary>
-    private static string GetUniqueTitle(string baseName, IEnumerable<BaseItem> siblings)
-    {
-        var taken = new HashSet<string>(
-            siblings.Select(s => s.Title ?? string.Empty),
-            StringComparer.OrdinalIgnoreCase);
-
-        if (!taken.Contains(baseName)) return baseName;
-
-        int n = 1;
-        while (taken.Contains($"{baseName} {n}")) n++;
-        return $"{baseName} {n}";
     }
 
     [RelayCommand]
@@ -334,7 +320,7 @@ public partial class MainViewModel : ObservableObject
             ? null
             : AllItems.ParentOf(SelectedItem) as Folder;
         var siblings = parent?.Children ?? AllItems;
-        string cloneTitle = GetUniqueTitle($"{SelectedItem.Title} (Copy)", siblings);
+        string cloneTitle = ItemTitles.Unique($"{SelectedItem.Title} (Copy)", siblings);
 
         BaseItem clone = SelectedItem is Template t
             ? new Template

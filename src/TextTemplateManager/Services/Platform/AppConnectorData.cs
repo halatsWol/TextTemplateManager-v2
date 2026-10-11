@@ -56,7 +56,7 @@ public sealed class AppConnectorData : IConnectorDataSource
         {
             try
             {
-                string title = UniqueTitle(CleanName(name), _store.LocalItems);
+                string title = ItemTitles.Unique(CleanName(name), _store.LocalItems);
                 var item = new Template
                 {
                     Id = Guid.NewGuid(),
@@ -94,16 +94,6 @@ public sealed class AppConnectorData : IConnectorDataSource
         string s = new string((name ?? "").Where(c => !char.IsControl(c)).ToArray()).Trim();
         if (s.Length == 0) return "New Template";
         return s.Length > 120 ? s[..120].Trim() : s;
-    }
-
-    // baseName, else the first free "baseName N" — mirrors the app's new-item naming.
-    private static string UniqueTitle(string baseName, IEnumerable<BaseItem> siblings)
-    {
-        var taken = new HashSet<string>(siblings.Select(s => s.Title ?? ""), StringComparer.OrdinalIgnoreCase);
-        if (!taken.Contains(baseName)) return baseName;
-        int n = 1;
-        while (taken.Contains($"{baseName} {n}")) n++;
-        return $"{baseName} {n}";
     }
 
     /// <summary>Rebuilds the snapshot from the live tree. MUST be called on the UI thread.</summary>
