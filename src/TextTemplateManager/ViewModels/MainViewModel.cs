@@ -11,7 +11,6 @@ using TextTemplateManager.Common;
 using TextTemplateManager.Data;
 using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
-using Windows.Storage.Pickers;
 
 
 namespace TextTemplateManager.ViewModels;
@@ -358,34 +357,20 @@ public partial class MainViewModel : ObservableObject
 
     #region Backup/Storage
 
+    private static IntPtr MainWindowHandle => WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+
     [RelayCommand]
     private async Task SaveBackup()
     {
-        var picker = new FileSavePicker();
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
-
-        picker.FileTypeChoices.Add("TextTemplateManager data", new List<string> { ".ttmdata" });
-        picker.SuggestedFileName = $"Backup_{DateTime.Now:yyyyMMdd}";
-
-        var file = await picker.PickSaveFileAsync();
-        if (file != null)
-            await _dataNode.ExportDataAsync(file.Path);
+        if (await DataFilePicker.PickToSaveAsync(MainWindowHandle, $"Backup_{DateTime.Now:yyyyMMdd}") is { } path)
+            await _dataNode.ExportDataAsync(path);
     }
 
     /// <summary>Exports a folder's subtree to a file the user picks (per-folder Export action).</summary>
     public async Task ExportFolderAsync(Folder folder)
     {
-        var picker = new FileSavePicker();
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
-
-        picker.FileTypeChoices.Add("TextTemplateManager data", new List<string> { ".ttmdata" });
-        picker.SuggestedFileName = folder.Title;
-
-        var file = await picker.PickSaveFileAsync();
-        if (file != null)
-            await _dataNode.ExportFolderAsync(file.Path, folder);
+        if (await DataFilePicker.PickToSaveAsync(MainWindowHandle, folder.Title) is { } path)
+            await _dataNode.ExportFolderAsync(path, folder);
     }
 
     public enum LoadBackupResult { Cancelled, Unreadable, Replaced }
@@ -394,19 +379,12 @@ public partial class MainViewModel : ObservableObject
     /// name), replaces the local items with its contents. Synced folders are left alone.</summary>
     public async Task<LoadBackupResult> LoadBackupAsync(Func<string, Task<bool>> confirmReplace)
     {
-        var picker = new FileOpenPicker();
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
-
-        picker.FileTypeFilter.Add(".ttmdata");
-
-        var file = await picker.PickSingleFileAsync();
-        if (file == null) return LoadBackupResult.Cancelled;
+        if (await DataFilePicker.PickToOpenAsync(MainWindowHandle) is not { } path) return LoadBackupResult.Cancelled;
 
         // Backups are a serialized root Folder — take its children (not a bare List<BaseItem>).
-        var root = await StorageService.LoadRootAsync(file.Path);
+        var root = await StorageService.LoadRootAsync(path);
         if (root == null) return LoadBackupResult.Unreadable;
-        if (!await confirmReplace(file.Name)) return LoadBackupResult.Cancelled;
+        if (!await confirmReplace(System.IO.Path.GetFileName(path))) return LoadBackupResult.Cancelled;
 
         await _dataNode.ReplaceLocalItemsAsync(root.Children.ToList());
 

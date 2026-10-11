@@ -7,8 +7,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using TextTemplateManager.Data;
+using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
-using Windows.Storage.Pickers;
 
 namespace TextTemplateManager
 {
@@ -128,43 +128,26 @@ namespace TextTemplateManager
         // ---- Add / create ----
         private async void AddExisting_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            var picker = new FileOpenPicker();
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, _hwnd);
-            picker.FileTypeFilter.Add(".ttmdata");
-
-            var file = await picker.PickSingleFileAsync();
-            if (file == null) return;
-
-            _sync.Sources.Add(new SyncSource
-            {
-                Name = System.IO.Path.GetFileNameWithoutExtension(file.Path),
-                Path = file.Path,
-                IsActive = true,
-                AllowSave = false,
-            });
+            if (await DataFilePicker.PickToOpenAsync(_hwnd) is not { } path) return;
+            AddSource(path);
         }
 
         private async void CreateNew_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            var picker = new FileSavePicker();
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, _hwnd);
-            picker.FileTypeChoices.Add("TextTemplateManager data", new List<string> { ".ttmdata" });
-            picker.SuggestedFileName = "Sync";
-
-            var file = await picker.PickSaveFileAsync();
-            if (file == null) return;
+            if (await DataFilePicker.PickToSaveAsync(_hwnd, "Sync") is not { } path) return;
 
             // Write an empty, valid sync file (a serialized root Folder).
-            await _store.Storage.SaveAsync(file.Path, new Folder { Id = Guid.Empty, Title = "Root" });
-
-            _sync.Sources.Add(new SyncSource
-            {
-                Name = System.IO.Path.GetFileNameWithoutExtension(file.Path),
-                Path = file.Path,
-                IsActive = true,
-                AllowSave = false,
-            });
+            await _store.Storage.SaveAsync(path, new Folder { Id = Guid.Empty, Title = "Root" });
+            AddSource(path);
         }
+
+        private void AddSource(string path) => _sync.Sources.Add(new SyncSource
+        {
+            Name = System.IO.Path.GetFileNameWithoutExtension(path),
+            Path = path,
+            IsActive = true,
+            AllowSave = false,
+        });
 
         // ---- Per-row actions ----
         private static SyncSource? Source(object sender) =>
@@ -174,14 +157,8 @@ namespace TextTemplateManager
         {
             if (Source(sender) is not SyncSource s) return;
 
-            var picker = new FileOpenPicker();
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, _hwnd);
-            picker.FileTypeFilter.Add(".ttmdata");
-
-            var file = await picker.PickSingleFileAsync();
-            if (file == null) return;
-
-            s.Path = file.Path; // raises IsFileMissing + persists via Source_PropertyChanged
+            if (await DataFilePicker.PickToOpenAsync(_hwnd) is not { } path) return;
+            s.Path = path; // raises IsFileMissing + persists via Source_PropertyChanged
         }
 
         private async void MoveUp_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
