@@ -6,11 +6,11 @@
     <RootNamespace>TextTemplateManager</RootNamespace>
     <!-- Ship the executable as ttm.exe (independent of the .csproj / namespace name). -->
     <AssemblyName>ttm</AssemblyName>
-    <!-- Local/dev default. Release builds override it from the git tag via -p:Version=X.Y.Z
-         (see package.ps1 and .github/workflows/release.yml). -->
+    <!-- Local/dev default. A release build passes the git tag as -p:Version=X.Y.Z, which also becomes
+         the package version (StampPackageVersion below). -->
     <Version>0.0.0-dev</Version>
-    <!-- Release date (yyyy-MM-dd), stamped by package.ps1 / CI via -p:ReleaseDate=...; empty for
-         local/dev builds (About then shows "dev build"). Baked into an assembly-metadata attribute below. -->
+    <!-- Release date (yyyy-MM-dd), passed by a release build as -p:ReleaseDate=...; empty for local/dev
+         builds (About then shows "dev build"). Baked into an assembly-metadata attribute below. -->
     <ReleaseDate></ReleaseDate>
     <!-- Keep InformationalVersion clean (no +<git-hash>) so the About dialog shows just the version. -->
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
@@ -29,13 +29,46 @@
     <WinUISDKReferences>false</WinUISDKReferences>
     <EnableMsixTooling>true</EnableMsixTooling>
     <WindowsAppSDKTargetsSelfContained>true</WindowsAppSDKTargetsSelfContained>
-    <!-- The app only ever ships unpackaged (per-user Inno installer, never MSIX) and package.ps1 already
-         publishes with this; setting it here makes F5 match. It is what pulls in the *bootstrap*
-         initializer: without it an unpackaged run gets only the DeploymentManager initializer, which then
-         fails with REGDB_E_CLASSNOTREG before the window appears. Requires the Unpackaged launch profile
-         (see Properties/launchSettings.json) — the MsixPackage profile cannot deploy an unpackaged build. -->
+    <!-- Dev builds and test runs are unpackaged; only the Store build (below) makes an MSIX. Unpackaged is
+         what pulls in the *bootstrap* initializer: without it an unpackaged run gets only the
+         DeploymentManager initializer, which then fails with REGDB_E_CLASSNOTREG before the window
+         appears. Requires the Unpackaged launch profile (see Properties/launchSettings.json) — the
+         MsixPackage profile cannot deploy an unpackaged build. -->
     <WindowsPackageType>None</WindowsPackageType>
   </PropertyGroup>
+
+  <!-- Store package (x64 + arm64 bundle and .msixupload in AppPackages\), from a short path because the
+       XAML compiler fails silently near 260 characters:
+         dotnet build -c Release -p:Platform=x64 -p:StoreBuild=true -p:Version=X.Y.Z -p:ReleaseDate=yyyy-MM-dd
+       .NET stays self-contained (the Store has no framework package for it); the Windows App SDK becomes a
+       framework dependency the Store installs and services. Unsigned: the Store signs it. -->
+  <PropertyGroup Condition="'$(StoreBuild)' == 'true'">
+    <WindowsPackageType>MSIX</WindowsPackageType>
+    <WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
+    <WindowsAppSDKTargetsSelfContained>false</WindowsAppSDKTargetsSelfContained>
+    <GenerateAppxPackageOnBuild>true</GenerateAppxPackageOnBuild>
+    <UapAppxPackageBuildMode>StoreUpload</UapAppxPackageBuildMode>
+    <AppxBundle>Always</AppxBundle>
+    <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
+    <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
+    <AppxSymbolPackageEnabled>false</AppxSymbolPackageEnabled>
+  </PropertyGroup>
+
+  <!-- The package version comes from the manifest's Identity; a release build stamps -p:Version=X.Y.Z
+       into a copy as X.Y.Z.0 (the Store needs the fourth field to be 0). Dev builds keep the manifest's. -->
+  <Target Name="StampPackageVersion" BeforeTargets="BeforeBuild"
+          Condition="'$(WindowsPackageType)' == 'MSIX' and !$(Version.Contains('-'))">
+    <PropertyGroup>
+      <StampedManifest>$(IntermediateOutputPath)Package.appxmanifest</StampedManifest>
+    </PropertyGroup>
+    <Copy SourceFiles="Package.appxmanifest" DestinationFiles="$(StampedManifest)" />
+    <XmlPoke XmlInputPath="$(StampedManifest)" Query="/m:Package/m:Identity/@Version" Value="$(Version).0"
+             Namespaces="&lt;Namespace Prefix='m' Uri='http://schemas.microsoft.com/appx/manifest/foundation/windows10' /&gt;" />
+    <ItemGroup>
+      <AppxManifest Remove="@(AppxManifest)" />
+      <AppxManifest Include="$(StampedManifest)" />
+    </ItemGroup>
+  </Target>
 
   <PropertyGroup>
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">true</PublishReadyToRun>

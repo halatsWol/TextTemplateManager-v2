@@ -18,9 +18,10 @@
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
-  <!-- The Windows App Runtime dependency is added by the build (framework-dependent Windows App SDK). -->
+  <!-- The build adds the Windows App Runtime dependency (framework-dependent Windows App SDK) and sets
+       MaxVersionTested from the target framework's Windows version. -->
   <Dependencies>
-    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26200.0" />
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.19041.0" />
   </Dependencies>
 
   <Resources>
