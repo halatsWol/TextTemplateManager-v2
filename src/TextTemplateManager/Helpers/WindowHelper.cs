@@ -41,10 +41,7 @@ namespace TextTemplateManager.Helpers
         public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
 
         [DllImport("user32.dll", SetLastError = true)]
-        public static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
-
-        [DllImport("user32.dll")]
-        public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+        private static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
 
         // --- Restored for App.xaml.cs ---
         [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr")]
@@ -71,27 +68,46 @@ namespace TextTemplateManager.Helpers
 
         #region INPUT Structs
         [StructLayout(LayoutKind.Sequential)]
-        public struct INPUT { public uint type; public InputUnion u; }
+        internal struct INPUT { public uint type; public InputUnion u; }
 
+        // MOUSEINPUT is the union's largest member and so sets sizeof(INPUT); without it SendInput
+        // rejects the size and sends nothing.
         [StructLayout(LayoutKind.Explicit)]
-        public struct InputUnion { [FieldOffset(0)] public KEYBDINPUT ki; }
+        internal struct InputUnion { [FieldOffset(0)] public KEYBDINPUT ki; [FieldOffset(0)] public MOUSEINPUT mi; }
 
         [StructLayout(LayoutKind.Sequential)]
-        public struct KEYBDINPUT { public ushort wVk; public ushort wScan; public uint dwFlags; public uint time; public IntPtr dwExtraInfo; }
+        internal struct KEYBDINPUT { public ushort wVk; public ushort wScan; public uint dwFlags; public uint time; public IntPtr dwExtraInfo; }
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct MOUSEINPUT { public int dx; public int dy; public uint mouseData; public uint dwFlags; public uint time; public IntPtr dwExtraInfo; }
         #endregion
 
-        public static void ResetModifiers()
-        {
-            // High-level "Up" events for the usual suspects
-            // 0x11 = Ctrl, 0x12 = Alt, 0x10 = Shift, 0x5B/0x5C = Windows Keys
-            byte[] keys = { 0x11, 0x12, 0x10, 0x5B, 0x5C };
+        private const uint INPUT_KEYBOARD = 1;
+        private const uint KEYEVENTF_KEYUP = 0x0002;
 
-            foreach (var key in keys)
+        public const ushort VK_SHIFT = 0x10, VK_CONTROL = 0x11, VK_MENU = 0x12, VK_LWIN = 0x5B, VK_RWIN = 0x5C, VK_V = 0x56;
+
+        internal static INPUT[] KeyInputs((ushort Vk, bool Up)[] keys) =>
+            Array.ConvertAll(keys, k => new INPUT
             {
-                // We send a KEYEVENTF_KEYUP (0x0002)
-                keybd_event(key, 0, 0x0002, UIntPtr.Zero);
-            }
+                type = INPUT_KEYBOARD,
+                u = new InputUnion { ki = new KEYBDINPUT { wVk = k.Vk, dwFlags = k.Up ? KEYEVENTF_KEYUP : 0 } },
+            });
+
+        /// <summary>Sends the key presses and releases in one SendInput call, so no other input can land
+        /// between them. False when Windows took fewer than all of them (e.g. blocked by UIPI).</summary>
+        public static bool SendKeys(params (ushort Vk, bool Up)[] keys)
+        {
+            var inputs = KeyInputs(keys);
+            uint sent = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf<INPUT>());
+            if (sent != inputs.Length)
+                System.Diagnostics.Debug.WriteLine($"[Input] SendInput sent {sent} of {inputs.Length}, error {Marshal.GetLastWin32Error()}");
+            return sent == inputs.Length;
         }
+
+        /// <summary>Releases Ctrl, Alt, Shift and both Windows keys.</summary>
+        public static void ResetModifiers() =>
+            SendKeys((VK_CONTROL, true), (VK_MENU, true), (VK_SHIFT, true), (VK_LWIN, true), (VK_RWIN, true));
 
         // ---- Minimum window size (WM_GETMINMAXINFO subclass) ----
         // WinUI 3 has no min-size API, so we subclass the top-level HWND and clamp the min

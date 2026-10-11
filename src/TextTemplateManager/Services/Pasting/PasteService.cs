@@ -116,6 +116,7 @@ namespace TextTemplateManager.Services.Pasting
         {
             string html = new string((rawContent ?? string.Empty).Where(ch => ch != (char)0).ToArray()).Trim();
             html = VariableHelper.ProcessVariables(html);
+            // Hex is the most portable colour form; some editors' paste sanitizers only recognize hex.
             html = HtmlUtils.NormalizeColorsToHex(html);
             html = HtmlUtils.StripLeadingEmptyLines(html);
             return (html, HtmlUtils.ToPlainText(html));
@@ -210,17 +211,7 @@ namespace TextTemplateManager.Services.Pasting
             var previousClipboard = await SnapshotClipboardAsync();
 
             // 2. Prepare Content
-            string html = content?.Replace("\u0000", "").Trim() ?? "";
-
-            // Substitute template variables ($[DATE], $[TIME], $[YEAR]) in the HTML, then derive
-            // plain text from it so both representations stay consistent.
-            html = VariableHelper.ProcessVariables(html);
-            // Normalize rgb()/rgba() colours to #rrggbb — hex is the most portable form across
-            // paste targets (Word, Outlook, browsers) and some editors' paste sanitizers only
-            // recognize hex colours.
-            html = HtmlUtils.NormalizeColorsToHex(html);
-            html = HtmlUtils.StripLeadingEmptyLines(html);
-            string plainText = HtmlUtils.ToPlainText(html);
+            var (html, plainText) = PrepareContent(content);
 
             // 3. Build the clipboard payloads for this mode and write them to the OS clipboard
             // via the Win32 API. This is EAGER (no delayed rendering), builds a correct CF_HTML
@@ -363,23 +354,16 @@ namespace TextTemplateManager.Services.Pasting
         private static void SimulatePaste()
         {
             // Release stuck modifiers
-            byte[] modifiers = { 0x10, 0x11, 0x12, 0x5B, 0x5C };
-            foreach (var key in modifiers)
-                keybd_event(key, 0, 0x0002, UIntPtr.Zero);
+            WindowHelper.ResetModifiers();
 
             Thread.Sleep(20);
 
-            // Ctrl + V
-            keybd_event(0x11, 0, 0, UIntPtr.Zero);
-            keybd_event(0x56, 0, 0, UIntPtr.Zero);
-            keybd_event(0x56, 0, 0x0002, UIntPtr.Zero);
-            keybd_event(0x11, 0, 0x0002, UIntPtr.Zero);
+            WindowHelper.SendKeys(
+                (WindowHelper.VK_CONTROL, false), (WindowHelper.VK_V, false),
+                (WindowHelper.VK_V, true), (WindowHelper.VK_CONTROL, true));
         }
 
         #region Win32 API
-
-        [DllImport("user32.dll")]
-        private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
 
         [DllImport("user32.dll")]
         private static extern short GetAsyncKeyState(int vKey);
