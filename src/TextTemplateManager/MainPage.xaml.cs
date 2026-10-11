@@ -13,6 +13,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using TextTemplateManager.Common;
+using TextTemplateManager.Controls;
 using TextTemplateManager.Data;
 using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
@@ -364,11 +365,6 @@ namespace TextTemplateManager
 
         #endregion
 
-        private static Microsoft.UI.Xaml.Media.Brush ThemeBrush(string key, Windows.UI.Color fallback)
-            => Application.Current.Resources.TryGetValue(key, out var v) && v is Microsoft.UI.Xaml.Media.Brush b
-                ? b
-                : new SolidColorBrush(fallback);
-
         #region Menu Handlers
 
         private void MainHelpButton_Click(object sender, RoutedEventArgs e) => MainHelpTip.IsOpen = true;
@@ -628,80 +624,11 @@ namespace TextTemplateManager
                 OpenExternal(uri.AbsoluteUri);
         }
 
-        // The release version, taken from the tag-driven InformationalVersion (e.g. "0.9.3"),
-        // falling back to the numeric assembly version for local dev builds.
-        private static string AppVersion()
-        {
-            var asm = System.Reflection.Assembly.GetExecutingAssembly();
-            var info = asm.GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-            if (!string.IsNullOrWhiteSpace(info))
-            {
-                int plus = info.IndexOf('+');   // strip any +<git-hash> the SDK may append
-                return plus >= 0 ? info[..plus] : info;
-            }
-            var v = asm.GetName().Version ?? new Version(0, 0, 0);
-            return $"{v.Major}.{v.Minor}.{v.Build}";
-        }
-
-        // The release date baked into the assembly at build time (yyyy-MM-dd), or "" for a dev build.
-        private static string ReleaseDate()
-        {
-            var asm = System.Reflection.Assembly.GetExecutingAssembly();
-            foreach (var a in asm.GetCustomAttributes(typeof(System.Reflection.AssemblyMetadataAttribute), false))
-                if (a is System.Reflection.AssemblyMetadataAttribute m && m.Key == "ReleaseDate" && !string.IsNullOrWhiteSpace(m.Value))
-                    return m.Value!;
-            return "";
-        }
-
         private async void About_Click(object sender, RoutedEventArgs e)
         {
-            var secondary = ThemeBrush("TextFillColorSecondaryBrush", Microsoft.UI.Colors.Gray);
-
-            var panel = new StackPanel { Spacing = 4 };
-            panel.Children.Add(new TextBlock { Text = "Text Template Manager", FontSize = 18, FontWeight = Microsoft.UI.Text.FontWeights.SemiBold });
-            panel.Children.Add(new TextBlock { Text = $"Version {AppVersion()}", Foreground = secondary });
-            string releaseDate = ReleaseDate();
-            panel.Children.Add(new TextBlock { Text = releaseDate.Length > 0 ? $"Released {releaseDate}" : "Released: dev build", Foreground = secondary });
-            panel.Children.Add(new TextBlock { Text = $"Connector API protocol {BrowserConnector.ProtocolVersion}", Foreground = secondary });
-            panel.Children.Add(new TextBlock { Text = "Marflow Software", Margin = new Thickness(0, 8, 0, 0) });
-            panel.Children.Add(new TextBlock { Text = $"© {DateTime.Now.Year} Marflow Software", Foreground = secondary });
-            panel.Children.Add(new TextBlock { Text = "A hotkey-driven text-template paste tool.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 0) });
-            panel.Children.Add(new HyperlinkButton { Content = "Project on GitHub", NavigateUri = new Uri(GitHubUrl), Padding = new Thickness(0) });
-
-            // Email: try the mail app, but always copy to the clipboard (a mailto: link does nothing
-            // when no default mail app is registered). Inline hint instead of a dialog, since a
-            // second ContentDialog can't open while About is showing.
-            var emailLink = new HyperlinkButton { Content = ContactEmail, Padding = new Thickness(0) };
-            var copiedHint = new TextBlock
-            {
-                Text = "Address copied to clipboard",
-                FontSize = 11,
-                Foreground = secondary,
-                Visibility = Visibility.Collapsed
-            };
-            emailLink.Click += async (_, _) =>
-            {
-                var dp = new DataPackage();
-                dp.SetText(ContactEmail);
-                Clipboard.SetContent(dp);
-                copiedHint.Visibility = Visibility.Visible;
-                try { await Windows.System.Launcher.LaunchUriAsync(new Uri($"mailto:{ContactEmail}")); } catch { }
-            };
-            panel.Children.Add(emailLink);
-            panel.Children.Add(copiedHint);
-
-            var dialog = new ContentDialog
-            {
-                Title = "About",
-                Content = panel,
-                PrimaryButtonText = "View License",
-                CloseButtonText = "Close",
-                DefaultButton = ContentDialogButton.Close,
-            };
-            if (await ShowDialogAsync(dialog) == ContentDialogResult.Primary)
+            if (await ShowDialogAsync(new AboutDialog(GitHubUrl, ContactEmail)) == ContentDialogResult.Primary)
                 await ShowLicenseAsync();
         }
-
         private async Task ShowLicenseAsync()
         {
             string text;

@@ -1,8 +1,8 @@
 using System;
-using System.Reflection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using TextTemplateManager.Common;
 using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
 
@@ -34,24 +34,12 @@ public sealed partial class IntegrationsSettingsPage : Page
     {
         const string blob = "https://github.com/halatsWol/TextTemplateManager/blob";
         const string path = "docs/BrowserConnectorApi.md";
-        string v = InstalledVersion();
+        string v = AppInfo.Version;
         string reference = string.IsNullOrEmpty(v) || v.StartsWith("0.0.0") || v.Contains("dev", StringComparison.OrdinalIgnoreCase)
             ? "main" : "v" + v;
         return $"{blob}/{reference}/{path}";
     }
 
-    private static string InstalledVersion()
-    {
-        var asm = Assembly.GetExecutingAssembly();
-        var info = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-        if (!string.IsNullOrWhiteSpace(info))
-        {
-            int plus = info.IndexOf('+');
-            return plus >= 0 ? info[..plus] : info;
-        }
-        var ver = asm.GetName().Version ?? new Version(0, 0, 0);
-        return $"{ver.Major}.{ver.Minor}.{ver.Build}";
-    }
 
     // ---- Browser connector ----
     private bool _connectorLoading;

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.UI.Dispatching;
 using TextTemplateManager.Common;
@@ -28,7 +27,7 @@ public sealed class AppConnectorData : IConnectorDataSource
     // Captured on the UI thread (this is constructed there); writes marshal back to it.
     private readonly DispatcherQueue? _ui = DispatcherQueue.GetForCurrentThread();
 
-    public string AppVersion => VersionString();
+    public string AppVersion => AppInfo.Version;
 
     public IReadOnlyList<PasteModeDto> PasteModes() =>
         PasteModeLabel.DisplayOrder.Select(m => new PasteModeDto(m.ToString(), PasteModeLabel.For(m))).ToList();
@@ -145,16 +144,4 @@ public sealed class AppConnectorData : IConnectorDataSource
         return Enum.TryParse<PasteMode>(mode, ignoreCase: true, out var m) && Enum.IsDefined(m) ? m : fallback;
     }
 
-    private static string VersionString()
-    {
-        var asm = Assembly.GetExecutingAssembly();
-        var info = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
-        if (!string.IsNullOrWhiteSpace(info))
-        {
-            int plus = info.IndexOf('+');
-            return plus >= 0 ? info[..plus] : info;
-        }
-        var v = asm.GetName().Version ?? new Version(0, 0, 0);
-        return $"{v.Major}.{v.Minor}.{v.Build}";
-    }
 }

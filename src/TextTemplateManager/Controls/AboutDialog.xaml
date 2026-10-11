@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="TextTemplateManager.Controls.AboutDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="About"
+    PrimaryButtonText="View License"
+    CloseButtonText="Close"
+    DefaultButton="Close">
+
+    <StackPanel Spacing="4">
+        <TextBlock Text="Text Template Manager" FontSize="18" FontWeight="SemiBold"/>
+        <TextBlock x:Name="VersionText" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+        <TextBlock x:Name="ReleaseText" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+        <TextBlock x:Name="ProtocolText" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+        <TextBlock Text="Marflow Software" Margin="0,8,0,0"/>
+        <TextBlock x:Name="CopyrightText" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+        <TextBlock Text="A hotkey-driven text-template paste tool." TextWrapping="Wrap" Margin="0,8,0,0"/>
+        <HyperlinkButton x:Name="GitHubLink" Content="Project on GitHub" Padding="0"/>
+        <!-- Email: tries the mail app and always copies the address (a mailto: link does nothing when
+             no mail app is registered); the hint is inline since no second dialog can open over this one. -->
+        <HyperlinkButton x:Name="EmailLink" Padding="0" Click="EmailLink_Click"/>
+        <TextBlock x:Name="CopiedHint" Text="Address copied to clipboard" FontSize="11" Visibility="Collapsed"
+                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+    </StackPanel>
+</ContentDialog>
