@@ -29,6 +29,9 @@ namespace TextTemplateManager.Helpers
         public static extern bool IsIconic(IntPtr hWnd);
 
         [DllImport("user32.dll")]
+        public static extern bool IsZoomed(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
         public static extern bool IsWindowVisible(IntPtr hWnd);
 
         [DllImport("user32.dll")]
@@ -57,6 +60,7 @@ namespace TextTemplateManager.Helpers
         public const int GWL_WNDPROC = -4;
         public delegate IntPtr WndProcDelegate(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
+        public const int SW_MAXIMIZE = 3;
         public const int SW_RESTORE = 9;
         public const int HWND_TOPMOST = -1;
         public const int HWND_NOTOPMOST = -2;

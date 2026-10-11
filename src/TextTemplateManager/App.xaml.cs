@@ -166,9 +166,15 @@ namespace TextTemplateManager
         // Restore + foreground the main window (it may be hidden in the tray); also the tray's Open.
         private static void ShowMainWindow()
         {
-            MainWindow.Show();
             IntPtr hWnd = WindowNative.GetWindowHandle(MainWindow);
-            WindowHelper.ShowWindow(hWnd, WindowHelper.SW_RESTORE);
+            // Show() (H.NotifyIcon) brings a maximized window back at normal size, and SW_RESTORE would too:
+            // maximize again, restore only if minimized.
+            bool wasMaximized = WindowHelper.IsZoomed(hWnd);
+            MainWindow.Show();
+            if (wasMaximized)
+                WindowHelper.ShowWindow(hWnd, WindowHelper.SW_MAXIMIZE);
+            else if (WindowHelper.IsIconic(hWnd))
+                WindowHelper.ShowWindow(hWnd, WindowHelper.SW_RESTORE);
             WindowHelper.SetForegroundWindow(hWnd);
             MainWindow.Activate();
         }
