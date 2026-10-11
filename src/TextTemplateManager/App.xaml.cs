@@ -28,6 +28,7 @@ namespace TextTemplateManager
         private AppConnectorData? _connectorData;
         private SingleInstance _singleInstance = null!;   // set in OnLaunched
         private readonly DataNode _store;
+        private readonly IAppEnvironment _environment = AppEnvironment.Detect();   // packaged or a dev run
 
         // Pipe message a bare second launch sends to just surface the running window (no file).
         private const string ActivateSignal = "__activate__";
@@ -37,7 +38,7 @@ namespace TextTemplateManager
         public App()
         {
             InitializeComponent();
-            _store = new DataNode(StorageService.CreateDefault());
+            _store = new DataNode(StorageService.CreateDefault(_environment));
             _errors = new UnexpectedErrorHandler(ex => LogCrash("UnhandledException", ex),
                 PersistPendingAsync, AskQuitAfterErrorAsync, ExitAsync);
             UnhandledException += OnUnhandledException;

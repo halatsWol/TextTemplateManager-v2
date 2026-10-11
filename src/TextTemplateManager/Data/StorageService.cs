@@ -9,6 +9,7 @@ using System.Text.Json.Serialization.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 using TextTemplateManager.Models;
+using TextTemplateManager.Services.Platform;
 
 
 namespace TextTemplateManager.Data;
@@ -18,12 +19,6 @@ namespace TextTemplateManager.Data;
 /// the write-activity signals.</summary>
 public sealed class StorageService
 {
-    // Path: %localappdata%\Marflow Software\TextTemplateManager\
-    private static readonly string DefaultBaseDirectory = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "Marflow Software",
-        "TextTemplateManager");
-
     /// <summary>Env var that redirects the whole data root. Set by the test suite and by dev/UI test runs
     /// so they can never touch real templates or settings; unset everywhere else.</summary>
     public const string DataDirOverrideVariable = "TTM_DATA_DIR";
@@ -49,35 +44,14 @@ public sealed class StorageService
         _baseDirectory = baseDirectory;
     }
 
-    /// <summary>The app's storage: the default data folder, or the one <see cref="DataDirOverrideVariable"/>
-    /// points to. Migrates the legacy folder name and creates the folder.</summary>
-    public static StorageService CreateDefault()
+    /// <summary>The app's storage: the environment's data folder, or the one <see cref="DataDirOverrideVariable"/>
+    /// points to. Creates the folder.</summary>
+    public static StorageService CreateDefault(IAppEnvironment environment)
     {
         string? overridden = Environment.GetEnvironmentVariable(DataDirOverrideVariable);
-        bool redirected = !string.IsNullOrWhiteSpace(overridden);
-        string baseDirectory = redirected ? Path.GetFullPath(overridden!) : DefaultBaseDirectory;
-
-        // Never migrate into a redirected root — that would move the user's real data into a test folder.
-        if (!redirected) MigrateLegacyFolder(baseDirectory);
+        string baseDirectory = string.IsNullOrWhiteSpace(overridden) ? environment.DataDirectory : Path.GetFullPath(overridden);
         Directory.CreateDirectory(baseDirectory);
         return new StorageService(baseDirectory);
-    }
-
-    // One-time migration: the data folder was historically named "TextTemplatesManager" (plural).
-    // Rename it to the correct singular name so upgrading users keep their templates, settings, and
-    // sync config. Runs before the folder is created, so the destination doesn't exist yet.
-    private static void MigrateLegacyFolder(string baseDirectory)
-    {
-        try
-        {
-            string legacy = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "Marflow Software",
-                "TextTemplatesManager");
-            if (Directory.Exists(legacy) && !Directory.Exists(baseDirectory))
-                Directory.Move(legacy, baseDirectory);
-        }
-        catch { /* best effort — CreateDirectory still yields a usable folder */ }
     }
 
     // Serialize writes per file path so concurrent saves (e.g. rapid Sync-settings edits, which fire
