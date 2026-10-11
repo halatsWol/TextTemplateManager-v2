@@ -78,7 +78,9 @@ public partial class MainViewModel : ObservableObject
     }
 
     [ObservableProperty] public partial string SearchText { get; set; } = string.Empty;
-    [ObservableProperty] public partial bool IncludeContentSearch { get; set; }
+
+    // Search looks in the template text too; a saved setting, shared with Quick Paste.
+    private bool IncludeContentSearch => _dataNode.CurrentSettings.SearchInContent;
 
     public bool IsEditorEnabled => SelectedItem is Template;
 
@@ -117,6 +119,12 @@ public partial class MainViewModel : ObservableObject
         });
 
         _dataNode.ShortcutsChanged += QueueValidation;
+
+        // Turned on or off here or in Quick Paste.
+        _dataNode.CurrentSettings.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(AppSettings.SearchInContent)) ApplyFilter();
+        };
 
         _ = Task.Run(async () =>
         {
@@ -162,7 +170,6 @@ public partial class MainViewModel : ObservableObject
     #region Search Logic
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
-    partial void OnIncludeContentSearchChanged(bool value) => ApplyFilter();
 
     /// <summary>Full tree rebuild with a fresh RootNodes instance. TreeView does not reliably
     /// reflect a Move on its bound collection (e.g. reordered sync folders), so a reload re-binds

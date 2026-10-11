@@ -85,6 +85,13 @@ namespace TextTemplateManager
             // SyncShortcutHighlight): visible in shortcut mode, cleared while search or the tree has focus.
             // GotFocus bubbles, so subscribing on RootGrid catches focus reaching any descendant.
             this.RootGrid.GotFocus += OnContentGotFocus;
+
+            SearchOptions.Settings = store.CurrentSettings;
+            store.CurrentSettings.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(AppSettings.SearchInContent) && AppWindow.IsVisible)
+                    UpdateAllFilters(SearchBox.Text);
+            };
         }
 
         private void LoadInitialData() => UpdateAllFilters("");
@@ -174,6 +181,19 @@ namespace TextTemplateManager
             finally { _isProcessing = false; }
         }
 
+        // The options menu takes focus while open; give it back to where it was (search box, tree or
+        // shortcut mode), or a letter typed next would land in shortcut mode and paste.
+        private UIElement? _focusBeforeMenu;
+
+        private void SearchOptions_MenuOpening(object? sender, EventArgs e) =>
+            _focusBeforeMenu = FocusManager.GetFocusedElement(Content.XamlRoot) as UIElement;
+
+        private void SearchOptions_MenuClosed(object? sender, EventArgs e)
+        {
+            (_focusBeforeMenu ?? RootGrid).Focus(FocusState.Programmatic);
+            _focusBeforeMenu = null;
+        }
+
         private void UpdateAllFilters(string searchFilter)
         {
             TemplateTree.RootNodes.Clear();
@@ -186,11 +206,11 @@ namespace TextTemplateManager
             }
             else
             {
-                foreach (var node in TemplateSearch.Prune<TreeViewNode>(_store.LocalItems, searchFilter, false, FilteredNode))
+                foreach (var node in TemplateSearch.Prune<TreeViewNode>(_store.LocalItems, searchFilter, _store.CurrentSettings.SearchInContent, FilteredNode))
                     TemplateTree.RootNodes.Add(node);
             }
 
-            _entry.SetSearch(searchFilter);
+            _entry.SetSearch(searchFilter, _store.CurrentSettings.SearchInContent);
             Render();
         }
 

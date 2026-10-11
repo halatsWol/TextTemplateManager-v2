@@ -88,6 +88,7 @@ namespace TextTemplateManager
             (Application.Current as App)?.AddExitFlush(Editor.FlushAsync);
 
             Settings.Store = store;
+            SearchOptions.Settings = store.CurrentSettings;
             Settings.Closed += Settings_Closed;
             Editor.FocusSearchRequested += (_, _) => FocusSearchBox();
         }

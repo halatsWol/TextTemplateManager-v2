@@ -19,6 +19,7 @@ public sealed class QuickPasteController(
     Func<string, Template?> resolveSingleKey)
 {
     private string _search = "";
+    private bool _searchInContent;
     private ShortcutTab? _tabBeforeAlt;
     private bool _shortcutMode = true;
 
@@ -48,9 +49,10 @@ public sealed class QuickPasteController(
     }
 
     /// <summary>The search text filters both lists, as in the tree (not while a multi key is being typed).</summary>
-    public void SetSearch(string text)
+    public void SetSearch(string text, bool inContent = false)
     {
         _search = text;
+        _searchInContent = inContent;
         if (Buffer.Length > 0) return;
         RefreshMulti();
         RefreshSingle();
@@ -203,7 +205,7 @@ public sealed class QuickPasteController(
     private List<ShortcutRow> FilterBySearch(List<ShortcutRow> rows) =>
         string.IsNullOrWhiteSpace(_search)
             ? rows
-            : rows.Where(r => TemplateSearch.Matches(_search, r.Template)).ToList();
+            : rows.Where(r => TemplateSearch.Matches(_search, r.Template, _searchInContent)).ToList();
 
     // Armed only while a multi key is typed under Alt.
     private void RefreshMulti()

@@ -47,7 +47,7 @@ Drag items to reorder them or to move them between folders. Folders may contain 
 To move an item out to the top level, drag it there or right-click it and choose **Move to Root**.
 Click an empty area of the tree to clear the selection — with nothing selected, new templates and folders are created at the root. From the keyboard, **Esc** steps back one level at a time: from the tree to the search box, then it clears the search text, and with the search box already empty it clears the selection.
 
-The search box filters the tree: every word you type must appear in an item's title or tags, in any order, and a word's letters only need to appear in order, not next to each other (`mtg` finds *Meeting*). Folders holding a match stay visible and open.
+The search box filters the tree: every word you type must appear in an item's title or tags, in any order, and a word's letters only need to appear in order, not next to each other (`mtg` finds *Meeting*). Folders holding a match stay visible and open. To look inside the templates' text as well, open the filter button beside the search box and turn on **Search template text**; a dot on the button shows it is on. It stays on until you turn it off, in both the main window and Quick Paste.
 
 From the search box, **↓** moves into the tree, the same way as in Quick Paste: if the text cursor isn't at the end yet, the first **↓** moves it there.
 
@@ -154,7 +154,7 @@ pasted.
   **Backspace** while holding **Alt** to correct a mistyped entry.
 - **Paste as plain text** — while still holding **Alt**, end a multi-key entry with **Shift + -** (which produces `_`) to 
   insert the template as unformatted text, regardless of its default paste mode.
-- **Search** — click the search box (or press **Tab** or **Ctrl + F**) to filter the tree and the shortcut lists, matched the same way as in the main window; matching templates display 
+- **Search** — click the search box (or press **Tab** or **Ctrl + F**) to filter the tree and the shortcut lists, matched the same way as in the main window (including **Search template text**, which the filter button here turns on and off too); matching templates display 
   their folder path. While the search box has focus, every letter filters and never triggers a 
   shortcut; press **Esc** to return to shortcut mode. In the search box the arrow keys move the text 
   cursor — **↑** to the start, **↓** to the end — and pressing **↓** again once the cursor is at the 

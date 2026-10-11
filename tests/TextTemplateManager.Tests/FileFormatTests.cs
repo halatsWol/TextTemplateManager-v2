@@ -73,6 +73,7 @@ public class FileFormatTests
             BrowserConnectorEnabled = true,
             BrowserConnectorPort = 47700,
             BrowserConnectorToken = "token",
+            SearchInContent = true,
         });
 
         Assert.Equal(await File.ReadAllTextAsync(Fixture("format-settings.ttmsettings")), await File.ReadAllTextAsync(_storage.GetSettingsPath()));

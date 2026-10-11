@@ -136,12 +136,17 @@
                     </StackPanel>
 
                     <!-- Search -->
-                    <StackPanel Grid.Row="1" Margin="10,5" Spacing="5">
+                    <Grid Grid.Row="1" Margin="10,5" ColumnSpacing="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
                         <AutoSuggestBox x:Name="SearchBox"
                                         QueryIcon="Find"
                                         PlaceholderText="Search templates..."
                                         Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    </StackPanel>
+                        <appcontrols:SearchOptionsButton x:Name="SearchOptions" Grid.Column="1"/>
+                    </Grid>
 
                     <!-- TreeView -->
                     <!-- KeyDown is attached in code with handledEventsToo so Enter/Space are seen
@@ -369,7 +374,7 @@
 
                     <TextBlock Grid.Row="5" Grid.Column="0" Text="🔍" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="5" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Search:"/><Run Text=" filters the tree; toggle content search to look inside template text."/>
+                        <Run FontWeight="SemiBold" Text="Search:"/><Run Text=" filters the tree by title and tags; the filter button beside it can search the template text too."/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="6" Grid.Column="0" Text="🎨" VerticalAlignment="Top"/>

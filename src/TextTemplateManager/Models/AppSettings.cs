@@ -17,4 +17,7 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty] public partial bool BrowserConnectorEnabled { get; set; } = false;
     [ObservableProperty] public partial int BrowserConnectorPort { get; set; } = 47615;
     [ObservableProperty] public partial string BrowserConnectorToken { get; set; } = "";
+
+    // Search also looks in the template text (both windows), not only titles and tags.
+    [ObservableProperty] public partial bool SearchInContent { get; set; } = false;
 }

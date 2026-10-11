@@ -4,5 +4,6 @@
   "HideCrossAreaShortcutWarnings": true,
   "BrowserConnectorEnabled": true,
   "BrowserConnectorPort": 47700,
-  "BrowserConnectorToken": "token"
+  "BrowserConnectorToken": "token",
+  "SearchInContent": true
 }

@@ -151,6 +151,18 @@ public class QuickPasteControllerTests
     }
 
     [Fact]
+    public void Search_looks_in_the_template_text_only_when_asked()
+    {
+        _mail.Content = "<p>Dear customer</p>";
+
+        _entry.SetSearch("customer");
+        Assert.Empty(MultiTitles);
+
+        _entry.SetSearch("customer", inContent: true);
+        Assert.Equal(new[] { "Mail" }, MultiTitles);
+    }
+
+    [Fact]
     public void Losing_focus_mid_entry_resets_alt_the_tab_and_the_typed_key()
     {
         _entry.AltDown();

@@ -5,6 +5,7 @@
     xmlns:viewmodels="using:TextTemplateManager.ViewModels"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:helpers="using:TextTemplateManager.Helpers"
+    xmlns:appcontrols="using:TextTemplateManager.Controls"
     Title="Quick Paste">
 
     <!-- NOTE: KeyDown is intentionally NOT wired here. The constructor attaches
@@ -64,10 +65,21 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <TextBox x:Name="SearchBox" 
-                     Margin="10" 
-                     PlaceholderText="Search..." 
-                     TextChanged="SearchBox_TextChanged" />
+            <Grid Margin="10" ColumnSpacing="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="SearchBox"
+                         PlaceholderText="Search..."
+                         TextChanged="SearchBox_TextChanged" />
+                <!-- Never takes focus itself: with focus outside the search box and tree, letters would paste. -->
+                <appcontrols:SearchOptionsButton x:Name="SearchOptions"
+                                                 Grid.Column="1"
+                                                 TakesFocus="False"
+                                                 MenuOpening="SearchOptions_MenuOpening"
+                                                 MenuClosed="SearchOptions_MenuClosed"/>
+            </Grid>
 
             <TreeView x:Name="TemplateTree"
                       Grid.Row="1"
@@ -316,7 +328,7 @@
 
                     <TextBlock Grid.Row="6" Grid.Column="0" Text="🔍" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="6" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Search:"/><Run Text=" folder-aware; matches show their parent path. ↑/↓ move the cursor; ↓ at the end steps into the tree."/>
+                        <Run FontWeight="SemiBold" Text="Search:"/><Run Text=" folder-aware; matches show their parent path. The filter button beside it can search the template text too. ↑/↓ move the cursor; ↓ at the end steps into the tree."/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="7" Grid.Column="0" Text="⎋" VerticalAlignment="Top" FontWeight="SemiBold"/>

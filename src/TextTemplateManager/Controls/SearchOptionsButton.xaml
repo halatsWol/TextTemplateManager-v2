@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="TextTemplateManager.Controls.SearchOptionsButton"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Button x:Name="OptionsButton"
+            Style="{StaticResource SubtleButtonStyle}"
+            VerticalAlignment="Stretch"
+            Padding="8,0"
+            ToolTipService.ToolTip="Search options"
+            AutomationProperties.Name="Search options">
+        <Grid>
+            <FontIcon Glyph="&#xE71C;" FontSize="14"/>
+            <!-- Shown while the search is widened, so the narrower default is never mistaken for it. -->
+            <Ellipse x:Name="ActiveDot"
+                     Width="6" Height="6"
+                     Margin="0,-3,-5,0"
+                     HorizontalAlignment="Right" VerticalAlignment="Top"
+                     Fill="{ThemeResource AccentFillColorDefaultBrush}"
+                     Visibility="Collapsed"/>
+        </Grid>
+        <Button.Flyout>
+            <!-- Kept inside the window: a separate popup window would deactivate Quick Paste. -->
+            <MenuFlyout x:Name="Menu" Placement="BottomEdgeAlignedRight" ShouldConstrainToRootBounds="True">
+                <ToggleMenuFlyoutItem x:Name="ContentItem"
+                                      Text="Search template text"/>
+            </MenuFlyout>
+        </Button.Flyout>
+    </Button>
+</UserControl>
