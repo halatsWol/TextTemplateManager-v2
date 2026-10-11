@@ -42,10 +42,7 @@ nothing is selected. New items are given a unique default name, which you can ch
 
 ### Organizing the tree
 
-Drag items to reorder them or to move them between folders. Folders may contain both templates 
-and other folders; a template is always a leaf and can never contain other items — dropping an
-item onto a template places it as a sibling directly below. Expansion and 
-selection are preserved as you work.
+Drag items to reorder them or to move them between folders. Folders may contain both templates and other folders; a template is always a leaf and can never contain other items. Where an item lands depends on where you drop it: on the upper half of a template it goes above, on the lower half below. On a folder, the middle drops it into the folder, the top or bottom edge beside it; just below an expanded folder it goes to the top of that folder's contents. Dropping on the empty space below the tree moves it to the end of the top level. Expansion and selection are preserved as you work.
 
 To move an item out to the top level, drag it there or right-click it and choose **Move to Root**.
 Click an empty area of the tree to clear the selection — with nothing selected, new templates and folders are created at the root. From the keyboard, **Esc** steps back one level at a time: from the tree to the search box, then it clears the search text, and with the search box already empty it clears the selection.

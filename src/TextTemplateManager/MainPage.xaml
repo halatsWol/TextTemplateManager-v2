@@ -344,7 +344,7 @@
 
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="🗂️" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="0" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Organize:"/><Run Text=" add with the toolbar; drag to reorder or nest. Click empty space or press Esc to deselect (new items then go to the root). A template can't hold others — dropping onto one places a sibling below."/>
+                        <Run FontWeight="SemiBold" Text="Organize:"/><Run Text=" add with the toolbar; drag to reorder or nest (drop on a folder's middle to put an item inside, near a row's top or bottom to place it above or below). Click empty space or press Esc to deselect (new items then go to the root)."/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="🔄" VerticalAlignment="Top"/>
