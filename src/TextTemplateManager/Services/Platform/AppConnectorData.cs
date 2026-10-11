@@ -46,8 +46,8 @@ public sealed class AppConnectorData : IConnectorDataSource
     }
 
     /// <summary>Creates a template in the local area with the given content and returns its id/name.
-    /// Runs on the UI thread (tree edit + save); the calling connector thread blocks until it's done.</summary>
-    public CreatedTemplateDto CreateTemplate(string content, string? name)
+    /// The tree edit and save run on the UI thread; the returned task completes when they are done.</summary>
+    public Task<CreatedTemplateDto> CreateTemplateAsync(string content, string? name)
     {
         var ui = _ui ?? throw new InvalidOperationException("connector has no UI dispatcher");
         var tcs = new TaskCompletionSource<CreatedTemplateDto>();
@@ -75,11 +75,8 @@ public sealed class AppConnectorData : IConnectorDataSource
         });
         if (!queued) throw new InvalidOperationException("UI thread unavailable");
 
-        // Block the connector thread until the UI thread finishes — bounded so a stalled/closing UI
-        // can't hang the connection forever.
-        if (!tcs.Task.Wait(TimeSpan.FromSeconds(10)))
-            throw new TimeoutException("create-template timed out");
-        return tcs.Task.GetAwaiter().GetResult();
+        // Bounded, so a stalled or closing UI can't hang the request.
+        return tcs.Task.WaitAsync(TimeSpan.FromSeconds(10));
     }
 
     // A label served in a connector reply: strip control chars and cap length so a title can't carry

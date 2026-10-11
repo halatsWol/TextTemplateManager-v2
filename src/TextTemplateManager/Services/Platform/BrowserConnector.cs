@@ -19,14 +19,14 @@ public sealed record CreatedTemplateDto(string Id, string Name);
 
 /// <summary>Data the connector serves. The app implements this over its live templates; a test
 /// harness can implement it with fixtures. Read methods run on the connector's background threads
-/// (implementations read an immutable snapshot); CreateTemplate marshals to the UI thread itself.</summary>
+/// (implementations read an immutable snapshot); CreateTemplateAsync marshals to the UI thread itself.</summary>
 public interface IConnectorDataSource
 {
     string AppVersion { get; }
     IReadOnlyList<PasteModeDto> PasteModes();
     IReadOnlyList<ConnectorNodeDto> Tree();
     TemplateContentDto? Template(string id, string? mode);   // null when the id is unknown
-    CreatedTemplateDto CreateTemplate(string content, string? name);   // adds a template to the local area
+    Task<CreatedTemplateDto> CreateTemplateAsync(string content, string? name);   // adds a template to the local area
 }
 
 /// <summary>
@@ -41,6 +41,7 @@ public sealed class BrowserConnector : IDisposable
     public const string TokenHeader = "x-ttm-token";
 
     private readonly IConnectorDataSource _data;
+    private readonly TimeSpan _connectionTimeout;
     private TcpListener? _listener;
     private CancellationTokenSource? _cts;
     private string _token = "";
@@ -52,7 +53,13 @@ public sealed class BrowserConnector : IDisposable
         Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
-    public BrowserConnector(IConnectorDataSource data) => _data = data;
+    /// <param name="connectionTimeout">How long one connection may take from accept to reply (default
+    /// 10 s), so a client that connects and sends nothing can't hold it open.</param>
+    public BrowserConnector(IConnectorDataSource data, TimeSpan? connectionTimeout = null)
+    {
+        _data = data;
+        _connectionTimeout = connectionTimeout ?? TimeSpan.FromSeconds(10);
+    }
 
     public bool IsRunning => _listener != null;
 
@@ -64,9 +71,8 @@ public sealed class BrowserConnector : IDisposable
         _cts = new CancellationTokenSource();
         _listener = new TcpListener(IPAddress.Loopback, port);
         _listener.Start();
-        // Run the accept loop on the thread pool, never the caller's (UI) thread. Otherwise the
-        // awaits capture the UI context and request handling runs on the UI thread — where
-        // CreateTemplate (which marshals a create back to the UI thread and waits for it) deadlocks.
+        // Run the accept loop on the thread pool, never the caller's (UI) thread, so request handling
+        // never ties up the UI thread.
         var listener = _listener;
         var ct = _cts.Token;
         _ = Task.Run(() => AcceptLoopAsync(listener, ct));
@@ -84,37 +90,35 @@ public sealed class BrowserConnector : IDisposable
 
     private async Task AcceptLoopAsync(TcpListener listener, CancellationToken ct)
     {
-        // Poll for connections rather than blocking in AcceptTcpClientAsync. A blocked accept can
-        // only be unblocked by closing the listener, which throws a (caught but noisy) exception on
-        // every disable. Waiting between polls lets Stop() cancel the token and the loop exit at the
-        // while-check with no exception — at the cost of up to ~50 ms to pick up a new connection.
-        while (!ct.IsCancellationRequested)
+        while (true)
         {
-            try
+            TcpClient client;
+            try { client = await listener.AcceptTcpClientAsync(ct); }
+            catch (Exception ex)
             {
-                if (!listener.Pending())
-                {
-                    await Task.Delay(50);
-                    continue;
-                }
-                var client = await listener.AcceptTcpClientAsync();
-                _ = HandleClientAsync(client, ct);
+                // Stop() cancels the token; anything else means the listener is broken, so stop too.
+                if (!ct.IsCancellationRequested)
+                    System.Diagnostics.Debug.WriteLine($"[Connector] accept failed, stopping: {ex.Message}");
+                return;
             }
-            catch { break; }   // listener stopped mid-poll (rare race) — exit quietly
+            _ = HandleClientAsync(client, ct);
         }
     }
 
-    private async Task HandleClientAsync(TcpClient client, CancellationToken ct)
+    private async Task HandleClientAsync(TcpClient client, CancellationToken stopping)
     {
         using (client)
+        using (var cts = CancellationTokenSource.CreateLinkedTokenSource(stopping))
         {
+            cts.CancelAfter(_connectionTimeout);
+            var ct = cts.Token;
             try
             {
                 client.NoDelay = true;
                 var stream = client.GetStream();
                 var req = await ReadRequestAsync(stream, ct);
                 if (req == null) return;
-                var res = Route(req);
+                var res = await RouteAsync(req);
                 await WriteResponseAsync(stream, res, ct);
             }
             catch { /* best effort — drop the connection */ }
@@ -227,7 +231,13 @@ public sealed class BrowserConnector : IDisposable
         origin.StartsWith("moz-extension://", StringComparison.OrdinalIgnoreCase) ||
         origin.StartsWith("safari-web-extension://", StringComparison.OrdinalIgnoreCase);
 
-    private Response Route(Request req)
+    // Constant time, so how long a refusal takes says nothing about how much of the token was right.
+    private bool TokenMatches(string? token) =>
+        _token.Length > 0 && token != null &&
+        System.Security.Cryptography.CryptographicOperations.FixedTimeEquals(
+            Encoding.UTF8.GetBytes(token), Encoding.UTF8.GetBytes(_token));
+
+    private async Task<Response> RouteAsync(Request req)
     {
         req.Headers.TryGetValue("Origin", out string? origin);
         origin ??= "";
@@ -244,7 +254,7 @@ public sealed class BrowserConnector : IDisposable
 
         // Token gate.
         req.Headers.TryGetValue(TokenHeader, out string? token);
-        if (string.IsNullOrEmpty(_token) || token != _token)
+        if (!TokenMatches(token))
             return new Response(401, "{\"error\":\"unauthorized\"}", corsOrigin);
 
         try
@@ -258,7 +268,7 @@ public sealed class BrowserConnector : IDisposable
                 case "/tree":
                     return Ok(_data.Tree(), corsOrigin);
                 case "/template" when req.Method == "POST":
-                    return CreateTemplate(req, corsOrigin);
+                    return await CreateTemplateAsync(req, corsOrigin);
                 case "/template":
                     if (!req.Query.TryGetValue("id", out string? id) || string.IsNullOrWhiteSpace(id))
                         return new Response(400, "{\"error\":\"missing id\"}", corsOrigin);
@@ -279,7 +289,7 @@ public sealed class BrowserConnector : IDisposable
 
     // POST /template — body {"content": "...", "name"?: "..."}. Adds a template to the local area
     // (name defaults to "New Template", incremented on collision) and returns {"id","name"}.
-    private Response CreateTemplate(Request req, string corsOrigin)
+    private async Task<Response> CreateTemplateAsync(Request req, string corsOrigin)
     {
         string? content = null, name = null;
         try
@@ -296,7 +306,7 @@ public sealed class BrowserConnector : IDisposable
         if (string.IsNullOrEmpty(content))
             return new Response(400, "{\"error\":\"missing content\"}", corsOrigin);
 
-        return Ok(_data.CreateTemplate(content, name), corsOrigin);
+        return Ok(await _data.CreateTemplateAsync(content, name), corsOrigin);
     }
 
     private static Response Ok(object payload, string origin) =>

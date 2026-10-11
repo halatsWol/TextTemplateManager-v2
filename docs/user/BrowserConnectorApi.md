@@ -173,3 +173,4 @@ as defense in depth — a server-side sanitizer can't perfectly mirror the brows
 - `protocol` in `/ping` is the API version; bump-aware clients should check it.
 - The tree is served from an in-memory snapshot refreshed when templates change, so it stays current
   without you polling aggressively — re-fetch `/tree` when you open your menu.
+- One request per connection (`Connection: close`). A connection that hasn't sent its request and received the reply within 10 seconds is closed.
