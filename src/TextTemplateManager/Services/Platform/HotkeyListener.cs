@@ -1,49 +1,62 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Windows.System;
 
 namespace TextTemplateManager.Services.Platform;
 
+/// <summary>The global hotkey, received by a message-only window. Create and dispose it on the same thread
+/// (a window belongs to the thread that created it).</summary>
 public class HotkeyListener : IDisposable
 {
     private IntPtr _hwnd;
-    private readonly WndProc _wndProcDelegate;
     private const int HOTKEY_ID = 9000;
 
     // Win32 Constants
     private const int WM_HOTKEY = 0x0312;
+    private const int ERROR_CLASS_ALREADY_EXISTS = 1410;
     private const string WindowClassName = "TTM_HotkeyMessageWindow";
+
+    // The window class is registered once, with this one procedure; it finds the listener by window
+    // handle. Static, so the delegate lives as long as the class and no listener's window can call a
+    // collected or another listener's procedure.
+    private static readonly WndProc s_wndProc = StaticWndProc;
+    private static readonly ConcurrentDictionary<IntPtr, HotkeyListener> s_listeners = new();
+    private static readonly Lazy<bool> s_classRegistered = new(RegisterWindowClass);
 
     public event Action? HotkeyPressed;
 
+    /// <summary>The message window; exposed for tests.</summary>
+    internal IntPtr Handle => _hwnd;
+
     public HotkeyListener()
     {
-        // We must keep the delegate alive so the GC doesn't collect it
-        _wndProcDelegate = CustomWndProc;
-        CreateMessageWindow();
-    }
-
-    private void CreateMessageWindow()
-    {
-        WNDCLASSEX vic = new WNDCLASSEX();
-        vic.cbSize = Marshal.SizeOf(typeof(WNDCLASSEX));
-        vic.lpfnWndProc = _wndProcDelegate;
-        vic.lpszClassName = WindowClassName;
-
-        if (RegisterClassEx(ref vic) == 0)
-        {
-            // Handle error or if class already registered
-        }
-
+        _ = s_classRegistered.Value;
         // HWND_MESSAGE (-3) makes it a message-only window
         _hwnd = CreateWindowEx(0, WindowClassName, "TTM_Internal", 0, 0, 0, 0, 0, (IntPtr)(-3), IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
+        if (_hwnd == IntPtr.Zero) throw new Win32Exception(Marshal.GetLastWin32Error(), "Could not create the hotkey window.");
+        s_listeners[_hwnd] = this;
     }
 
-    private IntPtr CustomWndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
+    private static bool RegisterWindowClass()
     {
-        if (msg == WM_HOTKEY && (int)wParam == HOTKEY_ID)
+        var wc = new WNDCLASSEX
         {
-            HotkeyPressed?.Invoke();
+            cbSize = Marshal.SizeOf<WNDCLASSEX>(),
+            lpfnWndProc = s_wndProc,
+            lpszClassName = WindowClassName,
+        };
+        if (RegisterClassEx(ref wc) == 0 && Marshal.GetLastWin32Error() is int error && error != ERROR_CLASS_ALREADY_EXISTS)
+            throw new Win32Exception(error, "Could not register the hotkey window class.");
+        return true;
+    }
+
+    private static IntPtr StaticWndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
+    {
+        if (msg == WM_HOTKEY && (int)wParam == HOTKEY_ID && s_listeners.TryGetValue(hWnd, out var listener))
+        {
+            listener.HotkeyPressed?.Invoke();
             return IntPtr.Zero;
         }
         return DefWindowProc(hWnd, msg, wParam, lParam);
@@ -53,6 +66,7 @@ public class HotkeyListener : IDisposable
     /// because another app already owns the combination. No hotkey ("None"/empty) counts as success.</summary>
     public bool Register(string hotkeyStr)
     {
+        ObjectDisposedException.ThrowIf(_hwnd == IntPtr.Zero, this);
         UnregisterHotKey(_hwnd, HOTKEY_ID);
 
         uint modifiers = 0;
@@ -87,13 +101,16 @@ public class HotkeyListener : IDisposable
     [DllImport("user32.dll")]
     private static extern IntPtr DefWindowProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
-    [DllImport("user32.dll")]
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     private static extern ushort RegisterClassEx([In] ref WNDCLASSEX lpwcx);
 
-    [DllImport("user32.dll")]
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     private static extern IntPtr CreateWindowEx(uint dwExStyle, string lpClassName, string lpWindowName, uint dwStyle, int x, int y, int nWidth, int nHeight, IntPtr hWndParent, IntPtr hMenu, IntPtr hInstance, IntPtr lpParam);
 
-    [StructLayout(LayoutKind.Sequential)]
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool DestroyWindow(IntPtr hWnd);
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     private struct WNDCLASSEX
     {
         public int cbSize;
@@ -115,6 +132,10 @@ public class HotkeyListener : IDisposable
 
     public void Dispose()
     {
+        if (_hwnd == IntPtr.Zero) return;
         UnregisterHotKey(_hwnd, HOTKEY_ID);
+        s_listeners.TryRemove(_hwnd, out _);
+        DestroyWindow(_hwnd);
+        _hwnd = IntPtr.Zero;
     }
 }
