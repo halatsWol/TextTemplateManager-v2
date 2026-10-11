@@ -267,6 +267,23 @@ public class DataNodeTests
         Assert.True(saved.HideCrossAreaShortcutWarnings);
     }
 
+    [Theory]
+    [InlineData("_", "-")]
+    [InlineData("x", "-")]
+    [InlineData(".", ".")]
+    [InlineData("", "")]
+    public async Task A_legacy_sync_separator_is_migrated_and_saved_on_load(string stored, string expected)
+    {
+        var storage = new StorageService(TestEnvironment.NewScratchDir());
+        await storage.SaveSyncSettingsAsync(new SyncSettings { Separator = stored });
+        var node = new DataNode(storage);
+
+        await node.InitializeAsync();
+
+        Assert.Equal(expected, node.CurrentSyncSettings.Separator);
+        Assert.Equal(expected, (await storage.LoadSyncSettingsAsync()).Separator);
+    }
+
     [Fact]
     public async Task Waiting_for_writes_completes_after_the_last_write()
     {

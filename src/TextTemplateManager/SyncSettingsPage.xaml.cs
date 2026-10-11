@@ -34,14 +34,8 @@ namespace TextTemplateManager
             _store = parameters.Store;
             _hwnd = parameters.Hwnd;
 
-            _sync = _store.CurrentSyncSettings;
+            _sync = _store.CurrentSyncSettings;   // separator already valid: the store migrates it on load
 
-            // Valid separators are '-', '.', or "" (none); migrate any legacy value (e.g. '_') to '-'.
-            if (_sync.Separator is not ("." or "-" or ""))
-            {
-                _sync.Separator = "-";
-                _ = SaveAsync();
-            }
             _loading = true;
             SeparatorBox.SelectedIndex = _sync.Separator switch { "." => 1, "" => 2, _ => 0 };
             _loading = false;
