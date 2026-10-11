@@ -250,7 +250,7 @@ See *Updates* for details.
 ### Integrations
 
 - **Browser extension** — enable a local connector for a companion browser extension (see below).
-- **File association** — **Set as default for .ttmdata** makes `.ttmdata` files open with this app (opening one adds it as a sync source — see the **Sync** tab). Use it if another program took the association over.
+- **File association** — `.ttmdata` files open with this app (opening one adds it as a sync source — see the **Sync** tab). If another program took them over, **Open Default apps** takes you to Windows Settings ▸ Apps ▸ Default apps, where you can choose this app for `.ttmdata` again.
 
 ![Settings ▸ Integrations: the browser connector with its port and pairing token, the extension store links, and the .ttmdata file association.](../../src/TextTemplateManager/Assets/ManualImages/TTM_IntegrationsSettings.png)
 

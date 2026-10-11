@@ -52,7 +52,7 @@ namespace TextTemplateManager
             // file as an argument; hand it to the running instance and exit rather than run twice.
             _uiDispatcher = DispatcherQueue.GetForCurrentThread();
             _singleInstance = new SingleInstance();
-            string? fileArg = GetTtmDataArg();
+            string? fileArg = _environment.OpenedFile;
             if (!_singleInstance.TryAcquire())
             {
                 // A redundant hidden autostart (no file) shouldn't surface the running window — just exit.
@@ -127,22 +127,6 @@ namespace TextTemplateManager
             // Prewarm the Quick Paste window while idle so the first hotkey open isn't cold (builds its
             // UI + tree and starts the WebView2 preview). It stays hidden until the hotkey is pressed.
             _uiDispatcher.TryEnqueue(DispatcherQueuePriority.Low, () => EnsurePasteWindow().Prewarm());        }
-
-        // ---- File association (.ttmdata) ----
-
-        // The path Explorer passes when opening a .ttmdata, or null for a normal launch.
-        private static string? GetTtmDataArg()
-        {
-            foreach (var a in Environment.GetCommandLineArgs())
-            {
-                if (a.EndsWith(".ttmdata", StringComparison.OrdinalIgnoreCase))
-                {
-                    try { if (System.IO.File.Exists(a)) return System.IO.Path.GetFullPath(a); }
-                    catch { }
-                }
-            }
-            return null;
-        }
 
         // Another launch reached the running instance: surface the window and open its file (if any).
         private void OnOtherInstanceMessage(string message)

@@ -3,7 +3,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using TextTemplateManager.Common;
-using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
 
 namespace TextTemplateManager;
@@ -90,16 +89,5 @@ public sealed partial class IntegrationsSettingsPage : Page
         ViewModel.BrowserConnectorToken = Guid.NewGuid().ToString("N");
         if (ViewModel.BrowserConnectorEnabled) (Application.Current as App)?.ApplyBrowserConnectorSettings();
         RefreshConnectorUi();
-    }
-
-    // ---- File association ----
-    private void RegisterFileType_Click(object sender, RoutedEventArgs e)
-    {
-        bool ok = FileAssociation.RegisterTtmData();
-        FileAssocInfo.Severity = ok ? InfoBarSeverity.Success : InfoBarSeverity.Error;
-        FileAssocInfo.Message = ok
-            ? ".ttmdata files now open with Text Template Manager."
-            : "Couldn't update the file association.";
-        FileAssocInfo.IsOpen = true;
     }
 }

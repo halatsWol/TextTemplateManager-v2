@@ -27,8 +27,24 @@ public class AppEnvironmentTests
         var environment = new AppEnvironment.Unpackaged();
 
         Assert.False(environment.IsAutostartLaunch);
+        Assert.Null(environment.OpenedFile);
         Assert.Equal(AutostartState.NotAvailable, await environment.GetAutostartAsync());
         Assert.Equal(AutostartState.NotAvailable, await environment.SetAutostartAsync(true));
+    }
+
+    [Fact]
+    public void An_opened_file_is_the_first_existing_ttmdata()
+    {
+        string dir = TestEnvironment.NewScratchDir();
+        string existing = Path.Combine(dir, "team.TTMDATA");
+        File.WriteAllText(existing, "{}");
+        File.WriteAllText(Path.Combine(dir, "notes.txt"), "");
+
+        Assert.Equal(existing, AppEnvironment.FirstTtmDataFile(new[]
+        {
+            "--hidden", Path.Combine(dir, "notes.txt"), Path.Combine(dir, "missing.ttmdata"), existing,
+        }));
+        Assert.Null(AppEnvironment.FirstTtmDataFile(new[] { Path.Combine(dir, "missing.ttmdata"), "a\0b.ttmdata" }));
     }
 
     [Fact]

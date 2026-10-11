@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Microsoft.Windows.AppLifecycle;
 using Windows.ApplicationModel;
+using Windows.ApplicationModel.Activation;
 
 namespace TextTemplateManager.Services.Platform;
 
@@ -34,6 +37,9 @@ public interface IAppEnvironment
     /// applies).</summary>
     bool IsAutostartLaunch { get; }
 
+    /// <summary>The .ttmdata this launch was asked to open (double-click in Explorer, Open with), or null.</summary>
+    string? OpenedFile { get; }
+
     Task<AutostartState> GetAutostartAsync();
 
     /// <summary>Turns starting with Windows on or off and returns the state Windows then reports.</summary>
@@ -60,18 +66,39 @@ public static class AppEnvironment
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
     private static extern int GetCurrentPackageFullName(ref int packageFullNameLength, IntPtr packageFullName);
 
+    /// <summary>The first existing .ttmdata among the given paths, as a full path.</summary>
+    internal static string? FirstTtmDataFile(IEnumerable<string> paths)
+    {
+        foreach (var p in paths)
+        {
+            if (!p.EndsWith(".ttmdata", StringComparison.OrdinalIgnoreCase)) continue;
+            try { if (File.Exists(p)) return Path.GetFullPath(p); }
+            catch { }
+        }
+        return null;
+    }
+
     private sealed class Packaged : IAppEnvironment
     {
         private const string StartupTaskId = "TtmStartup";   // Package.appxmanifest
+
+        private readonly AppActivationArguments _activation = Microsoft.Windows.AppLifecycle.AppInstance.GetCurrent().GetActivatedEventArgs();
+
+        public Packaged()
+        {
+            IsAutostartLaunch = _activation.Kind == ExtendedActivationKind.StartupTask;
+            OpenedFile = _activation.Kind == ExtendedActivationKind.File && _activation.Data is IFileActivatedEventArgs file
+                ? FirstTtmDataFile(file.Files.Select(f => f.Path))
+                : FirstTtmDataFile(Environment.GetCommandLineArgs().Skip(1));
+        }
 
         public bool IsPackaged => true;
 
         // %LocalAppData%\Packages\<family name>\LocalState: wiped by Reset and uninstall.
         public string DataDirectory => Windows.Storage.ApplicationData.Current.LocalFolder.Path;
 
-        public bool IsAutostartLaunch { get; } =
-            Microsoft.Windows.AppLifecycle.AppInstance.GetCurrent().GetActivatedEventArgs().Kind
-                == Microsoft.Windows.AppLifecycle.ExtendedActivationKind.StartupTask;
+        public bool IsAutostartLaunch { get; }
+        public string? OpenedFile { get; }
 
         public async Task<AutostartState> GetAutostartAsync() => Map((await StartupTask.GetAsync(StartupTaskId)).State);
 
@@ -104,6 +131,8 @@ public static class AppEnvironment
         // A dev run can't be started by Windows; --hidden stands in for that when testing hidden start.
         public bool IsAutostartLaunch { get; } =
             Environment.GetCommandLineArgs().Skip(1).Any(a => string.Equals(a, "--hidden", StringComparison.OrdinalIgnoreCase));
+
+        public string? OpenedFile { get; } = FirstTtmDataFile(Environment.GetCommandLineArgs().Skip(1));
 
         public Task<AutostartState> GetAutostartAsync() => Task.FromResult(AutostartState.NotAvailable);
         public Task<AutostartState> SetAutostartAsync(bool on) => Task.FromResult(AutostartState.NotAvailable);
