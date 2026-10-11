@@ -42,9 +42,10 @@
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
       <Extensions>
-        <!-- Start with Windows: off until the user turns it on in Settings. -->
+        <!-- Start with Windows: on from the first launch (no prompt for a packaged desktop app). The user can
+             switch it off in the app, in Windows Settings › Apps › Startup or in Task Manager. -->
         <desktop:Extension Category="windows.startupTask">
-          <desktop:StartupTask TaskId="TtmStartup" Enabled="false" DisplayName="TextTemplateManager" />
+          <desktop:StartupTask TaskId="TtmStartup" Enabled="true" DisplayName="TextTemplateManager" />
         </desktop:Extension>
         <uap:Extension Category="windows.fileTypeAssociation">
           <uap:FileTypeAssociation Name="ttmdata">

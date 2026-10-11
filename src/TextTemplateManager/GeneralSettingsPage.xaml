@@ -58,11 +58,16 @@
                 <ToggleSwitch x:Name="StartupToggle"
                               Header="Run at Windows login"
                               Toggled="RunAtStartup_Toggled"/>
+                <TextBlock x:Name="StartupNote"
+                           Visibility="Collapsed"
+                           TextWrapping="Wrap"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 <ToggleSwitch x:Name="StartHiddenToggle"
                               Header="Start hidden in the system tray"
                               Margin="24,0,0,0"
                               Toggled="StartHidden_Toggled"/>
-                <TextBlock Text="Starts in the tray instead of opening the window. The hotkey and tray icon still work."
+                <TextBlock Text="When Windows starts the app at login, it stays in the tray instead of opening the window. The hotkey and tray icon still work."
                            TextWrapping="Wrap"
                            Margin="24,0,0,0"
                            Style="{StaticResource CaptionTextBlockStyle}"

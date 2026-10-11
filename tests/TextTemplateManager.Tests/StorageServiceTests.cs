@@ -240,6 +240,18 @@ public class StorageServiceTests
     }
 
     [Fact]
+    public async Task Start_hidden_is_on_unless_a_settings_file_turns_it_off()
+    {
+        Assert.True(new AppSettings().StartHidden);
+
+        await File.WriteAllTextAsync(_storage.GetSettingsPath(), "{ \"PasteWindowHotkey\": \"Ctrl+Alt+Q\" }");
+        Assert.True((await _storage.LoadSettingsAsync()).StartHidden);   // older file without the key
+
+        await File.WriteAllTextAsync(_storage.GetSettingsPath(), "{ \"StartHidden\": false }");
+        Assert.False((await _storage.LoadSettingsAsync()).StartHidden);
+    }
+
+    [Fact]
     public async Task Settings_are_written_atomically_and_reload()
     {
         var settings = new AppSettings { PasteWindowHotkey = "Ctrl+Alt+Q", BrowserConnectorPort = 50123 };

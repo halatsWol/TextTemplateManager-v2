@@ -22,6 +22,16 @@ public class AppEnvironmentTests
     }
 
     [Fact]
+    public async Task A_dev_run_cannot_start_with_windows_and_was_not_started_by_it()
+    {
+        var environment = new AppEnvironment.Unpackaged();
+
+        Assert.False(environment.IsAutostartLaunch);
+        Assert.Equal(AutostartState.NotAvailable, await environment.GetAutostartAsync());
+        Assert.Equal(AutostartState.NotAvailable, await environment.SetAutostartAsync(true));
+    }
+
+    [Fact]
     public void The_data_folder_override_wins()
     {
         var storage = StorageService.CreateDefault(new AppEnvironment.Unpackaged());

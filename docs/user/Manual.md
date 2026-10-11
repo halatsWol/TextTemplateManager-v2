@@ -227,7 +227,8 @@ Open settings from **File ▸ Settings**. It has a **General**, an **Integration
 
 **Startup**
 
-- **Run at Windows login** — start the app automatically when you sign in. When on, **Start hidden in the system tray** appears below it: enable that to launch minimized to the tray (no window) at sign-in — the Quick Paste hotkey and tray icon still work. This matches the on/off state in Windows' own **Startup Apps** list.
+- **Run at Windows login** — start the app automatically when you sign in; on by default, from the first time you open the app. This is the same switch as the app's entry in Windows **Settings ▸ Apps ▸ Startup** and on the **Startup** tab of Task Manager. If you switch it off there, Windows only lets you switch it back on there; the app then says so below the switch.
+- **Start hidden in the system tray** — on by default: when Windows starts the app at sign-in, it stays in the tray instead of opening the window; the Quick Paste hotkey and tray icon still work. Starting the app yourself always opens the window.
 
 ![Settings ▸ General: the Quick Paste hotkey, the default paste mode for new templates, and startup.](../../src/TextTemplateManager/Assets/ManualImages/TTM_GeneralSettings1.png)
 
@@ -436,13 +437,11 @@ and **Copy As** for templates, **Export** for folders, and **Move to Root** for 
 
 ## Data and file locations
 
-Application data is stored per user under:
+Application data is stored per user in the app's own package folder:
 
-`%LocalAppData%\Marflow Software\TextTemplateManager`
+`%LocalAppData%\Packages\MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny\LocalState`
 
-This folder contains your template data, application settings, and synchronization configuration.
-Downloaded update installers are staged in an `installer` subfolder. Shared synchronization files 
-are stored wherever you place them, and are not kept in this folder.
+This folder contains your template data, application settings, and synchronization configuration. Windows removes it when you uninstall the app or reset it in **Settings ▸ Apps**. Shared synchronization files are stored wherever you place them, and are not kept in this folder.
 
 Changes are saved automatically. Exiting from **File ▸ Exit** or the tray icon, and signing out of or shutting down Windows, first save anything still pending; if a synced file is slow to respond, a "Saving changes…" message appears until it is done.
 

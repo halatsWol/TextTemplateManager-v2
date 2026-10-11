@@ -81,7 +81,6 @@ public class DataNode
             }
         }
 
-        // Autostart is registry-only now (see StartupManager) — nothing to seed or reconcile here.
         CurrentSettings = await Storage.LoadSettingsAsync();
         CurrentSettings.PropertyChanged += (_, _) => ScheduleSettingsSave();
 

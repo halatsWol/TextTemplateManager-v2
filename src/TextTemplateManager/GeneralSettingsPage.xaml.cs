@@ -43,31 +43,45 @@ public sealed partial class GeneralSettingsPage : Page
     private static string FormatHotkey(string? hotkey)
         => string.IsNullOrEmpty(hotkey) || hotkey == "None" ? "" : hotkey;
 
-    // ---- Autostart (registry-only; see StartupManager) ----
+    // ---- Start with Windows (the package's startup task; Windows owns the on/off state) ----
     private bool _startupLoading;
 
-    private void InitStartupUi()
+    private static IAppEnvironment? HostEnvironment => (Application.Current as App)?.HostEnvironment;
+
+    private async void InitStartupUi()
     {
         _startupLoading = true;
-        StartupToggle.IsOn = StartupManager.IsEnabled();
-        StartHiddenToggle.IsOn = StartupManager.IsHiddenEnabled();
-        StartHiddenToggle.IsEnabled = StartupToggle.IsOn;   // "start hidden" is meaningless without autostart
-        _startupLoading = false;
+        StartHiddenToggle.IsOn = ViewModel.StartHidden;
+        try { ShowAutostart(HostEnvironment is { } env ? await env.GetAutostartAsync() : AutostartState.NotAvailable); }
+        finally { _startupLoading = false; }
     }
 
-    private void RunAtStartup_Toggled(object sender, RoutedEventArgs e)
+    private void ShowAutostart(AutostartState state)
     {
-        if (_startupLoading) return;
-        bool on = StartupToggle.IsOn;
-        StartupManager.SetEnabled(on, StartHiddenToggle.IsOn);
-        StartHiddenToggle.IsEnabled = on;
+        StartupToggle.IsOn = state is AutostartState.On or AutostartState.OnByPolicy;
+        StartupToggle.IsEnabled = state is AutostartState.On or AutostartState.Off;
+        StartupNote.Text = state switch
+        {
+            AutostartState.NotAvailable => "Only the installed app can start with Windows.",
+            AutostartState.OffInWindows => "Switched off in Windows Settings › Apps › Startup; switch it on there.",
+            AutostartState.OnByPolicy or AutostartState.OffByPolicy => "Set by your organization.",
+            _ => "",
+        };
+        StartupNote.Visibility = StartupNote.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private async void RunAtStartup_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (_startupLoading || HostEnvironment is not { } env) return;
+        _startupLoading = true;
+        try { ShowAutostart(await env.SetAutostartAsync(StartupToggle.IsOn)); }
+        finally { _startupLoading = false; }
     }
 
     private void StartHidden_Toggled(object sender, RoutedEventArgs e)
     {
-        // Only reachable while autostart is on — rewrite the Run entry with/without the hidden flag.
         if (_startupLoading) return;
-        StartupManager.SetEnabled(true, StartHiddenToggle.IsOn);
+        ViewModel.StartHidden = StartHiddenToggle.IsOn;
     }
 
     private void HideCrossAreaWarnings_Toggled(object sender, RoutedEventArgs e)

@@ -20,4 +20,7 @@ public partial class AppSettings : ObservableObject
 
     // Search also looks in the template text (both windows), not only titles and tags.
     [ObservableProperty] public partial bool SearchInContent { get; set; } = false;
+
+    // When Windows starts the app at sign-in, stay in the tray instead of opening the window.
+    [ObservableProperty] public partial bool StartHidden { get; set; } = true;
 }

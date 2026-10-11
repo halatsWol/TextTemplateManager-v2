@@ -30,6 +30,8 @@ namespace TextTemplateManager
         private readonly DataNode _store;
         private readonly IAppEnvironment _environment = AppEnvironment.Detect();   // packaged or a dev run
 
+        public IAppEnvironment HostEnvironment => _environment;
+
         // Pipe message a bare second launch sends to just surface the running window (no file).
         private const string ActivateSignal = "__activate__";
 
@@ -56,7 +58,7 @@ namespace TextTemplateManager
                 // A redundant hidden autostart (no file) shouldn't surface the running window — just exit.
                 if (fileArg != null)
                     SingleInstance.SendToRunningInstance(fileArg);
-                else if (!IsHiddenLaunch())
+                else if (!_environment.IsAutostartLaunch)
                     SingleInstance.SendToRunningInstance(ActivateSignal);
                 Environment.Exit(0);
                 return;
@@ -105,9 +107,10 @@ namespace TextTemplateManager
                 }
             };
 
-            // A hidden autostart (Windows login with --hidden) stays in the tray: skip Activate so the
-            // window is never shown. A .ttmdata to open, or a data file that couldn't be read, overrides this.
-            bool startHidden = IsHiddenLaunch() && fileArg == null && unreadableFiles.Count == 0;
+            // Started by Windows at sign-in with "start hidden" on: stay in the tray, never show the window.
+            // A .ttmdata to open, or a data file that couldn't be read, overrides this.
+            bool startHidden = _environment.IsAutostartLaunch && _store.CurrentSettings.StartHidden
+                && fileArg == null && unreadableFiles.Count == 0;
             if (!startHidden)
                 MainWindow.Activate();
 
@@ -139,15 +142,6 @@ namespace TextTemplateManager
                 }
             }
             return null;
-        }
-
-        // True when this process was launched with the hidden-start flag (the autostart entry appends it).
-        public static bool IsHiddenLaunch()
-        {
-            foreach (var a in Environment.GetCommandLineArgs())
-                if (string.Equals(a, StartupManager.HiddenFlag, StringComparison.OrdinalIgnoreCase))
-                    return true;
-            return false;
         }
 
         // Another launch reached the running instance: surface the window and open its file (if any).
