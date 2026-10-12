@@ -1,6 +1,6 @@
 # Browser Connector API
 
-Text Template Manager exposes a small local HTTP API that a browser extension (Chrome / Edge /
+TextTemplateManager exposes a small local HTTP API that a browser extension (Chrome / Edge /
 Firefox) can call to list templates, fetch rendered content, and create new templates from selected
 text. It is meant for building a context-menu "insert template" extension.
 

@@ -77,20 +77,71 @@ public class RestoreServiceTests
         Assert.Equal(new[] { "Backups" }, Directory.GetDirectories(_dir).Select(Path.GetFileName));   // no work or copy folders left
     }
 
-    [Fact]
-    public async Task Restoring_sync_brings_the_local_data_with_it()
+    // A data file as the app keeps it: a synced folder's cached copy (a top-level folder with a SyncId) and local items.
+    private static readonly Guid TeamId = Guid.NewGuid();
+    private static Folder DataWith(string synced, string local) => new()
     {
-        string backup = await BackUpStateA();
-        string dataA = Read(_storage.GetDataPath()), syncA = Read(_storage.GetSyncSettingsPath());
-        await ChangeToStateB();
-        string settingsB = Read(_storage.GetSettingsPath());
+        Title = "Root",
+        LastChange = "20261012090000",
+        Children =
+        {
+            new Folder { Id = TeamId, Title = "Team", SyncId = Guid.Empty, LastChange = "20261012090000",
+                Children = { new Template { Title = synced, Content = "<p>s</p>", LastChange = "20261012090000" } } },
+            new Template { Title = local, Content = "<p>l</p>", LastChange = "20261012090000" },
+        },
+    };
 
-        var result = await _restore.RestoreAsync(backup, RestoreParts.Sync);
+    private async Task<string> BackUpData(Folder data)
+    {
+        await _storage.SaveAsync(_storage.GetDataPath(), data);
+        await _storage.SaveSyncSettingsAsync(new SyncSettings { Sources = { new SyncSource { Id = TeamId, Name = "Team A" } } });
+        return (await _backups.CreateAsync(BackupTier.Recent, BackupSource.Live(_storage), quietMs: 0)).Path!;
+    }
+
+    private async Task<string[]> Titles()
+    {
+        var tree = await StorageService.LoadRootAsync(_storage.GetDataPath());
+        return tree!.Children.Select(c => c is Folder f ? $"{f.Title}/{f.Children[0].Title}" : c.Title).ToArray();
+    }
+
+    [Fact]
+    public async Task Restoring_only_the_synced_folders_keeps_the_current_local_items()
+    {
+        string backup = await BackUpData(DataWith("Synced A", "Local A"));
+        await _storage.SaveAsync(_storage.GetDataPath(), DataWith("Synced B", "Local B"));
+
+        var result = await _restore.RestoreAsync(backup, RestoreParts.SyncedFolders);
+
+        Assert.True(result.Succeeded, result.Problem);
+        Assert.Equal(new[] { "Team/Synced A", "Local B" }, await Titles());
+    }
+
+    [Fact]
+    public async Task Restoring_only_the_local_items_keeps_the_current_synced_folders()
+    {
+        string backup = await BackUpData(DataWith("Synced A", "Local A"));
+        await _storage.SaveAsync(_storage.GetDataPath(), DataWith("Synced B", "Local B"));
+
+        var result = await _restore.RestoreAsync(backup, RestoreParts.Local);
+
+        Assert.True(result.Succeeded, result.Problem);
+        Assert.Equal(new[] { "Team/Synced B", "Local A" }, await Titles());
+    }
+
+    [Fact]
+    public async Task Restoring_only_the_sync_settings_leaves_the_data_file_alone()
+    {
+        string backup = await BackUpData(DataWith("Synced A", "Local A"));
+        string syncA = Read(_storage.GetSyncSettingsPath());
+        await _storage.SaveAsync(_storage.GetDataPath(), DataWith("Synced B", "Local B"));
+        string dataB = Read(_storage.GetDataPath());
+        await _storage.SaveSyncSettingsAsync(new SyncSettings());
+
+        var result = await _restore.RestoreAsync(backup, RestoreParts.SyncSettings);
 
         Assert.True(result.Succeeded, result.Problem);
         Assert.Equal(syncA, Read(_storage.GetSyncSettingsPath()));
-        Assert.Equal(dataA, Read(_storage.GetDataPath()));
-        Assert.Equal(settingsB, Read(_storage.GetSettingsPath()));
+        Assert.Equal(dataB, Read(_storage.GetDataPath()));
     }
 
     [Fact]

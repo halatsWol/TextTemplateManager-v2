@@ -9,7 +9,7 @@
     DefaultButton="Close">
 
     <StackPanel Spacing="4">
-        <TextBlock Text="Text Template Manager" FontSize="18" FontWeight="SemiBold"/>
+        <TextBlock Text="TextTemplateManager" FontSize="18" FontWeight="SemiBold"/>
         <TextBlock x:Name="VersionText" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
         <TextBlock x:Name="ReleaseText" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
         <TextBlock x:Name="ProtocolText" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>

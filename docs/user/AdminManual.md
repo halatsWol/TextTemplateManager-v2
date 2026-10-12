@@ -1,11 +1,11 @@
 ## Overview
 
-This guide covers the administrator- and deployment-facing details of Text Template Manager that
+This guide covers the administrator- and deployment-facing details of TextTemplateManager that
 everyday users do not need: silent/scripted installation, centrally controlling updates, the registry
 and file-system footprint, and the standalone cleanup utility. End-user documentation is in the
 **User Manual** (in the app under **Help > Open Manual**).
 
-Text Template Manager is a **per-user** application: it installs under the user's profile, writes only
+TextTemplateManager is a **per-user** application: it installs under the user's profile, writes only
 to `HKEY_CURRENT_USER`, and needs no administrator rights to install, update, or uninstall. The one
 exception is the cleanup utility's `/user` option (below), which requires elevation.
 

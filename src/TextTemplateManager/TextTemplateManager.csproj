@@ -15,7 +15,7 @@
     <!-- Keep InformationalVersion clean (no +<git-hash>) so the About dialog shows just the version. -->
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <Company>Marflow Software</Company>
-    <Product>Text Template Manager</Product>
+    <Product>TextTemplateManager</Product>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
     <Platforms>x64;ARM64</Platforms>

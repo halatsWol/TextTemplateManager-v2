@@ -6,7 +6,7 @@ using TextTemplateManager.Data;
 
 namespace TextTemplateManager.Controls;
 
-public enum SettingsPage { General, Integrations, Sync }
+public enum SettingsPage { General, Integrations, Sync, Backups }
 
 /// <summary>The in-window Settings: a page list on the left and the selected page on the right.</summary>
 public sealed partial class SettingsView : UserControl
@@ -59,6 +59,9 @@ public sealed partial class SettingsView : UserControl
             case SettingsPage.Sync:
                 var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
                 PageFrame.Navigate(typeof(SyncSettingsPage), new SyncSettingsPage.Parameters(store, hwnd));
+                break;
+            case SettingsPage.Backups:
+                PageFrame.Navigate(typeof(BackupsSettingsPage));
                 break;
         }
     }

@@ -12,12 +12,14 @@ namespace TextTemplateManager.Data;
 [Flags]
 public enum RestoreParts
 {
-    /// <summary>The local templates and folders (data.ttmdata).</summary>
+    /// <summary>The local templates and folders (data.ttmdata without the synced folders).</summary>
     Local = 1,
     Settings = 2,
-    /// <summary>The sync settings. Always restored together with <see cref="Local"/>: the local data holds the
-    /// cached copy of each synced folder, which is what shows when a linked file is gone.</summary>
-    Sync = 4,
+    /// <summary>The list of sync sources (sync.ttmsettings).</summary>
+    SyncSettings = 4,
+    /// <summary>The synced folders as cached in data.ttmdata: what a source shows while its file is gone.</summary>
+    SyncedFolders = 8,
+    Sync = SyncSettings | SyncedFolders,
     All = Local | Settings | Sync,
 }
 
@@ -57,47 +59,35 @@ public sealed class RestoreService
         string? problem = BackupService.Verify(backupPath, out var manifest);
         if (problem != null) return new(false, $"The backup can't be used: {problem}.");
 
-        if (parts.HasFlag(RestoreParts.Sync)) parts |= RestoreParts.Local;
-
-        var plan = new List<(BackupEntry Entry, string Target)>();
-        void Take(BackupFileKind kind, string target)
-        {
-            var entry = manifest!.Files.FirstOrDefault(f => f.Kind == kind && f.Included);
-            if (entry != null) plan.Add((entry, target));
-        }
-        if (parts.HasFlag(RestoreParts.Local)) Take(BackupFileKind.Data, _storage.GetDataPath());
-        if (parts.HasFlag(RestoreParts.Settings)) Take(BackupFileKind.Settings, _storage.GetSettingsPath());
-        if (parts.HasFlag(RestoreParts.Sync)) Take(BackupFileKind.SyncSettings, _storage.GetSyncSettingsPath());
-        if (plan.Count == 0) return new(false, "The backup holds none of the chosen parts.");
-
         string staging = Path.Combine(WorkDirectory, "new");
         string previous = Path.Combine(WorkDirectory, "old");
         try
         {
+            // Unpack and check every file before anything live is touched.
+            var plan = new List<(byte[] Content, string Target)>();
+            using (var zip = ZipFile.OpenRead(backupPath))
+            {
+                byte[]? Take(BackupFileKind kind)
+                {
+                    var entry = manifest!.Files.FirstOrDefault(f => f.Kind == kind && f.Included);
+                    return entry == null ? null : ReadChecked(zip, entry);
+                }
+
+                bool local = parts.HasFlag(RestoreParts.Local), synced = parts.HasFlag(RestoreParts.SyncedFolders);
+                if ((local || synced) && Take(BackupFileKind.Data) is { } data)
+                    plan.Add((local && synced ? data : MixData(data, takeLocal: local), _storage.GetDataPath()));
+                if (parts.HasFlag(RestoreParts.Settings) && Take(BackupFileKind.Settings) is { } settings)
+                    plan.Add((settings, _storage.GetSettingsPath()));
+                if (parts.HasFlag(RestoreParts.SyncSettings) && Take(BackupFileKind.SyncSettings) is { } sync)
+                    plan.Add((sync, _storage.GetSyncSettingsPath()));
+            }
+            if (plan.Count == 0) return new(false, "The backup holds none of the chosen parts.");
+
             if (Directory.Exists(WorkDirectory)) Directory.Delete(WorkDirectory, recursive: true);
             Directory.CreateDirectory(staging);
             Directory.CreateDirectory(previous);
-
-            // Unpack and check every file before anything live is touched.
-            using (var zip = ZipFile.OpenRead(backupPath))
-            {
-                for (int i = 0; i < plan.Count; i++)
-                {
-                    var (entry, _) = plan[i];
-                    byte[] content;
-                    using (var stream = zip.GetEntry(entry.Name)!.Open())
-                    using (var buffer = new MemoryStream())
-                    {
-                        stream.CopyTo(buffer);
-                        content = buffer.ToArray();
-                    }
-                    if (content.LongLength != entry.Size
-                        || !string.Equals(Convert.ToHexString(SHA256.HashData(content)), entry.Sha256, StringComparison.OrdinalIgnoreCase)
-                        || !StorageService.Parses(entry.Kind, content))
-                        throw new InvalidDataException($"{entry.Name} is damaged");
-                    await WriteFlushedAsync(Path.Combine(staging, i.ToString()), content);
-                }
-            }
+            for (int i = 0; i < plan.Count; i++)
+                await WriteFlushedAsync(Path.Combine(staging, i.ToString()), plan[i].Content);
 
             // The current files go aside first; the journal is what a crash during the swap is undone from.
             var journal = new RestoreJournal();
@@ -136,6 +126,40 @@ public sealed class RestoreService
             if (!File.Exists(JournalPath)) TryDeleteWork();
             return new(false, $"Restoring failed, nothing was changed: {ex.Message}");
         }
+    }
+
+    private static byte[] ReadChecked(ZipArchive zip, BackupEntry entry)
+    {
+        byte[] content;
+        using (var stream = zip.GetEntry(entry.Name)!.Open())
+        using (var buffer = new MemoryStream())
+        {
+            stream.CopyTo(buffer);
+            content = buffer.ToArray();
+        }
+        if (content.LongLength != entry.Size
+            || !string.Equals(Convert.ToHexString(SHA256.HashData(content)), entry.Sha256, StringComparison.OrdinalIgnoreCase)
+            || !StorageService.Parses(entry.Kind, content))
+            throw new InvalidDataException($"{entry.Name} is damaged");
+        return content;
+    }
+
+    // One half of the data file from the backup, the other from the current file: the local items, or the
+    // synced folders (top-level folders that carry a SyncId).
+    private byte[] MixData(byte[] backup, bool takeLocal)
+    {
+        var fromBackup = StorageService.ParseTree(backup)!;
+        string currentPath = _storage.GetDataPath();
+        var current = File.Exists(currentPath)
+            ? StorageService.ParseTree(File.ReadAllBytes(currentPath)) ?? throw new InvalidDataException("the current data file doesn't load")
+            : new Models.Folder { Id = Guid.Empty, Title = "Root" };
+
+        var localSource = takeLocal ? fromBackup : current;
+        var syncedSource = takeLocal ? current : fromBackup;
+        var mixed = new Models.Folder { Id = localSource.Id, Title = localSource.Title, LastChange = localSource.LastChange };
+        foreach (var synced in syncedSource.Children.Where(c => c is Models.Folder && c.SyncId != null)) mixed.Children.Add(synced);
+        foreach (var item in localSource.Children.Where(c => !(c is Models.Folder && c.SyncId != null))) mixed.Children.Add(item);
+        return StorageService.SerializeTree(mixed);
     }
 
     /// <summary>At startup: a restore cut off by a crash or power loss is undone, so the files are never a mix.</summary>

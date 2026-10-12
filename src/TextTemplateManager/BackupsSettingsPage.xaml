@@ -1,0 +1,59 @@
+<Page
+    x:Class="TextTemplateManager.BackupsSettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:TextTemplateManager">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalScrollMode="Auto">
+    <StackPanel Spacing="25" Padding="20">
+        <TextBlock Text="Backups" Style="{StaticResource TitleTextBlockStyle}"/>
+
+        <StackPanel Spacing="8">
+            <TextBlock Text="Automatic backups" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       Text="Made on their own: 2 minutes after a change and when you quit (the last 3 are kept), every 2 hours while the app runs (5 kept) and daily (5 kept). Each holds your templates, settings, sync settings and a copy of every shared sync file."/>
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBlock x:Name="FolderText" VerticalAlignment="Center" IsTextSelectionEnabled="True"
+                           TextTrimming="CharacterEllipsis" MaxWidth="480"/>
+                <Button Content="Open backups folder" Click="OpenFolder_Click"/>
+            </StackPanel>
+        </StackPanel>
+
+        <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
+
+        <StackPanel Spacing="8">
+            <TextBlock Text="Restore from a backup" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       Text="Pick a backup and what to take from it. The app saves a backup of the current state first, then restores and restarts."/>
+
+            <ListView x:Name="BackupList" SelectionMode="Single" MaxHeight="320" SelectionChanged="BackupList_SelectionChanged"
+                      AutomationProperties.Name="Backups">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="local:BackupRow">
+                        <StackPanel Padding="0,6" Opacity="{x:Bind Opacity}" AutomationProperties.Name="{x:Bind Title}">
+                            <TextBlock Text="{x:Bind Title}"/>
+                            <TextBlock Text="{x:Bind Detail}" Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <TextBlock x:Name="EmptyText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}"
+                       Text="No backups yet. The first one is made shortly after the app starts."/>
+
+            <TextBlock Text="Restore" Margin="0,8,0,0"/>
+            <CheckBox x:Name="LocalBox" Content="Templates and folders" IsChecked="True" Click="Parts_Click"/>
+            <CheckBox x:Name="SettingsBox" Content="Settings" IsChecked="True" Click="Parts_Click"/>
+            <CheckBox x:Name="SyncBox" Content="Sync" IsChecked="True" Click="Sync_Click"/>
+            <StackPanel Margin="28,0,0,0">
+                <CheckBox x:Name="SyncSettingsBox" Content="Sync settings (the linked files and their options)" IsChecked="True" Click="SyncPart_Click"/>
+                <CheckBox x:Name="SyncedFoldersBox" Content="Synced templates and folders (as last seen in the linked files)" IsChecked="True" Click="SyncPart_Click"/>
+            </StackPanel>
+
+            <Button x:Name="RestoreButton" Content="Restore…" Style="{StaticResource AccentButtonStyle}" IsEnabled="False"
+                    Click="Restore_Click" Margin="0,4,0,0"/>
+            <InfoBar x:Name="RestoreInfo" IsOpen="False" IsClosable="True" Severity="Error"/>
+        </StackPanel>
+    </StackPanel>
+    </ScrollViewer>
+</Page>

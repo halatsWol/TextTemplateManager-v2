@@ -81,7 +81,7 @@ namespace TextTemplateManager
             await _store.InitializeAsync();
             var unreadableFiles = _store.Storage.TakeUnreadableFiles();
 
-            _backupScheduler = new BackupScheduler(new BackupService(_store.Storage), _store.Storage);
+            _backupScheduler = new BackupScheduler(Backups, _store.Storage);
             _backupScheduler.Start();
 
             _hotkeyListener = new HotkeyListener();
@@ -90,7 +90,7 @@ namespace TextTemplateManager
 
             MainWindow = new Window();
             MainWindow.Content = new MainPage(_store);
-            MainWindow.Title = "Text Template Manager";
+            MainWindow.Title = "TextTemplateManager";
 
             IntPtr hwnd = WindowNative.GetWindowHandle(MainWindow);
             var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
@@ -135,7 +135,7 @@ namespace TextTemplateManager
             if (ConnectorUnavailable)
                 ReportStartupProblem("Browser connector unavailable",
                     $"Port {_store.CurrentSettings.BrowserConnectorPort} can't be used, so the browser extension can't connect. " +
-                    "Another app is using it (for example an older Text Template Manager that is still running) or Windows has reserved it. " +
+                    "Another app is using it (for example an older TextTemplateManager that is still running) or Windows has reserved it. " +
                     "Choose a different port in Settings › Integrations and set the same port in the extension.", startHidden);
 
             // A .ttmdata passed to this (first) launch: add it as a sync source once the UI is up.
@@ -327,6 +327,40 @@ namespace TextTemplateManager
             try { if (_backupScheduler != null) await _backupScheduler.FlushAsync(TimeSpan.FromSeconds(5)); }
             catch (Exception ex) { LogCrash("ExitBackup", ex); }
         }
+
+        /// <summary>The backups the Backups settings page lists and restores from.</summary>
+        public BackupService Backups => _backups ??= new BackupService(_store.Storage);
+        private BackupService? _backups;
+
+        /// <summary>Restores <paramref name="parts"/> of a backup while running: saves and backs up the current state
+        /// first, stops everything that writes, swaps the files in and restarts the app to load them. Returns only
+        /// when the restore failed (nothing changed, the app carries on) or the restart did.</summary>
+        public async Task<RestoreOutcome> RestoreFromBackupAsync(string backupPath, RestoreParts parts)
+        {
+            await PersistPendingAsync();   // also a recent backup of anything not backed up yet
+            StopAcceptingWork();
+            if (_backupScheduler != null) await _backupScheduler.StopAsync();
+            await _store.Storage.SuspendWritesAsync();
+
+            var result = await new RestoreService(_store.Storage).RestoreAsync(backupPath, parts);
+            if (!result.Succeeded)
+            {
+                _store.Storage.ResumeWrites();
+                UpdateGlobalHotkey(_store.CurrentSettings.PasteWindowHotkey);
+                ApplyBrowserConnectorSettings();
+                _backupScheduler = new BackupScheduler(Backups, _store.Storage);
+                _backupScheduler.Start();
+                return new RestoreOutcome(false, result.Problem);
+            }
+
+            // The new instance must not redirect to this one, and the tray icon goes with it.
+            try { _trayService?.Dispose(); } catch { }
+            try { AppInstance.GetCurrent().UnregisterKey(); } catch { }
+            AppInstance.Restart("");   // ends this process; returns only if the restart failed
+            return new RestoreOutcome(true, "The backup was restored, but the app couldn't restart itself. Start it again to load the restored data.");
+        }
+
+        public sealed record RestoreOutcome(bool Restored, string? Problem);
 
         private void StopAcceptingWork()
         {

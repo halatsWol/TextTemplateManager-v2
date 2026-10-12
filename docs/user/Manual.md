@@ -1,6 +1,6 @@
 ## Introduction
 
-Text Template Manager is a Windows application for storing reusable pieces of text — email
+TextTemplateManager is a Windows application for storing reusable pieces of text — email
 replies, code snippets, standard responses, boilerplate — and inserting them into any other 
 application with a keystroke. Templates are organized in folders, can be given keyboard-
 shortcuts, and can optionally be shared with a team through a synchronized file.
@@ -128,7 +128,7 @@ Press the configured global hotkey (see **Settings ▸ General**) from any appli
 Quick Paste remembers the application you came from and returns focus to it when a template is 
 pasted.
 
-> **Remote Desktop (RDP):** If Text Template Manager is running on both your local computer and a 
+> **Remote Desktop (RDP):** If TextTemplateManager is running on both your local computer and a 
 > remote computer you connect to over RDP, the global hotkey always opens Quick Paste on the 
 > **local** computer — Windows delivers a registered global hotkey locally, so it never reaches the 
 > remote session. Give each machine a **different** hotkey (in **Settings ▸ General**), or run only 
@@ -274,7 +274,7 @@ to the network) that the extension talks to. Pairing is by **token**:
 - Copy the token (and the port, if you changed it) into the extension's settings. Every request must
   present the token, so only an extension you have paired can reach your templates.
 - **Regenerate** issues a new token and invalidates the old one — re-pair the extension afterwards.
-- If the port can't be used (another app already uses it, for example an older Text Template Manager that is still running, or Windows has reserved it), the application tells you at startup and shows a warning in **Settings ▸ Integrations**. Choose a different port there and set the same port in the extension.
+- If the port can't be used (another app already uses it, for example an older TextTemplateManager that is still running, or Windows has reserved it), the application tells you at startup and shows a warning in **Settings ▸ Integrations**. Choose a different port there and set the same port in the extension.
 
 The connector serves template names, ids, and the available paste modes, and returns a template's
 content rendered in a chosen paste mode (or the template's default). It can also **create** a new
@@ -342,7 +342,7 @@ If a source's file cannot be found (for example, it has been moved, deleted or i
 You can also add a source by **opening a `.ttmdata` file** — double-click it in File Explorer, or use
 **Open with ▸ ttm**. The app comes to the front on this page with the file linked as an active
 source; if the file is already linked it is simply shown here, and the app's own data file is never
-added. (Text Template Manager runs as a single instance, so opening a file always uses the window that
+added. (TextTemplateManager runs as a single instance, so opening a file always uses the window that
 is already running.)
 
 ---
@@ -360,13 +360,26 @@ Backups use the `.ttmdata` format. An older `.json` backup still loads after you
 
 ### Automatic backups
 
-The application also backs up on its own, into `Documents\Text Template Manager\Backups` (outside the app's own folder, so they survive resetting or removing the app; if your Documents folder is backed up to OneDrive, so are they).
+The application also backs up on its own, into `Documents\TextTemplateManager\Backups` (outside the app's own folder, so they survive resetting or removing the app; if your Documents folder is backed up to OneDrive, so are they).
 
 - **Recent**: 2 minutes after your last change, and when you quit with changes not yet backed up. The last 3 are kept.
 - **Every 2 hours** while the application runs, if something changed. The last 5 are kept.
 - **Daily**: at startup, and at the first change after midnight. The last 5 are kept.
 
 Each backup is one `.zip` file with your templates, your settings, your sync settings and a copy of every shared sync file, plus a list of their checksums. A backup only appears once it has been written completely and checked.
+
+**Settings ▸ Backups** shows where they are (**Open backups folder**) and lists them, newest first. A damaged backup is greyed out and can't be chosen.
+
+### Restoring a backup
+
+1. In **Settings ▸ Backups**, select a backup.
+2. Choose what to restore (all on by default):
+   - **Templates and folders**: your local templates and folders.
+   - **Settings**.
+   - **Sync**, made of two parts you can also choose one by one: **Sync settings** (the linked files and their options) and **Synced templates and folders** (the synced folders as last seen in their files, which is what they show while a file is missing). With only one part chosen, Sync shows a dash.
+3. Click **Restore…** and confirm.
+
+The current state is backed up first, so a restore can itself be undone from the newest backup. The application then puts the chosen files back and restarts. If anything goes wrong, nothing is changed. Shared sync files are never overwritten by a restore: a file that still exists keeps its contents, and the folder of a missing one shows its copy from the backup (see **Sync** for recreating the file).
 
 ---
 

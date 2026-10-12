@@ -59,7 +59,7 @@
         <StackPanel Spacing="8">
             <TextBlock Text="File association" Style="{StaticResource BodyStrongTextBlockStyle}"/>
             <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       Text=".ttmdata files open with Text Template Manager (opening one adds it as a sync source). If another app took them over, choose Text Template Manager for .ttmdata again in Windows Settings › Apps › Default apps."/>
+                       Text=".ttmdata files open with TextTemplateManager (opening one adds it as a sync source). If another app took them over, choose TextTemplateManager for .ttmdata again in Windows Settings › Apps › Default apps."/>
             <HyperlinkButton Content="Open Default apps" Padding="0" NavigateUri="ms-settings:defaultapps"/>
         </StackPanel>
     </StackPanel>

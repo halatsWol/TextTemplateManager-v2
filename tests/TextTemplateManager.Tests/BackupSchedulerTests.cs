@@ -169,6 +169,21 @@ public class BackupSchedulerTests
     }
 
     [Fact]
+    public async Task A_stopped_scheduler_makes_no_more_backups()
+    {
+        await Save("Alpha");
+        await At(TimeSpan.Zero);
+        await Save("Beta");
+        await At(TimeSpan.FromMinutes(1));
+
+        await _scheduler.StopAsync();
+        await At(TimeSpan.FromHours(5));
+
+        Assert.Empty(Names(BackupTier.Recent));
+        Assert.Single(Names(BackupTier.TwoHourly));
+    }
+
+    [Fact]
     public async Task Half_written_backups_from_a_crash_go_at_startup()
     {
         Directory.CreateDirectory(_storage.BackupDirectory);

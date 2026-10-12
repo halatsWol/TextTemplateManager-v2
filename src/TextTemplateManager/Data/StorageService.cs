@@ -90,6 +90,15 @@ public sealed class StorageService
 
     internal static byte[] SerializeManifest(BackupManifest manifest) => JsonSerializer.SerializeToUtf8Bytes(manifest, Json.BackupManifest);
 
+    internal static Folder? ParseTree(byte[] content)
+    {
+        try { var reader = JsonReaderFor(content); return JsonSerializer.Deserialize(ref reader, Json.Folder); }
+        catch { return null; }
+    }
+
+    /// <summary>A tree as the data file stores it (same text as <see cref="SaveAsync"/> writes).</summary>
+    internal static byte[] SerializeTree(Folder root) => Utf8NoBom.GetBytes(JsonSerializer.Serialize(root, Json.Folder));
+
     internal static byte[] SerializeJournal(RestoreJournal journal) => JsonSerializer.SerializeToUtf8Bytes(journal, Json.RestoreJournal);
 
     internal static RestoreJournal? ParseJournal(byte[] content)
@@ -140,13 +149,16 @@ public sealed class StorageService
 
     private volatile bool _writesSuspended;
 
-    /// <summary>From now on every save is dropped (until the app restarts): a restore swaps in other files, and
-    /// nothing the running app still holds may be written over them.</summary>
+    /// <summary>From now on every save is dropped (until the app restarts or <see cref="ResumeWrites"/>): a restore
+    /// swaps in other files, and nothing the running app still holds may be written over them.</summary>
     public async Task SuspendWritesAsync()
     {
         _writesSuspended = true;
         await WaitForWritesAsync();
     }
+
+    /// <summary>Saves are written again (a restore that failed changed nothing).</summary>
+    public void ResumeWrites() => _writesSuspended = false;
 
     private async Task WithWriteLock(string path, Func<Task> write)
     {

@@ -44,13 +44,13 @@ Document.Create(container =>
         page.Margin(2, Unit.Centimetre);
         page.DefaultTextStyle(x => x.FontSize(11).LineHeight(1.35f));
 
-        page.Header().Text("Text Template Manager — Manual")
+        page.Header().Text("TextTemplateManager — Manual")
             .SemiBold().FontColor(Colors.Grey.Darken2);
 
         page.Content().Column(col =>
         {
             // Cover / title block (once, at the top of the first page).
-            col.Item().Text("Text Template Manager").FontSize(26).Bold().FontColor(Colors.Grey.Darken4);
+            col.Item().Text("TextTemplateManager").FontSize(26).Bold().FontColor(Colors.Grey.Darken4);
             col.Item().Text(subtitle).FontSize(14).FontColor(Colors.Grey.Darken1);
             col.Item().PaddingTop(6).Text($"Version {version}   ·   Marflow Software")
                 .FontSize(10).FontColor(Colors.Grey.Darken1);

@@ -68,12 +68,24 @@ public sealed class BackupScheduler : IDisposable
 
     public void Dispose() => _loop?.Cancel();
 
+    private bool _stopped;
+
+    /// <summary>Waits for a running backup, then makes no more (before a restore swaps the files).</summary>
+    public async Task StopAsync()
+    {
+        _loop?.Cancel();
+        await _gate.WaitAsync();
+        _stopped = true;
+        _gate.Release();
+    }
+
     /// <summary>One pass: makes whatever backups are due now.</summary>
     public async Task TickAsync()
     {
         await _gate.WaitAsync();
         try
         {
+            if (_stopped) return;
             DateTime now = _now();
             bool startup = !_started;
             if (startup)

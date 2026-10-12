@@ -141,7 +141,7 @@ public static class AppEnvironment
 
         // The Documents known folder, so a redirected Documents (OneDrive folder backup) is followed.
         public string BackupDirectory { get; } = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Text Template Manager", "Backups");
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "TextTemplateManager", "Backups");
 
         public bool IsAutostartLaunch => _launch.IsAutostart;
         public string? OpenedFile => _launch.File;
@@ -176,8 +176,9 @@ public static class AppEnvironment
         public string DataDirectory { get; } = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Marflow Software", "TextTemplateManager 2 Dev");
 
-        // Kept out of Documents, next to the dev data.
-        public string BackupDirectory => Path.Combine(DataDirectory, "Backups");
+        // In Documents like the installed app's, but apart from them.
+        public string BackupDirectory { get; } = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "TextTemplateManager", "Backups (Dev)");
 
         private readonly LaunchRequest _launch = FromArguments(Environment.GetCommandLineArgs()[1..], hiddenFlag: true);
 

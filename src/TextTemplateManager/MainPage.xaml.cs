@@ -253,7 +253,7 @@ namespace TextTemplateManager
             var result = await ViewModel.LoadBackupAsync(ConfirmReplaceLocalItemsAsync);
             if (result == MainViewModel.LoadBackupResult.Unreadable)
                 await ShowMessageAsync("Backup not loaded",
-                    "The file couldn't be read as Text Template Manager data. Nothing was changed.");
+                    "The file couldn't be read as TextTemplateManager data. Nothing was changed.");
         }
 
         private async Task<bool> ConfirmReplaceLocalItemsAsync(string fileName)
@@ -399,7 +399,7 @@ namespace TextTemplateManager
                 Title = "Something went wrong",
                 Content = (saved ? "An unexpected error occurred. Your changes have been saved."
                                  : "An unexpected error occurred, and your latest changes may not have been saved.")
-                          + " To be safe, quit and restart Text Template Manager.\n\nDetails: " + crashLogPath,
+                          + " To be safe, quit and restart TextTemplateManager.\n\nDetails: " + crashLogPath,
                 PrimaryButtonText = "Quit",
                 CloseButtonText = "Keep running",
                 DefaultButton = ContentDialogButton.Primary,

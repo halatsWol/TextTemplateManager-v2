@@ -54,7 +54,7 @@ public sealed partial class IntegrationsSettingsPage : Page
         ConnectorUnavailableInfo.IsOpen = Application.Current is App { ConnectorUnavailable: true };
         ConnectorUnavailableInfo.Message =
             $"Port {ViewModel.BrowserConnectorPort} can't be used, so the extension can't connect. Another app is using it " +
-            "(for example an older Text Template Manager that is still running) or Windows has reserved it. " +
+            "(for example an older TextTemplateManager that is still running) or Windows has reserved it. " +
             "Choose a different port above and set the same port in the extension.";
         _connectorLoading = false;
     }

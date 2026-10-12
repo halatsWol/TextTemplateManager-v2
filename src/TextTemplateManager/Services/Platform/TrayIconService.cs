@@ -34,7 +34,7 @@ namespace TextTemplateManager.Services.Platform
                 IconSource = new BitmapImage(
                     new Uri("ms-appx:///Assets/AppIcon.ico")
                 ),
-                ToolTipText = "Text Template Manager",
+                ToolTipText = "TextTemplateManager",
                 DoubleClickCommand = OpenCommand,   // double-click the tray icon to open the window
             };
 

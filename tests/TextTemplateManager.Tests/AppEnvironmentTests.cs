@@ -82,10 +82,11 @@ public class AppEnvironmentTests
     }
 
     [Fact]
-    public void Dev_run_backups_stay_next_to_the_dev_data()
+    public void Dev_run_backups_go_to_documents_apart_from_the_installed_apps()
     {
         var environment = new AppEnvironment.Unpackaged();
 
-        Assert.Equal(Path.Combine(environment.DataDirectory, "Backups"), environment.BackupDirectory);
+        Assert.Equal(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "TextTemplateManager", "Backups (Dev)"),
+            environment.BackupDirectory);
     }
 }

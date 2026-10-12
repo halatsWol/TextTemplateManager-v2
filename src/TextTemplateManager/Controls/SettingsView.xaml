@@ -18,6 +18,11 @@
                 <NavigationViewItem Content="General" Tag="General" Icon="Setting"/>
                 <NavigationViewItem Content="Integrations" Tag="Integrations" Icon="Link"/>
                 <NavigationViewItem Content="Sync" Tag="Sync" Icon="Sync"/>
+                <NavigationViewItem Content="Backups" Tag="Backups">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE81C;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
             </NavigationView.MenuItems>
             <Frame x:Name="PageFrame" Padding="20"/>
         </NavigationView>
