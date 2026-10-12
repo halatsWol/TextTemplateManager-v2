@@ -67,6 +67,10 @@ namespace TextTemplateManager
             }
             instance.Activated += OnRedirected;
 
+            // A running 1.x would keep the Quick Paste shortcut and the connector port. Dev runs leave it alone.
+            if (_environment.IsPackaged)
+                await LegacyApp.CloseRunningAsync(TimeSpan.FromSeconds(5));
+
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
             await _store.InitializeAsync();
