@@ -30,6 +30,10 @@ namespace TextTemplateManager.Models
 
         partial void OnPathChanged(string value) => OnPropertyChanged(nameof(IsFileMissing));
 
+        /// <summary>Re-reads <see cref="IsFileMissing"/> for the UI after the file appeared or vanished at the
+        /// same path (recreated, back online).</summary>
+        public void RefreshFileState() => OnPropertyChanged(nameof(IsFileMissing));
+
         /// <summary>Reorder-arrow affordances, set by the Sync settings page from list position:
         /// the top row can't move up, the bottom can't move down. Transient, not persisted.</summary>
         [ObservableProperty]

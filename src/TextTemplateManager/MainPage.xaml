@@ -193,7 +193,7 @@
                                         <TextBlock Text="{x:Bind Item.Title, Mode=OneWay}" VerticalAlignment="Center"/>
                                         <FontIcon Glyph="&#xE7BA;" FontSize="12" Foreground="#E6A700" VerticalAlignment="Center"
                                                   Visibility="{x:Bind Item.SyncFileMissing, Converter={StaticResource BoolToVis}}"
-                                                  ToolTipService.ToolTip="Sync file not found — showing cached copy"/>
+                                                  ToolTipService.ToolTip="Sync file not found — showing the cached copy. Recreate the file or link another one in Settings › Sync."/>
                                     </StackPanel>
                                     </Grid>
                                 </TreeViewItem>

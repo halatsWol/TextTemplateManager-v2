@@ -144,8 +144,13 @@ namespace TextTemplateManager
         });
 
         // ---- Per-row actions ----
-        private static SyncSource? Source(object sender) =>
-            (sender as Microsoft.UI.Xaml.FrameworkElement)?.DataContext as SyncSource;
+        // Menu items in a flyout don't reliably get the row's DataContext, so they carry the source in Tag.
+        private static SyncSource? Source(object sender) => sender switch
+        {
+            MenuFlyoutItem { Tag: SyncSource tagged } => tagged,
+            Microsoft.UI.Xaml.FrameworkElement element => element.DataContext as SyncSource,
+            _ => null,
+        };
 
         private async void Relink_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
@@ -153,6 +158,35 @@ namespace TextTemplateManager
 
             if (await DataFilePicker.PickToOpenAsync(_hwnd) is not { } path) return;
             s.Path = path; // raises IsFileMissing + persists via Source_PropertyChanged
+        }
+
+        // Writes the folder's cached copy back out: where the file was if that folder still exists, else
+        // wherever the user picks.
+        private async void Recreate_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            if (Source(sender) is not SyncSource s) return;
+
+            string? path = s.Path;
+            string? folder = string.IsNullOrWhiteSpace(path) ? null : System.IO.Path.GetDirectoryName(path);
+            if (folder == null || !System.IO.Directory.Exists(folder))
+            {
+                string name = string.IsNullOrWhiteSpace(path) ? s.Name : System.IO.Path.GetFileNameWithoutExtension(path);
+                path = await DataFilePicker.PickToSaveAsync(_hwnd, name);
+                if (path == null) return;
+            }
+
+            if (!await _store.RecreateSyncFileAsync(s, path))
+            {
+                await new ContentDialog
+                {
+                    XamlRoot = XamlRoot,
+                    Title = "Couldn't recreate the file",
+                    Content = s.IsActive
+                        ? $"The file couldn't be written to {path}."
+                        : "This source is turned off, so there is no cached copy of its folder. Link another file instead.",
+                    CloseButtonText = "OK",
+                }.ShowAsync();
+            }
         }
 
         private async void MoveUp_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)

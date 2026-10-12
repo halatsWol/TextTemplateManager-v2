@@ -401,6 +401,21 @@ public class DataNode
         finally { _syncApplyLock.Release(); }
     }
 
+    /// <summary>Writes the cached copy of <paramref name="source"/>'s folder out as its sync file at
+    /// <paramref name="path"/> (where it was, or a new place) and links the source to it. False when there is
+    /// no cached copy (an inactive source) or the file couldn't be written.</summary>
+    public async Task<bool> RecreateSyncFileAsync(SyncSource source, string path)
+    {
+        if (RootFolder.Children.FirstOrDefault(c => c.Id == source.Id) is not Folder folder) return false;
+        await Storage.SaveSharedAsync(path, BuildFileTree(folder));
+        if (!File.Exists(path)) return false;
+
+        source.Path = path;
+        await SaveSyncSettingsAsync();
+        await ReapplySyncAsync();
+        return true;
+    }
+
     /// <summary>Polls the active sources' files and re-applies sync if any changed EXTERNALLY.
     /// Cheap when nothing changed (just reads each file's timestamp; never opens/locks them).</summary>
     public async Task CheckSyncFilesForChangesAsync()
@@ -537,6 +552,8 @@ public class DataNode
         RootFolder.Children.Clear();
         foreach (var f in syncedFolders) RootFolder.Children.Add(f);
         foreach (var it in localItems) RootFolder.Children.Add(it);
+
+        foreach (var source in sources.ToList()) source.RefreshFileState();
     }
 
     /// <summary>Writes each active, save-enabled source's folder back to its file (skips missing

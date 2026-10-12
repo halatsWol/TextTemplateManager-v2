@@ -98,7 +98,7 @@
 
                     <TextBlock Grid.Row="5" Grid.Column="0" Text="⚠" VerticalAlignment="Top" FontWeight="SemiBold"/>
                     <TextBlock Grid.Row="5" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Missing file:"/><Run Text=" a warning icon appears — click it to re-link. The cached copy stays visible meanwhile."/>
+                        <Run FontWeight="SemiBold" Text="Missing file:"/><Run Text=" a warning icon appears and the folder shows its cached copy. Click the icon to recreate the file from that copy, or to link another file."/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="6" Grid.Column="0" Text="🔤" VerticalAlignment="Top"/>
@@ -159,9 +159,15 @@
                         <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                             <Button Padding="4" Background="Transparent" BorderThickness="0"
                                     Visibility="{x:Bind IsFileMissing, Mode=OneWay, Converter={StaticResource BoolToVis}}"
-                                    Click="Relink_Click"
-                                    ToolTipService.ToolTip="File not found — click to re-link">
+                                    AutomationProperties.Name="File not found"
+                                    ToolTipService.ToolTip="File not found — recreate it or link another file">
                                 <FontIcon Glyph="&#xE7BA;" Foreground="#E6A700" FontSize="16"/>
+                                <Button.Flyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Text="Recreate the file from the cached copy" Tag="{x:Bind}" Click="Recreate_Click"/>
+                                        <MenuFlyoutItem Text="Link another file…" Tag="{x:Bind}" Click="Relink_Click"/>
+                                    </MenuFlyout>
+                                </Button.Flyout>
                             </Button>
                             <TextBlock Text="{x:Bind Path, Mode=OneWay}" TextTrimming="CharacterEllipsis"
                                        VerticalAlignment="Center"

@@ -334,9 +334,10 @@ Each source offers the following options:
   row and the down arrow on the bottom row). This priority determines which template wins when a
   shortcut is shared across areas, and is applied immediately.
 
-If a source's file cannot be found (for example, it has been moved or is temporarily offline), a
-warning icon is shown next to it. Click the icon to re-link the source to its file. The most recently
-cached contents remain visible in the meantime.
+If a source's file cannot be found (for example, it has been moved, deleted or is temporarily offline), a warning icon is shown next to it, and the folder keeps showing the contents last seen in that file (its cached copy). Click the icon to:
+
+- **Recreate the file from the cached copy**: writes the folder back out as the sync file where it was, or, if that folder no longer exists, where you choose. The source then uses the new file.
+- **Link another file…**: points the source at an existing file, for example one that was moved.
 
 You can also add a source by **opening a `.ttmdata` file** — double-click it in File Explorer, or use
 **Open with ▸ ttm**. The app comes to the front on this page with the file linked as an active

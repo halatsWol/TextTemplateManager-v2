@@ -85,6 +85,73 @@ public class DataNodeTests
         return root;
     }
 
+    // A synced folder whose file existed when it was loaded and is gone now, so only the cached copy shows.
+    private static async Task<(DataNode node, SyncSource source)> NodeWithLostSyncFileAsync()
+    {
+        string dir = TestEnvironment.NewScratchDir();
+        var storage = new StorageService(dir);
+        var source = new SyncSource { Name = "Team", Path = Path.Combine(dir, "shared", "team.ttmdata"), IsActive = true };
+        Directory.CreateDirectory(Path.GetDirectoryName(source.Path)!);
+        await storage.SaveSharedAsync(source.Path, new Folder
+        {
+            Title = "Root",
+            Children = { new Template { Title = "Shared one", Content = "<p>s</p>", MultiKeyShortcut = "msg" } },
+        });
+        await storage.SaveSyncSettingsAsync(new SyncSettings { Sources = { source } });
+        var node = new DataNode(storage);
+        await node.InitializeAsync();
+        source = node.CurrentSyncSettings.Sources[0];
+
+        File.Delete(source.Path);
+        await node.ReapplySyncAsync();
+        Assert.True(node.LocalItems[0].SyncFileMissing);
+        return (node, source);
+    }
+
+    [Fact]
+    public async Task A_lost_sync_file_is_recreated_where_it_was_from_the_cached_copy()
+    {
+        var (node, source) = await NodeWithLostSyncFileAsync();
+        string path = source.Path;
+        var changed = new List<string?>();
+        source.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+        Assert.True(await node.RecreateSyncFileAsync(source, path));
+
+        Assert.False(node.LocalItems[0].SyncFileMissing);
+        Assert.False(source.IsFileMissing);
+        Assert.Contains(nameof(SyncSource.IsFileMissing), changed);   // the Sync page's warning goes away
+        var file = await StorageService.LoadRootSharedAsync(path);
+        var shared = Assert.IsType<Template>(Assert.Single(file!.Children));
+        Assert.Equal(("Shared one", "MSG"), (shared.Title, shared.MultiKeyShortcut));
+    }
+
+    [Fact]
+    public async Task A_lost_sync_file_can_be_recreated_somewhere_else_and_the_source_follows()
+    {
+        var (node, source) = await NodeWithLostSyncFileAsync();
+        string elsewhere = Path.Combine(TestEnvironment.NewScratchDir(), "moved.ttmdata");
+
+        Assert.True(await node.RecreateSyncFileAsync(source, elsewhere));
+
+        Assert.Equal(elsewhere, source.Path);
+        Assert.Equal(elsewhere, (await node.Storage.LoadSyncSettingsAsync()).Sources[0].Path);
+        Assert.False(node.LocalItems[0].SyncFileMissing);
+        Assert.Contains("Team", node.LocalItems[0].Title);
+    }
+
+    [Fact]
+    public async Task An_inactive_source_has_no_cached_copy_to_recreate_from()
+    {
+        var (node, source) = await NodeWithLostSyncFileAsync();
+        source.IsActive = false;
+        await node.ReapplySyncAsync();
+        string path = source.Path;
+
+        Assert.False(await node.RecreateSyncFileAsync(source, path));
+        Assert.False(File.Exists(path));
+    }
+
     [Fact]
     public async Task Moving_within_a_folder_puts_the_item_at_the_drop_index()
     {
