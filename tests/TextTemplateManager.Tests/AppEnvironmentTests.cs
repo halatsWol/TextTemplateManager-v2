@@ -73,10 +73,19 @@ public class AppEnvironmentTests
     }
 
     [Fact]
-    public void The_data_folder_override_wins()
+    public void The_data_folder_override_wins_for_data_and_backups()
     {
         var storage = StorageService.CreateDefault(new AppEnvironment.Unpackaged());
 
         Assert.StartsWith(TestEnvironment.DataRoot, storage.GetDataPath(), StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(Path.Combine(TestEnvironment.DataRoot, "Backups"), storage.BackupDirectory, StringComparer.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void Dev_run_backups_stay_next_to_the_dev_data()
+    {
+        var environment = new AppEnvironment.Unpackaged();
+
+        Assert.Equal(Path.Combine(environment.DataDirectory, "Backups"), environment.BackupDirectory);
     }
 }

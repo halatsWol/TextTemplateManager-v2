@@ -37,21 +37,63 @@ public sealed class StorageService
 
     private readonly string _baseDirectory;
 
-    /// <summary>Storage rooted at <paramref name="baseDirectory"/>. Touches no files; the folder must
-    /// exist before the first write (see <see cref="CreateDefault"/>).</summary>
-    public StorageService(string baseDirectory)
+    /// <summary>Storage rooted at <paramref name="baseDirectory"/>, backups in <paramref name="backupDirectory"/>
+    /// (default: a Backups folder inside it). Touches no files; the folder must exist before the first write
+    /// (see <see cref="CreateDefault"/>).</summary>
+    public StorageService(string baseDirectory, string? backupDirectory = null)
     {
         _baseDirectory = baseDirectory;
+        BackupDirectory = backupDirectory ?? Path.Combine(baseDirectory, "Backups");
     }
 
     /// <summary>The app's storage: the environment's data folder, or the one <see cref="DataDirOverrideVariable"/>
-    /// points to. Creates the folder.</summary>
+    /// points to (backups then go inside it too). Creates the data folder.</summary>
     public static StorageService CreateDefault(IAppEnvironment environment)
     {
         string? overridden = Environment.GetEnvironmentVariable(DataDirOverrideVariable);
-        string baseDirectory = string.IsNullOrWhiteSpace(overridden) ? environment.DataDirectory : Path.GetFullPath(overridden);
+        bool redirected = !string.IsNullOrWhiteSpace(overridden);
+        string baseDirectory = redirected ? Path.GetFullPath(overridden!) : environment.DataDirectory;
         Directory.CreateDirectory(baseDirectory);
-        return new StorageService(baseDirectory);
+        return new StorageService(baseDirectory, redirected ? null : environment.BackupDirectory);
+    }
+
+    /// <summary>Where automatic backups are written. Created on the first backup.</summary>
+    public string BackupDirectory { get; }
+
+    /// <summary>True when <paramref name="content"/> loads as a file of the given kind with the app's own
+    /// loaders (backups only keep files that do).</summary>
+    internal static bool Parses(BackupFileKind kind, byte[] content)
+    {
+        try
+        {
+            var reader = JsonReaderFor(content);
+            return kind switch
+            {
+                BackupFileKind.Data or BackupFileKind.SyncFile => JsonSerializer.Deserialize(ref reader, Json.Folder) != null,
+                BackupFileKind.Settings => JsonSerializer.Deserialize(ref reader, Json.AppSettings) != null,
+                BackupFileKind.SyncSettings => JsonSerializer.Deserialize(ref reader, Json.SyncSettings) != null,
+                _ => false,
+            };
+        }
+        catch { return false; }
+    }
+
+    // Files from older versions may start with a UTF-8 BOM, which the reader doesn't skip by itself.
+    private static Utf8JsonReader JsonReaderFor(byte[] content) =>
+        new(content.AsSpan().StartsWith(Encoding.UTF8.Preamble) ? content.AsSpan(3) : content);
+
+    internal static SyncSettings? ParseSyncSettings(byte[] content)
+    {
+        try { var reader = JsonReaderFor(content); return JsonSerializer.Deserialize(ref reader, Json.SyncSettings); }
+        catch { return null; }
+    }
+
+    internal static byte[] SerializeManifest(BackupManifest manifest) => JsonSerializer.SerializeToUtf8Bytes(manifest, Json.BackupManifest);
+
+    internal static BackupManifest? ParseManifest(byte[] content)
+    {
+        try { var reader = JsonReaderFor(content); return JsonSerializer.Deserialize(ref reader, Json.BackupManifest); }
+        catch { return null; }
     }
 
     // Serialize writes per file path so concurrent saves (e.g. rapid Sync-settings edits, which fire
@@ -72,6 +114,13 @@ public sealed class StorageService
     /// files (a backup) waits for this: a sync write caught partway is exactly how a copy ends up truncated
     /// or as a cloud conflict copy. A single idle instant isn't enough —
     /// the sync poll writes without any user input, so the quiet period is what makes it meaningful.</summary>
+    private long _writeCount;
+
+    /// <summary>Counts writes that changed a file (a save skipped as unchanged doesn't count), so a watcher can
+    /// tell that something was saved since it last looked (the last-write time can't: two writes inside one
+    /// clock tick look the same).</summary>
+    public long WriteCount => Interlocked.Read(ref _writeCount);
+
     public bool WritesQuiet(int quietMs = 2000) =>
         !WritesInFlight && Environment.TickCount64 - Interlocked.Read(ref _lastWriteTicks) >= quietMs;
 
@@ -184,11 +233,12 @@ public sealed class StorageService
         fs.Flush(flushToDisk: true);
     }
 
-    private static async Task WriteAtomicAsync(string path, string content)
+    private async Task WriteAtomicAsync(string path, string content)
     {
         string tmp = path + ".tmp";
         await WriteTempAsync(tmp, content);
         File.Move(tmp, path, overwrite: true);
+        Interlocked.Increment(ref _writeCount);
     }
 
     /// <summary>Save the root Folder to path (local or sync location).</summary>
@@ -274,7 +324,7 @@ public sealed class StorageService
             await WriteTempAsync(tmp, json);
             for (int attempt = 0; attempt < 6; attempt++)
             {
-                try { File.Move(tmp, path, overwrite: true); return; }
+                try { File.Move(tmp, path, overwrite: true); Interlocked.Increment(ref _writeCount); return; }
                 catch (IOException) { await Task.Delay(200); }        // target locked -> retry
             }
             try { File.Delete(tmp); } catch { /* leave temp if even delete fails */ }

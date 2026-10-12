@@ -357,6 +357,16 @@ is already running.)
 Backups use the `.ttmdata` format. An older `.json` backup still loads after you rename it to 
 `.ttmdata` — the two are the same format.
 
+### Automatic backups
+
+The application also backs up on its own, into `Documents\Text Template Manager\Backups` (outside the app's own folder, so they survive resetting or removing the app; if your Documents folder is backed up to OneDrive, so are they).
+
+- **Recent**: 2 minutes after your last change, and when you quit with changes not yet backed up. The last 3 are kept.
+- **Every 2 hours** while the application runs, if something changed. The last 5 are kept.
+- **Daily**: at startup, and at the first change after midnight. The last 5 are kept.
+
+Each backup is one `.zip` file with your templates, your settings, your sync settings and a copy of every shared sync file, plus a list of their checksums. A backup only appears once it has been written completely and checked.
+
 ---
 
 ## Updates

@@ -31,6 +31,21 @@ public class StorageServiceTests
         return root;
     }
 
+    [Fact]
+    public async Task Only_saves_that_change_a_file_count_as_writes()
+    {
+        string path = Path.Combine(TestEnvironment.NewScratchDir(), "data.ttmdata");
+        await _storage.SaveAsync(path, Tree("Root", "Alpha"));
+        long afterFirst = _storage.WriteCount;
+
+        await _storage.SaveAsync(path, Tree("Root", "Alpha"));
+        Assert.Equal(afterFirst, _storage.WriteCount);
+
+        await _storage.SaveAsync(path, Tree("Root", "Alpha", "Beta"));
+        await _storage.SaveSettingsAsync(new AppSettings());
+        Assert.Equal(afterFirst + 2, _storage.WriteCount);
+    }
+
     // ---- round trip ----
 
     [Fact]

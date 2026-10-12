@@ -27,6 +27,7 @@ namespace TextTemplateManager
         private DispatcherQueue _uiDispatcher = null!;    // set in OnLaunched
         private BrowserConnector? _connector;
         private AppConnectorData? _connectorData;
+        private BackupScheduler? _backupScheduler;
         private readonly DataNode _store;
         private readonly IAppEnvironment _environment = AppEnvironment.Detect();   // packaged or a dev run
 
@@ -75,6 +76,9 @@ namespace TextTemplateManager
 
             await _store.InitializeAsync();
             var unreadableFiles = _store.Storage.TakeUnreadableFiles();
+
+            _backupScheduler = new BackupScheduler(new BackupService(_store.Storage), _store.Storage);
+            _backupScheduler.Start();
 
             _hotkeyListener = new HotkeyListener();
             _hotkeyListener.HotkeyPressed += OnGlobalHotkeyPressed;
@@ -301,8 +305,9 @@ namespace TextTemplateManager
         /// reported content). Runs in registration order, before the pending data save.</summary>
         public void AddExitFlush(Func<Task> flush) => _exitFlushes.Add(flush);
 
-        /// <summary>Writes everything pending: registered flushes, the debounced data save, and any write
-        /// still in progress. A failing step is logged and doesn't stop the others.</summary>
+        /// <summary>Writes everything pending: registered flushes, the debounced data save, any write still in
+        /// progress, and a recent backup of what isn't backed up yet. A failing step is logged and doesn't stop
+        /// the others.</summary>
         public async Task PersistPendingAsync()
         {
             foreach (var flush in _exitFlushes)
@@ -313,6 +318,10 @@ namespace TextTemplateManager
             try { await _store.FlushPendingSaveAsync(); }
             catch (Exception ex) { LogCrash("ExitFlush", ex); }
             await _store.Storage.WaitForWritesAsync();
+
+            // Changes since the last recent backup get one before the app goes.
+            try { if (_backupScheduler != null) await _backupScheduler.FlushAsync(TimeSpan.FromSeconds(5)); }
+            catch (Exception ex) { LogCrash("ExitBackup", ex); }
         }
 
         private void StopAcceptingWork()
@@ -362,6 +371,7 @@ namespace TextTemplateManager
         {
             _isClosingFromTray = true;
             try { _connector?.Stop(); } catch { }
+            try { _backupScheduler?.Dispose(); } catch { }
             // From here a new launch starts fresh instead of redirecting to this exiting instance.
             try { AppInstance.GetCurrent().UnregisterKey(); } catch { }
             try { _trayService?.Dispose(); } catch { }

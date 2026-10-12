@@ -36,6 +36,10 @@ public interface IAppEnvironment
     /// TTM_DATA_DIR redirects it. Never the 1.x data folder, which TTM 2 only ever reads.</summary>
     string DataDirectory { get; }
 
+    /// <summary>Where automatic backups go, unless TTM_DATA_DIR redirects them. Outside the package folder,
+    /// so they survive Reset and uninstall.</summary>
+    string BackupDirectory { get; }
+
     /// <summary>This launch is Windows starting the app at sign-in (the only case where "start hidden"
     /// applies).</summary>
     bool IsAutostartLaunch { get; }
@@ -135,6 +139,10 @@ public static class AppEnvironment
         // %LocalAppData%\Packages\<family name>\LocalState: wiped by Reset and uninstall.
         public string DataDirectory => Windows.Storage.ApplicationData.Current.LocalFolder.Path;
 
+        // The Documents known folder, so a redirected Documents (OneDrive folder backup) is followed.
+        public string BackupDirectory { get; } = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Text Template Manager", "Backups");
+
         public bool IsAutostartLaunch => _launch.IsAutostart;
         public string? OpenedFile => _launch.File;
 
@@ -167,6 +175,9 @@ public static class AppEnvironment
         // Dev runs from bin\: their own folder, so they can't edit the 1.x data next door.
         public string DataDirectory { get; } = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Marflow Software", "TextTemplateManager 2 Dev");
+
+        // Kept out of Documents, next to the dev data.
+        public string BackupDirectory => Path.Combine(DataDirectory, "Backups");
 
         private readonly LaunchRequest _launch = FromArguments(Environment.GetCommandLineArgs()[1..], hiddenFlag: true);
 
