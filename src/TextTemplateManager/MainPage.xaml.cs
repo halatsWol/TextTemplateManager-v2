@@ -249,26 +249,64 @@ namespace TextTemplateManager
 
             ViewModel.DeleteItemCommand.Execute(null);
         }
-        private async void LoadBackup_Click(object sender, RoutedEventArgs e)
+        // Adds a .ttmdata file's templates to the tree, after asking where they go and what to do with ones that
+        // already exist.
+        private async void Import_Click(object sender, RoutedEventArgs e)
         {
-            var result = await ViewModel.LoadBackupAsync(ConfirmReplaceLocalItemsAsync);
-            if (result == MainViewModel.LoadBackupResult.Unreadable)
-                await ShowMessageAsync("Backup not loaded",
-                    "The file couldn't be read as TextTemplateManager data. Nothing was changed.");
-        }
+            var (result, file) = await ViewModel.PickImportFileAsync();
+            if (result == MainViewModel.ImportPick.Unreadable)
+            {
+                await ShowMessageAsync("Nothing imported", "The file couldn't be read as TextTemplateManager data. Nothing was changed.");
+                return;
+            }
+            if (file == null) return;
+            if (file.Templates == 0 && file.Folders == 0)
+            {
+                await ShowMessageAsync("Nothing imported", $"\"{file.Name}\" holds no templates or folders.");
+                return;
+            }
 
-        private async Task<bool> ConfirmReplaceLocalItemsAsync(string fileName)
-        {
+            var newFolder = new RadioButton { Content = $"Into a new folder \"{file.Name}\"", GroupName = "ImportWhere" };
+            var direct = new RadioButton { Content = "Directly into the tree (folders with the same name are merged)", GroupName = "ImportWhere", IsChecked = true };
+            var overwriteAll = new RadioButton { Content = "Overwrite all of them", GroupName = "ImportConflicts" };
+            var overwriteOlder = new RadioButton { Content = "Overwrite only where the imported one is more recent", GroupName = "ImportConflicts", IsChecked = true };
+            var skip = new RadioButton { Content = "Skip them, keep the existing ones", GroupName = "ImportConflicts" };
+            var conflicts = new StackPanel { Spacing = 4, Margin = new Thickness(0, 12, 0, 0) };
+            conflicts.Children.Add(new TextBlock
+            {
+                Text = $"{file.Conflicts} of these template(s) already exist (same template, or same title in the same folder):",
+                TextWrapping = TextWrapping.Wrap,
+            });
+            foreach (var choice in new[] { overwriteAll, overwriteOlder, skip }) conflicts.Children.Add(choice);
+            void UpdateConflicts() => conflicts.Visibility = direct.IsChecked == true && file.Conflicts > 0 ? Visibility.Visible : Visibility.Collapsed;
+            direct.Checked += (_, _) => UpdateConflicts();
+            newFolder.Checked += (_, _) => UpdateConflicts();
+            UpdateConflicts();
+
+            var content = new StackPanel { Spacing = 4 };
+            content.Children.Add(new TextBlock
+            {
+                Text = $"\"{file.Name}\" holds {file.Templates} template(s) in {file.Folders} folder(s). Where should they go?",
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 8),
+            });
+            content.Children.Add(newFolder);
+            content.Children.Add(direct);
+            content.Children.Add(conflicts);
+
             var dialog = new ContentDialog
             {
-                Title = "Load backup",
-                Content = $"Replace your local templates and folders with the contents of \"{fileName}\"?\n\n" +
-                          "Synced folders are not affected. The current local items are replaced and can't be restored.",
-                PrimaryButtonText = "Replace",
+                Title = "Import",
+                Content = content,
+                PrimaryButtonText = "Import",
                 CloseButtonText = "Cancel",
-                DefaultButton = ContentDialogButton.Close,
+                DefaultButton = ContentDialogButton.Primary,
             };
-            return await ShowDialogAsync(dialog) == ContentDialogResult.Primary;
+            if (await ShowDialogAsync(dialog) != ContentDialogResult.Primary) return;
+
+            var how = overwriteAll.IsChecked == true ? ImportConflicts.OverwriteAll
+                : skip.IsChecked == true ? ImportConflicts.Skip : ImportConflicts.OverwriteOlder;
+            await ViewModel.ImportAsync(file, newFolder.IsChecked == true, how);
         }
         // The selected folder or template, or all local templates and folders when nothing is selected.
         private async void Export_Click(object sender, RoutedEventArgs e) => await ViewModel.ExportAsync(ViewModel.SelectedItem);

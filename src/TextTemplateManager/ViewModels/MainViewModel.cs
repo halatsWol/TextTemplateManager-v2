@@ -370,25 +370,31 @@ public partial class MainViewModel : ObservableObject
         else await _dataNode.ExportItemsAsync(path, _dataNode.LocalOnlyItems);
     }
 
-    public enum LoadBackupResult { Cancelled, Unreadable, Replaced }
+    /// <summary>A .ttmdata file picked for import, with what it holds.</summary>
+    public sealed record ImportFile(string Name, List<BaseItem> Items, int Templates, int Folders, int Conflicts);
 
-    /// <summary>Picks a backup file and, after <paramref name="confirmReplace"/> agrees (given the file
-    /// name), replaces the local items with its contents. Synced folders are left alone.</summary>
-    public async Task<LoadBackupResult> LoadBackupAsync(Func<string, Task<bool>> confirmReplace)
+    public enum ImportPick { Cancelled, Unreadable, Picked }
+
+    /// <summary>Lets the user pick a .ttmdata file and reads it; nothing is changed yet.</summary>
+    public async Task<(ImportPick Result, ImportFile? File)> PickImportFileAsync()
     {
-        if (await DataFilePicker.PickToOpenAsync(MainWindowHandle) is not { } path) return LoadBackupResult.Cancelled;
-
-        // Backups are a serialized root Folder — take its children (not a bare List<BaseItem>).
+        if (await DataFilePicker.PickToOpenAsync(MainWindowHandle) is not { } path) return (ImportPick.Cancelled, null);
         var root = await StorageService.LoadRootAsync(path);
-        if (root == null) return LoadBackupResult.Unreadable;
-        if (!await confirmReplace(System.IO.Path.GetFileName(path))) return LoadBackupResult.Cancelled;
+        if (root == null) return (ImportPick.Unreadable, null);
 
-        await _dataNode.ReplaceLocalItemsAsync(root.Children.ToList());
+        var items = DataNode.ImportedItems(root);
+        var all = items.SelectMany(i => i.SelfAndDescendants()).ToList();
+        return (ImportPick.Picked, new ImportFile(System.IO.Path.GetFileNameWithoutExtension(path), items,
+            all.OfType<Template>().Count(), all.OfType<Folder>().Count(), _dataNode.CountImportConflicts(items)));
+    }
 
-        SelectedItem = null;
+    /// <summary>Adds the file's items to the local templates (see <see cref="DataNode.ImportAsync"/>).</summary>
+    public async Task<ImportSummary> ImportAsync(ImportFile file, bool intoNewFolder, ImportConflicts conflicts)
+    {
+        var summary = await _dataNode.ImportAsync(file.Items, intoNewFolder ? file.Name : null, conflicts);
         ValidateAllShortcuts();
         ApplyFilter();
-        return LoadBackupResult.Replaced;
+        return summary;
     }
 
 

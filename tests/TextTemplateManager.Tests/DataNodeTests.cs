@@ -15,29 +15,108 @@ public class DataNodeTests
         return (node, node.Storage.GetDataPath());
     }
 
-    [Fact]
-    public async Task Loading_a_backup_replaces_local_items_and_keeps_sync_folders()
+    // ---- import ----
+
+    private static Template T(string title, string lastChange = "20261012090000", string content = "") =>
+        new() { Title = title, Content = content.Length > 0 ? content : $"<p>{title}</p>", LastChange = lastChange };
+
+    // Existing tree: folder "Work" { "Mail" (older), "Call" (newer) } and "Loose" at the top.
+    private static async Task<(DataNode node, Folder work)> NodeForImportAsync()
     {
-        var (node, path) = await NewNodeAsync();
-        await node.AddItemAsync(new Template { Title = "Old local" });
-        var syncRoot = new Folder { Title = "Team", IsSyncRoot = true, SyncId = Guid.Empty };
-        node.LocalItems.Insert(0, syncRoot);
+        var (node, _) = await NewNodeAsync();
+        var work = new Folder { Title = "Work" };
+        await node.AddItemAsync(work);
+        await node.AddItemAsync(T("Mail", "20261001000000", "<p>old mail</p>"), work);
+        await node.AddItemAsync(T("Call", "20261020000000", "<p>new call</p>"), work);
+        await node.AddItemAsync(T("Loose"));
+        return (node, work);
+    }
 
-        await node.ReplaceLocalItemsAsync(new BaseItem[]
+    // Imported: folder "work" (same name, other case) { "Mail" (newer), "Call" (older), "Fax" } and "Extra".
+    private static List<BaseItem> Incoming() => new()
+    {
+        new Folder { Title = "work", Children = { T("Mail", "20261010000000", "<p>imported mail</p>"), T("Call", "20261002000000", "<p>imported call</p>"), T("Fax") } },
+        T("Extra"),
+    };
+
+    private static string Content(Folder f, string title) => ((Template)f.Children.Single(c => c.Title == title)).Content;
+
+    [Fact]
+    public async Task A_direct_import_merges_folders_and_counts_the_existing_templates()
+    {
+        var (node, work) = await NodeForImportAsync();
+
+        Assert.Equal(2, node.CountImportConflicts(Incoming()));
+        var summary = await node.ImportAsync(Incoming(), null, ImportConflicts.OverwriteOlder);
+
+        Assert.Equal(new ImportSummary(Added: 2, Overwritten: 1, Skipped: 1, Conflicts: 2), summary);
+        Assert.Equal(new[] { "Work", "Loose", "Extra" }, node.LocalItems.Select(i => i.Title));   // no second "work"
+        Assert.Equal(new[] { "Mail", "Call", "Fax" }, work.Children.Select(c => c.Title));
+        Assert.Equal("<p>imported mail</p>", Content(work, "Mail"));   // imported one is more recent
+        Assert.Equal("<p>new call</p>", Content(work, "Call"));        // existing one is more recent
+        var saved = await StorageService.LoadRootAsync(node.Storage.GetDataPath());
+        Assert.Equal(3, saved!.Children[0].Children.Count);
+    }
+
+    [Theory]
+    [InlineData(ImportConflicts.OverwriteAll, "<p>imported mail</p>", "<p>imported call</p>")]
+    [InlineData(ImportConflicts.Skip, "<p>old mail</p>", "<p>new call</p>")]
+    public async Task Existing_templates_are_overwritten_or_kept_as_chosen(ImportConflicts how, string mail, string call)
+    {
+        var (node, work) = await NodeForImportAsync();
+
+        await node.ImportAsync(Incoming(), null, how);
+
+        Assert.Equal((mail, call), (Content(work, "Mail"), Content(work, "Call")));
+        Assert.Equal(3, work.Children.Count);
+    }
+
+    [Fact]
+    public async Task An_import_into_a_new_folder_is_a_copy_with_fresh_ids()
+    {
+        var (node, work) = await NodeForImportAsync();
+        await node.AddItemAsync(new Folder { Title = "Team templates" });
+        var items = Incoming();
+        var oldIds = items.SelectMany(i => i.SelfAndDescendants()).Select(i => i.Id).ToHashSet();
+
+        var summary = await node.ImportAsync(items, "Team templates", ImportConflicts.Skip);
+
+        var folder = (Folder)node.LocalItems.Last();
+        Assert.Equal("Team templates 1", folder.Title);
+        Assert.Equal(new[] { "work", "Extra" }, folder.Children.Select(c => c.Title));
+        Assert.DoesNotContain(folder.SelfAndDescendants(), i => oldIds.Contains(i.Id));
+        Assert.Equal(4, summary.Added);
+        Assert.Equal(2, work.Children.Count);   // existing ones untouched
+    }
+
+    [Fact]
+    public async Task An_imported_id_that_is_already_used_elsewhere_gets_a_new_one()
+    {
+        var (node, work) = await NodeForImportAsync();
+        var loose = node.LocalItems.Single(i => i.Title == "Loose");
+        var sameId = T("Renamed elsewhere");
+        sameId.Id = loose.Id;
+
+        await node.ImportAsync(new List<BaseItem> { new Folder { Title = "New", Children = { sameId } } }, null, ImportConflicts.Skip);
+
+        var added = node.LocalItems.Single(i => i.Title == "New").Children.Single();
+        Assert.NotEqual(loose.Id, added.Id);
+        Assert.Single(node.LocalItems.Descendants(), i => i.Id == loose.Id);
+    }
+
+    [Fact]
+    public void A_folder_export_imports_as_that_folder_and_synced_snapshots_are_left_out()
+    {
+        var folderExport = new Folder { Id = Guid.NewGuid(), Title = "Mine", Children = { T("Inside") } };
+        var fullExport = new Folder
         {
-            new Template { Title = "From backup" },
-            new Folder { Title = "Sync snapshot in backup", SyncId = Guid.NewGuid() },
-        });
+            Id = Guid.Empty,
+            Title = "Root",
+            Children = { new Folder { Title = "Team snapshot", SyncId = Guid.Empty }, T("Local") },
+        };
 
-        Assert.Same(syncRoot, node.LocalItems[0]);
-        var titles = node.LocalItems.Select(i => i.Title).ToList();
-        Assert.Contains("From backup", titles);
-        Assert.DoesNotContain("Old local", titles);
-        Assert.DoesNotContain("Sync snapshot in backup", titles);
-
-        var saved = await StorageService.LoadRootAsync(path);
-        Assert.Contains(saved!.Children, c => c.Title == "From backup");
-        Assert.DoesNotContain(saved.Children, c => c.Title == "Old local");
+        Assert.Equal(new[] { "Mine" }, DataNode.ImportedItems(folderExport).Select(i => i.Title));
+        Assert.Equal(new[] { "Local" }, DataNode.ImportedItems(fullExport).Select(i => i.Title));
     }
 
     [Fact]
@@ -405,14 +484,14 @@ public class DataNodeTests
     }
 
     [Fact]
-    public async Task Loading_a_backup_saves_once()
+    public async Task An_import_saves_once()
     {
         var (node, _) = await NewNodeAsync();
         await node.AddItemAsync(new Template { Title = "Old local" });
         int saves = 0;
         node.DataSaved += () => Interlocked.Increment(ref saves);
 
-        await node.ReplaceLocalItemsAsync(Enumerable.Range(1, 5).Select(i => (BaseItem)new Template { Title = $"T{i}" }).ToList());
+        await node.ImportAsync(Enumerable.Range(1, 5).Select(i => (BaseItem)new Template { Title = $"T{i}" }).ToList(), null, ImportConflicts.Skip);
 
         Assert.Equal(1, saves);
     }

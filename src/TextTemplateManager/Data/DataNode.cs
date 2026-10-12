@@ -127,24 +127,93 @@ public class DataNode
         await SaveDataAsync();
     }
 
-    /// <summary>Replaces the local items with <paramref name="items"/> in one step and one save. The pinned
-    /// sync folders stay; top-level sync folders inside <paramref name="items"/> (a full export contains
-    /// snapshots of them) are skipped, since the sync files themselves are the source of truth.</summary>
-    public async Task ReplaceLocalItemsAsync(IEnumerable<BaseItem> items)
+    /// <summary>What an imported file brings: a folder export is that folder; any other file is its top-level
+    /// items, without the synced-folder snapshots an older full export carries.</summary>
+    public static List<BaseItem> ImportedItems(Folder fileRoot) =>
+        fileRoot.Id != Guid.Empty
+            ? new List<BaseItem> { fileRoot }
+            : fileRoot.Children.Where(c => !(c is Folder && c.SyncId != null)).ToList();
+
+    /// <summary>How many imported templates would meet an existing one when imported directly.</summary>
+    public int CountImportConflicts(IEnumerable<BaseItem> items) => Merge(RootFolder.Children, Guid.Empty, items, ImportConflicts.Skip, dryRun: true).Conflicts;
+
+    /// <summary>Adds <paramref name="items"/> to the local templates in one save: into a new folder named
+    /// <paramref name="newFolderTitle"/>, or, when that is null, directly, merging folders of the same name and
+    /// handling templates that already exist as <paramref name="conflicts"/> says.</summary>
+    public async Task<ImportSummary> ImportAsync(IEnumerable<BaseItem> items, string? newFolderTitle, ImportConflicts conflicts)
     {
+        var taken = RootFolder.Children.Descendants().Select(i => i.Id).ToHashSet();
+        ImportSummary summary;
         using (SuppressSaves())
         {
-            var syncRoots = RootFolder.Children.Where(c => c.IsSyncRoot).ToList();
-            RootFolder.Children.Clear();
-            foreach (var root in syncRoots) RootFolder.Children.Add(root);
-            foreach (var item in items.Where(i => i.SyncId == null))
+            if (newFolderTitle != null)
             {
-                item.ParentId = Guid.Empty;
-                RootFolder.Children.Add(item);
+                var folder = new Folder { Title = ItemTitles.Unique(newFolderTitle, LocalOnlyItems), ParentId = Guid.Empty };
+                foreach (var item in items) { PrepareNew(item, folder.Id, taken, renewAll: true); folder.Children.Add(item); }
+                RootFolder.Children.Add(folder);
+                AttachChangeTracking(folder);
+                summary = new ImportSummary(items.Sum(i => i.SelfAndDescendants().OfType<Template>().Count()), 0, 0);
+            }
+            else summary = Merge(RootFolder.Children, Guid.Empty, items, conflicts, dryRun: false, taken);
+        }
+        await SaveDataAsync();
+        return summary;
+    }
+
+    private ImportSummary Merge(ObservableCollection<BaseItem> into, Guid parentId, IEnumerable<BaseItem> items,
+        ImportConflicts conflicts, bool dryRun, HashSet<Guid>? taken = null)
+    {
+        int added = 0, overwritten = 0, skipped = 0, met = 0;
+        foreach (var item in items.ToList())
+        {
+            var existing = into.Where(c => !c.IsSyncRoot && c.SyncId == null && c.GetType() == item.GetType()).ToList();
+            var match = existing.FirstOrDefault(c => c.Id == item.Id)
+                ?? existing.FirstOrDefault(c => string.Equals(c.Title, item.Title, StringComparison.OrdinalIgnoreCase));
+
+            if (match is Folder folder)
+            {
+                var inner = Merge(folder.Children, folder.Id, item.Children, conflicts, dryRun, taken);
+                (added, overwritten, skipped, met) = (added + inner.Added, overwritten + inner.Overwritten, skipped + inner.Skipped, met + inner.Conflicts);
+            }
+            else if (match is Template current && item is Template imported)
+            {
+                met++;
+                bool overwrite = conflicts == ImportConflicts.OverwriteAll
+                    || (conflicts == ImportConflicts.OverwriteOlder && string.CompareOrdinal(imported.LastChange, current.LastChange) > 0);
+                if (!overwrite) { skipped++; continue; }
+                overwritten++;
+                if (dryRun) continue;
+                current.Title = imported.Title;
+                current.Content = imported.Content;
+                current.TagsCsv = imported.TagsCsv;
+                current.DefaultPasteMode = imported.DefaultPasteMode;
+                current.SingleKeyShortcut = imported.SingleKeyShortcut;
+                current.MultiKeyShortcut = imported.MultiKeyShortcut;
+                current.LastChange = imported.LastChange;
+            }
+            else
+            {
+                added += item.SelfAndDescendants().OfType<Template>().Count();
+                if (dryRun) continue;
+                PrepareNew(item, parentId, taken!, renewAll: false);
+                into.Add(item);
                 AttachChangeTracking(item);
             }
         }
-        await SaveDataAsync();
+        return new ImportSummary(added, overwritten, skipped, met);
+    }
+
+    // An imported item becomes a plain local one; an id already in the tree (or every id, for a copy) is renewed.
+    private static void PrepareNew(BaseItem item, Guid parentId, HashSet<Guid> taken, bool renewAll)
+    {
+        item.ParentId = parentId;
+        item.SyncId = null;
+        if (renewAll || !taken.Add(item.Id))
+        {
+            item.Id = Guid.NewGuid();
+            taken.Add(item.Id);
+        }
+        foreach (var child in item.Children) PrepareNew(child, item.Id, taken, renewAll);
     }
 
     /// <summary>Export a folder's subtree to a standalone file (the folder becomes the root).</summary>
