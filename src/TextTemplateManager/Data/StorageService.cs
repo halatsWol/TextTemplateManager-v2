@@ -90,6 +90,14 @@ public sealed class StorageService
 
     internal static byte[] SerializeManifest(BackupManifest manifest) => JsonSerializer.SerializeToUtf8Bytes(manifest, Json.BackupManifest);
 
+    internal static byte[] SerializeJournal(RestoreJournal journal) => JsonSerializer.SerializeToUtf8Bytes(journal, Json.RestoreJournal);
+
+    internal static RestoreJournal? ParseJournal(byte[] content)
+    {
+        try { var reader = JsonReaderFor(content); return JsonSerializer.Deserialize(ref reader, Json.RestoreJournal); }
+        catch { return null; }
+    }
+
     internal static BackupManifest? ParseManifest(byte[] content)
     {
         try { var reader = JsonReaderFor(content); return JsonSerializer.Deserialize(ref reader, Json.BackupManifest); }
@@ -130,8 +138,19 @@ public sealed class StorageService
         while (WritesInFlight) await Task.Delay(50);
     }
 
+    private volatile bool _writesSuspended;
+
+    /// <summary>From now on every save is dropped (until the app restarts): a restore swaps in other files, and
+    /// nothing the running app still holds may be written over them.</summary>
+    public async Task SuspendWritesAsync()
+    {
+        _writesSuspended = true;
+        await WaitForWritesAsync();
+    }
+
     private async Task WithWriteLock(string path, Func<Task> write)
     {
+        if (_writesSuspended) return;
         if (_protectedPaths.ContainsKey(path)) return;   // unreadable and couldn't be set aside — never overwrite
 
         // Counted before the wait, so a write queued behind a slow one (a retrying OneDrive target)
@@ -202,6 +221,9 @@ public sealed class StorageService
             _unreadable.Enqueue(new UnreadableFile(path, null));
         }
     }
+
+    /// <summary>The live data folder.</summary>
+    public string DataDirectory => _baseDirectory;
 
     public string GetDataPath() => Path.Combine(_baseDirectory, DataFileName);
     public string GetSettingsPath() => Path.Combine(_baseDirectory, SettingsFileName);

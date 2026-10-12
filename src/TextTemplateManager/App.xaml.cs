@@ -74,6 +74,10 @@ namespace TextTemplateManager
 
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
+            // A restore cut off by a crash is undone before anything is loaded.
+            try { new RestoreService(_store.Storage).RecoverInterrupted(); }
+            catch (Exception ex) { LogCrash("RestoreRecovery", ex); }
+
             await _store.InitializeAsync();
             var unreadableFiles = _store.Storage.TakeUnreadableFiles();
 

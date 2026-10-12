@@ -9,4 +9,5 @@ namespace TextTemplateManager.Data;
 [JsonSerializable(typeof(AppSettings))]
 [JsonSerializable(typeof(SyncSettings))]
 [JsonSerializable(typeof(BackupManifest))]
+[JsonSerializable(typeof(RestoreJournal))]
 internal sealed partial class StorageJsonContext : JsonSerializerContext;
