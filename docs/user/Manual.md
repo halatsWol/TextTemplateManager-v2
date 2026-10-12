@@ -274,6 +274,7 @@ to the network) that the extension talks to. Pairing is by **token**:
 - Copy the token (and the port, if you changed it) into the extension's settings. Every request must
   present the token, so only an extension you have paired can reach your templates.
 - **Regenerate** issues a new token and invalidates the old one — re-pair the extension afterwards.
+- If the port can't be used (another app already uses it, for example an older Text Template Manager that is still running, or Windows has reserved it), the application tells you at startup and shows a warning in **Settings ▸ Integrations**. Choose a different port there and set the same port in the extension.
 
 The connector serves template names, ids, and the available paste modes, and returns a template's
 content rendered in a chosen paste mode (or the template's default). It can also **create** a new

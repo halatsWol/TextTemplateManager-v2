@@ -68,12 +68,12 @@ public sealed class BrowserConnector : IDisposable
     {
         Stop();
         _token = token ?? "";
+        var listener = new TcpListener(IPAddress.Loopback, port);
+        listener.Start();   // throws before anything is kept, so a failed start leaves the connector stopped
+        _listener = listener;
         _cts = new CancellationTokenSource();
-        _listener = new TcpListener(IPAddress.Loopback, port);
-        _listener.Start();
         // Run the accept loop on the thread pool, never the caller's (UI) thread, so request handling
         // never ties up the UI thread.
-        var listener = _listener;
         var ct = _cts.Token;
         _ = Task.Run(() => AcceptLoopAsync(listener, ct));
     }

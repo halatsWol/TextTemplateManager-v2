@@ -51,6 +51,11 @@ public sealed partial class IntegrationsSettingsPage : Page
         ConnectorPortBox.Text = ViewModel.BrowserConnectorPort.ToString();
         ConnectorTokenBox.Text = ViewModel.BrowserConnectorToken;
         ConnectorDetails.Visibility = ViewModel.BrowserConnectorEnabled ? Visibility.Visible : Visibility.Collapsed;
+        ConnectorUnavailableInfo.IsOpen = Application.Current is App { ConnectorUnavailable: true };
+        ConnectorUnavailableInfo.Message =
+            $"Port {ViewModel.BrowserConnectorPort} can't be used, so the extension can't connect. Another app is using it " +
+            "(for example an older Text Template Manager that is still running) or Windows has reserved it. " +
+            "Choose a different port above and set the same port in the extension.";
         _connectorLoading = false;
     }
 
@@ -71,6 +76,7 @@ public sealed partial class IntegrationsSettingsPage : Page
             {
                 ViewModel.BrowserConnectorPort = port;
                 if (ViewModel.BrowserConnectorEnabled) (Application.Current as App)?.ApplyBrowserConnectorSettings();
+                RefreshConnectorUi();
             }
         }
         else ConnectorPortBox.Text = ViewModel.BrowserConnectorPort.ToString();   // revert an invalid entry

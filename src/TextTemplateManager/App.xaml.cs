@@ -120,6 +120,11 @@ namespace TextTemplateManager
 
             if (!HotkeyRegistered)
                 ReportHotkeyUnavailable(startHidden);
+            if (ConnectorUnavailable)
+                ReportStartupProblem("Browser connector unavailable",
+                    $"Port {_store.CurrentSettings.BrowserConnectorPort} can't be used, so the browser extension can't connect. " +
+                    "Another app is using it (for example an older Text Template Manager that is still running) or Windows has reserved it. " +
+                    "Choose a different port in Settings › Integrations and set the same port in the extension.", startHidden);
 
             // A .ttmdata passed to this (first) launch: add it as a sync source once the UI is up.
             if (fileArg != null)
@@ -204,21 +209,30 @@ namespace TextTemplateManager
             return HotkeyRegistered;
         }
 
-        // At startup: a dialog when the window is shown, a tray notice when started hidden.
         private void ReportHotkeyUnavailable(bool startedHidden)
         {
             string hotkey = _store.CurrentSettings.PasteWindowHotkey;
-            string message = $"The Quick Paste shortcut {hotkey} is already used by another app, so it won't open Quick Paste. " +
-                             "Choose a different shortcut in Settings › General.";
-            if (startedHidden) ShowTrayBalloon("Quick Paste shortcut unavailable", message);
-            else (MainWindow.Content as MainPage)?.ReportHotkeyUnavailable(message);
+            ReportStartupProblem("Quick Paste shortcut unavailable",
+                $"The Quick Paste shortcut {hotkey} is already used by another app, so it won't open Quick Paste. " +
+                "Choose a different shortcut in Settings › General.", startedHidden);
         }
+
+        // At startup: a dialog when the window is shown, a tray notice when started hidden.
+        private void ReportStartupProblem(string title, string message, bool startedHidden)
+        {
+            if (startedHidden) ShowTrayBalloon(title, message);
+            else (MainWindow.Content as MainPage)?.ReportStartupProblem(title, message);
+        }
+
+        /// <summary>True when the connector is enabled but couldn't listen on its port (taken or reserved).</summary>
+        public bool ConnectorUnavailable { get; private set; }
 
         /// <summary>Starts/stops/restarts the browser connector to match the current settings.
         /// Safe to call at launch and whenever the connector settings change.</summary>
         public void ApplyBrowserConnectorSettings()
         {
             var s = _store.CurrentSettings;
+            ConnectorUnavailable = false;
             if (!s.BrowserConnectorEnabled) { _connector?.Stop(); return; }
 
             // Generate the shared token on first enable (saved with the other settings changes).
@@ -235,7 +249,11 @@ namespace TextTemplateManager
 
             _connector ??= new BrowserConnector(_connectorData);
             try { _connector.Start(s.BrowserConnectorPort, s.BrowserConnectorToken); }
-            catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[Connector] start failed: {ex.Message}"); }
+            catch (Exception ex)
+            {
+                ConnectorUnavailable = true;
+                System.Diagnostics.Debug.WriteLine($"[Connector] start failed: {ex.Message}");
+            }
         }
 
         // TreeChanged/DataSaved can fire off the UI thread; marshal the snapshot rebuild back.

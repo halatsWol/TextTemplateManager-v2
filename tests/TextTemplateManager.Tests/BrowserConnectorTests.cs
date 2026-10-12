@@ -158,4 +158,13 @@ public sealed class BrowserConnectorTests : IDisposable
         _connector.Start(_port, Token);
         Assert.Equal(HttpStatusCode.OK, (await Send(HttpMethod.Get, "/ping")).StatusCode);
     }
+
+    [Fact]
+    public void A_port_in_use_fails_the_start_and_leaves_the_connector_stopped()
+    {
+        using var other = new BrowserConnector(_data);
+
+        Assert.ThrowsAny<SocketException>(() => other.Start(_port, Token));
+        Assert.False(other.IsRunning);
+    }
 }

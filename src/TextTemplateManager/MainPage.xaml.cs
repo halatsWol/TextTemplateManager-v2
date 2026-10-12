@@ -387,8 +387,8 @@ namespace TextTemplateManager
                 string.Join("\n", lines) + $"\n\nFolder: {folder}\n\nThe original files were not overwritten.");
         }
 
-        public async void ReportHotkeyUnavailable(string message) =>
-            await ShowStartupMessageAsync("Quick Paste shortcut unavailable", message);
+        public async void ReportStartupProblem(string title, string message) =>
+            await ShowStartupMessageAsync(title, message);
 
         /// <summary>After an unexpected error: true when the user chooses to quit.</summary>
         public async Task<bool> AskQuitAfterErrorAsync(bool saved, string crashLogPath)
