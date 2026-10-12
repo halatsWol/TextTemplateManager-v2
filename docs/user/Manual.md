@@ -349,11 +349,9 @@ is already running.)
 
 ## Backup and export
 
-- **File ▸ Save Backup** exports your entire template tree as a single file.
+- **File ▸ Export…** saves the selected folder (with everything in it) or template to a `.ttmdata` file. With nothing selected, it saves all your local templates and folders (synced folders already live in their own files).
 - **File ▸ Load Backup** replaces your local templates and folders with the contents of a backup file, after asking you to confirm. Synced folders are not affected: they always come from their shared files, so any copies of them inside the backup are skipped.
-- Right-clicking a folder and choosing **Export** saves just that folder and its contents to a 
-  standalone file, which is useful for creating a new shared source or sharing a subset of 
-  templates.
+- Right-clicking a folder or template and choosing **Export…** does the same for that item, which is useful for creating a new shared source or sharing a subset of templates.
 
 Backups use the `.ttmdata` format. An older `.json` backup still loads after you rename it to 
 `.ttmdata` — the two are the same format.

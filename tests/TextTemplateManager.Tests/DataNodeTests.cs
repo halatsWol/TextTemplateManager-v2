@@ -153,6 +153,45 @@ public class DataNodeTests
     }
 
     [Fact]
+    public async Task Exporting_a_synced_folder_writes_a_plain_copy_without_sync_ids()
+    {
+        var (node, _) = await NodeWithLostSyncFileAsync();
+        var shared = (Template)node.LocalItems[0].Children[0];
+        Assert.NotNull(shared.SyncId);
+        string path = Path.Combine(TestEnvironment.NewScratchDir(), "team.ttmdata");
+
+        await node.ExportFolderAsync(path, (Folder)node.LocalItems[0]);
+
+        var file = await StorageService.LoadRootAsync(path);
+        var exported = Assert.IsType<Template>(Assert.Single(file!.Children));
+        Assert.Equal("Shared one", exported.Title);
+        Assert.Null(exported.SyncId);
+        Assert.Equal(file.Id, exported.ParentId);
+        Assert.NotNull(shared.SyncId);   // the tree itself is untouched
+    }
+
+    [Fact]
+    public async Task Exporting_items_puts_them_under_a_plain_root_and_everything_means_the_local_items()
+    {
+        var (node, _) = await NodeWithLostSyncFileAsync();
+        var folder = new Folder { Title = "Mine" };
+        var template = new Template { Title = "Note", Content = "<p>n</p>" };
+        await node.AddItemAsync(folder);
+        await node.AddItemAsync(new Template { Title = "Inside" }, folder);
+        await node.AddItemAsync(template);
+        string one = Path.Combine(TestEnvironment.NewScratchDir(), "one.ttmdata");
+        string all = Path.Combine(TestEnvironment.NewScratchDir(), "all.ttmdata");
+
+        await node.ExportItemsAsync(one, new[] { template });
+        await node.ExportItemsAsync(all, node.LocalOnlyItems);
+
+        Assert.Equal(new[] { "Note" }, (await StorageService.LoadRootAsync(one))!.Children.Select(c => c.Title));
+        var everything = (await StorageService.LoadRootAsync(all))!;
+        Assert.Equal(new[] { "Mine", "Note" }, everything.Children.Select(c => c.Title));   // not the synced "Team"
+        Assert.Equal("Inside", everything.Children[0].Children[0].Title);
+    }
+
+    [Fact]
     public async Task Moving_within_a_folder_puts_the_item_at_the_drop_index()
     {
         var (node, _) = await NewNodeAsync();

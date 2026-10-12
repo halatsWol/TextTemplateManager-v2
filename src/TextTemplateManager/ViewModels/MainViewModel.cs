@@ -359,18 +359,15 @@ public partial class MainViewModel : ObservableObject
 
     private static IntPtr MainWindowHandle => WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
 
-    [RelayCommand]
-    private async Task SaveBackup()
+    /// <summary>Exports <paramref name="item"/> (a folder with its contents, or a template), or all local templates
+    /// and folders when it is null, to a .ttmdata file the user picks.</summary>
+    public async Task ExportAsync(BaseItem? item)
     {
-        if (await DataFilePicker.PickToSaveAsync(MainWindowHandle, $"Backup_{DateTime.Now:yyyyMMdd}") is { } path)
-            await _dataNode.ExportDataAsync(path);
-    }
-
-    /// <summary>Exports a folder's subtree to a file the user picks (per-folder Export action).</summary>
-    public async Task ExportFolderAsync(Folder folder)
-    {
-        if (await DataFilePicker.PickToSaveAsync(MainWindowHandle, folder.Title) is { } path)
-            await _dataNode.ExportFolderAsync(path, folder);
+        string name = item?.Title is { Length: > 0 } title ? title : $"Templates_{DateTime.Now:yyyyMMdd}";
+        if (await DataFilePicker.PickToSaveAsync(MainWindowHandle, name) is not { } path) return;
+        if (item is Folder folder) await _dataNode.ExportFolderAsync(path, folder);
+        else if (item != null) await _dataNode.ExportItemsAsync(path, new[] { item });
+        else await _dataNode.ExportItemsAsync(path, _dataNode.LocalOnlyItems);
     }
 
     public enum LoadBackupResult { Cancelled, Unreadable, Replaced }

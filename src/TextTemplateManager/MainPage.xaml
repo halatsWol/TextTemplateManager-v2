@@ -73,7 +73,8 @@
             <MenuBar Grid.Row="0">
                 <MenuBarItem Title="File">
                     <MenuFlyoutItem Text="Load Backup" Icon="OpenFile" Click="LoadBackup_Click"/>
-                    <MenuFlyoutItem Text="Save Backup" Icon="Save" Click="SaveBackup_Click"/>
+                    <MenuFlyoutItem Text="Export…" Icon="Save" Click="Export_Click"
+                                    ToolTipService.ToolTip="Saves the selected folder or template (or, with nothing selected, all your local templates and folders) to a .ttmdata file"/>
                     <MenuFlyoutSeparator/>
                     <MenuFlyoutItem Text="Settings" Icon="Setting" Click="OpenPreferences_Click"/>
                     <MenuFlyoutSeparator/>

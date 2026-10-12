@@ -147,17 +147,34 @@ public class DataNode
         await SaveDataAsync();
     }
 
-    public async Task ExportDataAsync(string path)
-    {
-        await Storage.SaveAsync(path, RootFolder);
-    }
-
     /// <summary>Export a folder's subtree to a standalone file (the folder becomes the root).</summary>
-    public async Task ExportFolderAsync(string path, Folder folder)
+    public Task ExportFolderAsync(string path, Folder folder) =>
+        ExportAsync(path, new Folder { Id = folder.Id, Title = folder.Title, LastChange = folder.LastChange }, folder.Children);
+
+    /// <summary>Export templates and folders into one file, under a plain root.</summary>
+    public Task ExportItemsAsync(string path, IEnumerable<BaseItem> items) =>
+        ExportAsync(path, new Folder { Id = Guid.Empty, Title = "Root" }, items);
+
+    /// <summary>The local templates and folders (not the synced folders, which have their own files).</summary>
+    public IEnumerable<BaseItem> LocalOnlyItems => RootFolder.Children.Where(c => !c.IsSyncRoot && c.SyncId == null).ToList();
+
+    // Written as a copy without sync ids: an export is a plain file, and imports treat items carrying a sync
+    // id as another PC's synced folder.
+    private async Task ExportAsync(string path, Folder root, IEnumerable<BaseItem> items)
     {
-        var root = new Folder { Id = folder.Id, Title = folder.Title, LastChange = folder.LastChange };
-        foreach (var child in folder.Children) root.Children.Add(child);
-        await Storage.SaveAsync(path, root);
+        foreach (var item in items.ToList()) root.Children.Add(item);
+        var copy = StorageService.ParseTree(StorageService.SerializeTree(root))!;
+        static void Clean(BaseItem parent)
+        {
+            foreach (var child in parent.Children)
+            {
+                child.SyncId = null;
+                child.ParentId = parent.Id;
+                Clean(child);
+            }
+        }
+        Clean(copy);
+        await Storage.SaveAsync(path, copy);
     }
 
     /// <summary>Whether <paramref name="item"/> may move into <paramref name="target"/> (null = top level):

@@ -181,10 +181,11 @@ namespace TextTemplateManager
                 }
                 flyout.Items.Add(copyAs);
             }
-            else if (item is Folder folder && !folder.IsSyncRoot)   // not a pinned sync root
+
+            if (!item.IsSyncRoot)   // a pinned sync folder already is a file
             {
                 var export = new MenuFlyoutItem { Text = "Export…", Icon = new SymbolIcon(Symbol.Save) };
-                export.Click += async (_, _) => await ViewModel.ExportFolderAsync(folder);
+                export.Click += async (_, _) => await ViewModel.ExportAsync(item);
                 flyout.Items.Add(export);
             }
 
@@ -269,7 +270,8 @@ namespace TextTemplateManager
             };
             return await ShowDialogAsync(dialog) == ContentDialogResult.Primary;
         }
-        private void SaveBackup_Click(object sender, RoutedEventArgs e) => ViewModel.SaveBackupCommand.Execute(null);
+        // The selected folder or template, or all local templates and folders when nothing is selected.
+        private async void Export_Click(object sender, RoutedEventArgs e) => await ViewModel.ExportAsync(ViewModel.SelectedItem);
 
         private void OpenPreferences_Click(object sender, RoutedEventArgs e) => Settings.Open();
 
