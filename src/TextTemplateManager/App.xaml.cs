@@ -362,6 +362,16 @@ namespace TextTemplateManager
 
         public sealed record RestoreOutcome(bool Restored, string? Problem);
 
+        /// <summary>Writes a full backup zip to <paramref name="path"/>, after saving any pending edits so it holds
+        /// what the user sees.</summary>
+        public async Task<BackupResult> ExportBackupAsync(string path)
+        {
+            await _store.FlushPendingSaveAsync();
+            await _store.Storage.WaitForWritesAsync();
+            return await Backups.CreateAsync(BackupTier.Exported, BackupSource.Live(_store.Storage), quietMs: 500,
+                quietTimeout: TimeSpan.FromSeconds(10), targetPath: path);
+        }
+
         private void StopAcceptingWork()
         {
             _hotkeyListener?.Register("None");

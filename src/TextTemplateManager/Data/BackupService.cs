@@ -71,6 +71,7 @@ public sealed class BackupService
         BackupTier.Recent => "recent",
         BackupTier.TwoHourly => "2h",
         BackupTier.Daily => "daily",
+        BackupTier.Exported => "exported",
         _ => "v1",
     };
 
@@ -84,9 +85,10 @@ public sealed class BackupService
 
     /// <summary>Makes one backup of <paramref name="source"/>. Waits until the app's files have been quiet for
     /// <paramref name="quietMs"/> (giving up after <paramref name="quietTimeout"/>), so no file is caught mid-write.
-    /// With <paramref name="skipIfSameAs"/>, nothing is written when the files match that backup's.</summary>
+    /// With <paramref name="skipIfSameAs"/>, nothing is written when the files match that backup's. With
+    /// <paramref name="targetPath"/>, the zip goes there instead of the backups folder (an exported backup).</summary>
     public async Task<BackupResult> CreateAsync(BackupTier tier, BackupSource source, int quietMs = 2000,
-        TimeSpan? quietTimeout = null, BackupManifest? skipIfSameAs = null, CancellationToken ct = default)
+        TimeSpan? quietTimeout = null, BackupManifest? skipIfSameAs = null, string? targetPath = null, CancellationToken ct = default)
     {
         var deadline = DateTime.UtcNow + (quietTimeout ?? TimeSpan.FromSeconds(30));
         while (!_storage.WritesQuiet(quietMs))
@@ -141,12 +143,12 @@ public sealed class BackupService
             Files = files.Select(f => f.Entry).ToList(),
         };
 
-        string finalPath = Path.Combine(Directory,
+        string finalPath = targetPath ?? Path.Combine(Directory,
             $"ttm-backup-{TierToken(tier)}-{now.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture)}.zip");
         string partialPath = finalPath + PartialSuffix;
         try
         {
-            System.IO.Directory.CreateDirectory(Directory);
+            System.IO.Directory.CreateDirectory(Path.GetDirectoryName(finalPath)!);
             await using (var fs = new FileStream(partialPath, FileMode.Create, FileAccess.Write, FileShare.None))
             {
                 using (var zip = new ZipArchive(fs, ZipArchiveMode.Create, leaveOpen: true))
@@ -164,7 +166,7 @@ public sealed class BackupService
                 TryDelete(partialPath);
                 return new(BackupOutcome.Failed, Problem: problem);
             }
-            File.Move(partialPath, finalPath);
+            File.Move(partialPath, finalPath, overwrite: targetPath != null);   // the save dialog already asked
             return new(BackupOutcome.Created, finalPath);
         }
         catch (Exception ex)

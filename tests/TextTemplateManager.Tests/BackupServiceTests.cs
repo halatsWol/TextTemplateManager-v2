@@ -160,6 +160,24 @@ public class BackupServiceTests
     }
 
     [Fact]
+    public async Task An_exported_backup_goes_where_it_was_asked_and_replaces_a_file_there()
+    {
+        await _storage.SaveAsync(_storage.GetDataPath(), Tree("Alpha"));
+        string target = Path.Combine(TestEnvironment.NewScratchDir(), "elsewhere", "my backup.zip");
+        Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+        await File.WriteAllTextAsync(target, "old file the save dialog agreed to replace");
+
+        var result = await _backups.CreateAsync(BackupTier.Exported, BackupSource.Live(_storage), quietMs: 0, targetPath: target);
+
+        Assert.Equal(BackupOutcome.Created, result.Outcome);
+        Assert.Equal(target, result.Path);
+        Assert.Null(BackupService.Verify(target, out var manifest));
+        Assert.Equal(BackupTier.Exported, manifest!.Tier);
+        Assert.False(File.Exists(target + ".partial"));
+        Assert.Empty(_backups.List());   // not one of the automatic backups
+    }
+
+    [Fact]
     public async Task Half_written_backups_are_cleared_away()
     {
         Directory.CreateDirectory(_storage.BackupDirectory);

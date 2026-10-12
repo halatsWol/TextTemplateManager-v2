@@ -6,7 +6,7 @@ namespace TextTemplateManager.Data;
 
 /// <summary>The schedule a backup belongs to; each keeps its own number of copies.</summary>
 [JsonConverter(typeof(JsonStringEnumConverter<BackupTier>))]
-public enum BackupTier { Recent, TwoHourly, Daily, V1 }
+public enum BackupTier { Recent, TwoHourly, Daily, V1, Exported }
 
 /// <summary>What a file in a backup is, which decides how it is checked and restored.</summary>
 [JsonConverter(typeof(JsonStringEnumConverter<BackupFileKind>))]

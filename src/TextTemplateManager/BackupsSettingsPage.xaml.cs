@@ -21,6 +21,7 @@ public sealed class BackupRow
             BackupTier.Recent => "Recent",
             BackupTier.TwoHourly => "Every 2 hours",
             BackupTier.Daily => "Daily",
+            BackupTier.Exported => "Exported",
             _ => "From Text Template Manager 1",
         };
         Detail = info.IsValid
@@ -61,6 +62,24 @@ public sealed partial class BackupsSettingsPage : Page
         catch (Exception ex) { ShowProblem($"The folder couldn't be opened: {ex.Message}"); }
     }
 
+    private async void ExportBackup_Click(object sender, RoutedEventArgs e)
+    {
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+        if (await Helpers.DataFilePicker.PickBackupToSaveAsync(hwnd, $"TextTemplateManager backup {DateTime.Now:yyyy-MM-dd}") is not { } path) return;
+
+        ExportButton.IsEnabled = false;
+        var result = await App.ExportBackupAsync(path);
+        ExportButton.IsEnabled = true;
+        (ExportInfo.Severity, ExportInfo.Message) = result.Outcome switch
+        {
+            BackupOutcome.Created => (InfoBarSeverity.Success, $"Saved to {path}"),
+            BackupOutcome.NothingToBackUp => (InfoBarSeverity.Informational, "There is nothing to back up yet."),
+            BackupOutcome.NotQuiet => (InfoBarSeverity.Warning, "Files were still being saved. Try again in a moment."),
+            _ => (InfoBarSeverity.Error, $"The backup couldn't be saved: {result.Problem}"),
+        };
+        ExportInfo.IsOpen = true;
+    }
+
     // A damaged backup can't be chosen.
     private void BackupList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -98,7 +117,24 @@ public sealed partial class BackupsSettingsPage : Page
 
     private async void Restore_Click(object sender, RoutedEventArgs e)
     {
-        if (BackupList.SelectedItem is not BackupRow { Info.IsValid: true } row) return;
+        if (BackupList.SelectedItem is BackupRow { Info.IsValid: true } row) await RestoreAsync(row.Info.Path, row.Title);
+    }
+
+    // An exported backup (or any backup zip) from anywhere, checked in full like the listed ones.
+    private async void RestoreFromFile_Click(object sender, RoutedEventArgs e)
+    {
+        if (Parts == 0) { ShowProblem("Tick what to restore first."); return; }
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+        if (await Helpers.DataFilePicker.PickBackupToOpenAsync(hwnd) is not { } path) return;
+
+        var (problem, manifest) = await Task.Run(() => (BackupService.Verify(path, out var m), m));
+        if (problem != null) { ShowProblem($"\"{System.IO.Path.GetFileName(path)}\" can't be restored: {problem}."); return; }
+        await RestoreAsync(path, $"\"{System.IO.Path.GetFileName(path)}\" ({manifest!.CreatedUtc.ToLocalTime():f})");
+    }
+
+    private async Task RestoreAsync(string backupPath, string description)
+    {
+        RestoreInfo.IsOpen = false;
         var parts = Parts;
         var names = new List<string>();
         if (parts.HasFlag(RestoreParts.Local)) names.Add("templates and folders");
@@ -107,7 +143,7 @@ public sealed partial class BackupsSettingsPage : Page
         if (parts.HasFlag(RestoreParts.SyncedFolders)) names.Add("synced templates and folders");
         string what = names.Count == 1 ? names[0] : string.Join(", ", names.Take(names.Count - 1)) + " and " + names[^1];
 
-        string message = $"Your current {what} are replaced with the ones from {row.Title}.";
+        string message = $"Your current {what} are replaced with the ones from {description}.";
         if ((parts & RestoreParts.Sync) != 0)
             message += "\n\nShared sync files themselves aren't changed: a file that still exists keeps its contents, and the folder of a missing one shows its copy from the backup.";
         message += "\n\nThe current state is backed up first, then the app restarts.";
@@ -124,10 +160,12 @@ public sealed partial class BackupsSettingsPage : Page
         if (await confirm.ShowAsync() != ContentDialogResult.Primary) return;
 
         RestoreButton.IsEnabled = false;
-        var outcome = await App.RestoreFromBackupAsync(row.Info.Path, parts);
+        RestoreFileButton.IsEnabled = false;
+        var outcome = await App.RestoreFromBackupAsync(backupPath, parts);
         if (!outcome.Restored)
         {
             ShowProblem(outcome.Problem ?? "Restoring failed, nothing was changed.");
+            RestoreFileButton.IsEnabled = true;
             UpdateRestoreButton();
             return;
         }

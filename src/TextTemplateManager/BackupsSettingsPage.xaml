@@ -17,6 +17,13 @@
                            TextTrimming="CharacterEllipsis" MaxWidth="480"/>
                 <Button Content="Open backups folder" Click="OpenFolder_Click"/>
             </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,4,0,0">
+                <Button x:Name="ExportButton" Content="Export backup…" Click="ExportBackup_Click"/>
+                <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="420"
+                           Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           Text="Saves a backup of everything as a .zip file wherever you choose, e.g. to move to another PC."/>
+            </StackPanel>
+            <InfoBar x:Name="ExportInfo" IsOpen="False" IsClosable="True"/>
         </StackPanel>
 
         <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
@@ -50,8 +57,12 @@
                 <CheckBox x:Name="SyncedFoldersBox" Content="Synced templates and folders (as last seen in the linked files)" IsChecked="True" Click="SyncPart_Click"/>
             </StackPanel>
 
-            <Button x:Name="RestoreButton" Content="Restore…" Style="{StaticResource AccentButtonStyle}" IsEnabled="False"
-                    Click="Restore_Click" Margin="0,4,0,0"/>
+            <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,4,0,0">
+                <Button x:Name="RestoreButton" Content="Restore…" Style="{StaticResource AccentButtonStyle}" IsEnabled="False"
+                        Click="Restore_Click"/>
+                <Button x:Name="RestoreFileButton" Content="Restore from file…" Click="RestoreFromFile_Click"
+                        ToolTipService.ToolTip="Restore an exported backup (.zip) from anywhere, with the parts ticked above"/>
+            </StackPanel>
             <InfoBar x:Name="RestoreInfo" IsOpen="False" IsClosable="True" Severity="Error"/>
         </StackPanel>
     </StackPanel>

@@ -370,7 +370,7 @@ The application also backs up on its own, into `Documents\TextTemplateManager\Ba
 
 Each backup is one `.zip` file with your templates, your settings, your sync settings and a copy of every shared sync file, plus a list of their checksums. A backup only appears once it has been written completely and checked.
 
-**Settings ▸ Backups** shows where they are (**Open backups folder**) and lists them, newest first. A damaged backup is greyed out and can't be chosen.
+**Settings ▸ Backups** shows where they are (**Open backups folder**) and lists them, newest first. A damaged backup is greyed out and can't be chosen. **Export backup…** saves a backup of everything as a `.zip` file wherever you choose, for example to move your templates to another PC.
 
 ### Restoring a backup
 
@@ -379,7 +379,7 @@ Each backup is one `.zip` file with your templates, your settings, your sync set
    - **Templates and folders**: your local templates and folders.
    - **Settings**.
    - **Sync**, made of two parts you can also choose one by one: **Sync settings** (the linked files and their options) and **Synced templates and folders** (the synced folders as last seen in their files, which is what they show while a file is missing). With only one part chosen, Sync shows a dash.
-3. Click **Restore…** and confirm.
+3. Click **Restore…** and confirm. To restore an exported backup instead, click **Restore from file…** and pick the `.zip` file; it is checked the same way before anything is replaced.
 
 The current state is backed up first, so a restore can itself be undone from the newest backup. The application then puts the chosen files back and restarts. If anything goes wrong, nothing is changed. Shared sync files are never overwritten by a restore: a file that still exists keeps its contents, and the folder of a missing one shows its copy from the backup (see **Sync** for recreating the file).
 
