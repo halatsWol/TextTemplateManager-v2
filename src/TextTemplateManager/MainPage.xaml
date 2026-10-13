@@ -61,7 +61,7 @@
     <Grid>
 
         <!-- Main layout grid -->
-        <Grid x:Name="MainGrid">
+        <Grid x:Name="MainGrid" PreviewKeyDown="MainGrid_PreviewKeyDown">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <!-- MenuBar -->
@@ -249,7 +249,7 @@
 
                                 <StackPanel Grid.Column="0" HorizontalAlignment="Left">
                                     <TextBlock Text="Single Key" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                    <TextBox Width="50"
+                                    <TextBox x:Name="SingleKeyBox" Width="50"
                                              CharacterCasing="Upper"
                                              MaxLength="1"
                                              IsReadOnly="{x:Bind ViewModel.IsSelectedReadOnly, Mode=OneWay}"
@@ -262,7 +262,7 @@
 
                                 <StackPanel Grid.Column="1" HorizontalAlignment="Left">
                                     <TextBlock Text="Multi Key" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                    <TextBox Width="250"
+                                    <TextBox x:Name="MultiKeyBox" Width="250"
                                              MaxLength="20"
                                              CharacterCasing="Upper"
                                              IsReadOnly="{x:Bind ViewModel.IsSelectedReadOnly, Mode=OneWay}"
@@ -274,11 +274,11 @@
                                 </StackPanel>
                             </Grid>
 
-                            <TextBox Header="Tags"
+                            <TextBox x:Name="TagsBox" Header="Tags"
                                      IsReadOnly="{x:Bind ViewModel.IsSelectedReadOnly, Mode=OneWay}"
                                      Text="{Binding TagsCsv, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                            <ComboBox Header="Default Paste Mode"
+                            <ComboBox x:Name="PasteModeBox" Header="Default Paste Mode"
                                       HorizontalAlignment="Stretch"
                                       IsEnabled="{x:Bind ViewModel.IsSelectedEditable, Mode=OneWay}"
                                       ItemsSource="{Binding DataContext.ViewModel.PasteModes, ElementName=ItemTreeView}"

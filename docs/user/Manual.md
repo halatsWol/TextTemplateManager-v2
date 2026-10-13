@@ -464,6 +464,7 @@ Deployment Guide** (`TextTemplateManager-AdminManual.pdf`), attached to each rel
 | Context | Input | Action |
 | --- | --- | --- |
 | Main window | **Ctrl + F** | Focus the search box. |
+| Main window | **Tab** / **Shift + Tab** | Go round the search box, the tree and the selected item's fields (title, shortcuts, tags, default paste mode). In the editor, **Tab** indents. |
 | Main window (Tree) | **Delete** | Delete the selected item(s) (with confirmation). |
 | Main window (Tree) | **Ctrl**+click / **Shift**+click | Add or remove an item / select a range of rows. |
 | Main window (Tree) | **Ctrl + C** | Copy the selected template in its default paste mode. |

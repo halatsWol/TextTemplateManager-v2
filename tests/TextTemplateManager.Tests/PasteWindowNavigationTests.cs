@@ -133,4 +133,16 @@ public class PasteWindowNavigationTests
         Assert.Equal(SearchNavigation.SearchDown.MoveCaretToEnd,
             SearchNavigation.DecideSearchDown(caret: 4, selectionLength: 0, textLength: 4, treeNodeCount: 0));
     }
+
+    // The main window's Tab cycle (search box, tree, the selected item's fields) wraps at both ends.
+    [Theory]
+    [InlineData(0, 4, false, 1)]
+    [InlineData(3, 4, false, 0)]
+    [InlineData(0, 4, true, 3)]
+    [InlineData(2, 4, true, 1)]
+    [InlineData(0, 1, false, 0)]
+    public void Tab_goes_round_a_fixed_cycle(int current, int count, bool back, int expected)
+    {
+        Assert.Equal(expected, SearchNavigation.NextInCycle(current, count, back));
+    }
 }

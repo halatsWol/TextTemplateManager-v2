@@ -17,6 +17,10 @@ public static class SearchNavigation
         return atEnd && treeNodeCount > 0 ? SearchDown.EnterTree : SearchDown.MoveCaretToEnd;
     }
 
+    /// <summary>The next stop of a fixed Tab cycle of <paramref name="count"/> stops (Shift+Tab: the previous one),
+    /// wrapping at both ends.</summary>
+    public static int NextInCycle(int current, int count, bool back) => (current + (back ? count - 1 : 1)) % count;
+
     /// <summary>The character a letter or digit key types (lower case), for single-key shortcuts and for
     /// typing from the tree into the search box.</summary>
     public static bool TryGetCharKey(VirtualKey key, out char c)

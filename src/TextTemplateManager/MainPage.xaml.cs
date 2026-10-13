@@ -723,6 +723,40 @@ namespace TextTemplateManager
 
         private void FocusSearchBox() => SearchBox.Focus(FocusState.Programmatic);
 
+        // Tab and Shift+Tab outside the editor go round a fixed cycle: search box, tree, then the selected item's
+        // fields, so focus never lands on display-only parts. From anywhere else (menus, toolbar, the editor) Tab
+        // works as usual.
+        private void MainGrid_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key != VirtualKey.Tab || IsCtrlDown() || IsAltDown()) return;
+            var cycle = TabCycle();
+            var focused = FocusManager.GetFocusedElement(XamlRoot) as DependencyObject;
+            int current = cycle.FindIndex(stop => IsWithin(focused, stop));
+            if (current < 0) return;
+            e.Handled = true;
+            var next = cycle[SearchNavigation.NextInCycle(current, cycle.Count, IsShiftDown())];
+            if (ReferenceEquals(next, ItemTreeView)) FocusTree();
+            else next.Focus(FocusState.Keyboard);
+        }
+
+        private List<Control> TabCycle()
+        {
+            var cycle = new List<Control> { SearchBox };
+            if (ViewModel.RootNodes.Count > 0) cycle.Add(ItemTreeView);
+            if (TemplatePanel.Visibility == Visibility.Visible)
+                cycle.AddRange(new Control[] { TemplateTitleBox, SingleKeyBox, MultiKeyBox, TagsBox, PasteModeBox }.Where(c => c.IsEnabled));
+            else if (FolderPanel.Visibility == Visibility.Visible)
+                cycle.Add(FolderTitleBox);
+            return cycle;
+        }
+
+        private static bool IsWithin(DependencyObject? element, DependencyObject container)
+        {
+            for (; element != null; element = VisualTreeHelper.GetParent(element))
+                if (ReferenceEquals(element, container)) return true;
+            return false;
+        }
+
         // Up and Down in the search box work like in Quick Paste: Up puts the caret at the start; Down puts it
         // at the end first, the next Down (from the end of the text) moves into the tree.
         private void SearchArrow(KeyRoutedEventArgs e)
