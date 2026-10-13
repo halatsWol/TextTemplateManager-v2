@@ -135,10 +135,12 @@ public class BackupServiceTests
     public async Task The_v1_backup_is_made_once_and_only_when_there_is_1x_data()
     {
         Assert.Equal(BackupOutcome.NothingToBackUp, (await _backups.EnsureV1BackupAsync()).Outcome);
+        Assert.False(_backups.HasLegacyData);
 
         Directory.CreateDirectory(_storage.LegacyDirectory);
         await new StorageService(_storage.LegacyDirectory).SaveAsync(Path.Combine(_storage.LegacyDirectory, "data.ttmdata"), Tree("Old"));
         string before = File.ReadAllText(Path.Combine(_storage.LegacyDirectory, "data.ttmdata"));
+        Assert.True(_backups.HasLegacyData);
 
         var first = await _backups.EnsureV1BackupAsync();
         _now = _now.AddDays(1);

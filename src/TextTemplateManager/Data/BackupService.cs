@@ -240,6 +240,9 @@ public sealed class BackupService
 
     /// <summary>Deletes the oldest valid backups of <paramref name="tier"/> beyond <paramref name="keep"/>. Damaged
     /// ones don't count and are left alone.</summary>
+    /// <summary>1.x data is on this PC (whether or not its v1 backup exists yet).</summary>
+    public bool HasLegacyData => File.Exists(BackupSource.Folder(_storage.LegacyDirectory).DataPath);
+
     /// <summary>A permanent backup of the 1.x data, made once: nothing when there is no 1.x data or a valid v1 backup
     /// already exists. One that fails is tried again at the next start.</summary>
     public async Task<BackupResult> EnsureV1BackupAsync()

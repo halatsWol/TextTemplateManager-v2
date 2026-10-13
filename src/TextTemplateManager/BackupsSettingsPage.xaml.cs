@@ -58,13 +58,44 @@ public sealed partial class BackupsSettingsPage : Page
     {
         base.OnNavigatedTo(e);
         FolderText.Text = App.Backups.Directory;
-        var rows = await Task.Run(() => App.Backups.List().Select(b => new BackupRow(b)).ToList());   // reads every zip
-        BackupList.ItemsSource = rows;
-        EmptyText.Visibility = rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        var rows = await LoadRowsAsync();
         var requested = e.Parameter is Request request ? rows.FirstOrDefault(r => r.Info.IsValid && r.Info.Path == request.Select) : null;
         BackupList.SelectedItem = requested ?? rows.FirstOrDefault(r => r.Info.IsValid);   // else the newest one that can be restored
         ShowAvailableParts();
         if (requested != null && ((Request)e.Parameter).Confirm) await RestoreAsync(requested.Info.Path, requested.Description);
+    }
+
+    private async Task<List<BackupRow>> LoadRowsAsync()
+    {
+        var (rows, legacy) = await Task.Run(() => (App.Backups.List().Select(b => new BackupRow(b)).ToList(), App.Backups.HasLegacyData));   // reads every zip
+        BackupList.ItemsSource = rows;
+        EmptyText.Visibility = rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        ImportV1Button.Visibility = legacy || rows.Any(r => r.Info.Tier == BackupTier.V1 && r.Info.IsValid) ? Visibility.Visible : Visibility.Collapsed;
+        return rows;
+    }
+
+    // Version 1's data comes from its v1 backup, made now if there is none yet (so the 1.x files are only read
+    // once, checked, and the import can be undone like any restore).
+    private async void ImportV1_Click(object sender, RoutedEventArgs e)
+    {
+        RestoreInfo.IsOpen = false;
+        var row = (BackupList.ItemsSource as IEnumerable<BackupRow>)?.FirstOrDefault(r => r.Info.Tier == BackupTier.V1 && r.Info.IsValid);
+        if (row == null)
+        {
+            ImportV1Button.IsEnabled = false;
+            var result = await Task.Run(App.Backups.EnsureV1BackupAsync);
+            ImportV1Button.IsEnabled = true;
+            if (result.Outcome is not (BackupOutcome.Created or BackupOutcome.Unchanged))
+            {
+                ShowProblem(result.Outcome == BackupOutcome.NothingToBackUp ? "There is no TextTemplateManager 1 data on this PC."
+                    : $"The data of TextTemplateManager 1 couldn't be read: {result.Problem ?? result.Outcome.ToString()}");
+                return;
+            }
+            row = (await LoadRowsAsync()).FirstOrDefault(r => r.Info.Tier == BackupTier.V1 && r.Info.IsValid);
+            if (row == null) return;
+        }
+        BackupList.SelectedItem = row;
+        await RestoreAsync(row.Info.Path, row.Description);
     }
 
     // Only what the selected backup holds can be ticked; all of that is ticked when another backup is chosen.

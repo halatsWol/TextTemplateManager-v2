@@ -62,6 +62,8 @@
                         Click="Restore_Click"/>
                 <Button x:Name="RestoreFileButton" Content="Restore from file…" Click="RestoreFromFile_Click"
                         ToolTipService.ToolTip="Restore an exported backup (.zip) from anywhere, with the parts ticked above"/>
+                <Button x:Name="ImportV1Button" Content="Import from TextTemplateManager 1…" Click="ImportV1_Click" Visibility="Collapsed"
+                        ToolTipService.ToolTip="Take over the templates, settings and sync settings of version 1 on this PC"/>
             </StackPanel>
             <InfoBar x:Name="RestoreInfo" IsOpen="False" IsClosable="True" Severity="Error"/>
         </StackPanel>
