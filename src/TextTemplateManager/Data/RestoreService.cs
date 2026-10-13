@@ -108,7 +108,7 @@ public sealed class RestoreService
                 if (data != null)
                     plan.Add((local && synced ? data : MixData(data, takeLocal: local), _storage.GetDataPath()));
                 if (parts.HasFlag(RestoreParts.Settings) && Take(BackupFileKind.Settings) is { } settings)
-                    plan.Add((settings, _storage.GetSettingsPath()));
+                    plan.Add((manifest!.Tier == BackupTier.V1 ? OverCurrentSettings(settings) : settings, _storage.GetSettingsPath()));
                 if (parts.HasFlag(RestoreParts.SyncSettings) && Take(BackupFileKind.SyncSettings) is { } sync)
                 {
                     if (placements is { Count: > 0 })
@@ -338,6 +338,19 @@ public sealed class RestoreService
             taken.Add(item.Id);
         }
         foreach (var child in item.Children) Adopt(child, item.Id, taken);
+    }
+
+    // A 1.x settings file has only the fields 1.x knew: the others keep their current values (start hidden as carried
+    // over from 1.x, ...), and fields only 1.x had (its updater's) are dropped.
+    private byte[] OverCurrentSettings(byte[] v1)
+    {
+        string path = _storage.GetSettingsPath();
+        var merged = (File.Exists(path) ? StorageService.ParseObject(File.ReadAllBytes(path)) : null) ?? new System.Text.Json.Nodes.JsonObject();
+        foreach (var (name, value) in StorageService.ParseObject(v1) ?? throw new InvalidDataException("the 1.x settings don't load"))
+            merged[name] = value?.DeepClone();
+        var settings = StorageService.ParseSettings(System.Text.Encoding.UTF8.GetBytes(merged.ToJsonString()))
+            ?? throw new InvalidDataException("the 1.x settings don't load");
+        return StorageService.SerializeSettings(settings);
     }
 
     // A source's file as the backup has it: the copy of the file itself, else its synced folder's cached copy.

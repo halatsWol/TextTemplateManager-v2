@@ -88,6 +88,22 @@ public sealed class StorageService
     private static Utf8JsonReader JsonReaderFor(byte[] content) =>
         new(content.AsSpan().StartsWith(Encoding.UTF8.Preamble) ? content.AsSpan(3) : content);
 
+    /// <summary>Settings as <see cref="SaveSettingsAsync"/> writes them.</summary>
+    internal static byte[] SerializeSettings(AppSettings settings) => Utf8NoBom.GetBytes(JsonSerializer.Serialize(settings, Json.AppSettings));
+
+    internal static AppSettings? ParseSettings(byte[] content)
+    {
+        try { var reader = JsonReaderFor(content); return JsonSerializer.Deserialize(ref reader, Json.AppSettings); }
+        catch { return null; }
+    }
+
+    /// <summary>The JSON object in a file's content (a leading BOM skipped), or null.</summary>
+    internal static System.Text.Json.Nodes.JsonObject? ParseObject(byte[] content)
+    {
+        try { var reader = JsonReaderFor(content); return System.Text.Json.Nodes.JsonNode.Parse(ref reader) as System.Text.Json.Nodes.JsonObject; }
+        catch { return null; }
+    }
+
     internal static SyncSettings? ParseSyncSettings(byte[] content)
     {
         try { var reader = JsonReaderFor(content); return JsonSerializer.Deserialize(ref reader, Json.SyncSettings); }

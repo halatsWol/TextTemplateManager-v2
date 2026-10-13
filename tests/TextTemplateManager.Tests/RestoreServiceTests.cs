@@ -437,6 +437,25 @@ public class RestoreServiceTests
     }
 
     [Fact]
+    public async Task Settings_from_1x_only_replace_the_fields_1x_had()
+    {
+        Directory.CreateDirectory(_storage.LegacyDirectory);
+        await new StorageService(_storage.LegacyDirectory).SaveAsync(Path.Combine(_storage.LegacyDirectory, "data.ttmdata"), Tree("Old"));
+        await File.WriteAllTextAsync(Path.Combine(_storage.LegacyDirectory, "settings.ttmsettings"),
+            "﻿{\"AutoCheckUpdates\":false,\"PasteWindowHotkey\":\"Ctrl+Alt+V\",\"BrowserConnectorPort\":47700}");
+        string v1 = (await _backups.EnsureV1BackupAsync()).Path!;
+        await _storage.SaveSettingsAsync(new AppSettings { StartHidden = false, PasteWindowHotkey = "Ctrl+Alt+Q", LegacyRemovalOffered = true });
+
+        var result = await _restore.RestoreAsync(v1, RestoreParts.Settings);
+
+        Assert.True(result.Succeeded, result.Problem);
+        var settings = await _storage.LoadSettingsAsync();
+        Assert.Equal(("Ctrl+Alt+V", 47700), (settings.PasteWindowHotkey, settings.BrowserConnectorPort));
+        Assert.Equal((false, true), (settings.StartHidden, settings.LegacyRemovalOffered));
+        Assert.DoesNotContain("AutoCheckUpdates", Read(_storage.GetSettingsPath()));
+    }
+
+    [Fact]
     public async Task After_writes_are_suspended_nothing_is_saved()
     {
         await _storage.SaveAsync(_storage.GetDataPath(), Tree("A"));
