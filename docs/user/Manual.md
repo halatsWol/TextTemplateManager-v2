@@ -387,6 +387,9 @@ Each backup is one `.zip` file with your templates, your settings, your sync set
    - **Choose a location…**: the file is written where you choose, and the sync settings point there. This is the only way when the location can't exist on this PC, for example a drive or network share that isn't there.
    - **Leave it missing**: the synced folder shows its copy from the backup until the file is back (see **Sync** for recreating it later).
    - If the backup holds no copy of the file, you can only link another existing file instead.
+5. When restoring **Synced templates and folders** without the sync settings, each synced folder of the backup is restored into its sync file (the one your current sync settings link, otherwise the one the backup's settings linked, which is then linked again):
+   - If the file is there, its templates are merged like an import: folders with the same name are merged, and for templates that already exist you choose to overwrite all of them, overwrite only where the backup's is more recent, or keep the ones in the file.
+   - If the file is missing, you get the same choices as above (recreate it, choose a location, or skip the folder).
 
 The current state is backed up first, so a restore can itself be undone from the newest backup. The application then puts the chosen files back and restarts. If anything goes wrong, nothing is changed, and a recreated sync file is removed again. A shared sync file that still exists is never overwritten by a restore; it keeps its contents.
 

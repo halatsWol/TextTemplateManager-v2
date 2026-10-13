@@ -179,9 +179,14 @@ public sealed partial class BackupsSettingsPage : Page
         var issues = parts.HasFlag(RestoreParts.SyncSettings)
             ? await Task.Run(() => RestoreService.FindSyncLocationIssues(backupPath))
             : Array.Empty<SyncLocationIssue>();
+        var targets = parts.HasFlag(RestoreParts.SyncedFolders) && !parts.HasFlag(RestoreParts.SyncSettings)
+            ? await Task.Run(() => App.SyncedFolderTargets(backupPath))
+            : Array.Empty<SyncedFolderTarget>();
 
         string message = $"Your current {what} are replaced with the ones from {description}.";
-        if ((parts & RestoreParts.Sync) != 0)
+        if (targets.Count > 0)
+            message += "\n\nWithout the sync settings, the synced templates and folders are restored into their sync files. You're asked next for each synced folder.";
+        else if ((parts & RestoreParts.Sync) != 0)
             message += "\n\nShared sync files themselves aren't changed: a file that still exists keeps its contents, and the folder of a missing one shows its copy from the backup.";
         if (issues.Count > 0)
             message += issues.Count == 1
@@ -202,7 +207,10 @@ public sealed partial class BackupsSettingsPage : Page
 
         var placements = new List<SyncFilePlacement>();
         foreach (var issue in issues)
-            if (await AskAboutSyncFileAsync(issue) is { } placement) placements.Add(placement);
+            if (await AskAboutMissingFileAsync(issue.SourceId, issue.Name, issue.Path, issue.Problem, issue.HasCopy, "Leave it missing") is { } placement)
+                placements.Add(placement);
+        foreach (var target in targets)
+            if (await AskAboutSyncedFolderAsync(target) is { } placement) placements.Add(placement);
 
         RestoreButton.IsEnabled = false;
         RestoreFileButton.IsEnabled = false;
@@ -220,21 +228,23 @@ public sealed partial class BackupsSettingsPage : Page
         App.Shutdown();
     }
 
-    // A missing sync file of the restored sync settings: recreated where it was (with its folder if that is gone
-    // too), placed somewhere else, or left missing (null). Without a copy in the backup an existing file can only
-    // be linked instead.
-    private async Task<SyncFilePlacement?> AskAboutSyncFileAsync(SyncLocationIssue issue)
+    // A sync file that isn't usable where it should be: recreated there (with its folder if that is gone too), placed
+    // somewhere else, or not (null, the close button). Without a copy in the backup an existing file can only be
+    // linked instead.
+    private async Task<SyncFilePlacement?> AskAboutMissingFileAsync(Guid sourceId, string name, string? path,
+        SyncLocationProblem problem, bool hasCopy, string closeText)
     {
-        string problem = issue.Problem switch
+        string what = path == null ? "No sync file is known for it, neither in the current sync settings nor in the backup's." : problem switch
         {
             SyncLocationProblem.FileMissing => "The file isn't there any more.",
-            SyncLocationProblem.FolderMissing => $"Its folder doesn't exist on this PC:\n{System.IO.Path.GetDirectoryName(issue.Path)}",
+            SyncLocationProblem.FolderMissing => $"Its folder doesn't exist on this PC:\n{System.IO.Path.GetDirectoryName(path)}",
+            SyncLocationProblem.Unreadable => "A file is there, but it isn't a valid sync file, so it isn't overwritten.",
             _ => "This location can't exist on this PC, for example because the drive or network share isn't there.",
         };
-        string copy = issue.HasCopy
+        string copy = hasCopy
             ? "The backup holds a copy of its templates and folders."
             : "The backup holds no copy of it, so only an existing file can be linked instead.";
-        string recreate = !issue.HasCopy ? "" : issue.Problem switch
+        string recreate = !hasCopy || path == null ? "" : problem switch
         {
             SyncLocationProblem.FileMissing => "Recreate it there",
             SyncLocationProblem.FolderMissing => "Create the folder and the file",
@@ -245,28 +255,64 @@ public sealed partial class BackupsSettingsPage : Page
             var dialog = new ContentDialog
             {
                 XamlRoot = XamlRoot,
-                Title = $"Sync file \"{issue.Name}\" is missing",
-                Content = $"{issue.Path}\n\n{problem}\n\n{copy}",
+                Title = problem == SyncLocationProblem.Unreadable ? $"Sync file \"{name}\" can't be read" : $"Sync file \"{name}\" is missing",
+                Content = path == null ? $"{what}\n\n{copy}" : $"{path}\n\n{what}\n\n{copy}",
                 PrimaryButtonText = recreate,
-                SecondaryButtonText = issue.HasCopy ? "Choose a location…" : "Link another file…",
-                CloseButtonText = "Leave it missing",
+                SecondaryButtonText = hasCopy ? "Choose a location…" : "Link another file…",
+                CloseButtonText = closeText,
                 DefaultButton = ContentDialogButton.Close,
             };
             switch (await dialog.ShowAsync())
             {
                 case ContentDialogResult.Primary:
-                    return new SyncFilePlacement(issue.SourceId, issue.Path, WriteCopy: true);
+                    return new SyncFilePlacement(sourceId, path!, WriteCopy: true);
                 case ContentDialogResult.Secondary:
                     var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
-                    string? path = issue.HasCopy
-                        ? await Helpers.DataFilePicker.PickToSaveAsync(hwnd, System.IO.Path.GetFileNameWithoutExtension(issue.Path))
+                    string? chosen = hasCopy
+                        ? await Helpers.DataFilePicker.PickToSaveAsync(hwnd, path == null ? name : System.IO.Path.GetFileNameWithoutExtension(path))
                         : await Helpers.DataFilePicker.PickToOpenAsync(hwnd);
-                    if (path != null) return new SyncFilePlacement(issue.SourceId, path, WriteCopy: issue.HasCopy);
+                    if (chosen != null) return new SyncFilePlacement(sourceId, chosen, WriteCopy: hasCopy);
                     break;   // the picker was cancelled: ask again
                 default:
                     return null;
             }
         }
+    }
+
+    // A synced folder restored without the sync settings goes into its sync file: merged like an import when the file
+    // is there, otherwise placed like a missing one. Skipping it leaves the file as it is.
+    private async Task<SyncFilePlacement?> AskAboutSyncedFolderAsync(SyncedFolderTarget target)
+    {
+        if (target.Problem is { } problem)
+            return await AskAboutMissingFileAsync(target.SourceId, target.Name, target.Path, problem, hasCopy: true, "Skip this folder");
+
+        var overwriteAll = new RadioButton { Content = "Overwrite all of them", GroupName = "RestoreConflicts" };
+        var overwriteOlder = new RadioButton { Content = "Overwrite only where the backup's is more recent", GroupName = "RestoreConflicts", IsChecked = true };
+        var skip = new RadioButton { Content = "Skip them, keep the ones in the file", GroupName = "RestoreConflicts" };
+        var content = new StackPanel { Spacing = 4 };
+        void Say(string text) => content.Children.Add(new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8) });
+        Say(target.Path!);
+        Say($"The backup's copy holds {target.Templates} template(s). Folders with the same name are merged.");
+        if (target.Conflicts > 0)
+        {
+            Say($"{target.Conflicts} of these template(s) already exist in the file (same template, or same title in the same folder):");
+            foreach (var choice in new[] { overwriteAll, overwriteOlder, skip }) content.Children.Add(choice);
+        }
+        if (target.AddsSource) Say("The file isn't linked in your current sync settings; it is linked again.");
+
+        var dialog = new ContentDialog
+        {
+            XamlRoot = XamlRoot,
+            Title = $"Restore \"{target.Name}\" into its sync file?",
+            Content = content,
+            PrimaryButtonText = "Restore into the file",
+            CloseButtonText = "Skip this folder",
+            DefaultButton = ContentDialogButton.Primary,
+        };
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary) return null;
+        var how = overwriteAll.IsChecked == true ? ImportConflicts.OverwriteAll
+            : skip.IsChecked == true ? ImportConflicts.Skip : ImportConflicts.OverwriteOlder;
+        return new SyncFilePlacement(target.SourceId, target.Path!, WriteCopy: true, MergeAs: how);
     }
 
     private void ShowProblem(string message)

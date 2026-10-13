@@ -363,6 +363,10 @@ namespace TextTemplateManager
 
         public sealed record RestoreOutcome(bool Restored, string? Problem);
 
+        /// <summary>Where the synced folders of a backup would go when restored without its sync settings.</summary>
+        public IReadOnlyList<SyncedFolderTarget> SyncedFolderTargets(string backupPath) =>
+            new RestoreService(_store.Storage).FindSyncedFolderTargets(backupPath);
+
         /// <summary>Writes a full backup zip to <paramref name="path"/>, after saving any pending edits so it holds
         /// what the user sees.</summary>
         public async Task<BackupResult> ExportBackupAsync(string path)

@@ -350,6 +350,92 @@ public class RestoreServiceTests
         Assert.Equal(syncB, Read(_storage.GetSyncSettingsPath()));
     }
 
+    // A backup with the Team folder ("Synced A") linked to team.ttmdata, which isn't written.
+    private async Task<(string Backup, string TeamPath)> BackUpTeam()
+    {
+        string teamPath = Path.Combine(_shared, "team.ttmdata");
+        await _storage.SaveAsync(_storage.GetDataPath(), DataWith("Synced A", "Local A"));
+        await _storage.SaveSyncSettingsAsync(new SyncSettings { Sources = { new SyncSource { Id = TeamId, Name = "Team A", Path = teamPath } } });
+        return ((await _backups.CreateAsync(BackupTier.Recent, BackupSource.Live(_storage), quietMs: 0)).Path!, teamPath);
+    }
+
+    [Fact]
+    public async Task Synced_folders_without_sync_settings_are_merged_into_the_file_like_an_import()
+    {
+        var (backup, teamPath) = await BackUpTeam();
+        string syncBefore = Read(_storage.GetSyncSettingsPath());
+        await _storage.SaveSharedAsync(teamPath, new Folder
+        {
+            Id = Guid.Empty, Title = "Root", LastChange = "20200101000000",
+            Children =
+            {
+                new Template { Title = "Synced A", Content = "<p>old</p>", LastChange = "20200101000000" },
+                new Template { Title = "Other", Content = "<p>o</p>", LastChange = "20200101000000" },
+            },
+        });
+
+        var target = Assert.Single(_restore.FindSyncedFolderTargets(backup));
+        Assert.Equal(new SyncedFolderTarget(TeamId, "Team A", teamPath, null, Templates: 1, Conflicts: 1, AddsSource: false), target);
+
+        var result = await _restore.RestoreAsync(backup, RestoreParts.SyncedFolders,
+            new[] { new SyncFilePlacement(TeamId, teamPath, WriteCopy: true, MergeAs: ImportConflicts.OverwriteOlder) });
+
+        Assert.True(result.Succeeded, result.Problem);
+        var file = await StorageService.LoadRootAsync(teamPath);
+        Assert.Equal(new[] { "Synced A:<p>s</p>", "Other:<p>o</p>" }, file!.Children.Cast<Template>().Select(t => $"{t.Title}:{t.Content}"));
+        Assert.Equal(syncBefore, Read(_storage.GetSyncSettingsPath()));   // already linked there
+    }
+
+    [Fact]
+    public async Task Merging_with_skip_keeps_the_files_templates()
+    {
+        var (backup, teamPath) = await BackUpTeam();
+        await _storage.SaveSharedAsync(teamPath, new Folder
+        {
+            Id = Guid.Empty, Title = "Root", LastChange = "20200101000000",
+            Children = { new Template { Title = "Synced A", Content = "<p>old</p>", LastChange = "20200101000000" } },
+        });
+
+        var result = await _restore.RestoreAsync(backup, RestoreParts.SyncedFolders,
+            new[] { new SyncFilePlacement(TeamId, teamPath, WriteCopy: true, MergeAs: ImportConflicts.Skip) });
+
+        Assert.True(result.Succeeded, result.Problem);
+        Assert.Equal("<p>old</p>", ((Template)(await StorageService.LoadRootAsync(teamPath))!.Children.Single()).Content);
+    }
+
+    [Fact]
+    public async Task A_synced_folder_whose_source_is_gone_links_the_backups_source_again()
+    {
+        var (backup, teamPath) = await BackUpTeam();
+        await _storage.SaveSyncSettingsAsync(new SyncSettings());
+
+        var target = Assert.Single(_restore.FindSyncedFolderTargets(backup));
+        Assert.Equal((SyncLocationProblem?)SyncLocationProblem.FileMissing, target.Problem);
+        Assert.True(target.AddsSource);
+
+        var result = await _restore.RestoreAsync(backup, RestoreParts.SyncedFolders, new[] { new SyncFilePlacement(TeamId, teamPath, WriteCopy: true) });
+
+        Assert.True(result.Succeeded, result.Problem);
+        Assert.Equal("Synced A", (await StorageService.LoadRootAsync(teamPath))!.Children.Single().Title);
+        var source = Assert.Single((await _storage.LoadSyncSettingsAsync()).Sources);
+        Assert.Equal((TeamId, "Team A", teamPath), (source.Id, source.Name, source.Path));
+    }
+
+    [Fact]
+    public async Task A_synced_folder_target_that_cant_be_used_says_why()
+    {
+        var (backup, teamPath) = await BackUpTeam();
+        await File.WriteAllTextAsync(teamPath, "{ not a sync file");
+        Assert.Equal((SyncLocationProblem?)SyncLocationProblem.Unreadable, _restore.FindSyncedFolderTargets(backup).Single().Problem);
+
+        await _storage.SaveAsync(_storage.GetDataPath(), DataWith("Synced A", "Local A"));
+        await _storage.SaveSyncSettingsAsync(new SyncSettings());
+        File.Delete(_storage.GetSyncSettingsPath());
+        string noSources = (await _backups.CreateAsync(BackupTier.Daily, BackupSource.Live(_storage), quietMs: 0)).Path!;
+        var unknown = _restore.FindSyncedFolderTargets(noSources).Single();
+        Assert.Equal(("Team", (string?)null, (SyncLocationProblem?)SyncLocationProblem.Unreachable), (unknown.Name, unknown.Path, unknown.Problem));
+    }
+
     [Fact]
     public async Task After_writes_are_suspended_nothing_is_saved()
     {

@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using TextTemplateManager.Models;
 
 namespace TextTemplateManager.Data;
 
@@ -33,6 +34,8 @@ public enum SyncLocationProblem
     FolderMissing,
     /// <summary>The path can't exist on this PC (no such drive or share, not a valid path).</summary>
     Unreachable,
+    /// <summary>A file is there but doesn't load as a sync file.</summary>
+    Unreadable,
 }
 
 /// <summary>A source in a backup's sync settings whose file isn't where it points. <paramref name="HasCopy"/>: the
@@ -40,8 +43,17 @@ public enum SyncLocationProblem
 public sealed record SyncLocationIssue(Guid SourceId, string Name, string Path, SyncLocationProblem Problem, bool HasCopy);
 
 /// <summary>Points a source of the restored sync settings at <paramref name="Path"/>, writing the backup's copy of its
-/// file there when <paramref name="WriteCopy"/> (otherwise the file there is linked as it is).</summary>
-public sealed record SyncFilePlacement(Guid SourceId, string Path, bool WriteCopy);
+/// file there when <paramref name="WriteCopy"/> (otherwise the file there is linked as it is). Restoring only the synced
+/// folders, the copy is the synced folder of the backup, merged into the file there when <paramref name="MergeAs"/>
+/// is set, and the source is linked in the current sync settings.</summary>
+public sealed record SyncFilePlacement(Guid SourceId, string Path, bool WriteCopy, ImportConflicts? MergeAs = null);
+
+/// <summary>Where a synced folder of the backup goes when it is restored without the sync settings: the file of the
+/// current source with its id, else of the backup's source (<paramref name="AddsSource"/>: linked again on restoring).
+/// <paramref name="Path"/> is null when no source is known; <paramref name="Conflicts"/> counts the templates that
+/// already exist in the file.</summary>
+public sealed record SyncedFolderTarget(Guid SourceId, string Name, string? Path, SyncLocationProblem? Problem,
+    int Templates, int Conflicts, bool AddsSource);
 
 /// <summary>Journal of a restore in progress: what each target was before (null = it didn't exist).</summary>
 public sealed class RestoreJournal
@@ -92,7 +104,8 @@ public sealed class RestoreService
                 }
 
                 bool local = parts.HasFlag(RestoreParts.Local), synced = parts.HasFlag(RestoreParts.SyncedFolders);
-                if ((local || synced) && Take(BackupFileKind.Data) is { } data)
+                byte[]? data = local || synced ? Take(BackupFileKind.Data) : null;
+                if (data != null)
                     plan.Add((local && synced ? data : MixData(data, takeLocal: local), _storage.GetDataPath()));
                 if (parts.HasFlag(RestoreParts.Settings) && Take(BackupFileKind.Settings) is { } settings)
                     plan.Add((settings, _storage.GetSettingsPath()));
@@ -113,6 +126,8 @@ public sealed class RestoreService
                     }
                     plan.Add((sync, _storage.GetSyncSettingsPath()));
                 }
+                else if (synced && data != null && placements is { Count: > 0 })
+                    PlaceSyncedFolders(plan, data, Take(BackupFileKind.SyncSettings), placements);
             }
             if (plan.Count == 0) return new(false, "The backup holds none of the chosen parts.");
 
@@ -175,6 +190,154 @@ public sealed class RestoreService
             || !StorageService.Parses(entry.Kind, content))
             throw new InvalidDataException($"{entry.Name} is damaged");
         return content;
+    }
+
+    // Synced folders restored without the sync settings: each one written (or merged) into its file, and its source
+    // linked in the current sync settings, taken from the backup's when it isn't there.
+    private void PlaceSyncedFolders(List<(byte[] Content, string Target)> plan, byte[] data, byte[]? backupSync,
+        IReadOnlyCollection<SyncFilePlacement> placements)
+    {
+        var folders = CachedSyncedFolders(StorageService.ParseTree(data)!);
+        var backupSources = backupSync == null ? new() : StorageService.ParseSyncSettings(backupSync)!.Sources.ToList();
+        string settingsPath = _storage.GetSyncSettingsPath();
+        byte[]? before = File.Exists(settingsPath) ? File.ReadAllBytes(settingsPath) : null;
+        var current = before == null ? new Models.SyncSettings()
+            : StorageService.ParseSyncSettings(before) ?? throw new InvalidDataException("the current sync settings don't load");
+
+        foreach (var placement in placements)
+        {
+            if (folders.FirstOrDefault(f => f.Id == placement.SourceId) is not { } folder) continue;
+            if (placement.WriteCopy)
+            {
+                var file = DataNode.BuildFileTree(folder);
+                if (placement.MergeAs is { } how)
+                {
+                    var existing = ReadSyncFile(placement.Path) ?? throw new InvalidDataException($"{Path.GetFileName(placement.Path)} isn't a valid sync file");
+                    MergeFileTree(existing, file, how, dryRun: false);
+                    file = existing;
+                }
+                plan.Add((StorageService.SerializeTree(file), placement.Path));
+            }
+            if (current.Sources.FirstOrDefault(s => s.Id == folder.Id) is not { } source)
+            {
+                source = backupSources.FirstOrDefault(s => s.Id == folder.Id) ?? new Models.SyncSource { Id = folder.Id, Name = folder.Title };
+                current.Sources.Add(source);
+            }
+            source.Path = placement.Path;
+        }
+
+        byte[] after = StorageService.SerializeSyncSettings(current);
+        if (before == null || !before.AsSpan().SequenceEqual(after)) plan.Add((after, settingsPath));
+    }
+
+    /// <summary>For restoring the synced folders without the sync settings: where each synced folder of the backup
+    /// would go, and what is there now.</summary>
+    public IReadOnlyList<SyncedFolderTarget> FindSyncedFolderTargets(string backupPath)
+    {
+        var targets = new List<SyncedFolderTarget>();
+        if (BackupService.Verify(backupPath, out var manifest) != null) return targets;
+        using var zip = ZipFile.OpenRead(backupPath);
+        if (manifest!.Files.FirstOrDefault(f => f.Kind == BackupFileKind.Data && f.Included) is not { } dataEntry) return targets;
+        var backupSources = manifest.Files.FirstOrDefault(f => f.Kind == BackupFileKind.SyncSettings && f.Included) is { } syncEntry
+            ? StorageService.ParseSyncSettings(ReadChecked(zip, syncEntry))!.Sources.ToList() : new();
+        string settingsPath = _storage.GetSyncSettingsPath();
+        var currentSources = File.Exists(settingsPath)
+            ? StorageService.ParseSyncSettings(File.ReadAllBytes(settingsPath))?.Sources.ToList() ?? new() : new();
+
+        foreach (var folder in CachedSyncedFolders(StorageService.ParseTree(ReadChecked(zip, dataEntry))!))
+        {
+            var source = currentSources.FirstOrDefault(s => s.Id == folder.Id);
+            bool adds = source == null;
+            source ??= backupSources.FirstOrDefault(s => s.Id == folder.Id);
+            string? path = string.IsNullOrWhiteSpace(source?.Path) ? null : source.Path;
+            var problem = path == null ? SyncLocationProblem.Unreachable : LocationProblem(path);
+            int conflicts = 0;
+            if (problem == null)
+            {
+                if (ReadSyncFile(path!) is { } existing) conflicts = MergeFileTree(existing, DataNode.BuildFileTree(folder), ImportConflicts.Skip, dryRun: true).Conflicts;
+                else problem = SyncLocationProblem.Unreadable;
+            }
+            targets.Add(new(folder.Id, source?.Name ?? folder.Title, path, problem,
+                folder.Children.Sum(c => c.SelfAndDescendants().OfType<Models.Template>().Count()), conflicts, adds));
+        }
+        return targets;
+    }
+
+    private static List<Models.Folder> CachedSyncedFolders(Models.Folder data) =>
+        data.Children.OfType<Models.Folder>().Where(f => f.SyncId != null).ToList();
+
+    private static Models.Folder? ReadSyncFile(string path)
+    {
+        try
+        {
+            using var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+            using var buffer = new MemoryStream();
+            fs.CopyTo(buffer);
+            return StorageService.ParseTree(buffer.ToArray());
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return null; }
+    }
+
+    /// <summary>Merges the items of a sync file tree into another the way a direct import does: folders matched by
+    /// id or title are merged, templates that exist are handled as <paramref name="conflicts"/> says, the rest is
+    /// added (with new ids where the file already uses theirs).</summary>
+    internal static ImportSummary MergeFileTree(Models.Folder into, Models.Folder from, ImportConflicts conflicts, bool dryRun)
+    {
+        var taken = into.SelfAndDescendants().Select(i => i.Id).ToHashSet();
+        return MergeFileItems(into.Children, into.Id, from.Children, conflicts, dryRun, taken);
+    }
+
+    private static ImportSummary MergeFileItems(IList<Models.BaseItem> into, Guid parentId, IEnumerable<Models.BaseItem> items,
+        ImportConflicts conflicts, bool dryRun, HashSet<Guid> taken)
+    {
+        int added = 0, overwritten = 0, skipped = 0, met = 0;
+        foreach (var item in items.ToList())
+        {
+            var sameKind = into.Where(c => c.GetType() == item.GetType()).ToList();
+            var match = sameKind.FirstOrDefault(c => c.Id == item.Id)
+                ?? sameKind.FirstOrDefault(c => string.Equals(c.Title, item.Title, StringComparison.OrdinalIgnoreCase));
+
+            if (match is Models.Folder folder)
+            {
+                var inner = MergeFileItems(folder.Children, folder.Id, item.Children, conflicts, dryRun, taken);
+                (added, overwritten, skipped, met) = (added + inner.Added, overwritten + inner.Overwritten, skipped + inner.Skipped, met + inner.Conflicts);
+            }
+            else if (match is Models.Template current && item is Models.Template restored)
+            {
+                met++;
+                bool overwrite = conflicts == ImportConflicts.OverwriteAll
+                    || (conflicts == ImportConflicts.OverwriteOlder && string.CompareOrdinal(restored.LastChange, current.LastChange) > 0);
+                if (!overwrite) { skipped++; continue; }
+                overwritten++;
+                if (dryRun) continue;
+                current.Title = restored.Title;
+                current.Content = restored.Content;
+                current.TagsCsv = restored.TagsCsv;
+                current.DefaultPasteMode = restored.DefaultPasteMode;
+                current.SingleKeyShortcut = restored.SingleKeyShortcut;
+                current.MultiKeyShortcut = restored.MultiKeyShortcut;
+                current.LastChange = restored.LastChange;
+            }
+            else
+            {
+                added += item.SelfAndDescendants().OfType<Models.Template>().Count();
+                if (dryRun) continue;
+                Adopt(item, parentId, taken);
+                into.Add(item);
+            }
+        }
+        return new ImportSummary(added, overwritten, skipped, met);
+    }
+
+    private static void Adopt(Models.BaseItem item, Guid parentId, HashSet<Guid> taken)
+    {
+        item.ParentId = parentId;
+        if (!taken.Add(item.Id))
+        {
+            item.Id = Guid.NewGuid();
+            taken.Add(item.Id);
+        }
+        foreach (var child in item.Children) Adopt(child, item.Id, taken);
     }
 
     // A source's file as the backup has it: the copy of the file itself, else its synced folder's cached copy.
