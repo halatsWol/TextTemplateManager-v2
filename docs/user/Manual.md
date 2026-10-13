@@ -376,12 +376,12 @@ Each backup is one `.zip` file with your templates, your settings, your sync set
 
 ### Restoring a backup
 
-1. In **Settings ▸ Backups**, select a backup.
-2. Choose what to restore (all on by default):
+1. In **Settings ▸ Backups**, select a backup. The newest one is selected when you open the page.
+2. Choose what to restore. Everything the selected backup holds is ticked; a part it doesn't hold (for example sync settings, if you had no synced folders then) is greyed out.
    - **Templates and folders**: your local templates and folders.
    - **Settings**.
    - **Sync**, made of two parts you can also choose one by one: **Sync settings** (the linked files and their options) and **Synced templates and folders** (the synced folders as last seen in their files, which is what they show while a file is missing). With only one part chosen, Sync shows a dash.
-3. Click **Restore…** and confirm. To restore an exported backup instead, click **Restore from file…** and pick the `.zip` file; it is checked the same way before anything is replaced.
+3. Click **Restore…** and confirm. To restore an exported backup instead, click **Restore from file…** and pick the `.zip` file: it is checked the same way, added to the top of the list and offered for restoring with everything it holds; cancel the confirmation to change what is ticked, then click **Restore…**.
 
 The current state is backed up first, so a restore can itself be undone from the newest backup. The application then puts the chosen files back and restarts. If anything goes wrong, nothing is changed. Shared sync files are never overwritten by a restore: a file that still exists keeps its contents, and the folder of a missing one shows its copy from the backup (see **Sync** for recreating the file).
 

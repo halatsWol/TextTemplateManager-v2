@@ -12,24 +12,29 @@ namespace TextTemplateManager;
 /// <summary>One backup in the list.</summary>
 public sealed class BackupRow
 {
-    public BackupRow(BackupInfo info)
+    public BackupRow(BackupInfo info, bool fromFile = false)
     {
         Info = info;
-        Title = info.Created.ToString("f");
+        if (info.IsValid) Contents = BackupService.ReadContents(info.Path);
+        Title = fromFile ? $"{System.IO.Path.GetFileName(info.Path)} ({info.Created:f})" : info.Created.ToString("f");
         string tier = info.Tier switch
         {
             BackupTier.Recent => "Recent",
             BackupTier.TwoHourly => "Every 2 hours",
             BackupTier.Daily => "Daily",
             BackupTier.Exported => "Exported",
-            _ => "From Text Template Manager 1",
+            _ => "From TextTemplateManager v1",
         };
         Detail = info.IsValid
-            ? $"{tier} · made by version {info.Manifest!.AppVersion}"
+            ? $"{(fromFile ? "From a file · " : "")}{tier} · made by version {info.Manifest!.AppVersion}"
             : $"{tier} · damaged, can't be restored ({info.Problem})";
     }
 
     public BackupInfo Info { get; }
+
+    /// <summary>What the backup can restore; null for a damaged one.</summary>
+    public BackupContents? Contents { get; }
+
     public string Title { get; }
     public string Detail { get; }
     public double Opacity => Info.IsValid ? 1 : 0.5;
@@ -49,7 +54,25 @@ public sealed partial class BackupsSettingsPage : Page
         var rows = await Task.Run(() => App.Backups.List().Select(b => new BackupRow(b)).ToList());   // reads every zip
         BackupList.ItemsSource = rows;
         EmptyText.Visibility = rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        UpdateRestoreButton();
+        BackupList.SelectedItem = rows.FirstOrDefault(r => r.Info.IsValid);   // the newest one that can be restored
+        ShowAvailableParts();
+    }
+
+    // Only what the selected backup holds can be ticked; all of that is ticked when another backup is chosen.
+    private void ShowAvailableParts()
+    {
+        var available = (BackupList.SelectedItem as BackupRow)?.Contents?.Available ?? RestoreParts.All;
+        void Offer(CheckBox box, RestoreParts part)
+        {
+            box.IsEnabled = available.HasFlag(part);
+            box.IsChecked = available.HasFlag(part);
+        }
+        Offer(LocalBox, RestoreParts.Local);
+        Offer(SettingsBox, RestoreParts.Settings);
+        Offer(SyncSettingsBox, RestoreParts.SyncSettings);
+        Offer(SyncedFoldersBox, RestoreParts.SyncedFolders);
+        SyncBox.IsEnabled = SyncSettingsBox.IsEnabled || SyncedFoldersBox.IsEnabled;
+        SyncPart_Click(this, new RoutedEventArgs());
     }
 
     private void OpenFolder_Click(object sender, RoutedEventArgs e)
@@ -84,27 +107,30 @@ public sealed partial class BackupsSettingsPage : Page
     private void BackupList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (BackupList.SelectedItem is BackupRow { Info.IsValid: false }) BackupList.SelectedItem = null;
-        UpdateRestoreButton();
+        ShowAvailableParts();
     }
 
     private void Parts_Click(object sender, RoutedEventArgs e) => UpdateRestoreButton();
 
-    // Sync turns both of its parts on or off: off only when both were on, so a half-ticked Sync turns them on.
+    // Sync turns its available parts on or off: off only when all of them were on, so a half-ticked Sync turns them on.
     private void Sync_Click(object sender, RoutedEventArgs e)
     {
-        bool on = !(SyncSettingsBox.IsChecked == true && SyncedFoldersBox.IsChecked == true);
-        SyncSettingsBox.IsChecked = on;
-        SyncedFoldersBox.IsChecked = on;
+        var parts = SyncParts;
+        bool on = !parts.All(b => b.IsChecked == true);
+        foreach (var box in parts) box.IsChecked = on;
         SyncPart_Click(sender, e);
     }
 
-    // Sync shows its parts: ticked, empty, or a dash when only one of them is.
+    // Sync shows its available parts: ticked, empty, or a dash when only some of them are.
     private void SyncPart_Click(object sender, RoutedEventArgs e)
     {
-        bool settings = SyncSettingsBox.IsChecked == true, folders = SyncedFoldersBox.IsChecked == true;
-        SyncBox.IsChecked = settings && folders ? true : settings || folders ? null : false;
+        var parts = SyncParts;
+        int ticked = parts.Count(b => b.IsChecked == true);
+        SyncBox.IsChecked = parts.Count > 0 && ticked == parts.Count ? true : ticked > 0 ? null : false;
         UpdateRestoreButton();
     }
+
+    private List<CheckBox> SyncParts => new[] { SyncSettingsBox, SyncedFoldersBox }.Where(b => b.IsEnabled).ToList();
 
     private RestoreParts Parts =>
         (LocalBox.IsChecked == true ? RestoreParts.Local : 0)
@@ -120,16 +146,23 @@ public sealed partial class BackupsSettingsPage : Page
         if (BackupList.SelectedItem is BackupRow { Info.IsValid: true } row) await RestoreAsync(row.Info.Path, row.Title);
     }
 
-    // An exported backup (or any backup zip) from anywhere, checked in full like the listed ones.
+    // An exported backup (or any backup zip) from anywhere, checked in full like the listed ones. It joins the list
+    // at the top, selected, so its own parts are offered; cancelling the restore leaves it there to adjust them.
     private async void RestoreFromFile_Click(object sender, RoutedEventArgs e)
     {
-        if (Parts == 0) { ShowProblem("Tick what to restore first."); return; }
         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
         if (await Helpers.DataFilePicker.PickBackupToOpenAsync(hwnd) is not { } path) return;
 
         var (problem, manifest) = await Task.Run(() => (BackupService.Verify(path, out var m), m));
         if (problem != null) { ShowProblem($"\"{System.IO.Path.GetFileName(path)}\" can't be restored: {problem}."); return; }
-        await RestoreAsync(path, $"\"{System.IO.Path.GetFileName(path)}\" ({manifest!.CreatedUtc.ToLocalTime():f})");
+
+        var row = await Task.Run(() => new BackupRow(new BackupInfo(path, manifest!.Tier, manifest.CreatedUtc.ToLocalTime(), manifest, null), fromFile: true));
+        var rows = (BackupList.ItemsSource as IEnumerable<BackupRow> ?? Enumerable.Empty<BackupRow>()).Where(r => r.Info.Path != path).ToList();
+        rows.Insert(0, row);
+        BackupList.ItemsSource = rows;
+        EmptyText.Visibility = Visibility.Collapsed;
+        BackupList.SelectedItem = row;
+        await RestoreAsync(path, row.Title);
     }
 
     private async Task RestoreAsync(string backupPath, string description)

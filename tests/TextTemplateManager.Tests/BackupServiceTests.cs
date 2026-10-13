@@ -178,6 +178,24 @@ public class BackupServiceTests
     }
 
     [Fact]
+    public async Task A_backups_contents_say_which_parts_it_can_restore()
+    {
+        await _storage.SaveAsync(_storage.GetDataPath(), Tree("Alpha"));
+        string plain = (await Create()).Path!;
+
+        await _storage.SaveSettingsAsync(new AppSettings());
+        await LinkSyncFile("team.ttmdata");
+        var data = Tree("Alpha");
+        data.Children.Add(new Folder { Title = "Team", SyncId = Guid.Empty });   // a synced folder's cached copy
+        await _storage.SaveAsync(_storage.GetDataPath(), data);
+        _now = _now.AddMinutes(1);
+        string full = (await Create()).Path!;
+
+        Assert.Equal(new BackupContents(Local: true, Settings: false, SyncSettings: false, SyncedFolders: false), BackupService.ReadContents(plain));
+        Assert.Equal(RestoreParts.All, BackupService.ReadContents(full)!.Available);
+    }
+
+    [Fact]
     public async Task Half_written_backups_are_cleared_away()
     {
         Directory.CreateDirectory(_storage.BackupDirectory);

@@ -45,6 +45,15 @@ public sealed record BackupInfo(string Path, BackupTier Tier, DateTime Created, 
     public bool IsValid => Problem == null;
 }
 
+/// <summary>Which restore parts a backup can give: settings only if it holds a settings file, sync settings only
+/// if they list at least one source, synced folders only if its data has any.</summary>
+public sealed record BackupContents(bool Local, bool Settings, bool SyncSettings, bool SyncedFolders)
+{
+    public RestoreParts Available =>
+        (Local ? RestoreParts.Local : 0) | (Settings ? RestoreParts.Settings : 0)
+        | (SyncSettings ? RestoreParts.SyncSettings : 0) | (SyncedFolders ? RestoreParts.SyncedFolders : 0);
+}
+
 /// <summary>Writes and checks backup zips: data, settings, sync settings and copies of the linked sync files,
 /// with a manifest of sizes and hashes. A backup only ever appears under its final name once it has been
 /// written, flushed and read back intact.</summary>
@@ -191,6 +200,28 @@ public sealed class BackupService
             backups.Add(new BackupInfo(path, TierFromToken(match.Groups[1].Value), created, manifest, problem));
         }
         return backups.OrderByDescending(b => b.Created).ThenBy(b => b.Tier).ToList();
+    }
+
+    /// <summary>What a valid backup holds, for offering only the restore parts it can give. Null when it can't be read.</summary>
+    public static BackupContents? ReadContents(string path)
+    {
+        try
+        {
+            using var zip = ZipFile.OpenRead(path);
+            var manifest = zip.GetEntry(ManifestName) is { } m ? StorageService.ParseManifest(ReadEntry(m)) : null;
+            if (manifest == null) return null;
+            byte[]? Content(BackupFileKind kind) =>
+                manifest.Files.FirstOrDefault(f => f.Kind == kind && f.Included) is { } entry && zip.GetEntry(entry.Name) is { } e ? ReadEntry(e) : null;
+
+            var data = Content(BackupFileKind.Data) is { } d ? StorageService.ParseTree(d) : null;
+            var sync = Content(BackupFileKind.SyncSettings) is { } s ? StorageService.ParseSyncSettings(s) : null;
+            return new BackupContents(
+                Local: data != null,
+                Settings: Content(BackupFileKind.Settings) != null,
+                SyncSettings: sync is { Sources.Count: > 0 },
+                SyncedFolders: data?.Children.Any(c => c is Models.Folder && c.SyncId != null) == true);
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException) { return null; }
     }
 
     /// <summary>Deletes the oldest valid backups of <paramref name="tier"/> beyond <paramref name="keep"/>. Damaged
