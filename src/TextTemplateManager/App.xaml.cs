@@ -78,6 +78,10 @@ namespace TextTemplateManager
             try { new RestoreService(_store.Storage).RecoverInterrupted(); }
             catch (Exception ex) { LogCrash("RestoreRecovery", ex); }
 
+            // The 1.x data (1.x is closed by now) gets its permanent backup once, before anything is imported from it.
+            try { await Task.Run(Backups.EnsureV1BackupAsync); }
+            catch (Exception ex) { LogCrash("V1Backup", ex); }
+
             await _store.InitializeAsync();
             var unreadableFiles = _store.Storage.TakeUnreadableFiles();
 

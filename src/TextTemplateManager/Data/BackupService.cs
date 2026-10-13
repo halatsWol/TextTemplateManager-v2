@@ -226,6 +226,16 @@ public sealed class BackupService
 
     /// <summary>Deletes the oldest valid backups of <paramref name="tier"/> beyond <paramref name="keep"/>. Damaged
     /// ones don't count and are left alone.</summary>
+    /// <summary>A permanent backup of the 1.x data, made once: nothing when there is no 1.x data or a valid v1 backup
+    /// already exists. One that fails is tried again at the next start.</summary>
+    public async Task<BackupResult> EnsureV1BackupAsync()
+    {
+        var source = BackupSource.Folder(_storage.LegacyDirectory);
+        if (!File.Exists(source.DataPath)) return new(BackupOutcome.NothingToBackUp);
+        if (List().Any(b => b.Tier == BackupTier.V1 && b.IsValid)) return new(BackupOutcome.Unchanged);
+        return await CreateAsync(BackupTier.V1, source, quietMs: 0);
+    }
+
     public void Prune(BackupTier tier, int keep)
     {
         foreach (var old in List().Where(b => b.Tier == tier && b.IsValid).Skip(keep))

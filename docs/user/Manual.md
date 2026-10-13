@@ -369,6 +369,7 @@ The application also backs up on its own, into `Documents\TextTemplateManager\Ba
 - **Recent**: 2 minutes after your last change, and when you quit with changes not yet backed up. The last 3 are kept.
 - **Every 2 hours** while the application runs, if something changed. The last 5 are kept.
 - **Daily**: at startup, and at the first change after midnight. The last 5 are kept.
+- **From TextTemplateManager 1**: if version 1 was used on this PC, its data is backed up once at the first start, as it was, and this backup is never removed.
 
 Each backup is one `.zip` file with your templates, your settings, your sync settings and a copy of every shared sync file, plus a list of their checksums. A backup only appears once it has been written completely and checked.
 

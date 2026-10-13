@@ -132,6 +132,28 @@ public class BackupServiceTests
     }
 
     [Fact]
+    public async Task The_v1_backup_is_made_once_and_only_when_there_is_1x_data()
+    {
+        Assert.Equal(BackupOutcome.NothingToBackUp, (await _backups.EnsureV1BackupAsync()).Outcome);
+
+        Directory.CreateDirectory(_storage.LegacyDirectory);
+        await new StorageService(_storage.LegacyDirectory).SaveAsync(Path.Combine(_storage.LegacyDirectory, "data.ttmdata"), Tree("Old"));
+        string before = File.ReadAllText(Path.Combine(_storage.LegacyDirectory, "data.ttmdata"));
+
+        var first = await _backups.EnsureV1BackupAsync();
+        _now = _now.AddDays(1);
+        var second = await _backups.EnsureV1BackupAsync();
+
+        Assert.Equal(BackupOutcome.Created, first.Outcome);
+        Assert.Equal(BackupOutcome.Unchanged, second.Outcome);
+        Assert.Equal(new[] { BackupTier.V1 }, _backups.List().Select(b => b.Tier));
+        Assert.Equal(before, File.ReadAllText(Path.Combine(_storage.LegacyDirectory, "data.ttmdata")));   // only read
+
+        File.WriteAllText(first.Path!, "damaged");   // a damaged one doesn't count
+        Assert.Equal(BackupOutcome.Created, (await _backups.EnsureV1BackupAsync()).Outcome);
+    }
+
+    [Fact]
     public async Task Damage_is_found_and_listed_backups_are_newest_first()
     {
         await _storage.SaveAsync(_storage.GetDataPath(), Tree("Alpha"));

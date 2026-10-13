@@ -38,27 +38,33 @@ public sealed class StorageService
     private readonly string _baseDirectory;
 
     /// <summary>Storage rooted at <paramref name="baseDirectory"/>, backups in <paramref name="backupDirectory"/>
-    /// (default: a Backups folder inside it). Touches no files; the folder must exist before the first write
+    /// (default: a Backups folder inside it), the 1.x data read from <paramref name="legacyDirectory"/> (default: a
+    /// TTM1 folder inside it). Touches no files; the folder must exist before the first write
     /// (see <see cref="CreateDefault"/>).</summary>
-    public StorageService(string baseDirectory, string? backupDirectory = null)
+    public StorageService(string baseDirectory, string? backupDirectory = null, string? legacyDirectory = null)
     {
         _baseDirectory = baseDirectory;
         BackupDirectory = backupDirectory ?? Path.Combine(baseDirectory, "Backups");
+        LegacyDirectory = legacyDirectory ?? Path.Combine(baseDirectory, "TTM1");
     }
 
     /// <summary>The app's storage: the environment's data folder, or the one <see cref="DataDirOverrideVariable"/>
-    /// points to (backups then go inside it too). Creates the data folder.</summary>
+    /// points to (backups and the 1.x data are then looked for inside it too). Creates the data folder.</summary>
     public static StorageService CreateDefault(IAppEnvironment environment)
     {
         string? overridden = Environment.GetEnvironmentVariable(DataDirOverrideVariable);
         bool redirected = !string.IsNullOrWhiteSpace(overridden);
         string baseDirectory = redirected ? Path.GetFullPath(overridden!) : environment.DataDirectory;
         Directory.CreateDirectory(baseDirectory);
-        return new StorageService(baseDirectory, redirected ? null : environment.BackupDirectory);
+        return redirected ? new StorageService(baseDirectory)
+            : new StorageService(baseDirectory, environment.BackupDirectory, AppEnvironment.LegacyDataDirectory);
     }
 
     /// <summary>Where automatic backups are written. Created on the first backup.</summary>
     public string BackupDirectory { get; }
+
+    /// <summary>The 1.x data folder. Only ever read.</summary>
+    public string LegacyDirectory { get; }
 
     /// <summary>True when <paramref name="content"/> loads as a file of the given kind with the app's own
     /// loaders (backups only keep files that do).</summary>
