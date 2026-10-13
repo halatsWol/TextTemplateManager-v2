@@ -232,6 +232,8 @@ Open settings from **File ▸ Settings**. It has a **General**, an **Integration
 - **Run at Windows login** — start the app automatically when you sign in; on by default, from the first time you open the app. This is the same switch as the app's entry in Windows **Settings ▸ Apps ▸ Startup** and on the **Startup** tab of Task Manager. If you switch it off there, Windows only lets you switch it back on there; the app then says so below the switch.
 - **Start hidden in the system tray** — on by default: when Windows starts the app at sign-in, it stays in the tray instead of opening the window; the Quick Paste hotkey and tray icon still work. Starting the app yourself always opens the window.
 
+If TextTemplateManager 1 was set up on this PC, both switches take over its choices the first time this version finds it.
+
 ![Settings ▸ General: the Quick Paste hotkey, the default paste mode for new templates, and startup.](../../src/TextTemplateManager/Assets/ManualImages/TTM_GeneralSettings1.png)
 
 **Updates**

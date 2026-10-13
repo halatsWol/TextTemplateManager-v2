@@ -79,11 +79,19 @@ namespace TextTemplateManager
             catch (Exception ex) { LogCrash("RestoreRecovery", ex); }
 
             // The 1.x data (1.x is closed by now) gets its permanent backup once, before anything is imported from it.
-            try { await Task.Run(Backups.EnsureV1BackupAsync); }
+            BackupResult? v1Backup = null;
+            try { v1Backup = await Task.Run(Backups.EnsureV1BackupAsync); }
             catch (Exception ex) { LogCrash("V1Backup", ex); }
 
             await _store.InitializeAsync();
             var unreadableFiles = _store.Storage.TakeUnreadableFiles();
+
+            // 1.x found for the first time: its start-with-Windows choice carries over.
+            if (v1Backup?.Outcome == BackupOutcome.Created)
+            {
+                try { await LegacyAutostart.CarryOverAsync(LegacyAutostart.Read(), _environment, _store.CurrentSettings); }
+                catch (Exception ex) { LogCrash("AutostartCarryOver", ex); }
+            }
 
             _backupScheduler = new BackupScheduler(Backups, _store.Storage);
             _backupScheduler.Start();
