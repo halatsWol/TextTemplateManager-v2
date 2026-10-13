@@ -168,7 +168,12 @@ public partial class MainViewModel : ObservableObject
 
     #region Search Logic
 
-    partial void OnSearchTextChanged(string value) => ApplyFilter();
+    // A new search starts from the focused item alone, so nothing that the filter hides stays selected.
+    partial void OnSearchTextChanged(string value)
+    {
+        ResetSelection(SelectedItem);
+        ApplyFilter();
+    }
 
     /// <summary>Full tree rebuild with a fresh RootNodes instance. TreeView does not reliably
     /// reflect a Move on its bound collection (e.g. reordered sync folders), so a reload re-binds
@@ -340,12 +345,17 @@ public partial class MainViewModel : ObservableObject
         ValidateAllShortcuts();   // a clone repeats the original's shortcuts
     }
 
+    /// <summary>The selected items that may be deleted: not a pinned sync folder (managed in Settings › Sync) and
+    /// nothing in a save-off (read-only) sync folder.</summary>
+    public IReadOnlyList<BaseItem> DeletableSelection =>
+        SelectedItems.Where(i => !i.IsSyncRoot && !_dataNode.IsItemReadOnly(i)).ToList();
+
     [RelayCommand]
     private async Task DeleteItem()
     {
-        if (SelectedItem == null) return;
-        if (SelectedItem.IsSyncRoot || _dataNode.IsItemReadOnly(SelectedItem)) return;   // save-off sync
-        await _dataNode.DeleteItemAsync(SelectedItem);
+        var items = DeletableSelection;
+        if (items.Count == 0) return;
+        await _dataNode.DeleteItemsAsync(items);
         ApplyFilter();
         SelectedItem = null;
         ValidateAllShortcuts();
@@ -359,14 +369,15 @@ public partial class MainViewModel : ObservableObject
 
     private static IntPtr MainWindowHandle => WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
 
-    /// <summary>Exports <paramref name="item"/> (a folder with its contents, or a template), or all local templates
-    /// and folders when it is null, to a .ttmdata file the user picks.</summary>
-    public async Task ExportAsync(BaseItem? item)
+    /// <summary>Exports <paramref name="items"/> to a .ttmdata file the user picks: one folder as itself (with its
+    /// contents), one template or several items under a plain root, and all local templates and folders when
+    /// nothing is given.</summary>
+    public async Task ExportAsync(IReadOnlyList<BaseItem> items)
     {
-        string name = item?.Title is { Length: > 0 } title ? title : $"Templates_{DateTime.Now:yyyyMMdd}";
+        string name = items.Count == 1 && items[0].Title is { Length: > 0 } title ? title : $"Templates_{DateTime.Now:yyyyMMdd}";
         if (await DataFilePicker.PickToSaveAsync(MainWindowHandle, name) is not { } path) return;
-        if (item is Folder folder) await _dataNode.ExportFolderAsync(path, folder);
-        else if (item != null) await _dataNode.ExportItemsAsync(path, new[] { item });
+        if (items is [Folder folder]) await _dataNode.ExportFolderAsync(path, folder);
+        else if (items.Count > 0) await _dataNode.ExportItemsAsync(path, items);
         else await _dataNode.ExportItemsAsync(path, _dataNode.LocalOnlyItems);
     }
 
@@ -417,31 +428,121 @@ public partial class MainViewModel : ObservableObject
 
     public bool CanMove(BaseItem item, Folder? folder) => _dataNode.CanMove(item, folder);
 
-    /// <summary>Moves an item and keeps it selected. Moving into another area may have cleared or renamed
-    /// shortcuts, so the conflict flags are refreshed too.</summary>
-    public async Task MoveAsync(BaseItem item, Folder? folder, int index)
+    public Task MoveAsync(BaseItem item, Folder? folder, int index) => MoveAsync(new[] { item }, folder, index);
+
+    /// <summary>Moves items (all of them or none) and keeps them selected. Moving into another area may have
+    /// cleared or renamed shortcuts, so the conflict flags are refreshed too.</summary>
+    public async Task MoveAsync(IReadOnlyList<BaseItem> items, Folder? folder, int index)
     {
-        if (!await _dataNode.MoveItemAsync(item, folder, index)) return;
-        Expand(folder);   // reveal the moved item
+        if (!await _dataNode.MoveItemsAsync(items, folder, index)) return;
+        Expand(folder);   // reveal the moved items
 
         // The TreeView crashes on an in-place Move of its bound root collection (see TreeChanged).
         if (RootOrderChanged()) ReloadTree();
         else ApplyFilter();
-        SelectedItem = item;
+        _selection.Set(items);
+        _clicking = true;
+        try { SelectedItem = items[^1]; }
+        finally { _clicking = false; }
+        UpdateSelectionHighlight();
         ValidateAllShortcuts();
     }
 
-    /// <summary>Moves an item out to the top level, after the pinned sync folders and the local items.</summary>
-    public Task MoveToRootAsync(BaseItem item) => MoveAsync(item, null, AllItems.Count);
 
     #endregion
 
     // Re-raise so MainPage re-syncs the editor to the new selection.
     partial void OnSelectedItemChanged(BaseItem? value)
     {
+        // Any selection change but a Ctrl/Shift click (arrow keys, a plain click, a new item) selects just this one.
+        if (!_clicking && !ModifierClickPending && _settlingFocus == null) ResetSelection(value);
         SelectedNode = value == null ? null : NodeFor(value);
         OnPropertyChanged(nameof(SelectedItem));
     }
+
+    #region Several selected items
+
+    private readonly MultiSelection _selection = new();
+    private bool _clicking;
+
+    /// <summary>Set when the pointer goes down on the tree with Ctrl or Shift held, so the tree's own selection
+    /// change that follows doesn't reset the selection before <see cref="ClickItem"/> applies the click.</summary>
+    public bool ModifierClickPending { get; set; }
+
+    /// <summary>How many items are selected (the focused one included).</summary>
+    public int SelectionCount => _selection.Items.Count;
+
+    /// <summary>True when <paramref name="item"/> is one of several selected items.</summary>
+    public bool IsInSelection(BaseItem item) => _selection.Items.Count > 1 && _selection.Contains(item);
+
+    /// <summary>What Export and Delete act on: the selected items without those inside a selected folder, or the
+    /// focused item alone.</summary>
+    public IReadOnlyList<BaseItem> SelectedItems =>
+        _selection.Items.Count > 1 ? MultiSelection.TopMost(_selection.Items)
+        : SelectedItem is { } item ? new[] { item } : Array.Empty<BaseItem>();
+
+    /// <summary>A click on a tree row, with the modifier keys held (see <see cref="MultiSelection"/>).</summary>
+    public void ClickItem(BaseItem item, bool ctrl, bool shift)
+    {
+        ModifierClickPending = false;
+        var focus = _selection.Click(item, ctrl, shift, VisibleItems());
+        _clicking = true;
+        try { SelectedItem = focus; }
+        finally { _clicking = false; }
+        UpdateSelectionHighlight();
+
+        // The TreeView handles the same click after this, and on a Ctrl+click its own single-select logic
+        // deselects: put the focus back once it is done, and don't let its interim changes reset the selection.
+        _settlingFocus = focus;
+        _ui?.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
+        {
+            var settled = _settlingFocus;
+            _settlingFocus = null;
+            if (settled != null && !ReferenceEquals(SelectedItem, settled))
+            {
+                _clicking = true;
+                try { SelectedItem = settled; }
+                finally { _clicking = false; }
+            }
+            UpdateSelectionHighlight();
+        });
+    }
+
+    private BaseItem? _settlingFocus;
+
+    private void ResetSelection(BaseItem? item)
+    {
+        _selection.Reset(item);
+        UpdateSelectionHighlight();
+    }
+
+    private void UpdateSelectionHighlight()
+    {
+        bool several = _selection.Items.Count > 1;
+        foreach (var node in _nodes.Values) node.IsMultiSelected = several && _selection.Contains(node.Item);
+        SelectionLookChanged?.Invoke();
+    }
+
+    /// <summary>Raised when which rows count as selected changed, so the page can draw them.</summary>
+    public event Action? SelectionLookChanged;
+
+    // The tree's rows top to bottom: the children of expanded folders only.
+    private List<BaseItem> VisibleItems()
+    {
+        var rows = new List<BaseItem>();
+        void Walk(IEnumerable<TreeNode> nodes)
+        {
+            foreach (var node in nodes)
+            {
+                rows.Add(node.Item);
+                if (node.IsExpanded) Walk(node.Children);
+            }
+        }
+        Walk(RootNodes);
+        return rows;
+    }
+
+    #endregion
 
     /// <summary>Raised on the UI thread after the conflict flags were recomputed.</summary>
     public event Action? ConflictsChanged;

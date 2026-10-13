@@ -44,8 +44,10 @@ nothing is selected. New items are given a unique default name, which you can ch
 
 Drag items to reorder them or to move them between folders. Folders may contain both templates and other folders; a template is always a leaf and can never contain other items. Where an item lands depends on where you drop it: on the upper half of a template it goes above, on the lower half below. On a folder, the middle drops it into the folder, the top or bottom edge beside it; just below an expanded folder it goes to the top of that folder's contents. Dropping on the empty space below the tree moves it to the end of the top level. Expansion and selection are preserved as you work.
 
-To move an item out to the top level, drag it there or right-click it and choose **Move to Root**.
+To move an item out to the top level, drag it there, for example onto the empty space below the tree.
 Click an empty area of the tree to clear the selection — with nothing selected, new templates and folders are created at the root. From the keyboard, **Esc** steps back one level at a time: from the tree to the search box, then it clears the search text, and with the search box already empty it clears the selection.
+
+To work on several items at once, select them as in File Explorer: **Ctrl**+click adds or removes an item, **Shift**+click selects all visible rows between the last clicked item and this one. The editor shows the last clicked item. Dragging one of the selected items moves all of them together (they keep their order); if one of them can't go there, nothing moves. **Delete** (key, toolbar button, or right-click on one of the selected items) deletes them all after one confirmation; **File ▸ Export…** or **Export … items** in the right-click menu saves them into one `.ttmdata` file. Synced folders themselves and items in read-only synced folders are never deleted this way. Typing in the search box starts the selection over from the last clicked item.
 
 The search box filters the tree: every word you type must appear in an item's title or tags, in any order, and a word's letters only need to appear in order, not next to each other (`mtg` finds *Meeting*). Folders holding a match stay visible and open. To look inside the templates' text as well, open the filter button beside the search box and turn on **Search template text**; a dot on the button shows it is on. It stays on until you turn it off, in both the main window and Quick Paste.
 
@@ -441,7 +443,8 @@ Deployment Guide** (`TextTemplateManager-AdminManual.pdf`), attached to each rel
 | Context | Input | Action |
 | --- | --- | --- |
 | Main window | **Ctrl + F** | Focus the search box. |
-| Main window (Tree) | **Delete** | Delete the selected item (with confirmation). |
+| Main window (Tree) | **Delete** | Delete the selected item(s) (with confirmation). |
+| Main window (Tree) | **Ctrl**+click / **Shift**+click | Add or remove an item / select a range of rows. |
 | Main window (Tree) | **Ctrl + C** | Copy the selected template in its default paste mode. |
 | Main window (search box) | **↓** | Move the text cursor to the end; **↓** again at the end steps into the tree. |
 | Main window (search box) | **Esc** | Clear the search text; when it is already empty, clear the tree selection. |
@@ -457,8 +460,7 @@ Deployment Guide** (`TextTemplateManager-AdminManual.pdf`), attached to each rel
 | Quick Paste | **Alt** + **Backspace** | Correct the current multi-key entry. |
 | Quick Paste | **Esc** | Close the Quick Paste window. |
 
-Additional actions are available from the right-click menu, including **Duplicate**, **Copy**,
-and **Copy As** for templates, **Export** for folders, and **Move to Root** for nested items.
+Additional actions are available from the right-click menu, including **Duplicate**, **Copy** and **Copy As** for templates, and **Export…** and **Delete** for templates and folders.
 
 ---
 

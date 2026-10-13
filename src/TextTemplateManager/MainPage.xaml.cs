@@ -42,6 +42,7 @@ namespace TextTemplateManager
             // handledEventsToo: the TreeView marks Enter/Space handled, so a plain KeyDown handler
             // never sees them — attach here to still get folder expand/collapse on those keys.
             ItemTreeView.AddHandler(UIElement.KeyDownEvent, new KeyEventHandler(ItemTreeView_KeyDown), true);
+            ItemTreeView.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(ItemTreeView_PointerPressed), true);
             // The list marks drag events over its empty space handled; a drop there moves to the end.
             ItemTreeView.AddHandler(UIElement.DragOverEvent, new DragEventHandler(ItemTreeView_DragOver), true);
             ItemTreeView.AddHandler(UIElement.DropEvent, new DragEventHandler(ItemTreeView_Drop), true);
@@ -60,6 +61,7 @@ namespace TextTemplateManager
 
             _store.DataSaved += () => DispatcherQueue.TryEnqueue(ShowSaveNotification);
             ViewModel.ConflictsChanged += ShowShortcutConflicts;
+            ViewModel.SelectionLookChanged += () => DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, ApplySelectionLookToAllRows);
 
             ViewModel.PropertyChanged += (s, e) =>
             {
@@ -151,15 +153,33 @@ namespace TextTemplateManager
         private void AddFolder_Click(object sender, RoutedEventArgs e) => ViewModel.AddFolderCommand.Execute(null);
         private async void DeleteItem_Click(object sender, RoutedEventArgs e) => await ConfirmAndDeleteAsync();
 
-        /// <summary>Tree context menu: Delete for any item; Duplicate/Copy/Copy As for templates;
-        /// Export for non-root folders.</summary>
+        /// <summary>Tree context menu: Duplicate/Copy/Copy As for templates, Export and Delete for any item but a
+        /// pinned sync folder; on one of several selected items, Export and Delete for all of them.</summary>
         private void Tree_RightTapped(object sender, RightTappedRoutedEventArgs e)
         {
             if (sender is not FrameworkElement fe || fe.DataContext is not TreeNode { Item: var item }) return;
 
-            ViewModel.SelectedItem = item;   // so the panel and delete act on it
-
             var flyout = new MenuFlyout();
+
+            // On one of several selected items: the menu acts on all of them.
+            if (ViewModel.IsInSelection(item))
+            {
+                int count = ViewModel.SelectedItems.Count;
+                var exportAll = new MenuFlyoutItem { Text = $"Export {count} items…", Icon = new SymbolIcon(Symbol.Save) };
+                exportAll.Click += async (_, _) => await ViewModel.ExportAsync(ViewModel.SelectedItems);
+                flyout.Items.Add(exportAll);
+                if (ViewModel.DeletableSelection.Count > 0)
+                {
+                    flyout.Items.Add(new MenuFlyoutSeparator());
+                    var deleteAll = new MenuFlyoutItem { Text = $"Delete {ViewModel.DeletableSelection.Count} items", Icon = new SymbolIcon(Symbol.Delete) };
+                    deleteAll.Click += async (_, _) => await ConfirmAndDeleteAsync();
+                    flyout.Items.Add(deleteAll);
+                }
+                flyout.ShowAt(fe, new FlyoutShowOptions { Position = e.GetPosition(fe) });
+                return;
+            }
+
+            ViewModel.SelectedItem = item;   // so the panel and delete act on it
 
             if (item is Template t)
             {
@@ -185,17 +205,8 @@ namespace TextTemplateManager
             if (!item.IsSyncRoot)   // a pinned sync folder already is a file
             {
                 var export = new MenuFlyoutItem { Text = "Export…", Icon = new SymbolIcon(Symbol.Save) };
-                export.Click += async (_, _) => await ViewModel.ExportAsync(item);
+                export.Click += async (_, _) => await ViewModel.ExportAsync(new[] { item });
                 flyout.Items.Add(export);
-            }
-
-            // Move to Root — for a nested, editable item (a reliable alternative to dragging it out).
-            if (!item.IsSyncRoot && !ViewModel.IsReadOnly(item)
-                && ViewModel.AllItems.ParentOf(item) != null)
-            {
-                var toRoot = new MenuFlyoutItem { Text = "Move to Root" };
-                toRoot.Click += async (_, _) => await ViewModel.MoveToRootAsync(item);
-                flyout.Items.Add(toRoot);
             }
 
             // Sync-folder roots are managed in Settings ▸ Sync, and save-off (read-only) sync items
@@ -212,16 +223,25 @@ namespace TextTemplateManager
                 flyout.ShowAt(fe, new FlyoutShowOptions { Position = e.GetPosition(fe) });
         }
 
-        /// <summary>Delete the selected item; confirm for templates and non-empty folders, but not
-        /// for an empty folder.</summary>
+        /// <summary>Delete the selected item(s); confirm for templates, non-empty folders and several items, but not
+        /// for one empty folder.</summary>
         private async Task ConfirmAndDeleteAsync()
         {
-            if (ViewModel.SelectedItem is not BaseItem item) return;
-            if (item.IsSyncRoot || ViewModel.IsReadOnly(item)) return;   // sync roots via Settings; save-off is read-only
+            var items = ViewModel.DeletableSelection;   // never a pinned sync folder or a save-off (read-only) sync item
+            if (items.Count == 0) return;
+            var item = items[0];
 
             string? message = null;
 
-            if (item is Folder folder && folder.Children.Count > 0)
+            if (items.Count > 1)
+            {
+                int inside = items.Sum(i => i.SelfAndDescendants().Count() - 1);
+                message = $"Delete these {items.Count} items" + (inside > 0 ? $" and the {inside} item(s) inside their folders" : "") +
+                          "? This cannot be undone.";
+                int skipped = ViewModel.SelectedItems.Count - items.Count;
+                if (skipped > 0) message += $"\n\n{skipped} selected item(s) can't be deleted here (synced folders or read-only sync items) and stay.";
+            }
+            else if (item is Folder folder && folder.Children.Count > 0)
             {
                 int childCount = folder.SelfAndDescendants().Count() - 1; // exclude the folder itself
                 message = $"Delete the folder \"{item.Title}\" and its {childCount} item(s)?\n\n" +
@@ -308,8 +328,8 @@ namespace TextTemplateManager
                 : skip.IsChecked == true ? ImportConflicts.Skip : ImportConflicts.OverwriteOlder;
             await ViewModel.ImportAsync(file, newFolder.IsChecked == true, how);
         }
-        // The selected folder or template, or all local templates and folders when nothing is selected.
-        private async void Export_Click(object sender, RoutedEventArgs e) => await ViewModel.ExportAsync(ViewModel.SelectedItem);
+        // The selected folder(s) and template(s), or all local templates and folders when nothing is selected.
+        private async void Export_Click(object sender, RoutedEventArgs e) => await ViewModel.ExportAsync(ViewModel.SelectedItems);
 
         private void OpenPreferences_Click(object sender, RoutedEventArgs e) => Settings.Open();
 
@@ -547,7 +567,7 @@ namespace TextTemplateManager
         {
             if (args.InvokedItem is TreeNode { Item: var selected })
             {
-                ViewModel.SelectedItem = selected;
+                ViewModel.ClickItem(selected, IsCtrlDown(), IsShiftDown());
                 PushTemplateToEditor();
             }
         }
@@ -600,6 +620,15 @@ namespace TextTemplateManager
         private static bool IsCtrlDown()
             => (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Control) & CoreVirtualKeyStates.Down)
                == CoreVirtualKeyStates.Down;
+
+        private static bool IsShiftDown()
+            => (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Shift) & CoreVirtualKeyStates.Down)
+               == CoreVirtualKeyStates.Down;
+
+        // Before the tree changes its own selection for a click: with Ctrl or Shift held, the click adds to the
+        // selection instead of replacing it (applied in ItemInvoked).
+        private void ItemTreeView_PointerPressed(object sender, PointerRoutedEventArgs e) =>
+            ViewModel.ModifierClickPending = IsCtrlDown() || IsShiftDown();
 
         // Ctrl+F focuses the search box from anywhere in the window (page-level accelerator).
         private void SearchAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
@@ -662,21 +691,24 @@ namespace TextTemplateManager
             return null;
         }
 
-        private BaseItem? _draggedItem;
+        private IReadOnlyList<BaseItem>? _draggedItems;
 
         private void TreeItem_DragStarting(UIElement sender, DragStartingEventArgs args)
         {
-            // Pinned sync roots and read-only items can't be moved.
-            if (sender is not FrameworkElement { DataContext: TreeNode { Item: var item } } || !ViewModel.CanMove(item, null))
+            // Dragging one of several selected items takes all of them. Pinned sync roots and read-only items
+            // can't be moved, so a selection holding one of them can't be dragged.
+            if (sender is not FrameworkElement { DataContext: TreeNode { Item: var item } }) { args.Cancel = true; return; }
+            var items = ViewModel.IsInSelection(item) ? ViewModel.SelectedItems : new[] { item };
+            if (items.Any(i => !ViewModel.CanMove(i, null)))
             {
                 args.Cancel = true;
                 return;
             }
-            _draggedItem = item;
+            _draggedItems = items;
             args.AllowedOperations = DataPackageOperation.Move;
         }
 
-        private void TreeItem_DropCompleted(UIElement sender, DropCompletedEventArgs args) => _draggedItem = null;
+        private void TreeItem_DropCompleted(UIElement sender, DropCompletedEventArgs args) => _draggedItems = null;
 
         // Folders: the top and bottom quarter of a row drop beside the folder, the middle into it. A drop
         // below an expanded folder lands at the top of its children, which is what the rows below show.
@@ -732,35 +764,65 @@ namespace TextTemplateManager
         // back the expansion the node had when the row took it.
         private void TreeItem_DataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
         {
-            if (args.NewValue is not TreeNode { IsExpanded: true } node) return;
             var row = (TreeViewItem)sender;
+            WatchSelectionLook(row);
+            DispatcherQueue.TryEnqueue(() => ApplySelectionLook(row));   // a reused row may show another node now
+            if (args.NewValue is not TreeNode { IsExpanded: true } node) return;
             DispatcherQueue.TryEnqueue(() =>
             {
                 if (ReferenceEquals(row.DataContext, node) && !row.IsExpanded) row.IsExpanded = true;
             });
         }
 
+        // ---- Several selected items: the tree's own "Selected" look ----
+        // The tree marks only its one selected item; the other selected rows are put into the same visual
+        // states. The row resets them on hover and when it is reused, so they are applied again after that.
+
+        private readonly HashSet<TreeViewItem> _watchedRows = new();
+
+        private void WatchSelectionLook(TreeViewItem row)
+        {
+            if (!_watchedRows.Add(row)) return;
+            row.AddHandler(PointerEnteredEvent, new PointerEventHandler((_, _) => DispatcherQueue.TryEnqueue(() => ApplySelectionLook(row, pointerOver: true))), true);
+            row.AddHandler(PointerExitedEvent, new PointerEventHandler((_, _) => DispatcherQueue.TryEnqueue(() => ApplySelectionLook(row))), true);
+            row.AddHandler(PointerReleasedEvent, new PointerEventHandler((_, _) => DispatcherQueue.TryEnqueue(() => ApplySelectionLook(row, pointerOver: true))), true);
+        }
+
+        private void ApplySelectionLook(TreeViewItem row, bool pointerOver = false)
+        {
+            if (row.DataContext is not TreeNode node || ReferenceEquals(node, ViewModel.SelectedNode)) return;   // the tree draws that one
+            string state = node.IsMultiSelected
+                ? (pointerOver ? "PointerOverSelected" : "Selected")
+                : (pointerOver ? "PointerOver" : "Normal");
+            VisualStateManager.GoToState(row, state, false);
+        }
+
+        private void ApplySelectionLookToAllRows()
+        {
+            foreach (var row in _watchedRows) ApplySelectionLook(row);
+        }
+
         private void ItemTreeView_DragOver(object sender, DragEventArgs e)
         {
             e.AcceptedOperation = DataPackageOperation.None;
-            if (_draggedItem is not BaseItem item) return;
+            if (_draggedItems is not { Count: > 0 } items) return;
             var (folder, _, caption) = DropDestination(e);
-            if (!ViewModel.CanMove(item, folder)) return;
+            if (items.Any(i => !ViewModel.CanMove(i, folder))) return;
 
             e.AcceptedOperation = DataPackageOperation.Move;
-            e.DragUIOverride.Caption = caption;
+            e.DragUIOverride.Caption = items.Count > 1 ? caption.Replace("Move ", $"Move {items.Count} items ") : caption;
             e.DragUIOverride.IsGlyphVisible = false;
         }
 
         private async void ItemTreeView_Drop(object sender, DragEventArgs e)
         {
             e.Handled = true;
-            var item = _draggedItem;
-            _draggedItem = null;
-            if (item == null) return;
+            var items = _draggedItems;
+            _draggedItems = null;
+            if (items is not { Count: > 0 }) return;
 
             var (folder, index, _) = DropDestination(e);
-            await ViewModel.MoveAsync(item, folder, index);
+            await ViewModel.MoveAsync(items, folder, index);
         }
 
         private static BaseItem? FindItemFromSource(object source)

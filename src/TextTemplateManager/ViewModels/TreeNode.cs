@@ -17,6 +17,10 @@ public sealed partial class TreeNode(BaseItem item) : ObservableObject
     [ObservableProperty]
     public partial bool IsExpanded { get; set; }
 
+    /// <summary>Part of a selection of several items (the tree itself only highlights the focused one).</summary>
+    [ObservableProperty]
+    public partial bool IsMultiSelected { get; set; }
+
     public Symbol Icon => ItemIconConverter.For(Item);
 
     // The tree row's accessible name (what a screen reader announces), instead of the class name.

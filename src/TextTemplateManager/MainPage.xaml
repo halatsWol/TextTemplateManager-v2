@@ -372,7 +372,7 @@
 
                     <TextBlock Grid.Row="4" Grid.Column="0" Text="🖱️" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="4" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Right-click:"/><Run Text=" a template to Duplicate / Copy; a folder to Export; any nested item to Move to Root."/>
+                        <Run FontWeight="SemiBold" Text="Right-click:"/><Run Text=" a template to Duplicate / Copy; a template or folder to Export or Delete. Drag an item to the empty space below the tree to move it to the top level."/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="5" Grid.Column="0" Text="🔍" VerticalAlignment="Top"/>

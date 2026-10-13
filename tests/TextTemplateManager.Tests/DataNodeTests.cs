@@ -271,6 +271,64 @@ public class DataNodeTests
     }
 
     [Fact]
+    public async Task Several_items_move_into_a_folder_in_tree_order_with_one_save()
+    {
+        var (node, path) = await NewNodeAsync();
+        var target = new Folder { Title = "Target" };
+        var a = new Template { Title = "A" };
+        var b = new Template { Title = "B" };
+        var c = new Template { Title = "C" };
+        foreach (var item in new BaseItem[] { target, a, b, c }) await node.AddItemAsync(item);
+        await node.AddItemAsync(new Template { Title = "Already in" }, target);
+        int saves = 0;
+        node.DataSaved += () => Interlocked.Increment(ref saves);
+
+        Assert.True(await node.MoveItemsAsync(new BaseItem[] { c, a }, target, 0));   // selected in another order
+
+        Assert.Equal(1, saves);
+        Assert.Equal(new[] { "A", "C", "Already in" }, target.Children.Select(i => i.Title));
+        Assert.Equal(new[] { "Target", "B" }, node.LocalItems.Select(i => i.Title));
+        Assert.All(new[] { a, c }, i => Assert.Equal(target.Id, i.ParentId));
+        var saved = await StorageService.LoadRootAsync(path);
+        Assert.Equal(3, saved!.Children[0].Children.Count);
+    }
+
+    [Fact]
+    public async Task Two_folders_move_into_another_and_a_reorder_on_the_same_level_keeps_their_order()
+    {
+        var (node, _) = await NewNodeAsync();
+        var f1 = new Folder { Title = "F1" };
+        var f2 = new Folder { Title = "F2" };
+        var x = new Template { Title = "X" };
+        var host = new Folder { Title = "Host" };
+        foreach (var item in new BaseItem[] { f1, x, f2, host }) await node.AddItemAsync(item);
+
+        Assert.True(await node.MoveItemsAsync(new BaseItem[] { f1, f2 }, null, 4));   // to the end of the top level
+        Assert.Equal(new[] { "X", "Host", "F1", "F2" }, node.LocalItems.Select(i => i.Title));
+
+        Assert.True(await node.MoveItemsAsync(new BaseItem[] { f2, f1 }, host, 0));
+        Assert.Equal(new[] { "F1", "F2" }, host.Children.Select(i => i.Title));
+        Assert.Equal(new[] { "X", "Host" }, node.LocalItems.Select(i => i.Title));
+    }
+
+    [Fact]
+    public async Task Nothing_moves_when_one_of_the_items_cant_go_there()
+    {
+        var (node, _) = await NewNodeAsync();
+        var outer = new Folder { Title = "Outer" };
+        var inner = new Folder { Title = "Inner" };
+        var loose = new Template { Title = "Loose" };
+        await node.AddItemAsync(outer);
+        await node.AddItemAsync(inner, outer);
+        await node.AddItemAsync(loose);
+
+        Assert.False(await node.MoveItemsAsync(new BaseItem[] { loose, outer }, inner, 0));   // outer into its own child
+
+        Assert.Equal(new[] { "Outer", "Loose" }, node.LocalItems.Select(i => i.Title));
+        Assert.Empty(inner.Children);
+    }
+
+    [Fact]
     public async Task Moving_within_a_folder_puts_the_item_at_the_drop_index()
     {
         var (node, _) = await NewNodeAsync();

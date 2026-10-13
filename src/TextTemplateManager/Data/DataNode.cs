@@ -127,6 +127,18 @@ public class DataNode
         await SaveDataAsync();
     }
 
+    /// <summary>Deletes several items with one save.</summary>
+    public async Task DeleteItemsAsync(IEnumerable<BaseItem> items)
+    {
+        using (SuppressSaves())
+        {
+            foreach (var item in items.ToList())
+                if (RootFolder.Children.Descendants().FirstOrDefault(i => i.Id == item.Id) is { } stored)
+                    RootFolder.Children.ContainerOf(stored)?.Remove(stored);
+        }
+        await SaveDataAsync();
+    }
+
     /// <summary>What an imported file brings: a folder export is that folder; any other file is its top-level
     /// items, without the synced-folder snapshots an older full export carries.</summary>
     public static List<BaseItem> ImportedItems(Folder fileRoot) =>
@@ -259,27 +271,36 @@ public class DataNode
     /// <summary>Moves <paramref name="item"/> to <paramref name="index"/> among <paramref name="target"/>'s
     /// children (null = top level, after the pinned sync folders) with one save. Moving into another area
     /// (sync folder or local) gives the item new file ids and resolves its shortcut clashes there.</summary>
-    public async Task<bool> MoveItemAsync(BaseItem item, Folder? target, int index)
+    public Task<bool> MoveItemAsync(BaseItem item, Folder? target, int index) => MoveItemsAsync(new[] { item }, target, index);
+
+    /// <summary>Moves several items together to <paramref name="index"/> among <paramref name="target"/>'s
+    /// children, in their tree order, with one save. Nothing moves unless every one of them may go there.</summary>
+    public async Task<bool> MoveItemsAsync(IReadOnlyList<BaseItem> items, Folder? target, int index)
     {
-        if (!CanMove(item, target)) return false;
+        if (items.Count == 0 || items.Any(i => !CanMove(i, target))) return false;
+        var treeOrder = RootFolder.Children.Descendants().ToList();
 
         using (SuppressSaves())
         {
-            var originArea = GetAreaKey(item);
-            var from = RootFolder.Children.ContainerOf(item)!;
             var to = target?.Children ?? RootFolder.Children;
-            int oldIndex = from.IndexOf(item);
-            if (ReferenceEquals(from, to) && oldIndex < index) index--;
-
-            from.RemoveAt(oldIndex);
-            int first = target == null ? to.Count(c => c.IsSyncRoot) : 0;
-            to.Insert(Math.Clamp(index, first, to.Count), item);
-            item.ParentId = target?.Id ?? Guid.Empty;
-
-            if (GetAreaKey(item) != originArea)
+            foreach (var item in items.OrderBy(treeOrder.IndexOf))
             {
-                foreach (var moved in item.SelfAndDescendants()) moved.SyncId = null;   // the sync write assigns fresh ones
-                ResolveShortcutClashes(item);
+                var originArea = GetAreaKey(item);
+                var from = RootFolder.Children.ContainerOf(item)!;
+                int oldIndex = from.IndexOf(item);
+                if (ReferenceEquals(from, to) && oldIndex < index) index--;
+
+                from.RemoveAt(oldIndex);
+                int first = target == null ? to.Count(c => c.IsSyncRoot) : 0;
+                index = Math.Clamp(index, first, to.Count);
+                to.Insert(index++, item);   // the next one goes right after it
+                item.ParentId = target?.Id ?? Guid.Empty;
+
+                if (GetAreaKey(item) != originArea)
+                {
+                    foreach (var moved in item.SelfAndDescendants()) moved.SyncId = null;   // the sync write assigns fresh ones
+                    ResolveShortcutClashes(item);
+                }
             }
         }
         await SaveDataAsync();
