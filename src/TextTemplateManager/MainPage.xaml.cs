@@ -450,6 +450,31 @@ namespace TextTemplateManager
         public async void ReportStartupProblem(string title, string message) =>
             await ShowStartupMessageAsync(title, message);
 
+        /// <summary>Once: TextTemplateManager 1 is still installed, offer to remove it with its own uninstaller.
+        /// Not counted as asked when the dialog couldn't be shown.</summary>
+        public async void OfferLegacyRemoval()
+        {
+            await WaitUntilDialogCanOpenAsync();
+            var dialog = new ContentDialog
+            {
+                Title = "TextTemplateManager 1 is still installed",
+                Content = "This version replaces it. Its data stays on this PC, and a backup of it is listed in Settings ▸ Backups.\n\nRemove the old version now?",
+                PrimaryButtonText = "Remove TextTemplateManager 1",
+                CloseButtonText = "Keep it",
+                DefaultButton = ContentDialogButton.Primary,
+            };
+            var answer = await ShowDialogAsync(dialog);
+            if (dialog.XamlRoot == null) return;   // another dialog was open; "Keep it" also answers None
+            _store.CurrentSettings.LegacyRemovalOffered = true;
+            if (answer != ContentDialogResult.Primary) return;
+
+            if (await LegacyApp.UninstallAsync(TimeSpan.FromSeconds(60)))
+                await ShowMessageAsync("TextTemplateManager 1 removed", "The old version was removed. Its data folder was kept.");
+            else
+                await ShowMessageAsync("TextTemplateManager 1 wasn't removed",
+                    "The old version couldn't be removed from here. Remove it in Windows Settings ▸ Apps ▸ Installed apps.");
+        }
+
         /// <summary>The first start with no data yet, when there is something to start from: the 1.x data (its v1
         /// backup) and/or the newest backup. Importing or restoring goes through Settings › Backups; starting fresh
         /// (also on Esc) saves the empty tree, so this isn't asked again.</summary>

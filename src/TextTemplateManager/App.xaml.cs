@@ -143,11 +143,19 @@ namespace TextTemplateManager
             if (unreadableFiles.Count > 0)
                 (MainWindow.Content as MainPage)?.ReportUnreadableFiles(unreadableFiles);
 
+            bool offeredFirstStart = false;
             if (firstStart && !startHidden)
             {
                 var offer = FirstStartOffer.From(await Task.Run(Backups.List));
-                if (offer.HasChoice) (MainWindow.Content as MainPage)?.OfferFirstStart(offer.V1, offer.Newest);
+                offeredFirstStart = offer.HasChoice;
+                if (offeredFirstStart) (MainWindow.Content as MainPage)?.OfferFirstStart(offer.V1, offer.Newest);
             }
+
+            // 1.x still installed: offered once, not on top of the first-start choice (an import restarts the app,
+            // so it follows right after). Dev runs leave an installed 1.x alone.
+            if (_environment.IsPackaged && !startHidden && !offeredFirstStart && !_store.CurrentSettings.LegacyRemovalOffered
+                && LegacyApp.FindUninstaller() != null)
+                (MainWindow.Content as MainPage)?.OfferLegacyRemoval();
 
             if (!HotkeyRegistered)
                 ReportHotkeyUnavailable(startHidden);

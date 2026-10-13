@@ -62,6 +62,42 @@ public static class LegacyApp
         catch { /* already gone, or not ours to end */ }
     }
 
+    private const string UninstallKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\{9C4E7B2A-1F53-4A8D-B6E0-3D7C2F9A15E4}_is1";
+
+    /// <summary>The 1.x uninstaller's command line from its uninstall entry (read only), or null when 1.x isn't installed.</summary>
+    public static string? FindUninstaller()
+    {
+        try
+        {
+            using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(UninstallKey);
+            return key?.GetValue("UninstallString") as string is { Length: > 0 } command ? command : null;
+        }
+        catch { return null; }
+    }
+
+    /// <summary>The uninstaller to start for a silent removal, from its uninstall entry's command line.</summary>
+    internal static (string Exe, string Arguments)? SilentUninstall(string? uninstallString) =>
+        AppEnvironment.SplitCommandLine(uninstallString) is [var exe, ..] && exe.Length > 0
+            ? (exe, "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART") : null;
+
+    /// <summary>Removes 1.x with its own uninstaller, silently; its data folder stays. True once its uninstall entry
+    /// is gone within <paramref name="timeout"/> (the Inno uninstaller hands over to a copy of itself at once, so
+    /// the entry is what tells it finished).</summary>
+    public static async Task<bool> UninstallAsync(TimeSpan timeout)
+    {
+        if (SilentUninstall(FindUninstaller()) is not { } command) return FindUninstaller() == null;
+        try { using var _ = Process.Start(new ProcessStartInfo(command.Exe, command.Arguments) { UseShellExecute = true }); }
+        catch { return false; }
+
+        var stopwatch = Stopwatch.StartNew();
+        while (stopwatch.Elapsed < timeout)
+        {
+            await Task.Delay(500);
+            if (FindUninstaller() == null) return true;
+        }
+        return false;
+    }
+
     private static List<IntPtr> TopLevelWindows(int processId)
     {
         var windows = new List<IntPtr>();

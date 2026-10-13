@@ -23,4 +23,7 @@ public partial class AppSettings : ObservableObject
 
     // When Windows starts the app at sign-in, stay in the tray instead of opening the window.
     [ObservableProperty] public partial bool StartHidden { get; set; } = true;
+
+    // The one-time offer to remove a still installed TextTemplateManager 1 was made.
+    [ObservableProperty] public partial bool LegacyRemovalOffered { get; set; } = false;
 }

@@ -21,6 +21,8 @@ When the application starts without any templates yet and finds something to sta
 - **Restore a backup**, if backups from an earlier installation are in your Documents folder: **Settings ▸ Backups** opens with the newest one selected.
 - **Start fresh**: an empty tree. You won't be asked again; importing or restoring is still possible in **Settings ▸ Backups**.
 
+If TextTemplateManager 1 is still installed, you're also asked once whether to remove it. **Remove TextTemplateManager 1** runs its own uninstaller; its data folder stays on this PC. If it can't be removed from here, remove it in Windows **Settings ▸ Apps ▸ Installed apps**.
+
 ---
 
 ## The main window

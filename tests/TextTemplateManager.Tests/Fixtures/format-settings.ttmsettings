@@ -6,5 +6,6 @@
   "BrowserConnectorPort": 47700,
   "BrowserConnectorToken": "token",
   "SearchInContent": true,
-  "StartHidden": true
+  "StartHidden": true,
+  "LegacyRemovalOffered": true
 }

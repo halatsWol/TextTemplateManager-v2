@@ -7,6 +7,16 @@ namespace TextTemplateManager.Tests;
 /// anything merely named alike never do.</summary>
 public class LegacyAppTests
 {
+    [Fact]
+    public void The_uninstaller_runs_silently_from_its_uninstall_entry()
+    {
+        Assert.Equal((@"C:\Users\u\AppData\Local\Programs\Marflow Software\TextTemplateManager\unins000.exe", "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART"),
+            LegacyApp.SilentUninstall(@"""C:\Users\u\AppData\Local\Programs\Marflow Software\TextTemplateManager\unins000.exe"""));
+        Assert.Equal(@"C:\1x\unins000.exe", LegacyApp.SilentUninstall(@"C:\1x\unins000.exe")?.Exe);
+        Assert.Null(LegacyApp.SilentUninstall(null));
+        Assert.Null(LegacyApp.SilentUninstall("  "));
+    }
+
     private const string Root = @"C:\Users\u\AppData\Local\Programs\Marflow Software";
 
     [Theory]
