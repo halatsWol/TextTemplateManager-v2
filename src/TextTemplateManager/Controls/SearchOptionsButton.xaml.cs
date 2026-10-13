@@ -6,7 +6,7 @@ using TextTemplateManager.Models;
 
 namespace TextTemplateManager.Controls;
 
-/// <summary>The button beside a search box with the search options (search the template text too).
+/// <summary>The button beside a search box with the search options (search the template text too, strict search).
 /// Reads and writes the saved settings, so every search box shows the same state.</summary>
 public sealed partial class SearchOptionsButton : UserControl
 {
@@ -21,6 +21,10 @@ public sealed partial class SearchOptionsButton : UserControl
         ContentItem.RegisterPropertyChangedCallback(ToggleMenuFlyoutItem.IsCheckedProperty, (_, _) =>
         {
             if (_settings != null) _settings.SearchInContent = ContentItem.IsChecked;
+        });
+        StrictItem.RegisterPropertyChangedCallback(ToggleMenuFlyoutItem.IsCheckedProperty, (_, _) =>
+        {
+            if (_settings != null) _settings.StrictSearch = StrictItem.IsChecked;
         });
     }
 
@@ -48,14 +52,21 @@ public sealed partial class SearchOptionsButton : UserControl
 
     private void Settings_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(AppSettings.SearchInContent)) Show();
+        if (e.PropertyName is nameof(AppSettings.SearchInContent) or nameof(AppSettings.StrictSearch)) Show();
     }
 
     private void Show()
     {
-        bool on = _settings?.SearchInContent == true;
-        ContentItem.IsChecked = on;
-        ActiveDot.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
-        ToolTipService.SetToolTip(OptionsButton, on ? "Search options (searching template text too)" : "Search options");
+        bool content = _settings?.SearchInContent == true, strict = _settings?.StrictSearch == true;
+        ContentItem.IsChecked = content;
+        StrictItem.IsChecked = strict;
+        ActiveDot.Visibility = content || strict ? Visibility.Visible : Visibility.Collapsed;
+        ToolTipService.SetToolTip(OptionsButton, (content, strict) switch
+        {
+            (true, true) => "Search options (strict, searching template text too)",
+            (true, false) => "Search options (searching template text too)",
+            (false, true) => "Search options (strict search)",
+            _ => "Search options",
+        });
     }
 }

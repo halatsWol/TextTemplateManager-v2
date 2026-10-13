@@ -74,6 +74,7 @@ public class FileFormatTests
             BrowserConnectorPort = 47700,
             BrowserConnectorToken = "token",
             SearchInContent = true,
+            StrictSearch = true,
             StartHidden = true,
             LegacyRemovalOffered = true,
             Autosave = true,

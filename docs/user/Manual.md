@@ -61,6 +61,8 @@ To work on several items at once, select them as in File Explorer: **Ctrl**+clic
 
 The search box filters the tree: every word you type must appear in an item's title or tags, in any order, and a word's letters only need to appear in order, not next to each other (`mtg` finds *Meeting*). Folders holding a match stay visible and open. To look inside the templates' text as well, open the filter button beside the search box and turn on **Search template text**; a dot on the button shows it is on. It stays on until you turn it off, in both the main window and Quick Paste.
 
+For an exact search, turn on **Strict search** on the same button. The search box then finds exactly what you type, anywhere in an item's title, its tags or (with **Search template text**) its text: several words as one phrase in the order typed, without the letter skipping of the normal search; upper and lower case don't matter. `lunch` finds *A lunch order*, and so does `unch ord`, but `lunch today` doesn't find *Lunch order for today*. `*` stands for any characters (also none) and `.` for exactly one character, so `invoice * reminder` finds *Invoice payment reminder*, and `colo.r` finds *Colour* but not *Color*. To search for a `*` or `.` itself, put a backslash before it (`v2\.0`).
+
 From the search box, **↓** moves into the tree, the same way as in Quick Paste: if the text cursor isn't at the end yet, the first **↓** moves it there.
 
 ### The template editor
@@ -166,7 +168,7 @@ pasted.
   **Backspace** while holding **Alt** to correct a mistyped entry.
 - **Paste as plain text** — while still holding **Alt**, end a multi-key entry with **Shift + -** (which produces `_`) to 
   insert the template as unformatted text, regardless of its default paste mode.
-- **Search** — click the search box (or press **Tab** or **Ctrl + F**) to filter the tree and the shortcut lists, matched the same way as in the main window (including **Search template text**, which the filter button here turns on and off too); matching templates display 
+- **Search** — click the search box (or press **Tab** or **Ctrl + F**) to filter the tree and the shortcut lists, matched the same way as in the main window (including **Search template text** and **Strict search**, which the filter button here turns on and off too); matching templates display 
   their folder path. While the search box has focus, every letter filters and never triggers a 
   shortcut; press **Esc** to return to shortcut mode. In the search box the arrow keys move the text 
   cursor — **↑** to the start, **↓** to the end — and pressing **↓** again once the cursor is at the 

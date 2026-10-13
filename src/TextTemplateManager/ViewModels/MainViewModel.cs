@@ -78,6 +78,7 @@ public partial class MainViewModel : ObservableObject
 
     // Search looks in the template text too; a saved setting, shared with Quick Paste.
     private bool IncludeContentSearch => _dataNode.CurrentSettings.SearchInContent;
+    private bool StrictSearch => _dataNode.CurrentSettings.StrictSearch;
 
     public bool IsEditorEnabled => EditedItem is Template;
 
@@ -233,7 +234,7 @@ public partial class MainViewModel : ObservableObject
         // Turned on or off here or in Quick Paste.
         _dataNode.CurrentSettings.PropertyChanged += async (_, e) =>
         {
-            if (e.PropertyName == nameof(AppSettings.SearchInContent)) ApplyFilter();
+            if (e.PropertyName is nameof(AppSettings.SearchInContent) or nameof(AppSettings.StrictSearch)) ApplyFilter();
             if (e.PropertyName == nameof(AppSettings.Autosave))
             {
                 await SaveEditsAsync();   // switched on with edits pending: they are kept
@@ -379,7 +380,7 @@ public partial class MainViewModel : ObservableObject
             SyncCollection(node.Children, children);
             if (item is Folder) node.IsExpanded = true;
             return node;
-        });
+        }, StrictSearch);
 
     #endregion
 

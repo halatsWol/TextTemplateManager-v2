@@ -25,6 +25,8 @@
             <MenuFlyout x:Name="Menu" Placement="BottomEdgeAlignedRight" ShouldConstrainToRootBounds="True">
                 <ToggleMenuFlyoutItem x:Name="ContentItem"
                                       Text="Search template text"/>
+                <ToggleMenuFlyoutItem x:Name="StrictItem"
+                                      Text="Strict search: exactly as typed, * any characters, . one character"/>
             </MenuFlyout>
         </Button.Flyout>
     </Button>

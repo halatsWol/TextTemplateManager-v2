@@ -90,7 +90,7 @@ namespace TextTemplateManager
             SearchOptions.Settings = store.CurrentSettings;
             store.CurrentSettings.PropertyChanged += (_, e) =>
             {
-                if (e.PropertyName == nameof(AppSettings.SearchInContent) && AppWindow.IsVisible)
+                if (e.PropertyName is nameof(AppSettings.SearchInContent) or nameof(AppSettings.StrictSearch) && AppWindow.IsVisible)
                     UpdateAllFilters(SearchBox.Text);
             };
         }
@@ -207,11 +207,11 @@ namespace TextTemplateManager
             }
             else
             {
-                foreach (var node in TemplateSearch.Prune<TreeViewNode>(_store.LocalItems, searchFilter, _store.CurrentSettings.SearchInContent, FilteredNode))
+                foreach (var node in TemplateSearch.Prune<TreeViewNode>(_store.LocalItems, searchFilter, _store.CurrentSettings.SearchInContent, FilteredNode, _store.CurrentSettings.StrictSearch))
                     TemplateTree.RootNodes.Add(node);
             }
 
-            _entry.SetSearch(searchFilter, _store.CurrentSettings.SearchInContent);
+            _entry.SetSearch(searchFilter, _store.CurrentSettings.SearchInContent, _store.CurrentSettings.StrictSearch);
             Render();
         }
 
