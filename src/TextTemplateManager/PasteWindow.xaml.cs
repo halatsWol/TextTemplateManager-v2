@@ -17,6 +17,7 @@ using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
 using TextTemplateManager.Services.Pasting;
 using TextTemplateManager.ViewModels;
+using static TextTemplateManager.Helpers.SearchNavigation;
 using Windows.System;
 using Windows.UI.Core;
 
@@ -510,19 +511,6 @@ namespace TextTemplateManager
                 Render();
             }
         }
-        // Maps a letter or digit key (top row or numpad) to its lowercase character; false for any other key.
-        internal static bool TryGetCharKey(VirtualKey key, out char c)
-        {
-            c = key switch
-            {
-                >= VirtualKey.A and <= VirtualKey.Z => (char)('a' + (key - VirtualKey.A)),
-                >= VirtualKey.Number0 and <= VirtualKey.Number9 => (char)('0' + (key - VirtualKey.Number0)),
-                >= VirtualKey.NumberPad0 and <= VirtualKey.NumberPad9 => (char)('0' + (key - VirtualKey.NumberPad0)),
-                _ => '\0',
-            };
-            return c != '\0';
-        }
-
         private const uint MB_OK = 0x00000000;   // "Default Beep" — the Explorer no-match ding
         [DllImport("user32.dll")] private static extern bool MessageBeep(uint uType);
         private static void PlayNoMatchBeep() => MessageBeep(MB_OK);
@@ -588,18 +576,6 @@ namespace TextTemplateManager
         {
             _entry.SetShortcutMode(InShortcutMode());
             Render();
-        }
-
-        internal enum SearchDown { MoveCaretToEnd, EnterTree }
-
-        /// <summary>What Down does from the search box: step into the tree, or just move the caret to the
-        /// end. It enters the tree only from a collapsed caret already at the end (an empty box counts as
-        /// at-the-end) and only when the tree has rows; a selection or a mid-string caret collapses to the
-        /// end first, and an empty tree keeps the caret in the box.</summary>
-        internal static SearchDown DecideSearchDown(int caret, int selectionLength, int textLength, int treeNodeCount)
-        {
-            bool atEnd = selectionLength == 0 && caret >= textLength;
-            return atEnd && treeNodeCount > 0 ? SearchDown.EnterTree : SearchDown.MoveCaretToEnd;
         }
 
         // Move focus into the search box and append a character, caret at the end — the shared path for a

@@ -46,9 +46,8 @@ namespace TextTemplateManager
             // The list marks drag events over its empty space handled; a drop there moves to the end.
             ItemTreeView.AddHandler(UIElement.DragOverEvent, new DragEventHandler(ItemTreeView_DragOver), true);
             ItemTreeView.AddHandler(UIElement.DropEvent, new DragEventHandler(ItemTreeView_Drop), true);
-            // Same for the search box: the AutoSuggestBox takes the arrow keys for its suggestion list.
-            SearchBox.AddHandler(UIElement.KeyDownEvent, new KeyEventHandler(SearchBox_KeyDown), true);
-            // Esc is taken before the AutoSuggestBox sees it: its own Esc restores the last typed text.
+            // Esc and the arrows are taken before the AutoSuggestBox sees them: its own Esc restores the last typed
+            // text, and it takes the arrows for its suggestion list (and passes them on, so a KeyDown handler ran twice).
             SearchBox.PreviewKeyDown += SearchBox_PreviewKeyDown;
 
 
@@ -681,8 +680,26 @@ namespace TextTemplateManager
             {
                 e.Handled = true;
                 folderNode.IsExpanded = !folderNode.IsExpanded;
+                return;
+            }
+
+            // A letter or digit goes back to the search box and keeps typing there, as in Quick Paste.
+            if (!IsCtrlDown() && !IsAltDown() && SearchNavigation.TryGetCharKey(e.Key, out char typed))
+            {
+                e.Handled = true;
+                ViewModel.SearchText += typed;
+                FocusSearchBox();
+                if (FindDescendant<TextBox>(SearchBox) is TextBox box)
+                {
+                    box.SelectionLength = 0;
+                    box.SelectionStart = box.Text.Length;
+                }
             }
         }
+
+        private static bool IsAltDown()
+            => (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Menu) & CoreVirtualKeyStates.Down)
+               == CoreVirtualKeyStates.Down;
 
         private static bool IsCtrlDown()
             => (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Control) & CoreVirtualKeyStates.Down)
@@ -706,14 +723,19 @@ namespace TextTemplateManager
 
         private void FocusSearchBox() => SearchBox.Focus(FocusState.Programmatic);
 
-        // Down in the search box works like in Quick Paste: the caret goes to the end first, the next
-        // Down (from the end of the text) moves into the tree.
-        private void SearchBox_KeyDown(object sender, KeyRoutedEventArgs e)
+        // Up and Down in the search box work like in Quick Paste: Up puts the caret at the start; Down puts it
+        // at the end first, the next Down (from the end of the text) moves into the tree.
+        private void SearchArrow(KeyRoutedEventArgs e)
         {
-            if (e.Key != VirtualKey.Down || FindDescendant<TextBox>(SearchBox) is not TextBox box) return;
+            if (FindDescendant<TextBox>(SearchBox) is not TextBox box) return;
             e.Handled = true;
-            if (PasteWindow.DecideSearchDown(box.SelectionStart, box.SelectionLength, box.Text.Length,
-                    ViewModel.RootNodes.Count) == PasteWindow.SearchDown.EnterTree)
+            if (e.Key == VirtualKey.Up)
+            {
+                box.SelectionLength = 0;
+                box.SelectionStart = 0;
+            }
+            else if (SearchNavigation.DecideSearchDown(box.SelectionStart, box.SelectionLength, box.Text.Length,
+                    ViewModel.RootNodes.Count) == SearchNavigation.SearchDown.EnterTree)
                 FocusTree();
             else
             {
@@ -726,6 +748,7 @@ namespace TextTemplateManager
         // box already empty it clears the tree selection (so new items go to the root).
         private void SearchBox_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
         {
+            if (e.Key is VirtualKey.Up or VirtualKey.Down) { SearchArrow(e); return; }
             if (e.Key != VirtualKey.Escape) return;
             e.Handled = true;
             if (!string.IsNullOrEmpty(ViewModel.SearchText)) ViewModel.SearchText = string.Empty;
