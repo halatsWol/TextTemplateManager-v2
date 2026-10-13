@@ -4,8 +4,8 @@
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
     <RootNamespace>TextTemplateManager</RootNamespace>
-    <!-- Ship the executable as ttm.exe (independent of the .csproj / namespace name). -->
-    <AssemblyName>ttm</AssemblyName>
+    <!-- Ship the executable as ttm2.exe (independent of the .csproj / namespace name); 1.x is ttm.exe. -->
+    <AssemblyName>ttm2</AssemblyName>
     <!-- Local/dev default. A release build passes the git tag as -p:Version=X.Y.Z, which also becomes
          the package version (StampPackageVersion below). -->
     <Version>0.0.0-dev</Version>

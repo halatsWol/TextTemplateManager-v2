@@ -103,7 +103,7 @@ namespace TextTemplateManager
 
             MainWindow = new Window();
             MainWindow.Content = new MainPage(_store);
-            MainWindow.Title = "TextTemplateManager";
+            MainWindow.Title = "TextTemplateManager 2";
 
             IntPtr hwnd = WindowNative.GetWindowHandle(MainWindow);
             var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
