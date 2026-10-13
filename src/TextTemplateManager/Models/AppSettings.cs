@@ -26,4 +26,7 @@ public partial class AppSettings : ObservableObject
 
     // The one-time offer to remove a still installed TextTemplateManager 1 was made.
     [ObservableProperty] public partial bool LegacyRemovalOffered { get; set; } = false;
+
+    // Edits to the selected item are saved as they are made. Off: they wait for Save (or the prompt on leaving the item).
+    [ObservableProperty] public partial bool Autosave { get; set; } = false;
 }

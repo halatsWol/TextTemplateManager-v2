@@ -25,18 +25,16 @@ public partial class MainViewModel : ObservableObject
     public ObservableCollection<BaseItem> AllItems => _dataNode.LocalItems;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsEditorEnabled))]
     [NotifyPropertyChangedFor(nameof(SelectedTemplate))]
-    [NotifyPropertyChangedFor(nameof(IsFolderSelected))]
-    [NotifyPropertyChangedFor(nameof(IsNoSelection))]
     [NotifyPropertyChangedFor(nameof(IsSelectedReadOnly))]
     [NotifyPropertyChangedFor(nameof(IsSelectedEditable))]
     [NotifyPropertyChangedFor(nameof(CanAddHere))]
     [NotifyPropertyChangedFor(nameof(CanDeleteSelection))]
     public partial BaseItem? SelectedItem { get; set; }
 
-    public bool IsFolderSelected => SelectedItem is Folder;
-    public bool IsNoSelection => SelectedItem is null;
+    // The pane's panels follow the edited item, which stays on the item left while the unsaved-changes question is open.
+    public bool IsFolderSelected => EditedItem is Folder;
+    public bool IsNoSelection => EditedItem is null;
 
     public bool IsSelectedReadOnly => SelectedItem != null && _dataNode.IsItemReadOnly(SelectedItem);
     public bool IsSelectedEditable => !IsSelectedReadOnly;
@@ -81,10 +79,123 @@ public partial class MainViewModel : ObservableObject
     // Search looks in the template text too; a saved setting, shared with Quick Paste.
     private bool IncludeContentSearch => _dataNode.CurrentSettings.SearchInContent;
 
-    public bool IsEditorEnabled => SelectedItem is Template;
+    public bool IsEditorEnabled => EditedItem is Template;
 
     // Null when a Folder is selected — avoids cast exceptions in XAML.
     public Template? SelectedTemplate => SelectedItem as Template;
+
+    #region Editing (autosave off: a draft)
+
+    /// <summary>What the right pane shows and edits: the selected item itself with autosave on, otherwise its
+    /// <see cref="ItemDraft"/> copy. While the unsaved-changes question is open it stays on the item left.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(EditedTemplate))]
+    [NotifyPropertyChangedFor(nameof(IsEditorEnabled))]
+    [NotifyPropertyChangedFor(nameof(IsFolderSelected))]
+    [NotifyPropertyChangedFor(nameof(IsNoSelection))]
+    public partial BaseItem? EditedItem { get; set; }
+
+    public Template? EditedTemplate => EditedItem as Template;
+
+    private ItemDraft? _draft;
+    private bool _switchCheckQueued;
+
+    /// <summary>The edited item has changes that aren't saved yet (autosave off).</summary>
+    public bool HasUnsavedChanges => _draft?.IsDirty == true;
+
+    /// <summary>The selection left the edited item (autosave off). The page takes the editor's last content, asks
+    /// when <see cref="HasUnsavedChanges"/>, and answers with <see cref="ResolveSwitchAsync"/> or
+    /// <see cref="CancelSwitch"/>.</summary>
+    public event Action? LeavingEditedItem;
+
+    private bool Autosave => _dataNode.CurrentSettings.Autosave;
+
+    // The pane edits item: directly with autosave on, otherwise a fresh draft of it.
+    private void Edit(BaseItem? item)
+    {
+        if (item != null && !Autosave) { Adopt(ItemDraft.For(item)); return; }
+        if (_draft != null) _draft.DirtyChanged -= OnDraftDirtyChanged;
+        _draft = null;
+        EditedItem = item;
+        OnPropertyChanged(nameof(HasUnsavedChanges));
+    }
+
+    private void Adopt(ItemDraft draft)
+    {
+        if (_draft != null) _draft.DirtyChanged -= OnDraftDirtyChanged;
+        _draft = draft;
+        _draft.DirtyChanged += OnDraftDirtyChanged;
+        EditedItem = draft.Edited;
+        OnPropertyChanged(nameof(HasUnsavedChanges));
+    }
+
+    private void OnDraftDirtyChanged() => OnPropertyChanged(nameof(HasUnsavedChanges));
+
+    // Leaving a draft is decided once the selection has settled: a tree refresh can pass through no selection
+    // and back to the same item, which isn't leaving it.
+    private void OnSelectionMoved(BaseItem? value)
+    {
+        if (_draft is { } draft)
+        {
+            if (!ReferenceEquals(value, draft.Original) && !_switchCheckQueued)
+            {
+                _switchCheckQueued = true;
+                _ui.TryEnqueue(DispatcherQueuePriority.Low, CheckSwitch);
+            }
+            return;
+        }
+        if (!ReferenceEquals(EditedItem, value)) Edit(value);
+    }
+
+    private void CheckSwitch()
+    {
+        _switchCheckQueued = false;
+        if (_draft is not { } draft) { Edit(SelectedItem); return; }
+        if (ReferenceEquals(SelectedItem, draft.Original)) return;
+        if (!AllItems.Descendants().Contains(draft.Original))
+        {
+            // Replaced by a sync refresh: the edits move onto the new item. Deleted: they go with it.
+            if (AllItems.Descendants().FirstOrDefault(i => i.Id == draft.Original.Id) is { } replacement)
+            {
+                Adopt(draft.RebaseOnto(replacement));
+                SelectedItem = replacement;
+            }
+            else Edit(SelectedItem);
+            return;
+        }
+        LeavingEditedItem?.Invoke();
+    }
+
+    /// <summary>Saves the edits and writes them to disk now (with autosave on: whatever is still waiting).</summary>
+    public async Task SaveEditsAsync()
+    {
+        if (_draft is { IsDirty: true } draft) draft.Commit();
+        await _dataNode.FlushPendingSaveAsync();
+    }
+
+    /// <summary>Puts the edited item back as it was last saved.</summary>
+    public void DiscardEdits() => Edit(_draft?.Original ?? SelectedItem);
+
+    /// <summary>After <see cref="LeavingEditedItem"/>: save the edits or drop them, then edit the new selection.</summary>
+    public async Task ResolveSwitchAsync(bool save)
+    {
+        if (save) await SaveEditsAsync();
+        Edit(SelectedItem);
+    }
+
+    /// <summary>After <see cref="LeavingEditedItem"/>: go back to the item with the edits, which are kept.</summary>
+    public void CancelSwitch()
+    {
+        if (_draft != null) SelectedItem = _draft.Original;
+    }
+
+    /// <summary>The editor shows the edited template's content as <paramref name="html"/> after loading it.</summary>
+    public void EditorLoaded(Template shown, string html)
+    {
+        if (_draft is { } draft && ReferenceEquals(draft.Edited, shown)) draft.ContentLoaded(html);
+    }
+
+    #endregion
 
     public MainViewModel(DataNode store)
     {
@@ -120,9 +231,14 @@ public partial class MainViewModel : ObservableObject
         _dataNode.ShortcutsChanged += QueueValidation;
 
         // Turned on or off here or in Quick Paste.
-        _dataNode.CurrentSettings.PropertyChanged += (_, e) =>
+        _dataNode.CurrentSettings.PropertyChanged += async (_, e) =>
         {
             if (e.PropertyName == nameof(AppSettings.SearchInContent)) ApplyFilter();
+            if (e.PropertyName == nameof(AppSettings.Autosave))
+            {
+                await SaveEditsAsync();   // switched on with edits pending: they are kept
+                Edit(SelectedItem);
+            }
         };
 
         _ = Task.Run(async () =>
@@ -458,6 +574,7 @@ public partial class MainViewModel : ObservableObject
         if (!_clicking && !ModifierClickPending && _settlingFocus == null) ResetSelection(value);
         SelectedNode = value == null ? null : NodeFor(value);
         OnPropertyChanged(nameof(SelectedItem));
+        OnSelectionMoved(value);
     }
 
     #region Several selected items

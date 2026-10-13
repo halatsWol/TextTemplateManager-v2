@@ -7,5 +7,6 @@
   "BrowserConnectorToken": "token",
   "SearchInContent": true,
   "StartHidden": true,
-  "LegacyRemovalOffered": true
+  "LegacyRemovalOffered": true,
+  "Autosave": true
 }

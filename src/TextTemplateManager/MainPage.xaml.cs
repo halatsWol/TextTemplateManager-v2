@@ -62,9 +62,10 @@ namespace TextTemplateManager
             ViewModel.ConflictsChanged += ShowShortcutConflicts;
             ViewModel.SelectionLookChanged += () => DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, ApplySelectionLookToAllRows);
 
+            ViewModel.LeavingEditedItem += OnLeavingEditedItem;
             ViewModel.PropertyChanged += (s, e) =>
             {
-                if (e.PropertyName == nameof(ViewModel.SelectedItem))
+                if (e.PropertyName == nameof(ViewModel.EditedItem))
                 {
                     DispatcherQueue.TryEnqueue(() =>
                     {
@@ -92,6 +93,79 @@ namespace TextTemplateManager
             SearchOptions.Settings = store.CurrentSettings;
             Settings.Closed += Settings_Closed;
             Editor.FocusSearchRequested += (_, _) => FocusSearchBox();
+            Editor.SaveRequested += async (_, _) => await SaveAsync();
+            Editor.ContentLoaded += ViewModel.EditorLoaded;
+        }
+
+        private async Task SaveAsync()
+        {
+            await Editor.FlushAsync();   // what was typed in the last moment, not reported yet
+            await ViewModel.SaveEditsAsync();
+        }
+
+        private async void Save_Click(object sender, RoutedEventArgs e) => await SaveAsync();
+
+        private async void SaveAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+        {
+            args.Handled = true;
+            await SaveAsync();
+        }
+
+        public enum UnsavedAnswer { Save, DontSave, Cancel }
+
+        /// <summary>Asks what to do with the edited item's unsaved changes. Cancel also when the question can't be
+        /// shown (another dialog is open).</summary>
+        public async Task<UnsavedAnswer> AskUnsavedChangesAsync()
+        {
+            var dialog = new ContentDialog
+            {
+                Title = "Save changes?",
+                Content = $"\"{ViewModel.EditedItem?.Title}\" has changes that aren't saved.",
+                PrimaryButtonText = "Save",
+                SecondaryButtonText = "Don't save",
+                CloseButtonText = "Cancel",
+                DefaultButton = ContentDialogButton.Primary,
+            };
+            return await ShowDialogAsync(dialog) switch
+            {
+                ContentDialogResult.Primary => UnsavedAnswer.Save,
+                ContentDialogResult.Secondary => UnsavedAnswer.DontSave,
+                _ => UnsavedAnswer.Cancel,
+            };
+        }
+
+        /// <summary>Before the window closes or the app exits: asks about unsaved edits (autosave off). False when the
+        /// user cancels, so nothing closes.</summary>
+        public async Task<bool> ResolveUnsavedEditsAsync()
+        {
+            await Editor.FlushAsync();
+            if (!ViewModel.HasUnsavedChanges) return true;
+            switch (await AskUnsavedChangesAsync())
+            {
+                case UnsavedAnswer.Save: await ViewModel.SaveEditsAsync(); return true;
+                case UnsavedAnswer.DontSave: ViewModel.DiscardEdits(); return true;
+                default: return false;
+            }
+        }
+
+        /// <summary>Windows is signing out or shutting down: nothing can be asked, so unsaved edits are saved.</summary>
+        public async Task KeepUnsavedEditsAsync()
+        {
+            await Editor.FlushAsync();
+            await ViewModel.SaveEditsAsync();
+        }
+
+        // Another item was selected (autosave off): the editor's last content first, then ask if anything is unsaved.
+        private async void OnLeavingEditedItem()
+        {
+            await Editor.FlushAsync();
+            if (!ViewModel.HasUnsavedChanges) { await ViewModel.ResolveSwitchAsync(save: false); return; }
+            switch (await AskUnsavedChangesAsync())
+            {
+                case UnsavedAnswer.Save: await ViewModel.ResolveSwitchAsync(save: true); break;
+                case UnsavedAnswer.DontSave: await ViewModel.ResolveSwitchAsync(save: false); break;
+                default: ViewModel.CancelSwitch(); break;
+            }
         }
 
         // Strips what the stored shortcut can't hold while typing, keeping the caret in place (the binding
@@ -143,7 +217,7 @@ namespace TextTemplateManager
 
 
         // Shows the selected template in the editor (an empty editor for a folder or no selection).
-        private void PushTemplateToEditor() => Editor.Show(ViewModel.SelectedTemplate, ViewModel.IsSelectedEditable);
+        private void PushTemplateToEditor() => Editor.Show(ViewModel.EditedTemplate, ViewModel.IsSelectedEditable);
         #region Menu Handlers
 
         private void MainHelpButton_Click(object sender, RoutedEventArgs e) => MainHelpTip.IsOpen = true;

@@ -23,6 +23,13 @@ public sealed partial class TemplateEditor : UserControl
     /// <summary>The editor asked to move focus back to the search box.</summary>
     public event EventHandler? FocusSearchRequested;
 
+    /// <summary>Ctrl+S was pressed in the editor.</summary>
+    public event EventHandler? SaveRequested;
+
+    /// <summary>A template was loaded; its content as the editor shows it (normalised HTML, which can differ
+    /// from the stored text without any edit).</summary>
+    public event Action<Template, string>? ContentLoaded;
+
     public TemplateEditor() => InitializeComponent();
 
     /// <summary>Shows <paramref name="template"/> (null: an empty editor), read-only unless
@@ -39,17 +46,21 @@ public sealed partial class TemplateEditor : UserControl
     {
         var t = _current;
         if (t == null || EditorWebView?.CoreWebView2 == null) return;
+        if (await GetHtmlAsync() is { } html && t.Content != html) t.Content = html;
+    }
 
+    private async Task<string?> GetHtmlAsync()
+    {
         try
         {
             // ExecuteScriptAsync returns the result JSON-encoded (a quoted string).
             string result = await EditorWebView.CoreWebView2.ExecuteScriptAsync("window.editorApi.getContent()");
-            string html = System.Text.Json.JsonSerializer.Deserialize<string>(result) ?? string.Empty;
-            if (t.Content != html) t.Content = html;
+            return System.Text.Json.JsonSerializer.Deserialize<string>(result) ?? string.Empty;
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[Editor] flush failed: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[Editor] reading the content failed: {ex.Message}");
+            return null;
         }
     }
 
@@ -149,6 +160,10 @@ public sealed partial class TemplateEditor : UserControl
             {
                 FocusSearchRequested?.Invoke(this, EventArgs.Empty);
             }
+            else if (type == "save")
+            {
+                SaveRequested?.Invoke(this, EventArgs.Empty);
+            }
         }
         catch (Exception ex)
         {
@@ -173,6 +188,7 @@ public sealed partial class TemplateEditor : UserControl
 
         _current = t;
         await SetHtmlAsync(GetHtmlForEditing(t));
+        if (await GetHtmlAsync() is { } shown && ReferenceEquals(_current, t)) ContentLoaded?.Invoke(t, shown);
 
         // Read-only for save-off synced templates.
         try

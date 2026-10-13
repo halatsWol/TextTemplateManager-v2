@@ -726,13 +726,14 @@ document.addEventListener('click', (e) => {
     if (openPopup && !openPopup.contains(e.target) && !e.target.closest('.tb-btn[data-pop]')) closePopup()
 })
 
-// Ctrl+F never reaches the host's XAML accelerator while the WebView has focus, so forward it.
+// Ctrl+F and Ctrl+S never reach the host's XAML accelerators while the WebView has focus, so forward them.
 window.addEventListener('keydown', (e) => {
-    if (e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey && e.key.toLowerCase() === 'f') {
-        e.preventDefault()
-        e.stopPropagation()
-        post({ type: 'focusSearch' })
-    }
+    if (!e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) return
+    const type = { f: 'focusSearch', s: 'save' }[e.key.toLowerCase()]
+    if (!type) return
+    e.preventDefault()
+    e.stopPropagation()
+    post({ type })
 }, true)
 
 // Show `pop` under `btn`, clamped to the viewport so a right-edge button (e.g. the symbol

@@ -15,6 +15,7 @@
     <Page.KeyboardAccelerators>
         <!-- Ctrl+F focuses the search box from anywhere in the window. -->
         <KeyboardAccelerator Modifiers="Control" Key="F" Invoked="SearchAccelerator_Invoked"/>
+        <KeyboardAccelerator Modifiers="Control" Key="S" Invoked="SaveAccelerator_Invoked"/>
     </Page.KeyboardAccelerators>
 
     <Page.Resources>
@@ -93,7 +94,7 @@
                 </MenuBarItem>
             </MenuBar>
 
-            <!-- Top-right actions at the File-menu height: save indicator + quick help. -->
+            <!-- Top-right actions at the File-menu height: save indicator, Save + quick help. -->
             <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right"
                         VerticalAlignment="Center" Spacing="6" Margin="0,0,10,0">
                 <!-- Transient "Saved" indicator; fades in on save, out after 3s (see MainPage.xaml.cs). -->
@@ -103,6 +104,15 @@
                     <TextBlock Text="Saved" FontSize="12" VerticalAlignment="Center"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 </StackPanel>
+                <!-- Autosave off: shown while the edited item has unsaved changes. -->
+                <Button x:Name="SaveButton" Click="Save_Click" Style="{StaticResource AccentButtonStyle}" Padding="10,3"
+                        Visibility="{x:Bind ViewModel.HasUnsavedChanges, Mode=OneWay, Converter={StaticResource BoolToVis}}"
+                        ToolTipService.ToolTip="Save changes (Ctrl+S)" AutomationProperties.Name="Save">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE74E;" FontSize="12"/>
+                        <TextBlock Text="Save" FontSize="12"/>
+                    </StackPanel>
+                </Button>
                 <Button x:Name="MainHelpButton"
                         Content="&#xE897;" FontFamily="Segoe MDL2 Assets" Click="MainHelpButton_Click"
                         ToolTipService.ToolTip="Quick Help" Style="{StaticResource SubtleButtonStyle}"/>
@@ -219,7 +229,7 @@
                     <!-- TEMPLATE: title + WebView2 editor + metadata -->
                     <Grid x:Name="TemplatePanel"
                           RowSpacing="12"
-                          DataContext="{x:Bind ViewModel.SelectedTemplate, Mode=OneWay}"
+                          DataContext="{x:Bind ViewModel.EditedTemplate, Mode=OneWay}"
                           Visibility="{x:Bind ViewModel.IsEditorEnabled, Mode=OneWay, Converter={StaticResource BoolToVis}}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -295,7 +305,7 @@
                     <!-- FOLDER placeholder -->
                     <Grid x:Name="FolderPanel"
                           RowSpacing="20"
-                          DataContext="{x:Bind ViewModel.SelectedItem, Mode=OneWay}"
+                          DataContext="{x:Bind ViewModel.EditedItem, Mode=OneWay}"
                           Visibility="{x:Bind ViewModel.IsFolderSelected, Mode=OneWay, Converter={StaticResource BoolToVis}}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>

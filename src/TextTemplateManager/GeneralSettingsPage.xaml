@@ -77,6 +77,21 @@
 
         <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
 
+        <StackPanel Spacing="8">
+            <TextBlock Text="Editing" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <StackPanel Spacing="2">
+                <ToggleSwitch x:Name="AutosaveToggle"
+                              Header="Autosave"
+                              IsOn="{x:Bind ViewModel.Autosave, Mode=TwoWay}"/>
+                <TextBlock Text="Saves changes to a template or folder as you make them. When off, changes wait for Save (Ctrl+S), and you're asked before leaving an item with unsaved changes."
+                           TextWrapping="Wrap"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
+        </StackPanel>
+
+        <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
+
 
         <StackPanel Spacing="10">
             <TextBlock Text="Other" Style="{StaticResource BodyStrongTextBlockStyle}"/>

@@ -120,12 +120,13 @@ namespace TextTemplateManager
 
 
 
-            // "X" hides instead of closing.
-            appWindow.Closing += (s, e) =>
+            // "X" hides instead of closing, after asking about unsaved edits (Cancel keeps the window open).
+            appWindow.Closing += async (s, e) =>
             {
                 if (!_isClosingFromTray)
                 {
                     e.Cancel = true;
+                    if (MainWindow.Content is MainPage page && !await page.ResolveUnsavedEditsAsync()) return;
                     MainWindow.Hide();
                     // Reopen in a clean state rather than wherever the window was left.
                     (MainWindow.Content as MainPage)?.ClearSearch();
@@ -414,6 +415,11 @@ namespace TextTemplateManager
         /// takes more than a second and asks before giving up on a save that hangs.</summary>
         public async Task ExitAsync()
         {
+            if (MainWindow.Content is MainPage editing)
+            {
+                if (editing.ViewModel.HasUnsavedChanges) ShowMainWindow();   // the question needs the window
+                if (!await editing.ResolveUnsavedEditsAsync()) return;
+            }
             StopAcceptingWork();
             var save = PersistPendingAsync();
             if (await Task.WhenAny(save, Task.Delay(TimeSpan.FromSeconds(1))) != save
@@ -433,14 +439,21 @@ namespace TextTemplateManager
         }
 
         // Sign-out/shutdown announced: start saving right away; the session may still be cancelled.
-        private void OnQueryEndSession() => _sessionEndSave ??= PersistPendingAsync();
+        private void OnQueryEndSession() => _sessionEndSave ??= SaveForSessionEndAsync();
+
+        private async Task SaveForSessionEndAsync()
+        {
+            try { if (MainWindow.Content is MainPage page) await page.KeepUnsavedEditsAsync(); }
+            catch (Exception ex) { LogCrash("SessionEndEdits", ex); }
+            await PersistPendingAsync();
+        }
 
         // Final: Windows ends the process as soon as this returns, so wait here (keeping the UI thread's
         // messages flowing for the saves) within the few seconds Windows allows.
         private void OnEndSession()
         {
             StopAcceptingWork();
-            var save = _sessionEndSave ??= PersistPendingAsync();
+            var save = _sessionEndSave ??= SaveForSessionEndAsync();
             WindowHelper.PumpMessagesUntil(() => save.IsCompleted, TimeSpan.FromSeconds(4));
             Shutdown();
         }

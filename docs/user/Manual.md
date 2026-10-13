@@ -67,9 +67,9 @@ From the search box, **↓** moves into the tree, the same way as in Quick Paste
 
 Selecting a template opens it in the editor, which supports bold, italic, underline, 
 strikethrough, text and highlight colors, headings, bulleted and numbered lists, links, tables, 
-callout panels, and code blocks with syntax highlighting. Changes are saved automatically a short time after you stop typing, so there is 
-no separate save step — a brief **Saved** indicator appears in the top-right corner each time your 
-data is written.
+callout panels, and code blocks with syntax highlighting.
+
+Changes to a template or folder (its title, text, tags, shortcuts and default paste mode) wait for you to save them: a **Save** button appears in the top-right corner, next to the help button, and **Ctrl+S** saves too, also while typing in the editor. If you select another item, close the window or exit while changes aren't saved, you're asked whether to **Save** them, **Don't save** them (the item goes back to how it was last saved), or **Cancel** (you stay on the item, changes kept, and the window stays open). A brief **Saved** indicator appears each time your data is written. To save as you type instead, switch on **Autosave** in **Settings ▸ General**. Adding, deleting, moving and importing items are always saved at once.
 
 **Ctrl+click** a link to open it in your default browser, and hover over a link to see where it 
 points. A plain click just places the cursor so you can edit the link.
@@ -243,6 +243,10 @@ Open settings from **File ▸ Settings**. It has a **General**, an **Integration
 - **Start hidden in the system tray** — on by default: when Windows starts the app at sign-in, it stays in the tray instead of opening the window; the Quick Paste hotkey and tray icon still work. Starting the app yourself always opens the window.
 
 If TextTemplateManager 1 was set up on this PC, both switches take over its choices the first time this version finds it.
+
+**Editing**
+
+- **Autosave** — off by default: changes to a template or folder wait for **Save** (see *The template editor*). On: they are saved a short time after you stop typing, and there is no Save button.
 
 ![Settings ▸ General: the Quick Paste hotkey, the default paste mode for new templates, and startup.](../../src/TextTemplateManager/Assets/ManualImages/TTM_GeneralSettings1.png)
 
@@ -464,6 +468,7 @@ Deployment Guide** (`TextTemplateManager-AdminManual.pdf`), attached to each rel
 | Context | Input | Action |
 | --- | --- | --- |
 | Main window | **Ctrl + F** | Focus the search box. |
+| Main window | **Ctrl + S** | Save the changes to the selected template or folder (also in the editor). |
 | Main window | **Tab** / **Shift + Tab** | Go round the search box, the tree and the selected item's fields (title, shortcuts, tags, default paste mode). In the editor, **Tab** indents. |
 | Main window (Tree) | **Delete** | Delete the selected item(s) (with confirmation). |
 | Main window (Tree) | **Ctrl**+click / **Shift**+click | Add or remove an item / select a range of rows. |
@@ -495,7 +500,7 @@ Application data is stored per user in the app's own package folder:
 
 This folder contains your template data, application settings, and synchronization configuration. Windows removes it when you uninstall the app or reset it in **Settings ▸ Apps**. Shared synchronization files are stored wherever you place them, and are not kept in this folder.
 
-Changes are saved automatically. Exiting from **File ▸ Exit** or the tray icon, and signing out of or shutting down Windows, first save anything still pending; if a synced file is slow to respond, a "Saving changes…" message appears until it is done.
+Exiting from **File ▸ Exit** or the tray icon, and signing out of or shutting down Windows, first save anything still pending; if a synced file is slow to respond, a "Saving changes…" message appears until it is done. Changes to a template or folder that you haven't saved (with **Autosave** off) are asked about first, as when closing the window; when Windows signs out or shuts down, they are saved.
 
 If one of these files can't be read at startup (for example after a crash during a save), the app keeps it as `<file>.broken-<date-time>` in this folder, tells you which file was affected, and starts without it. The original is never overwritten.
 

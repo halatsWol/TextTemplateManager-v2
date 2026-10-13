@@ -76,6 +76,7 @@ public class FileFormatTests
             SearchInContent = true,
             StartHidden = true,
             LegacyRemovalOffered = true,
+            Autosave = true,
         });
 
         Assert.Equal(await File.ReadAllTextAsync(Fixture("format-settings.ttmsettings")), await File.ReadAllTextAsync(_storage.GetSettingsPath()));
