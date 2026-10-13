@@ -137,15 +137,28 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <!-- Buttons -->
-                    <StackPanel Orientation="Horizontal" Spacing="4" Margin="10,10,10,5">
-                        <Button Content="&#xE710;" FontFamily="Segoe MDL2 Assets" Click="AddTemplate_Click" ToolTipService.ToolTip="Add Template"
-                                IsEnabled="{x:Bind ViewModel.CanAddHere, Mode=OneWay}"/>
-                        <Button Content="&#xE8B7;" FontFamily="Segoe MDL2 Assets" Click="AddFolder_Click" ToolTipService.ToolTip="Add Folder"
-                                IsEnabled="{x:Bind ViewModel.CanAddHere, Mode=OneWay}"/>
-                        <Button Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" Click="DeleteItem_Click" ToolTipService.ToolTip="Delete Item"
-                                IsEnabled="{x:Bind ViewModel.CanDeleteSelection, Mode=OneWay}"/>
-                    </StackPanel>
+                    <!-- Buttons: add and delete on the left, expand/collapse all on the right -->
+                    <Grid Margin="10,10,10,5">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <!-- The tree's item icons (Symbol.Document / Symbol.Folder), as glyphs to match the other buttons' size. -->
+                            <Button Content="&#xE8A5;" FontFamily="Segoe MDL2 Assets" Click="AddTemplate_Click" ToolTipService.ToolTip="Add Template"
+                                    AutomationProperties.Name="Add Template" IsEnabled="{x:Bind ViewModel.CanAddHere, Mode=OneWay}"/>
+                            <Button Content="&#xE8B7;" FontFamily="Segoe MDL2 Assets" Click="AddFolder_Click" ToolTipService.ToolTip="Add Folder"
+                                    AutomationProperties.Name="Add Folder" IsEnabled="{x:Bind ViewModel.CanAddHere, Mode=OneWay}"/>
+                            <Button Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" Click="DeleteItem_Click" ToolTipService.ToolTip="Delete Item"
+                                    IsEnabled="{x:Bind ViewModel.CanDeleteSelection, Mode=OneWay}"/>
+                        </StackPanel>
+                        <!-- Chevrons as on the tree's folders: right = collapsed, down = expanded. Smaller glyphs; the
+                             buttons keep the toolbar's size (full row height, padding making up the width). -->
+                        <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right">
+                            <Button x:Name="CollapseAllButton" Content="&#xE76C;" FontFamily="Segoe MDL2 Assets" FontSize="11"
+                                    Padding="13,0,12,0" VerticalAlignment="Stretch" Click="CollapseAll_Click"
+                                    ToolTipService.ToolTip="Collapse all" AutomationProperties.Name="Collapse all"/>
+                            <Button x:Name="ExpandAllButton" Content="&#xE70D;" FontFamily="Segoe MDL2 Assets" FontSize="11"
+                                    Padding="13,0,12,0" VerticalAlignment="Stretch" Click="ExpandAll_Click"
+                                    ToolTipService.ToolTip="Expand all" AutomationProperties.Name="Expand all"/>
+                        </StackPanel>
+                    </Grid>
 
                     <!-- Search -->
                     <Grid Grid.Row="1" Margin="10,5" ColumnSpacing="4">

@@ -105,6 +105,9 @@ namespace TextTemplateManager
 
         private async void Save_Click(object sender, RoutedEventArgs e) => await SaveAsync();
 
+        private void ExpandAll_Click(object sender, RoutedEventArgs e) => ViewModel.SetAllExpanded(true);
+        private void CollapseAll_Click(object sender, RoutedEventArgs e) => ViewModel.SetAllExpanded(false);
+
         private async void SaveAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
         {
             args.Handled = true;

@@ -74,6 +74,12 @@ public partial class MainViewModel : ObservableObject
         if (item != null) NodeFor(item).IsExpanded = true;
     }
 
+    /// <summary>Opens or closes every folder in the tree.</summary>
+    public void SetAllExpanded(bool expanded)
+    {
+        foreach (var folder in AllItems.Descendants().OfType<Folder>()) NodeFor(folder).IsExpanded = expanded;
+    }
+
     [ObservableProperty] public partial string SearchText { get; set; } = string.Empty;
 
     // Search looks in the template text too; a saved setting, shared with Quick Paste.

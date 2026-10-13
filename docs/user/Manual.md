@@ -35,7 +35,7 @@ The main window is divided into two panes:
   a selected folder. When nothing is selected, it shows a placeholder.
 
 The toolbar above the tree provides buttons to add a template, add a folder, and delete the 
-selected item. The menu bar provides the **File** and **Help** menus, and the quick-help button
+selected item, and on its right two buttons to collapse and expand all folders at once. The menu bar provides the **File** and **Help** menus, and the quick-help button
 in the top-right corner opens a short in-app reference.
 
 ![The main window: the template tree and toolbar on the left, and the selected template's editor, properties, and paste-mode list on the right.](../../src/TextTemplateManager/Assets/ManualImages/TTM_MainWindow-Editor-PasteModes.png)
