@@ -176,9 +176,17 @@ public sealed partial class BackupsSettingsPage : Page
         if (parts.HasFlag(RestoreParts.SyncedFolders)) names.Add("synced templates and folders");
         string what = names.Count == 1 ? names[0] : string.Join(", ", names.Take(names.Count - 1)) + " and " + names[^1];
 
+        var issues = parts.HasFlag(RestoreParts.SyncSettings)
+            ? await Task.Run(() => RestoreService.FindSyncLocationIssues(backupPath))
+            : Array.Empty<SyncLocationIssue>();
+
         string message = $"Your current {what} are replaced with the ones from {description}.";
         if ((parts & RestoreParts.Sync) != 0)
             message += "\n\nShared sync files themselves aren't changed: a file that still exists keeps its contents, and the folder of a missing one shows its copy from the backup.";
+        if (issues.Count > 0)
+            message += issues.Count == 1
+                ? "\n\nOne sync file of the backup isn't on this PC. You're asked next what to do with it."
+                : $"\n\n{issues.Count} sync files of the backup aren't on this PC. You're asked next what to do with each.";
         message += "\n\nThe current state is backed up first, then the app restarts.";
 
         var confirm = new ContentDialog
@@ -192,9 +200,13 @@ public sealed partial class BackupsSettingsPage : Page
         };
         if (await confirm.ShowAsync() != ContentDialogResult.Primary) return;
 
+        var placements = new List<SyncFilePlacement>();
+        foreach (var issue in issues)
+            if (await AskAboutSyncFileAsync(issue) is { } placement) placements.Add(placement);
+
         RestoreButton.IsEnabled = false;
         RestoreFileButton.IsEnabled = false;
-        var outcome = await App.RestoreFromBackupAsync(backupPath, parts);
+        var outcome = await App.RestoreFromBackupAsync(backupPath, parts, placements);
         if (!outcome.Restored)
         {
             ShowProblem(outcome.Problem ?? "Restoring failed, nothing was changed.");
@@ -206,6 +218,55 @@ public sealed partial class BackupsSettingsPage : Page
         // Restored, but the restart didn't happen: nothing may be saved over the restored files any more.
         await new ContentDialog { XamlRoot = XamlRoot, Title = "Backup restored", Content = outcome.Problem, CloseButtonText = "Quit" }.ShowAsync();
         App.Shutdown();
+    }
+
+    // A missing sync file of the restored sync settings: recreated where it was (with its folder if that is gone
+    // too), placed somewhere else, or left missing (null). Without a copy in the backup an existing file can only
+    // be linked instead.
+    private async Task<SyncFilePlacement?> AskAboutSyncFileAsync(SyncLocationIssue issue)
+    {
+        string problem = issue.Problem switch
+        {
+            SyncLocationProblem.FileMissing => "The file isn't there any more.",
+            SyncLocationProblem.FolderMissing => $"Its folder doesn't exist on this PC:\n{System.IO.Path.GetDirectoryName(issue.Path)}",
+            _ => "This location can't exist on this PC, for example because the drive or network share isn't there.",
+        };
+        string copy = issue.HasCopy
+            ? "The backup holds a copy of its templates and folders."
+            : "The backup holds no copy of it, so only an existing file can be linked instead.";
+        string recreate = !issue.HasCopy ? "" : issue.Problem switch
+        {
+            SyncLocationProblem.FileMissing => "Recreate it there",
+            SyncLocationProblem.FolderMissing => "Create the folder and the file",
+            _ => "",
+        };
+        while (true)
+        {
+            var dialog = new ContentDialog
+            {
+                XamlRoot = XamlRoot,
+                Title = $"Sync file \"{issue.Name}\" is missing",
+                Content = $"{issue.Path}\n\n{problem}\n\n{copy}",
+                PrimaryButtonText = recreate,
+                SecondaryButtonText = issue.HasCopy ? "Choose a location…" : "Link another file…",
+                CloseButtonText = "Leave it missing",
+                DefaultButton = ContentDialogButton.Close,
+            };
+            switch (await dialog.ShowAsync())
+            {
+                case ContentDialogResult.Primary:
+                    return new SyncFilePlacement(issue.SourceId, issue.Path, WriteCopy: true);
+                case ContentDialogResult.Secondary:
+                    var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+                    string? path = issue.HasCopy
+                        ? await Helpers.DataFilePicker.PickToSaveAsync(hwnd, System.IO.Path.GetFileNameWithoutExtension(issue.Path))
+                        : await Helpers.DataFilePicker.PickToOpenAsync(hwnd);
+                    if (path != null) return new SyncFilePlacement(issue.SourceId, path, WriteCopy: issue.HasCopy);
+                    break;   // the picker was cancelled: ask again
+                default:
+                    return null;
+            }
+        }
     }
 
     private void ShowProblem(string message)

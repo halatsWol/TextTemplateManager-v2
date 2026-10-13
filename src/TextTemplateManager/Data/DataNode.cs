@@ -684,7 +684,7 @@ public class DataNode
 
     /// <summary>Convert a synced folder's subtree into a sync-file tree keyed by SyncId
     /// (locally-added items get a fresh SyncId here).</summary>
-    private static Folder BuildFileTree(Folder syncFolder)
+    internal static Folder BuildFileTree(Folder syncFolder)
     {
         var root = new Folder
         {

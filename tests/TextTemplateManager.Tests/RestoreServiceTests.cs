@@ -249,6 +249,107 @@ public class RestoreServiceTests
         Assert.False(Directory.Exists(work));
     }
 
+    private static string UnusedDrive() =>
+        "QRSTUVWXYZJKLMNOP".Select(c => $"{c}:\\").First(root => !Directory.Exists(root));
+
+    [Fact]
+    public void A_sync_files_location_says_whether_it_can_be_recreated()
+    {
+        string file = Path.Combine(_shared, "here.ttmdata");
+        File.WriteAllText(file, "{}");
+
+        Assert.Null(RestoreService.LocationProblem(file));
+        Assert.Equal(SyncLocationProblem.FileMissing, RestoreService.LocationProblem(Path.Combine(_shared, "gone.ttmdata")));
+        Assert.Equal(SyncLocationProblem.FolderMissing, RestoreService.LocationProblem(Path.Combine(_shared, "a", "b", "gone.ttmdata")));
+        Assert.Equal(SyncLocationProblem.Unreachable, RestoreService.LocationProblem(UnusedDrive() + @"Team\team.ttmdata"));
+        Assert.Equal(SyncLocationProblem.Unreachable, RestoreService.LocationProblem(Path.Combine(file, "below a file.ttmdata")));
+        Assert.Equal(SyncLocationProblem.Unreachable, RestoreService.LocationProblem(Path.Combine(_shared, "a<b", "x.ttmdata")));
+        Assert.Equal(SyncLocationProblem.Unreachable, RestoreService.LocationProblem(@"relative\x.ttmdata"));
+    }
+
+    [Fact]
+    public async Task Missing_sync_files_of_a_backup_are_listed_with_whether_it_has_a_copy()
+    {
+        string backup = await BackUpStateA();
+        File.Delete(_lost.Path);
+        var never = new SyncSource { Name = "Never", Path = Path.Combine(_shared, "never", "there.ttmdata") };
+        await _storage.SaveSyncSettingsAsync(new SyncSettings { Sources = { _kept, _lost, never } });
+        string withNever = (await _backups.CreateAsync(BackupTier.Daily, BackupSource.Live(_storage), quietMs: 0)).Path!;
+
+        Assert.Equal(new[] { new SyncLocationIssue(_lost.Id, "Lost", _lost.Path, SyncLocationProblem.FileMissing, HasCopy: true) },
+            RestoreService.FindSyncLocationIssues(backup));
+        Assert.Equal(new[] { (_lost.Id, false), (never.Id, false) },
+            RestoreService.FindSyncLocationIssues(withNever).Select(i => (i.SourceId, i.HasCopy)));   // missing when backed up too
+    }
+
+    [Fact]
+    public async Task A_placed_sync_file_is_written_from_the_backup_and_the_restored_settings_point_at_it()
+    {
+        string backup = await BackUpStateA();
+        string lostA = Read(_lost.Path);
+        await ChangeToStateB();
+        string moved = Path.Combine(_shared, "new", "folder", "lost.ttmdata");
+
+        var result = await _restore.RestoreAsync(backup, RestoreParts.SyncSettings,
+            new[] { new SyncFilePlacement(_lost.Id, moved, WriteCopy: true) });
+
+        Assert.True(result.Succeeded, result.Problem);
+        Assert.Equal(lostA, Read(moved));
+        var sync = await _storage.LoadSyncSettingsAsync();
+        Assert.Equal(new[] { _kept.Path, moved }, sync.Sources.Select(s => s.Path));
+        Assert.Contains("Kept B", Read(_kept.Path));
+    }
+
+    [Fact]
+    public async Task Without_a_copy_of_the_file_the_synced_folders_cached_copy_is_written()
+    {
+        string teamPath = Path.Combine(_shared, "team.ttmdata");   // never written: the backup has only the cached folder
+        await _storage.SaveAsync(_storage.GetDataPath(), DataWith("Synced A", "Local A"));
+        await _storage.SaveSyncSettingsAsync(new SyncSettings { Sources = { new SyncSource { Id = TeamId, Name = "Team", Path = teamPath } } });
+        string backup = (await _backups.CreateAsync(BackupTier.Recent, BackupSource.Live(_storage), quietMs: 0)).Path!;
+        Assert.True(RestoreService.FindSyncLocationIssues(backup).Single().HasCopy);
+
+        var result = await _restore.RestoreAsync(backup, RestoreParts.SyncSettings, new[] { new SyncFilePlacement(TeamId, teamPath, WriteCopy: true) });
+
+        Assert.True(result.Succeeded, result.Problem);
+        var file = await StorageService.LoadRootAsync(teamPath);
+        Assert.Equal(Guid.Empty, file!.Id);
+        Assert.Equal("Synced A", Assert.Single(file.Children).Title);
+    }
+
+    [Fact]
+    public async Task A_linked_file_is_kept_as_it_is()
+    {
+        string backup = await BackUpStateA();
+        string other = Path.Combine(_shared, "other.ttmdata");
+        await _storage.SaveSharedAsync(other, Tree("Other"));
+        string otherBefore = Read(other);
+
+        var result = await _restore.RestoreAsync(backup, RestoreParts.SyncSettings, new[] { new SyncFilePlacement(_lost.Id, other, WriteCopy: false) });
+
+        Assert.True(result.Succeeded, result.Problem);
+        Assert.Equal(otherBefore, Read(other));
+        Assert.Equal(other, (await _storage.LoadSyncSettingsAsync()).Sources.Single(s => s.Id == _lost.Id).Path);
+    }
+
+    [Fact]
+    public async Task A_failed_restore_takes_a_placed_sync_file_back_out()
+    {
+        string backup = await BackUpStateA();
+        await ChangeToStateB();
+        string dataB = Read(_storage.GetDataPath()), syncB = Read(_storage.GetSyncSettingsPath());
+
+        RestoreResult result;
+        // The sync settings are swapped last, after the placed file.
+        using (new FileStream(_storage.GetSyncSettingsPath(), FileMode.Open, FileAccess.Read, FileShare.Read))
+            result = await _restore.RestoreAsync(backup, RestoreParts.All, new[] { new SyncFilePlacement(_lost.Id, _lost.Path, WriteCopy: true) });
+
+        Assert.False(result.Succeeded);
+        Assert.False(File.Exists(_lost.Path));
+        Assert.Equal(dataB, Read(_storage.GetDataPath()));
+        Assert.Equal(syncB, Read(_storage.GetSyncSettingsPath()));
+    }
+
     [Fact]
     public async Task After_writes_are_suspended_nothing_is_saved()
     {

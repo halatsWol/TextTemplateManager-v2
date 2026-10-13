@@ -88,6 +88,9 @@ public sealed class StorageService
         catch { return null; }
     }
 
+    /// <summary>Sync settings as <see cref="SaveSyncSettingsAsync"/> writes them.</summary>
+    internal static byte[] SerializeSyncSettings(SyncSettings settings) => Utf8NoBom.GetBytes(JsonSerializer.Serialize(settings, Json.SyncSettings));
+
     internal static byte[] SerializeManifest(BackupManifest manifest) => JsonSerializer.SerializeToUtf8Bytes(manifest, Json.BackupManifest);
 
     internal static Folder? ParseTree(byte[] content)

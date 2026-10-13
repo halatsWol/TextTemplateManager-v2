@@ -25,6 +25,24 @@ public enum RestoreParts
 
 public sealed record RestoreResult(bool Succeeded, string? Problem = null);
 
+public enum SyncLocationProblem
+{
+    /// <summary>The folder is there, the file isn't.</summary>
+    FileMissing,
+    /// <summary>The folder is missing too, but it can be created.</summary>
+    FolderMissing,
+    /// <summary>The path can't exist on this PC (no such drive or share, not a valid path).</summary>
+    Unreachable,
+}
+
+/// <summary>A source in a backup's sync settings whose file isn't where it points. <paramref name="HasCopy"/>: the
+/// backup holds its contents (the file itself, or the synced folder's cached copy).</summary>
+public sealed record SyncLocationIssue(Guid SourceId, string Name, string Path, SyncLocationProblem Problem, bool HasCopy);
+
+/// <summary>Points a source of the restored sync settings at <paramref name="Path"/>, writing the backup's copy of its
+/// file there when <paramref name="WriteCopy"/> (otherwise the file there is linked as it is).</summary>
+public sealed record SyncFilePlacement(Guid SourceId, string Path, bool WriteCopy);
+
 /// <summary>Journal of a restore in progress: what each target was before (null = it didn't exist).</summary>
 public sealed class RestoreJournal
 {
@@ -39,8 +57,8 @@ public sealed class RestoreJournalItem
 
 /// <summary>Puts a backup's files back into the data folder: all of them or nothing. Each file is unpacked
 /// and checked first, the current files are copied aside with a journal, then each is swapped in; a failure,
-/// or a crash found at the next start, puts the previous files back. Linked sync files are never written: the
-/// backup's copies of them stay in the zip as a fallback to extract by hand.</summary>
+/// or a crash found at the next start, puts the previous files back. Linked sync files are only written where
+/// the user placed a missing one (<see cref="SyncFilePlacement"/>), as part of the same all-or-nothing swap.</summary>
 public sealed class RestoreService
 {
     private readonly StorageService _storage;
@@ -53,7 +71,7 @@ public sealed class RestoreService
     /// <summary>Restores <paramref name="parts"/> of the backup at <paramref name="backupPath"/>. Nothing the
     /// running app holds may be saved afterwards (<see cref="StorageService.SuspendWritesAsync"/>); the app
     /// restarts or is still starting.</summary>
-    public async Task<RestoreResult> RestoreAsync(string backupPath, RestoreParts parts)
+    public async Task<RestoreResult> RestoreAsync(string backupPath, RestoreParts parts, IReadOnlyCollection<SyncFilePlacement>? placements = null)
     {
         RecoverInterrupted();
         string? problem = BackupService.Verify(backupPath, out var manifest);
@@ -79,7 +97,22 @@ public sealed class RestoreService
                 if (parts.HasFlag(RestoreParts.Settings) && Take(BackupFileKind.Settings) is { } settings)
                     plan.Add((settings, _storage.GetSettingsPath()));
                 if (parts.HasFlag(RestoreParts.SyncSettings) && Take(BackupFileKind.SyncSettings) is { } sync)
+                {
+                    if (placements is { Count: > 0 })
+                    {
+                        var syncSettings = StorageService.ParseSyncSettings(sync)!;
+                        foreach (var placement in placements)
+                        {
+                            if (syncSettings.Sources.FirstOrDefault(s => s.Id == placement.SourceId) is not { } source) continue;
+                            if (placement.WriteCopy)
+                                plan.Add((SyncFileCopy(zip, manifest!, source.Id) ?? throw new InvalidDataException($"the backup holds no copy of {source.Name}"),
+                                    placement.Path));
+                            source.Path = placement.Path;
+                        }
+                        sync = StorageService.SerializeSyncSettings(syncSettings);
+                    }
                     plan.Add((sync, _storage.GetSyncSettingsPath()));
+                }
             }
             if (plan.Count == 0) return new(false, "The backup holds none of the chosen parts.");
 
@@ -142,6 +175,61 @@ public sealed class RestoreService
             || !StorageService.Parses(entry.Kind, content))
             throw new InvalidDataException($"{entry.Name} is damaged");
         return content;
+    }
+
+    // A source's file as the backup has it: the copy of the file itself, else its synced folder's cached copy.
+    private static byte[]? SyncFileCopy(ZipArchive zip, BackupManifest manifest, Guid sourceId)
+    {
+        if (manifest.Files.FirstOrDefault(f => f.Kind == BackupFileKind.SyncFile && f.Included && f.SourceId == sourceId) is { } file)
+            return ReadChecked(zip, file);
+        if (manifest.Files.FirstOrDefault(f => f.Kind == BackupFileKind.Data && f.Included) is not { } data) return null;
+        var cached = StorageService.ParseTree(ReadChecked(zip, data))!.Children
+            .FirstOrDefault(c => c is Models.Folder && c.SyncId != null && c.Id == sourceId) as Models.Folder;
+        return cached == null ? null : StorageService.SerializeTree(DataNode.BuildFileTree(cached));
+    }
+
+    /// <summary>The sources in the backup's sync settings whose file isn't where they point on this PC, each with
+    /// what is wrong there; empty when the backup has no sync settings or can't be read.</summary>
+    public static IReadOnlyList<SyncLocationIssue> FindSyncLocationIssues(string backupPath)
+    {
+        var issues = new List<SyncLocationIssue>();
+        if (BackupService.Verify(backupPath, out var manifest) != null) return issues;
+        using var zip = ZipFile.OpenRead(backupPath);
+        if (manifest!.Files.FirstOrDefault(f => f.Kind == BackupFileKind.SyncSettings && f.Included) is not { } entry) return issues;
+        foreach (var source in StorageService.ParseSyncSettings(ReadChecked(zip, entry))!.Sources)
+        {
+            if (string.IsNullOrWhiteSpace(source.Path) || LocationProblem(source.Path) is not { } problem) continue;
+            issues.Add(new(source.Id, source.Name, source.Path, problem, SyncFileCopy(zip, manifest, source.Id) != null));
+        }
+        return issues;
+    }
+
+    /// <summary>What keeps a file from being at <paramref name="path"/>; null when it is there.</summary>
+    public static SyncLocationProblem? LocationProblem(string path)
+    {
+        try
+        {
+            if (File.Exists(path)) return null;
+            if (!Path.IsPathFullyQualified(path)) return SyncLocationProblem.Unreachable;
+            string full = Path.GetFullPath(path);
+            string? folder = Path.GetDirectoryName(full);
+            if (folder == null || Path.GetFileName(full).Length == 0 || Directory.Exists(full)
+                || full[Path.GetPathRoot(full)!.Length..].Split(Path.DirectorySeparatorChar).Any(name => name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0))
+                return SyncLocationProblem.Unreachable;
+            if (Directory.Exists(folder)) return SyncLocationProblem.FileMissing;
+
+            // Creatable when the nearest existing ancestor is a folder: the drive or share root at least.
+            for (string? up = folder; up != null; up = Path.GetDirectoryName(up))
+            {
+                if (File.Exists(up)) return SyncLocationProblem.Unreachable;
+                if (Directory.Exists(up)) return SyncLocationProblem.FolderMissing;
+            }
+            return SyncLocationProblem.Unreachable;
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException or IOException)
+        {
+            return SyncLocationProblem.Unreachable;
+        }
     }
 
     // One half of the data file from the backup, the other from the current file: the local items, or the

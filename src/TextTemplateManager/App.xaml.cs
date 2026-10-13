@@ -335,14 +335,15 @@ namespace TextTemplateManager
         /// <summary>Restores <paramref name="parts"/> of a backup while running: saves and backs up the current state
         /// first, stops everything that writes, swaps the files in and restarts the app to load them. Returns only
         /// when the restore failed (nothing changed, the app carries on) or the restart did.</summary>
-        public async Task<RestoreOutcome> RestoreFromBackupAsync(string backupPath, RestoreParts parts)
+        public async Task<RestoreOutcome> RestoreFromBackupAsync(string backupPath, RestoreParts parts,
+            IReadOnlyCollection<SyncFilePlacement>? placements = null)
         {
             await PersistPendingAsync();   // also a recent backup of anything not backed up yet
             StopAcceptingWork();
             if (_backupScheduler != null) await _backupScheduler.StopAsync();
             await _store.Storage.SuspendWritesAsync();
 
-            var result = await new RestoreService(_store.Storage).RestoreAsync(backupPath, parts);
+            var result = await new RestoreService(_store.Storage).RestoreAsync(backupPath, parts, placements);
             if (!result.Succeeded)
             {
                 _store.Storage.ResumeWrites();
