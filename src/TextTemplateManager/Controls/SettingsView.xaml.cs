@@ -21,8 +21,13 @@ public sealed partial class SettingsView : UserControl
     /// <summary>Settings were left (back arrow, or <see cref="Close"/>).</summary>
     public event EventHandler? Closed;
 
-    public void Open(SettingsPage page = SettingsPage.General)
+    private object? _parameter;
+
+    /// <summary>Shows <paramref name="page"/>; <paramref name="parameter"/> goes to the page (see
+    /// <see cref="BackupsSettingsPage.Request"/>).</summary>
+    public void Open(SettingsPage page = SettingsPage.General, object? parameter = null)
     {
+        _parameter = parameter;
         Visibility = Visibility.Visible;
         var item = Nav.MenuItems.OfType<NavigationViewItem>().First(i => (string)i.Tag == page.ToString());
         if (ReferenceEquals(Nav.SelectedItem, item))
@@ -48,6 +53,8 @@ public sealed partial class SettingsView : UserControl
     private void Navigate(SettingsPage page)
     {
         if (Store is not { } store) return;
+        var parameter = _parameter;   // for this navigation only, not when the page is picked again later
+        _parameter = null;
         switch (page)
         {
             case SettingsPage.General:
@@ -61,7 +68,7 @@ public sealed partial class SettingsView : UserControl
                 PageFrame.Navigate(typeof(SyncSettingsPage), new SyncSettingsPage.Parameters(store, hwnd));
                 break;
             case SettingsPage.Backups:
-                PageFrame.Navigate(typeof(BackupsSettingsPage));
+                PageFrame.Navigate(typeof(BackupsSettingsPage), parameter);
                 break;
         }
     }

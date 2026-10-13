@@ -154,6 +154,21 @@ public class BackupServiceTests
     }
 
     [Fact]
+    public void The_first_start_offers_the_1x_data_and_the_newest_backup_that_can_be_restored()
+    {
+        BackupInfo Info(BackupTier tier, string? problem = null) => new($"{tier}{problem}.zip", tier, _now, null, problem);
+        var damagedNewest = Info(BackupTier.Recent, "no manifest");
+        var daily = Info(BackupTier.Daily);
+        var v1 = Info(BackupTier.V1);
+
+        Assert.Equal(new FirstStartOffer(v1, daily), FirstStartOffer.From(new[] { damagedNewest, v1, daily }));
+        Assert.Equal(new FirstStartOffer(null, daily), FirstStartOffer.From(new[] { daily }));
+        Assert.Equal(new FirstStartOffer(v1, null), FirstStartOffer.From(new[] { v1, damagedNewest }));
+        Assert.False(FirstStartOffer.From(new[] { damagedNewest, Info(BackupTier.V1, "data.ttmdata is damaged") }).HasChoice);
+        Assert.False(FirstStartOffer.From(Array.Empty<BackupInfo>()).HasChoice);
+    }
+
+    [Fact]
     public async Task Damage_is_found_and_listed_backups_are_newest_first()
     {
         await _storage.SaveAsync(_storage.GetDataPath(), Tree("Alpha"));

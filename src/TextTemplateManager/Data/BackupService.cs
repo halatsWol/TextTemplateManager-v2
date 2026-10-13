@@ -39,6 +39,20 @@ public enum BackupOutcome
 
 public sealed record BackupResult(BackupOutcome Outcome, string? Path = null, string? Problem = null);
 
+/// <summary>What the first start can start from: the 1.x data (its v1 backup) and the newest other backup that
+/// can be restored. Without either there is nothing to ask.</summary>
+public sealed record FirstStartOffer(BackupInfo? V1, BackupInfo? Newest)
+{
+    public bool HasChoice => V1 != null || Newest != null;
+
+    /// <summary>From the backups listed newest first.</summary>
+    public static FirstStartOffer From(IEnumerable<BackupInfo> backups)
+    {
+        var valid = backups.Where(b => b.IsValid).ToList();
+        return new(valid.FirstOrDefault(b => b.Tier == BackupTier.V1), valid.FirstOrDefault(b => b.Tier != BackupTier.V1));
+    }
+}
+
 /// <summary>A backup zip found in the folder. Only a valid one may be restored.</summary>
 public sealed record BackupInfo(string Path, BackupTier Tier, DateTime Created, BackupManifest? Manifest, string? Problem)
 {

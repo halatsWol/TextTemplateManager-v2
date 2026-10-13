@@ -450,6 +450,48 @@ namespace TextTemplateManager
         public async void ReportStartupProblem(string title, string message) =>
             await ShowStartupMessageAsync(title, message);
 
+        /// <summary>The first start with no data yet, when there is something to start from: the 1.x data (its v1
+        /// backup) and/or the newest backup. Importing or restoring goes through Settings › Backups; starting fresh
+        /// (also on Esc) saves the empty tree, so this isn't asked again.</summary>
+        public async void OfferFirstStart(BackupInfo? v1, BackupInfo? newest)
+        {
+            await WaitUntilDialogCanOpenAsync();
+            var import = new RadioButton
+            {
+                Content = "Import from TextTemplateManager 1: your templates, settings and sync settings as you left them there",
+                GroupName = "FirstStart",
+            };
+            var restore = new RadioButton
+            {
+                Content = $"Restore a backup (the newest is from {newest?.Created:f})",
+                GroupName = "FirstStart",
+            };
+            var fresh = new RadioButton { Content = "Start fresh", GroupName = "FirstStart" };
+            var content = new StackPanel { Spacing = 4 };
+            content.Children.Add(new TextBlock { Text = "How would you like to start?", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8) });
+            if (v1 != null) content.Children.Add(import);
+            if (newest != null) content.Children.Add(restore);
+            content.Children.Add(fresh);
+            (v1 != null ? import : restore).IsChecked = true;
+            foreach (var choice in new[] { import, restore, fresh })
+                if (choice.Content is string text) choice.Content = new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap };
+
+            var dialog = new ContentDialog
+            {
+                Title = "Welcome to TextTemplateManager",
+                Content = content,
+                PrimaryButtonText = "Continue",
+                DefaultButton = ContentDialogButton.Primary,
+            };
+            bool chosen = await ShowDialogAsync(dialog) == ContentDialogResult.Primary;
+            if (chosen && import.IsChecked == true && v1 != null)
+                Settings.Open(SettingsPage.Backups, new BackupsSettingsPage.Request(v1.Path, Confirm: true));
+            else if (chosen && restore.IsChecked == true && newest != null)
+                Settings.Open(SettingsPage.Backups, new BackupsSettingsPage.Request(newest.Path, Confirm: false));
+            else
+                await _store.SaveDataAsync();
+        }
+
         /// <summary>After an unexpected error: true when the user chooses to quit.</summary>
         public async Task<bool> AskQuitAfterErrorAsync(bool saved, string crashLogPath)
         {

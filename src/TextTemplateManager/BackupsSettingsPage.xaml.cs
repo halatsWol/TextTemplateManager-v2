@@ -37,12 +37,19 @@ public sealed class BackupRow
 
     public string Title { get; }
     public string Detail { get; }
+
+    /// <summary>What the restore confirmation calls it.</summary>
+    public string Description => Info.Tier == BackupTier.V1 ? "TextTemplateManager 1" : Title;
     public double Opacity => Info.IsValid ? 1 : 0.5;
 }
 
 /// <summary>Where the automatic backups are, and restoring from one.</summary>
 public sealed partial class BackupsSettingsPage : Page
 {
+    /// <summary>Opens the page on the backup at <paramref name="Select"/>, and with <paramref name="Confirm"/> straight
+    /// on its restore confirmation (cancelling it leaves the page to adjust the parts).</summary>
+    public sealed record Request(string Select, bool Confirm);
+
     public BackupsSettingsPage() => InitializeComponent();
 
     private static App App => (App)Application.Current;
@@ -54,8 +61,10 @@ public sealed partial class BackupsSettingsPage : Page
         var rows = await Task.Run(() => App.Backups.List().Select(b => new BackupRow(b)).ToList());   // reads every zip
         BackupList.ItemsSource = rows;
         EmptyText.Visibility = rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        BackupList.SelectedItem = rows.FirstOrDefault(r => r.Info.IsValid);   // the newest one that can be restored
+        var requested = e.Parameter is Request request ? rows.FirstOrDefault(r => r.Info.IsValid && r.Info.Path == request.Select) : null;
+        BackupList.SelectedItem = requested ?? rows.FirstOrDefault(r => r.Info.IsValid);   // else the newest one that can be restored
         ShowAvailableParts();
+        if (requested != null && ((Request)e.Parameter).Confirm) await RestoreAsync(requested.Info.Path, requested.Description);
     }
 
     // Only what the selected backup holds can be ticked; all of that is ticked when another backup is chosen.
@@ -143,7 +152,7 @@ public sealed partial class BackupsSettingsPage : Page
 
     private async void Restore_Click(object sender, RoutedEventArgs e)
     {
-        if (BackupList.SelectedItem is BackupRow { Info.IsValid: true } row) await RestoreAsync(row.Info.Path, row.Title);
+        if (BackupList.SelectedItem is BackupRow { Info.IsValid: true } row) await RestoreAsync(row.Info.Path, row.Description);
     }
 
     // An exported backup (or any backup zip) from anywhere, checked in full like the listed ones. It joins the list

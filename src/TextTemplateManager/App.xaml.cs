@@ -83,6 +83,7 @@ namespace TextTemplateManager
             try { v1Backup = await Task.Run(Backups.EnsureV1BackupAsync); }
             catch (Exception ex) { LogCrash("V1Backup", ex); }
 
+            bool firstStart = !System.IO.File.Exists(_store.Storage.GetDataPath());
             await _store.InitializeAsync();
             var unreadableFiles = _store.Storage.TakeUnreadableFiles();
 
@@ -141,6 +142,12 @@ namespace TextTemplateManager
 
             if (unreadableFiles.Count > 0)
                 (MainWindow.Content as MainPage)?.ReportUnreadableFiles(unreadableFiles);
+
+            if (firstStart && !startHidden)
+            {
+                var offer = FirstStartOffer.From(await Task.Run(Backups.List));
+                if (offer.HasChoice) (MainWindow.Content as MainPage)?.OfferFirstStart(offer.V1, offer.Newest);
+            }
 
             if (!HotkeyRegistered)
                 ReportHotkeyUnavailable(startHidden);

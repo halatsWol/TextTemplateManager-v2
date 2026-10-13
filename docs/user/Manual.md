@@ -13,6 +13,14 @@ The application is self-contained: the .NET runtime and the Windows App SDK are 
 separate installation is required. The bundled runtime is always the latest .NET 8 release
 available at the time that version was built.
 
+### The first start
+
+When the application starts without any templates yet and finds something to start from, it asks how you'd like to start:
+
+- **Import from TextTemplateManager 1**, if version 1 was used on this PC: its templates, settings and sync settings, taken from the backup made of them (see *Automatic backups*). **Settings ▸ Backups** opens on that backup, ready to restore; cancel the confirmation to choose which parts to take over.
+- **Restore a backup**, if backups from an earlier installation are in your Documents folder: **Settings ▸ Backups** opens with the newest one selected.
+- **Start fresh**: an empty tree. You won't be asked again; importing or restoring is still possible in **Settings ▸ Backups**.
+
 ---
 
 ## The main window
