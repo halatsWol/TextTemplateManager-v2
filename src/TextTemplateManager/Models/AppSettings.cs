@@ -32,4 +32,11 @@ public partial class AppSettings : ObservableObject
 
     // Edits to the selected item are saved as they are made. Off: they wait for Save (or the prompt on leaving the item).
     [ObservableProperty] public partial bool Autosave { get; set; } = false;
+
+    // The guided tour was started, its offer answered with "Don't show again", or the first start restored a backup: the
+    // tour isn't offered any more (see StartupGreeting).
+    [ObservableProperty] public partial bool TutorialOfferDone { get; set; } = false;
+
+    // The version that last ran (and showed its What's new): a newer one shows its What's new once.
+    [ObservableProperty] public partial string LastRunVersion { get; set; } = "";
 }

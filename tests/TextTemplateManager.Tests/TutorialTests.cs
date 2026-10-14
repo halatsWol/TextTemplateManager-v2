@@ -38,7 +38,35 @@ public class TutorialTests
     }
 
     [Theory]
-    [InlineData(10, 10, 100, 40, 122, 12)]     // room on the right, kept inside at the top
+    [InlineData(false, "", Greeting.TourOffer)]          // first run
+    [InlineData(false, "2.0.0", Greeting.TourOffer)]     // Later, or an update before the tour was done with
+    [InlineData(true, "", Greeting.None)]                // first run that restored a backup
+    [InlineData(true, "2.1.0", Greeting.None)]           // same version again
+    [InlineData(true, "2.0.0", Greeting.WhatsNew)]       // updated
+    [InlineData(true, "2.0.9", Greeting.WhatsNew)]
+    [InlineData(true, "2.2.0", Greeting.None)]           // older version than the last run
+    public void The_tour_is_offered_until_done_then_whats_new_once_per_update(bool tourDone, string lastRun, Greeting expected)
+    {
+        Assert.Equal(expected, StartupGreeting.For(new AppSettings { TutorialOfferDone = tourDone, LastRunVersion = lastRun }, "2.1.0"));
+    }
+
+    [Fact]
+    public void Whats_new_is_the_release_notes_section_with_its_headings_bullets_and_bold()
+    {
+        string notes = "## TextTemplateManager {{VERSION}}\r\n\r\nIntro text.\r\n\r\n### What's new in this release\r\n\r\n#### Fixes\r\n\r\n"
+            + "- **Search.** Finds `more`,\r\n  see [the manual](https://example.com).\r\n- Second.\r\n\r\nA closing\r\nparagraph.\r\n\r\n{{CHANGELOG}}\r\n\r\n"
+            + "### Browser extension\r\n\r\n- [Chrome](https://example.com)\r\n";
+
+        var blocks = WhatsNew.Parse(notes);
+
+        Assert.Equal(new[] { WhatsNewKind.Heading, WhatsNewKind.Bullet, WhatsNewKind.Bullet, WhatsNewKind.Paragraph }, blocks.Select(b => b.Kind));
+        Assert.Equal(new[] { ("Search.", true), (" Finds more, see the manual.", false) }, blocks[1].Runs);
+        Assert.Equal(("A closing paragraph.", false), Assert.Single(blocks[3].Runs));
+        Assert.Empty(WhatsNew.Parse("## No such section\n- x\n"));
+    }
+
+    [Theory]
+    [InlineData(10, 10, 100, 40, 122, 12)]    // room on the right, kept inside at the top
     [InlineData(700, 100, 280, 40, 328, 100)]  // too close to the right edge: on the left
     [InlineData(4, 10, 900, 40, 12, 62)]       // full-width control: below, kept inside at the left
     [InlineData(10, 520, 900, 60, 12, 168)]    // at the bottom, full width: above

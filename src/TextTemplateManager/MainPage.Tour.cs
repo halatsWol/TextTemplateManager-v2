@@ -144,7 +144,7 @@ namespace TextTemplateManager
                 "File ▸ Settings: the global shortcut that opens Quick Paste, the paste mode for new templates, starting with Windows (hidden in the tray if you like) and Autosave.",
                 () => Settings.PageArea, () => OpenSettings(Controls.SettingsPage.General), Corner: TourCorner.TopRight),
             new("Settings ▸ Integrations",
-                "The browser connector lets the TTM-Connect browser extension paste your templates on web pages and save selected text as a new template. Here you also make TextTemplateManager open .ttmdata files.",
+                "The browser connector lets the TTM-Connect browser extension paste your templates on web pages and save selected text as a new template. Opening a .ttmdata file (a double-click in Explorer) starts TextTemplateManager and adds the file as a synced folder; if another app took .ttmdata files over, set TextTemplateManager again in Default apps.",
                 () => Settings.PageArea, () => OpenSettings(Controls.SettingsPage.Integrations), Corner: TourCorner.BottomLeft),
             new("Settings ▸ Sync",
                 "Share templates with your team through a .ttmdata file on a shared drive or OneDrive. Each linked file becomes a synced folder; choose a shortcut prefix, whether you may change it (or only read it), and link another file if one goes missing.",

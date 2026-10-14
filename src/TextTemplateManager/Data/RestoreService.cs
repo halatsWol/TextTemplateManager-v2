@@ -108,7 +108,7 @@ public sealed class RestoreService
                 if (data != null)
                     plan.Add((local && synced ? data : MixData(data, takeLocal: local), _storage.GetDataPath()));
                 if (parts.HasFlag(RestoreParts.Settings) && Take(BackupFileKind.Settings) is { } settings)
-                    plan.Add((manifest!.Tier == BackupTier.V1 ? OverCurrentSettings(settings) : settings, _storage.GetSettingsPath()));
+                    plan.Add((manifest!.Tier == BackupTier.V1 ? OverCurrentSettings(settings) : KeepGreetingState(settings), _storage.GetSettingsPath()));
                 if (parts.HasFlag(RestoreParts.SyncSettings) && Take(BackupFileKind.SyncSettings) is { } sync)
                 {
                     if (placements is { Count: > 0 })
@@ -350,6 +350,17 @@ public sealed class RestoreService
             merged[name] = value?.DeepClone();
         var settings = StorageService.ParseSettings(System.Text.Encoding.UTF8.GetBytes(merged.ToJsonString()))
             ?? throw new InvalidDataException("the 1.x settings don't load");
+        return StorageService.SerializeSettings(settings);
+    }
+
+    // The tour offer and What's new belong to this installation: a restored backup doesn't bring them back.
+    private byte[] KeepGreetingState(byte[] backup)
+    {
+        string path = _storage.GetSettingsPath();
+        if (!File.Exists(path) || StorageService.ParseSettings(File.ReadAllBytes(path)) is not { } current) return backup;
+        var settings = StorageService.ParseSettings(backup) ?? throw new InvalidDataException("the backup's settings don't load");
+        settings.TutorialOfferDone = current.TutorialOfferDone;
+        settings.LastRunVersion = current.LastRunVersion;
         return StorageService.SerializeSettings(settings);
     }
 

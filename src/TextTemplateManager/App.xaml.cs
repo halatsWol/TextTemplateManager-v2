@@ -6,7 +6,9 @@ using Microsoft.UI.Xaml;
 using Microsoft.Windows.AppLifecycle;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using TextTemplateManager.Common;
 using TextTemplateManager.Data;
 using TextTemplateManager.Helpers;
 using TextTemplateManager.Services.Platform;
@@ -32,6 +34,10 @@ namespace TextTemplateManager
         private readonly IAppEnvironment _environment = AppEnvironment.Detect();   // packaged or a dev run
 
         public IAppEnvironment HostEnvironment => _environment;
+
+        // Dev runs (and the UI test scripts) start on fresh data again and again: --offer-tour asks for the tour offer there.
+        private static bool OfferTourInDevRun { get; } =
+            Environment.GetCommandLineArgs().Contains("--offer-tour", StringComparer.OrdinalIgnoreCase);
 
         // Single-instance key (Windows App SDK). 1.x uses its own mutex and pipe, so neither version takes
         // over the other's launches.
@@ -145,12 +151,18 @@ namespace TextTemplateManager
             if (unreadableFiles.Count > 0)
                 (MainWindow.Content as MainPage)?.ReportUnreadableFiles(unreadableFiles);
 
+            var greeting = Tutorial.StartupGreeting.For(_store.CurrentSettings, AppInfo.Version);
+            if (greeting == Tutorial.Greeting.TourOffer && !_environment.IsPackaged && !OfferTourInDevRun)
+                greeting = Tutorial.Greeting.None;
+            if (greeting != Tutorial.Greeting.WhatsNew) _store.CurrentSettings.LastRunVersion = AppInfo.Version;
+            bool offerTour = greeting == Tutorial.Greeting.TourOffer && !startHidden;
+
             bool offeredFirstStart = false;
             if (firstStart && !startHidden)
             {
                 var offer = FirstStartOffer.From(await Task.Run(Backups.List));
                 offeredFirstStart = offer.HasChoice;
-                if (offeredFirstStart) (MainWindow.Content as MainPage)?.OfferFirstStart(offer.V1, offer.Newest);
+                if (offeredFirstStart) (MainWindow.Content as MainPage)?.OfferFirstStart(offer.V1, offer.Newest, offerTour);
             }
 
             // 1.x still installed: offered once, not on top of the first-start choice (an import restarts the app,
@@ -170,6 +182,16 @@ namespace TextTemplateManager
             // A .ttmdata passed to this (first) launch: add it as a sync source once the UI is up.
             if (fileArg != null)
                 (MainWindow.Content as MainPage)?.HandleOpenTtmDataFile(fileArg);
+
+            // Last of the startup questions; the first-start choice offers the tour itself when starting fresh. What's
+            // new waits for the window when the app started hidden.
+            if (offerTour && !offeredFirstStart)
+                (MainWindow.Content as MainPage)?.OfferTour();
+            if (greeting == Tutorial.Greeting.WhatsNew)
+            {
+                if (startHidden) _onFirstShow = ShowWhatsNew;
+                else ShowWhatsNew();
+            }
 
             // Prewarm the Quick Paste window while idle so the first hotkey open isn't cold (builds its
             // UI + tree and starts the WebView2 preview). It stays hidden until the hotkey is pressed.
@@ -206,6 +228,22 @@ namespace TextTemplateManager
                 WindowHelper.ShowWindow(hWnd, WindowHelper.SW_RESTORE);
             WindowHelper.SetForegroundWindow(hWnd);
             MainWindow.Activate();
+            var onFirstShow = _onFirstShow;
+            _onFirstShow = null;
+            onFirstShow?.Invoke();
+        }
+
+        private static Action? _onFirstShow;
+
+        // Shown once: the page records the version when the dialog was shown.
+        private void ShowWhatsNew()
+        {
+            string notes = "";
+            try { notes = System.IO.File.ReadAllText(System.IO.Path.Combine(AppContext.BaseDirectory, "release.md")); }
+            catch { }
+            var blocks = Tutorial.WhatsNew.Parse(notes);
+            if (blocks.Count == 0) _store.CurrentSettings.LastRunVersion = AppInfo.Version;
+            else (MainWindow.Content as MainPage)?.ShowWhatsNew(AppInfo.Version, blocks);
         }
 
         private void OnGlobalHotkeyPressed()
@@ -386,7 +424,7 @@ namespace TextTemplateManager
             // The new instance must not redirect to this one, and the tray icon goes with it.
             try { _trayService?.Dispose(); } catch { }
             try { AppInstance.GetCurrent().UnregisterKey(); } catch { }
-            AppInstance.Restart("");   // ends this process; returns only if the restart failed
+            AppInstance.Restart(OfferTourInDevRun ? "--offer-tour" : "");   // ends this process; returns only if the restart failed
             return new RestoreOutcome(true, "The backup was restored, but the app couldn't restart itself. Start it again to load the restored data.");
         }
 
@@ -453,6 +491,7 @@ namespace TextTemplateManager
             if (_tour != null || MainWindow.Content is not MainPage page) return;
             if (!await page.ResolveUnsavedEditsAsync()) return;
 
+            _store.CurrentSettings.TutorialOfferDone = true;
             _tour = await Tutorial.TourSample.CreateAsync(_store.CurrentSettings);
             _pageBeforeTour = page;
             _tourPage = new MainPage(_tour.Store, tour: true);

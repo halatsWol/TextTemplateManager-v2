@@ -561,8 +561,9 @@ namespace TextTemplateManager
 
         /// <summary>The first start with no data yet, when there is something to start from: the 1.x data (its v1
         /// backup) and/or the newest backup. Importing or restoring goes through Settings › Backups; starting fresh
-        /// (also on Esc) saves the empty tree, so this isn't asked again.</summary>
-        public async void OfferFirstStart(BackupInfo? v1, BackupInfo? newest)
+        /// (also on Esc) saves the empty tree, so this isn't asked again; then the tour is offered when
+        /// <paramref name="offerTour"/>.</summary>
+        public async void OfferFirstStart(BackupInfo? v1, BackupInfo? newest, bool offerTour)
         {
             await WaitUntilDialogCanOpenAsync();
             var import = new RadioButton
@@ -593,12 +594,126 @@ namespace TextTemplateManager
                 DefaultButton = ContentDialogButton.Primary,
             };
             bool chosen = await ShowDialogAsync(dialog) == ContentDialogResult.Primary;
+            // A restore brings back a TTM 2 the user knew: no tour offer. An import from 1.x is offered it after the restart.
+            if (chosen && restore.IsChecked == true && newest != null)
+                _store.CurrentSettings.TutorialOfferDone = true;
             if (chosen && import.IsChecked == true && v1 != null)
                 Settings.Open(SettingsPage.Backups, new BackupsSettingsPage.Request(v1.Path, Confirm: true));
             else if (chosen && restore.IsChecked == true && newest != null)
                 Settings.Open(SettingsPage.Backups, new BackupsSettingsPage.Request(newest.Path, Confirm: false));
             else
+            {
                 await _store.SaveDataAsync();
+                if (offerTour) OfferTour();
+            }
+        }
+
+        /// <summary>Take the tour, Later (also Esc: asked again on the next start) or Don't show again.</summary>
+        public async void OfferTour()
+        {
+            bool declined = false;
+            var dialog = new ContentDialog
+            {
+                Title = "Take the guided tour?",
+                Content = new TextBlock
+                {
+                    Text = "A short tour shows the main window, the settings and Quick Paste on sample templates; your own templates aren't touched. "
+                         + "You can also start it any time from Help ▸ Start tutorial.",
+                    TextWrapping = TextWrapping.Wrap,
+                },
+                PrimaryButtonText = "Take the tour",
+                SecondaryButtonText = "Later",
+                CloseButtonText = "Don't show again",
+                DefaultButton = ContentDialogButton.Primary,
+            };
+            // Esc also raises CloseButtonClick: it's remembered here and counts as Later.
+            bool escaped = false;
+            dialog.PreviewKeyDown += (_, e) => escaped |= e.Key == VirtualKey.Escape;
+            dialog.CloseButtonClick += (_, _) => declined = !escaped;
+            var answer = await ShowWhenFreeAsync(dialog);
+            if (declined) _store.CurrentSettings.TutorialOfferDone = true;
+            else if (answer == ContentDialogResult.Primary && Application.Current is App app) await app.StartTutorialAsync();
+        }
+
+        /// <summary>The release notes' What's new, once: closed with its X (or Esc).</summary>
+        public async void ShowWhatsNew(string version, IReadOnlyList<Tutorial.WhatsNewBlock> blocks)
+        {
+            var text = new StackPanel { Spacing = 8 };
+            foreach (var block in blocks)
+            {
+                var paragraph = new Microsoft.UI.Xaml.Documents.Paragraph();
+                foreach (var (run, bold) in block.Runs)
+                {
+                    var inline = new Microsoft.UI.Xaml.Documents.Run { Text = run };
+                    if (bold || block.Kind == Tutorial.WhatsNewKind.Heading) paragraph.Inlines.Add(new Microsoft.UI.Xaml.Documents.Bold { Inlines = { inline } });
+                    else paragraph.Inlines.Add(inline);
+                }
+                var rich = new RichTextBlock { TextWrapping = TextWrapping.Wrap, IsTextSelectionEnabled = false };
+                rich.Blocks.Add(paragraph);
+                if (block.Kind == Tutorial.WhatsNewKind.Bullet)
+                {
+                    var row = new Grid { ColumnSpacing = 8 };
+                    row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                    row.ColumnDefinitions.Add(new ColumnDefinition());
+                    row.Children.Add(new TextBlock { Text = "•" });
+                    Grid.SetColumn(rich, 1);
+                    row.Children.Add(rich);
+                    text.Children.Add(row);
+                }
+                else
+                {
+                    if (block.Kind == Tutorial.WhatsNewKind.Heading) rich.Margin = new Thickness(0, 6, 0, 0);
+                    text.Children.Add(rich);
+                }
+            }
+
+            var scroll = new ScrollViewer { Content = text, MaxHeight = 420, Padding = new Thickness(0, 0, 12, 0) };
+            var dialog = new ContentDialog { Content = scroll };
+            var close = new Button
+            {
+                Content = new FontIcon { Glyph = "", FontSize = 12 },
+                Style = (Style)Application.Current.Resources["SubtleButtonStyle"],
+                Width = 32,
+                Height = 32,
+                Padding = new Thickness(0),
+                CornerRadius = new CornerRadius(16),
+                VerticalAlignment = VerticalAlignment.Top,
+                Margin = new Thickness(12, -16, -16, 0),   // into the corner, past the dialog's padding
+            };
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(close, "Close");
+            ToolTipService.SetToolTip(close, "Close");
+            close.Click += (_, _) => dialog.Hide();
+            dialog.Opened += (_, _) => close.Focus(FocusState.Programmatic);   // so Esc reaches the dialog
+            dialog.PreviewKeyDown += (_, e) =>   // without a close button a dialog ignores Esc
+            {
+                if (e.Key != VirtualKey.Escape) return;
+                e.Handled = true;
+                dialog.Hide();
+            };
+            var title = new Grid();
+            title.ColumnDefinitions.Add(new ColumnDefinition());
+            title.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            title.Children.Add(new TextBlock { Text = $"What's new in {version}", TextWrapping = TextWrapping.Wrap });
+            Grid.SetColumn(close, 1);
+            title.Children.Add(close);
+            scroll.SizeChanged += (_, _) => title.Width = scroll.ActualWidth;   // the dialog sizes its title to the text
+            dialog.Title = title;
+
+            if (await ShowWhenFreeAsync(dialog) != null)
+                _store.CurrentSettings.LastRunVersion = version;
+        }
+
+        // A startup dialog waits for the others; tried again when another one opened first. Null when never shown.
+        private async Task<ContentDialogResult?> ShowWhenFreeAsync(ContentDialog dialog)
+        {
+            for (int attempt = 0; attempt < 10; attempt++)
+            {
+                await WaitUntilDialogCanOpenAsync();
+                var answer = await ShowDialogAsync(dialog);
+                if (dialog.XamlRoot != null) return answer;
+                await Task.Delay(500);
+            }
+            return null;
         }
 
         /// <summary>After an unexpected error: true when the user chooses to quit.</summary>

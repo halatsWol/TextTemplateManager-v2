@@ -27,6 +27,12 @@ If TextTemplateManager 1 is still installed, you're also asked once whether to r
 
 **Help ▸ Start tutorial** walks you through the main window, the settings and Quick Paste step by step: each step highlights a part of the window and explains it on a card beside it. The tour uses sample templates, so your own templates and settings are never changed; while it runs, the window can't be used and the Quick Paste shortcut and the browser connector are paused. For its last part the tour opens Quick Paste itself; there it never pastes anything. **Next** and **Back** move between the steps, and **Skip tutorial**, the close button or **Esc** end the tour at any time.
 
+When you start TextTemplateManager the first time, it offers the tour: right after **Start fresh**, or after the restart when you import from TextTemplateManager 1. **Take the tour** starts it, **Later** (or **Esc**) asks again on the next start, and **Don't show again** stops the offer. Once you've started the tour, from the offer or from the Help menu, it isn't offered again. If you restore a backup on the first start, the tour isn't offered; you can still start it from the Help menu.
+
+### What's new
+
+After an update, the first time the window opens it shows what's new in that version, once. Close it with the **X** in its corner or **Esc**.
+
 ---
 
 ## The main window

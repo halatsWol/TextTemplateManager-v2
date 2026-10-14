@@ -77,6 +77,21 @@ public class RestoreServiceTests
         Assert.Equal(new[] { "Backups" }, Directory.GetDirectories(_dir).Select(Path.GetFileName));   // no work or copy folders left
     }
 
+    [Fact]
+    public async Task Restored_settings_keep_this_installations_tour_offer_and_last_run_version()
+    {
+        await _storage.SaveAsync(_storage.GetDataPath(), Tree("A"));
+        await _storage.SaveSettingsAsync(new AppSettings { PasteWindowHotkey = "Ctrl+Alt+A", LastRunVersion = "2.0.0" });
+        string backup = (await _backups.CreateAsync(BackupTier.Recent, BackupSource.Live(_storage), quietMs: 0)).Path!;
+        await _storage.SaveSettingsAsync(new AppSettings { PasteWindowHotkey = "Ctrl+Alt+B", TutorialOfferDone = true, LastRunVersion = "2.1.0" });
+
+        var result = await _restore.RestoreAsync(backup, RestoreParts.Settings);
+
+        Assert.True(result.Succeeded, result.Problem);
+        var settings = await _storage.LoadSettingsAsync();
+        Assert.Equal(("Ctrl+Alt+A", true, "2.1.0"), (settings.PasteWindowHotkey, settings.TutorialOfferDone, settings.LastRunVersion));
+    }
+
     // A data file as the app keeps it: a synced folder's cached copy (a top-level folder with a SyncId) and local items.
     private static readonly Guid TeamId = Guid.NewGuid();
     private static Folder DataWith(string synced, string local) => new()

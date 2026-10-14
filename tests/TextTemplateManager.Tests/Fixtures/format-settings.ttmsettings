@@ -9,5 +9,7 @@
   "StrictSearch": true,
   "StartHidden": true,
   "LegacyRemovalOffered": true,
-  "Autosave": true
+  "Autosave": true,
+  "TutorialOfferDone": true,
+  "LastRunVersion": "2.0.0"
 }

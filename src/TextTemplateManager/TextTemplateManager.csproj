@@ -100,6 +100,8 @@
     <Content Include="Assets\Manual.pdf" Link="Manual.pdf" CopyToOutputDirectory="PreserveNewest" />
     <!-- Help ▸ About displays the LICENSE. -->
     <Content Include="..\..\LICENSE" Link="LICENSE" CopyToOutputDirectory="PreserveNewest" />
+    <!-- What's new after an update shows the release notes' "What's new" section. -->
+    <Content Include="..\..\release.md" Link="release.md" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!-- Regenerate the manual when the markdown changes. ContinueOnError keeps the app build
