@@ -31,8 +31,8 @@ public sealed partial class IntegrationsSettingsPage : Page
     // matches the connector the user is running; dev/local builds fall back to the main branch.
     private static string ApiDocUrl()
     {
-        const string blob = "https://github.com/halatsWol/TextTemplateManager/blob";
-        const string path = "docs/BrowserConnectorApi.md";
+        const string blob = "https://github.com/halatsWol/TextTemplateManager-v2/blob";
+        const string path = "docs/user/BrowserConnectorApi.md";
         string v = AppInfo.Version;
         string reference = string.IsNullOrEmpty(v) || v.StartsWith("0.0.0") || v.Contains("dev", StringComparison.OrdinalIgnoreCase)
             ? "main" : "v" + v;

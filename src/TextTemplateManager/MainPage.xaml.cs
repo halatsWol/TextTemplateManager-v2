@@ -474,7 +474,7 @@ namespace TextTemplateManager
             OpenSyncSettings();
         }
 
-        private const string GitHubUrl = "https://github.com/halatsWol/TextTemplateManager";
+        private const string GitHubUrl = "https://github.com/halatsWol/TextTemplateManager-v2";
         private const string ContactEmail = "contact@kmarflow.com";
 
         private void GoToGitHub_Click(object sender, RoutedEventArgs e) => ExternalLinks.Open(GitHubUrl);
