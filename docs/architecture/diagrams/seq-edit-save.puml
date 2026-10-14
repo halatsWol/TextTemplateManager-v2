@@ -1,0 +1,49 @@
+@startuml seq-edit-save
+!include _style.iuml
+title Editing a template and saving it (Autosave off)
+
+actor User
+participant MainPage
+participant TemplateEditor
+participant "WebView2\n(TipTap, main.js)" as Web
+participant MainViewModel
+participant ItemDraft
+participant "Template\n(in the tree)" as Original
+participant DataNode
+participant StorageService
+database "data.ttmdata" as Data
+database "sync file" as SyncFile
+
+User -> MainPage : selects a template
+MainPage -> MainViewModel : SelectedItem = template
+MainViewModel -> ItemDraft : For(template) (a copy)
+MainViewModel -> MainPage : EditedItem = draft.Edited
+MainPage -> TemplateEditor : Show(draft.Edited, editable)
+TemplateEditor -> Web : editorApi.setContent(html)
+TemplateEditor -> Web : editorApi.getContent()
+TemplateEditor -> MainViewModel : ContentLoaded(template, normalised html)
+MainViewModel -> ItemDraft : ContentLoaded(html) (baseline, not an edit)
+
+User -> Web : types
+Web -> TemplateEditor : postMessage {type:"change", html}\n(debounced 250 ms)
+TemplateEditor -> ItemDraft : Edited.Content = html
+ItemDraft -> MainViewModel : DirtyChanged
+MainViewModel -> MainPage : HasUnsavedChanges -> Save button shown
+
+User -> MainPage : Save / Ctrl+S
+MainPage -> TemplateEditor : FlushAsync()
+MainPage -> MainViewModel : SaveEditsAsync()
+MainViewModel -> ItemDraft : Commit()
+ItemDraft -> Original : Title / Content / TagsCsv / shortcuts / paste mode
+Original -> DataNode : PropertyChanged
+DataNode -> Original : LastChange = now
+DataNode -> DataNode : ScheduleEditSave() (500 ms debounce)
+MainViewModel -> DataNode : FlushPendingSaveAsync()
+DataNode -> StorageService : SaveAsync(data.ttmdata, root)
+StorageService -> Data : skip if unchanged, else\nwrite .tmp, flush, move over
+loop each active source with AllowSave
+  DataNode -> StorageService : SaveSharedAsync(path, BuildFileTree(folder))
+  StorageService -> SyncFile : skip if unchanged, else temp + move\n(retries while OneDrive holds it)
+end
+DataNode -> MainPage : DataSaved -> "Saved" indicator
+@enduml

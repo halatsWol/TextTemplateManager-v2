@@ -1,0 +1,51 @@
+@startuml seq-app-launch
+!include _style.iuml
+title App.OnLaunched (first instance)
+
+participant "Windows" as OS
+participant App
+participant "AppInstance\n(key 'main')" as Instance
+participant LegacyApp
+participant RestoreService
+participant BackupService
+participant DataNode
+participant BackupScheduler
+participant HotkeyListener
+participant MainPage
+participant BrowserConnector
+participant PasteWindow
+
+OS -> App : OnLaunched
+App -> Instance : FindOrRegisterForKey("main")
+alt another instance owns the key
+  App -> Instance : RedirectActivationToAsync(args)\n(skipped for a redundant hidden autostart)
+  App -> App : Environment.Exit(0)
+end
+opt packaged
+  App -> LegacyApp : CloseRunningAsync(5 s)\n(1.x would hold hotkey and port)
+end
+App -> RestoreService : RecoverInterrupted()\n(undo a restore cut off by a crash)
+App -> BackupService : EnsureV1BackupAsync()\n(once, when 1.x data exists)
+App -> DataNode : InitializeAsync()\n(load data, settings, sync settings, merge sync files)
+App -> DataNode : Storage.TakeUnreadableFiles()
+opt v1 backup was just created
+  App -> App : LegacyAutostart.CarryOverAsync()
+end
+App -> BackupScheduler : new + Start() (ticks every 30 s)
+App -> HotkeyListener : Register(settings.PasteWindowHotkey)
+App -> MainPage : new MainPage(store)\nMainWindow.Content = page
+App -> App : icon, min size 720x560,\nWM_QUERYENDSESSION / WM_ENDSESSION hook,\ntray icon, Closing -> hide to tray
+App -> BrowserConnector : ApplyBrowserConnectorSettings()\n(start on 127.0.0.1:port when enabled)
+opt not (autostart and StartHidden)
+  App -> MainPage : MainWindow.Activate()
+end
+group startup questions (queued dialogs, one at a time)
+  App -> MainPage : ReportUnreadableFiles()  [if any]
+  App -> MainPage : OfferFirstStart(v1, newest)  [no data file yet and something to start from]
+  App -> MainPage : OfferLegacyRemoval()  [packaged, 1.x installed, not offered before]
+  App -> MainPage : ReportStartupProblem()  [hotkey taken, connector port unusable]
+  App -> MainPage : HandleOpenTtmDataFile(file)  [launched with a .ttmdata]
+  App -> MainPage : OfferTour() or ShowWhatsNew()  [StartupGreeting]
+end
+App -> PasteWindow : (low priority) EnsurePasteWindow().Prewarm()
+@enduml

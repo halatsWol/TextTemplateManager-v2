@@ -1,0 +1,43 @@
+@startuml act-backup
+!include _style.iuml
+title Automatic backups: BackupScheduler.TickAsync (every 30 s) and BackupService.CreateAsync
+
+|BackupScheduler|
+start
+if (first tick?) then (yes)
+  :remember the newest valid backup per tier;\ndelete stale *.partial files;
+endif
+:StorageService.WriteCount changed?\n-> pending since now (restarts the 2 minutes);
+if (pending for 2 min?) then (yes)
+  :create Recent (skip if same as newest Recent);
+endif
+if (last 2-hourly >= 2 h ago?) then (yes)
+  :create TwoHourly (skip if same as newest);
+endif
+if (no Daily today and (startup or changed today)?) then (yes)
+  :create Daily (always written);
+endif
+|BackupService|
+:wait until no write for 2 s (give up after 30 s: NotQuiet);
+if (data.ttmdata exists?) then (no)
+  :NothingToBackUp;
+  stop
+endif
+:read data, settings, sync settings (shared read)\nand check each parses -> else SourceUnreadable;
+:read every linked sync file\n(missing or broken: listed with Included = false);
+if (fingerprint equals the newest of the tier?) then (yes)
+  :Unchanged;
+  stop
+endif
+:write ttm-backup-<tier>-<time>.zip.partial\n(files, then manifest.json with sizes + SHA-256), flush;
+:Verify: re-open, every hash and parse checked;
+if (valid?) then (yes)
+  :rename to .zip -> Created;
+  |BackupScheduler|
+  :Prune(tier): keep newest valid 3 / 5 / 5\n(damaged ones neither count nor get deleted);
+else (no)
+  |BackupService|
+  :delete .partial -> Failed (tried again next tick);
+endif
+stop
+@enduml

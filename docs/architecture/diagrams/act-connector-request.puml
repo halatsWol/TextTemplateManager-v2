@@ -1,0 +1,40 @@
+@startuml act-connector-request
+!include _style.iuml
+title BrowserConnector: one request (thread pool, 10 s per connection)
+
+start
+:AcceptTcpClientAsync on 127.0.0.1:port;
+:read headers (max 64 KB) and body (max 1 MB, UTF-8);
+if (method OPTIONS?) then (yes)
+  :204, CORS echoed for extension origins only;
+  stop
+endif
+if (Origin set and not chrome-/moz-/safari-web-extension?) then (yes)
+  :403 forbidden origin;
+  stop
+endif
+if (x-ttm-token matches? (constant-time compare)) then (no)
+  :401 unauthorized;
+  stop
+endif
+if (Busy (guided tour runs)?) then (yes)
+  :503 busy;
+  stop
+endif
+switch (path)
+case (/ping)
+  :app, version, protocol 2;
+case (/pastemodes)
+  :modes with labels;
+case (/tree)
+  :AppConnectorData snapshot\n(rebuilt on the UI thread after TreeChanged / DataSaved);
+case (GET /template?id=&mode=)
+  :HtmlSanitizer.Sanitize(content)\n-> PasteService.RenderForMode(mode);
+case (POST /template)
+  :marshal to the UI thread:\nsanitize, unique title, add to the local root, save;
+case ()
+  :404;
+endswitch
+:JSON response;
+stop
+@enduml

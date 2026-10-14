@@ -1,0 +1,48 @@
+@startuml act-startup-greeting
+!include _style.iuml
+title What a start greets with (StartupGreeting.For + App)
+
+start
+if (settings.TutorialOfferDone?) then (no)
+  :Greeting = TourOffer;
+  if (dev run without --offer-tour?) then (yes)
+    :Greeting = None;
+  endif
+else (yes)
+  if (LastRunVersion empty?) then (yes)
+    :Greeting = None\n(first run of 2.x);
+  elseif (app version newer than LastRunVersion?) then (yes)
+    :Greeting = WhatsNew;
+  else (no)
+    :Greeting = None;
+  endif
+endif
+if (Greeting != WhatsNew) then (yes)
+  :LastRunVersion = app version;
+endif
+switch (Greeting)
+case (TourOffer)
+  if (started hidden?) then (yes)
+    :ask on a later visible start;
+  elseif (first-start choice shown?) then (yes)
+    :the first-start dialog offers it\nafter "Start fresh";
+  else (no)
+    :MainPage.OfferTour()\nTake the tour / Later / Don't show again;
+  endif
+case (WhatsNew)
+  if (started hidden?) then (yes)
+    :show when the window is first opened\n(App._onFirstShow);
+  else (no)
+    :MainPage.ShowWhatsNew(release.md section);
+  endif
+  :LastRunVersion = app version\n(once the dialog was shown);
+case (None)
+endswitch
+stop
+note right
+  "Take the tour" (any start of the tour) and
+  "Don't show again" set TutorialOfferDone.
+  A first-start restore sets it too; a 1.x import
+  doesn't, so the restarted app offers the tour.
+end note
+@enduml

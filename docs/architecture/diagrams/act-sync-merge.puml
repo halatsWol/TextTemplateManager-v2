@@ -1,0 +1,28 @@
+@startuml act-sync-merge
+!include _style.iuml
+title SyncEngine.Merge: one item of a sync file
+
+start
+:file item (Id = its SyncId in the file);
+if (cached item with that SyncId?) then (yes)
+  :reuse the cached object\n(keeps tree identity: expansion, selection);
+  if (source.AllowSave and cached.LastChange > file.LastChange?) then (yes)
+    :keep the cached content\n(a local edit not written back yet);
+  else (no)
+    :copy title, content, tags,\nshortcuts, paste mode, LastChange\nfrom the file;
+  endif
+else (no)
+  :new Template/Folder with a fresh app Id,\ncontent from the file;
+endif
+:SyncId = file item's Id;
+:merge its children the same way;
+:SyncChildren: remove items no longer in the file,\ninsert new ones, move to the file's order;
+stop
+note right
+  The folder root adopts the file root's LastChange, so a
+  read-only open re-serializes identically and doesn't
+  churn the shared file (OneDrive conflict copies).
+  Write-back: BuildFileTree writes items keyed by SyncId
+  (new local items get a fresh SyncId), root title "Root".
+end note
+@enduml

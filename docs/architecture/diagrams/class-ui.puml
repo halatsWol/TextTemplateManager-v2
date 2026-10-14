@@ -1,0 +1,134 @@
+@startuml class-ui
+!include _style.iuml
+title Presentation layer
+
+class App <<Application>> {
+  +{static} MainWindow : Window
+  +HostEnvironment : IAppEnvironment
+  +Backups : BackupService
+  +StartTutorialAsync()
+  +EndTutorial()
+  +ExitAsync() / Shutdown()
+  +PersistPendingAsync()
+  +AddExitFlush(flush)
+  +RestoreFromBackupAsync(path, parts, placements)
+  +UpdateGlobalHotkey(hotkey)
+  +ApplyBrowserConnectorSettings()
+  -OnLaunched()
+  -OnGlobalHotkeyPressed()
+}
+
+class MainPage <<Page>> {
+  +ViewModel : MainViewModel
+  +ResolveUnsavedEditsAsync() : bool
+  +OfferFirstStart() / OfferLegacyRemoval()
+  +OfferTour() / ShowWhatsNew()
+  +HandleOpenTtmDataFile(path)
+  -ShowDialogAsync(dialog)  (the one place dialogs open)
+}
+note right of MainPage
+  Partial class: MainPage.xaml.cs (window, tree,
+  dialogs, menus) and MainPage.Tour.cs (tour steps).
+end note
+
+class MainViewModel <<ObservableObject>> {
+  +RootNodes : ObservableCollection<TreeNode>
+  +SelectedItem / SelectedNode
+  +EditedItem  (item or its draft)
+  +SearchText
+  +HasUnsavedChanges
+  +LeavingEditedItem (event)
+  +AddTemplate / AddFolder / CloneItem / DeleteItem
+  +MoveAsync(items, folder, index)
+  +ImportAsync() / ExportAsync()
+  +SaveEditsAsync() / DiscardEdits()
+  +ApplyFilter() / ReloadTree()
+  +ValidateAllShortcuts()
+  +ClickItem(item, ctrl, shift)
+}
+class TreeNode <<ObservableObject>> {
+  +Item : BaseItem
+  +Children : ObservableCollection<TreeNode>
+  +IsExpanded
+  +IsMultiSelected
+}
+class ItemDraft {
+  +Original : BaseItem
+  +Edited : BaseItem
+  +IsDirty
+  +Commit()
+  +RebaseOnto(item)
+  +ContentLoaded(html)
+}
+class MultiSelection {
+  +Items
+  +Click(item, ctrl, shift, visible)
+  +{static} TopMost(items)
+}
+class ConflictReport
+class ConflictPanel <<UserControl>>
+class TemplateEditor <<UserControl>> {
+  +Show(template, editable)
+  +FlushAsync()
+  +ContentLoaded / SaveRequested / FocusSearchRequested
+}
+class SettingsView <<UserControl>> {
+  +Open(page, parameter)
+  +PageArea
+}
+class GeneralSettingsPage
+class IntegrationsSettingsPage
+class SyncSettingsPage
+class BackupsSettingsPage
+class SearchOptionsButton <<UserControl>>
+class TutorialOverlay <<UserControl>> {
+  +RunAsync(steps, startAt, numberFrom, total, ...) : TourOutcome
+  +End()
+}
+
+class PasteWindow <<Window>> {
+  +ShowForPaste() / Prewarm()
+  +ShowForTour() / RunTourAsync()
+  -ExecutePaste(template, mode)
+  -Alt+Esc low-level hook
+}
+class QuickPasteController {
+  +Buffer / AltHeld / Tab
+  +SingleRows / MultiRows
+  +SingleKey(c) : PasteRequest
+  +AltDown() / TypeMulti(c) / AltUp() : PasteRequest
+  +CommitHighlighted() / CommitMulti()
+  +SetSearch(text, inContent, strict)
+}
+class ShortcutRow <<record>>
+class PasteRequest <<record>>
+
+App --> MainPage
+App --> PasteWindow : warm instance
+App ..> TutorialOverlay : via MainPage / PasteWindow
+MainPage *-- MainViewModel
+MainPage *-- TemplateEditor
+MainPage *-- SettingsView
+MainPage *-- ConflictPanel
+MainPage *-- SearchOptionsButton
+MainPage *-- TutorialOverlay
+MainViewModel "1" *-- "*" TreeNode
+MainViewModel o-- ItemDraft : autosave off
+MainViewModel *-- MultiSelection
+MainViewModel ..> ConflictReport
+ConflictPanel ..> ConflictReport
+SettingsView o-- GeneralSettingsPage
+SettingsView o-- IntegrationsSettingsPage
+SettingsView o-- SyncSettingsPage
+SettingsView o-- BackupsSettingsPage
+PasteWindow *-- QuickPasteController
+PasteWindow *-- SearchOptionsButton
+PasteWindow *-- TutorialOverlay
+QuickPasteController ..> ShortcutRow
+QuickPasteController ..> PasteRequest
+
+class DataNode <<Data>>
+MainViewModel --> DataNode
+PasteWindow --> DataNode
+SettingsView --> DataNode
+@enduml

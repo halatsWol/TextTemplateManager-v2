@@ -1,0 +1,30 @@
+@startuml act-release
+!include _style.iuml
+title Release workflow (.github/workflows/release.yml)
+
+|package (windows-latest)|
+start
+:tag vX.Y.Z pushed\n(or workflow_dispatch with a version);
+:version = tag without "v"; must be X.Y.Z;
+if (tag?) then (yes)
+  :read the annotated tag message:\n"publish: none" -> no Store submission;
+endif
+:setup .NET 8 + 10;
+:tests/run-tests.ps1;
+:build/Build-Release.ps1\n-> x64 .msixupload (StoreBuild), Manual.pdf, AdminManual.pdf;
+:build/Release-Notes.ps1\n-> GitHub notes (release.md + generated changelog),\n   Store "What's new" (<= 1500 chars);
+:upload artifacts;
+if (tag?) then (yes)
+  :gh release create (published, PDFs only, no .exe);
+  |microsoft-store (environment store-release)|
+  if (publish_store?) then (yes)
+    :manual approval;
+    :check MSSTORE_* secrets;
+    :msstore reconfigure;
+    :msstore publish -i .msixupload -id 9NMBSZLLLN6V --noCommit;
+    :submission get -> ReleaseNotes for every listing -> submission update;
+    :submission publish (certification follows);
+  endif
+endif
+stop
+@enduml

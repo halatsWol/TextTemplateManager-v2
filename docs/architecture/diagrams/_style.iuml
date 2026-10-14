@@ -1,0 +1,23 @@
+' Shared look for all architecture diagrams.
+skinparam shadowing false
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 12
+skinparam roundCorner 8
+skinparam ArrowColor #444444
+skinparam BorderColor #666666
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #FAFAFA
+  BorderColor #666666
+}
+skinparam note {
+  BackgroundColor #FFF8DC
+  BorderColor #C8B560
+}
+skinparam sequence {
+  ParticipantBackgroundColor #FAFAFA
+  LifeLineBorderColor #888888
+}
+hide empty members

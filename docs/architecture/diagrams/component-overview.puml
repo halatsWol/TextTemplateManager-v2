@@ -1,0 +1,76 @@
+@startuml component-overview
+!include _style.iuml
+title TextTemplateManager 2: components
+
+actor User
+node "Other app\n(paste target)" as Target
+node "Browser with\nTTM-Connect" as Browser
+
+package "ttm2.exe (WinUI 3, .NET 8)" {
+  package "Presentation" {
+    [App] as App
+    [MainPage + MainViewModel] as Main
+    [SettingsView + pages] as Settings
+    [TemplateEditor\n(TipTap in WebView2)] as Editor
+    [PasteWindow + QuickPasteController] as QP
+    [TutorialOverlay] as Tour
+  }
+  package "Data" {
+    [DataNode\n(the store)] as Store
+    [StorageService] as Storage
+    [SyncEngine] as Sync
+    [BackupService\nBackupScheduler] as Backup
+    [RestoreService] as Restore
+  }
+  package "Services" {
+    [HotkeyListener] as Hotkey
+    [PasteService] as Paste
+    [BrowserConnector\nAppConnectorData] as Connector
+    [TrayIconService] as Tray
+    [IAppEnvironment\nLegacyApp / LegacyAutostart] as Platform
+  }
+  package "Helpers" {
+    [HtmlToRtf / HtmlToMarkdown\nPanelHtml / HtmlSanitizer\nVariableHelper] as Convert
+    [WindowHelper\n(Win32)] as Win32
+  }
+}
+
+database "LocalState\n(data, settings,\nsync settings)" as Files
+database "Documents\\TextTemplateManager\\Backups" as Backups
+database "Shared .ttmdata\n(OneDrive, share)" as SyncFiles
+
+User --> Main
+User --> QP : global hotkey
+App --> Main
+App --> QP
+App --> Hotkey
+App --> Tray
+App --> Connector
+App --> Backup
+App --> Platform
+Main --> Store
+Main --> Settings
+Main --> Editor
+Main --> Tour
+QP --> Store
+QP --> Paste
+QP --> Tour
+Settings --> Store
+Settings --> Backup
+Settings --> Restore
+Store --> Storage
+Store --> Sync
+Storage --> Files
+Storage --> SyncFiles
+Backup --> Storage
+Backup --> Backups
+Restore --> Files
+Restore --> SyncFiles
+Paste --> Convert
+Paste --> Win32
+Paste --> Target : clipboard + Ctrl+V
+Connector --> Store
+Connector --> Paste : render content
+Browser --> Connector : HTTP 127.0.0.1
+Hotkey --> App : WM_HOTKEY
+@enduml

@@ -1,0 +1,41 @@
+@startuml state-quick-paste-input
+!include _style.iuml
+title Quick Paste keyboard focus and input (PasteWindow + QuickPasteController)
+
+[*] --> ShortcutMode : ShowForPaste
+
+state "Shortcut mode\n(root grid focused)" as ShortcutMode {
+  ShortcutMode : letter/digit -> SingleKey -> paste, or error tone
+  ShortcutMode : Up/Down -> move highlight (wraps)
+  ShortcutMode : Enter -> CommitHighlighted -> paste
+}
+state "Search box" as Search {
+  Search : letters filter tree and both lists
+  Search : Up -> caret to start, Down -> caret to end
+}
+state "Tree" as Tree {
+  Tree : arrows move/expand, Enter or double-click -> paste
+  Tree : right-click -> Paste / Paste As
+}
+state "Alt held: multi-key entry" as Multi {
+  Multi : TypeMulti(c) narrows the multi-key list
+  Multi : '_' (Alt+Shift+-) marks plain text
+  Multi : Alt+Backspace -> Backspace
+  Multi : Up/Down -> MoveMultiHighlight
+  Multi : Enter -> CommitMulti -> paste
+}
+
+ShortcutMode --> Search : Tab / Ctrl+F / click
+Search --> Tree : Tab, or Down at end of text
+Tree --> ShortcutMode : Tab
+Search --> ShortcutMode : Esc (clears the filter)
+Tree --> Search : Esc, or a printable key (typed there)
+ShortcutMode --> Multi : Alt down / AltDown()
+Search --> Multi : Alt down
+Tree --> Multi : Alt down
+Multi --> ShortcutMode : Alt up with nothing typed\n/ previous tab back
+Multi --> [*] : Alt up with a key typed -> paste
+Multi --> ShortcutMode : Alt+Esc (low-level hook) / CancelEntry
+ShortcutMode --> [*] : Esc -> hide (kept warm)
+ShortcutMode --> [*] : paste -> window closed (destroyed)
+@enduml

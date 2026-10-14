@@ -1,0 +1,49 @@
+@startuml deployment
+!include _style.iuml
+title Deployment and where things live (per Windows user)
+
+node "Microsoft Store" as Store
+node "Windows PC" {
+  node "MSIX package MarflowSoftware.TextTemplateManager\n(C:\\Program Files\\WindowsApps, read-only)" as Pkg {
+    artifact "ttm2.exe\n(.NET 8 self-contained)" as Exe
+    artifact "Assets\\editor\\*.html\n(TipTap bundles)" as EditorAssets
+    artifact "Manual.pdf, release.md, LICENSE" as Docs
+  }
+  node "Framework package\nMicrosoft.WindowsAppRuntime.1.8" as WinAppSdk
+  node "Microsoft Edge WebView2 Runtime" as WebView2
+  folder "%LocalAppData%\\Packages\\MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny\\LocalState" as LocalState {
+    file "data.ttmdata"
+    file "settings.ttmsettings"
+    file "sync.ttmsettings"
+    file "crash.log"
+    folder "restore-work (only during a restore)"
+  }
+  folder "Documents\\TextTemplateManager\\Backups" as Backups {
+    file "ttm-backup-<kind>-<time>.zip"
+  }
+  folder "%LocalAppData%\\Marflow Software\\TextTemplateManager\n(TextTemplateManager 1, read only)" as V1
+  folder "OneDrive / network share" as Shared {
+    file "team.ttmdata (sync file)"
+  }
+  node "Browser + TTM-Connect extension" as Ext
+}
+
+Store --> Pkg : installs, updates
+Store --> WinAppSdk : framework dependency
+Exe --> WinAppSdk
+Exe --> WebView2
+Exe --> LocalState : read/write
+Exe --> Backups : write, read for restore
+Exe --> V1 : read once (v1 backup, import)
+Exe <--> Shared : sync (merge, write back)
+Ext --> Exe : HTTP 127.0.0.1:47615 + token
+note right of LocalState
+  Removed by Windows on Reset and Uninstall.
+  TTM_DATA_DIR redirects all of this
+  (and Backups, TTM1) for tests and dev runs.
+end note
+note right of Backups
+  Outside the package: survives Reset,
+  Uninstall and reinstall.
+end note
+@enduml

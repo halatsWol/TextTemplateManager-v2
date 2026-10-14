@@ -1,0 +1,51 @@
+@startuml seq-quick-paste
+!include _style.iuml
+title Quick Paste: hotkey to pasted text
+
+actor User
+participant "Target app" as Target
+participant "HotkeyListener\n(message-only window)" as Hotkey
+participant App
+participant WindowHelper
+participant PasteWindow
+participant QuickPasteController as Ctrl
+participant PasteService
+participant "Clipboard\n(Win32)" as Clip
+
+User -> Hotkey : Shift+Alt+Y (RegisterHotKey)
+Hotkey -> App : HotkeyPressed
+App -> WindowHelper : CaptureTargetContext()\n(remember the foreground window)
+App -> PasteWindow : EnsurePasteWindow().ShowForPaste()\n(warm, prewarmed instance)
+PasteWindow -> Ctrl : Open() (single-key tab, shortcut mode)
+PasteWindow -> PasteWindow : install low-level hook for Alt+Esc
+
+alt single key (shortcut mode)
+  User -> PasteWindow : T
+  PasteWindow -> Ctrl : SingleKey('T')
+  Ctrl --> PasteWindow : PasteRequest(template)\n(DataNode.ResolveSingleKey: local first, then sync order)
+else multi key
+  User -> PasteWindow : Alt down
+  PasteWindow -> Ctrl : AltDown() (multi-key tab, top row highlighted)
+  User -> PasteWindow : T, H, X (Alt held)
+  PasteWindow -> Ctrl : TypeMulti(c) (refused when no shortcut starts with it)
+  User -> PasteWindow : Alt up
+  PasteWindow -> Ctrl : AltUp()
+  Ctrl --> PasteWindow : PasteRequest(highlighted row, plain text if '_')
+else tree or list
+  User -> PasteWindow : Enter / double-click / Paste As
+end
+
+PasteWindow -> PasteWindow : ExecutePaste(template, mode)\n(never in the tour)
+PasteWindow -> PasteWindow : (deferred) remove hook, Close() the window
+PasteWindow -> PasteService : HandlePaste(content, mode)
+activate PasteService
+PasteService -> Clip : snapshot the user's clipboard
+PasteService -> PasteService : variables ($[DATE] ...), colours to hex,\nformats for the mode (CF_HTML / RTF / Unicode text)
+PasteService -> Clip : set formats, marked transient\n(no Win+V history, no cloud clipboard)
+PasteService -> WindowHelper : ForceWindowToFront(target)
+PasteService -> PasteService : wait until Alt/Ctrl/Shift/Win are released,\nuntil the target is foreground again
+PasteService -> Target : SendInput Ctrl+V
+PasteService -> Clip : (background, after a delay) restore the snapshot
+deactivate PasteService
+App -> PasteWindow : Closed -> build a new warm instance (low priority)
+@enduml

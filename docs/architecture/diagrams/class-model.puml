@@ -1,0 +1,118 @@
+@startuml class-model
+!include _style.iuml
+title Models (namespace TextTemplateManager.Models)
+
+abstract class BaseItem <<ObservableObject>> {
+  +Title : string
+  +Id : Guid
+  +ParentId : Guid?
+  +SyncId : Guid?
+  +ItemType : ItemType
+  +LastChange : string  (yyyyMMddHHmmss)
+  +Children : ObservableCollection<BaseItem>
+  ..transient..
+  +IsSyncRoot : bool
+  +SyncFileMissing : bool
+}
+class Folder
+class Template {
+  +Content : string  (HTML)
+  +SingleKeyShortcut : string
+  +MultiKeyShortcut : string
+  +TagsCsv : string
+  +DefaultPasteMode : PasteMode
+  +HasSingleKeyConflict : bool
+  +HasMultiKeyConflict : bool
+  ..transient..
+  +HasSingleKeyCrossAreaWarning : bool
+  +HasMultiKeyCrossAreaWarning : bool
+  +{static} CleanShortcut(value) : string
+}
+BaseItem <|-- Folder
+BaseItem <|-- Template
+BaseItem "1" o-- "*" BaseItem : Children
+
+class AppSettings <<ObservableObject>> {
+  +DefaultPasteMode : PasteMode
+  +PasteWindowHotkey : string
+  +HideCrossAreaShortcutWarnings : bool
+  +BrowserConnectorEnabled : bool
+  +BrowserConnectorPort : int
+  +BrowserConnectorToken : string
+  +SearchInContent : bool
+  +StrictSearch : bool
+  +StartHidden : bool
+  +LegacyRemovalOffered : bool
+  +Autosave : bool
+  +TutorialOfferDone : bool
+  +LastRunVersion : string
+}
+
+class SyncSettings <<ObservableObject>> {
+  +Sources : ObservableCollection<SyncSource>
+  +Separator : string  ("-", "." or "")
+}
+class SyncSource <<ObservableObject>> {
+  +Id : Guid
+  +Name : string
+  +Path : string
+  +IsActive : bool
+  +AllowSave : bool
+  +ShortcutPrefix : string
+  ..transient..
+  +IsFileMissing : bool
+  +CanMoveUp : bool
+  +CanMoveDown : bool
+}
+SyncSettings "1" *-- "*" SyncSource : Sources (priority order)
+
+enum PasteMode {
+  Plaintext
+  Markdown
+  RTF
+  HTML
+  Auto
+  Jira
+}
+enum ItemType {
+  Folder
+  Template
+  SyncFolder
+}
+
+class SyncEngine <<static>> {
+  +Merge(target, fileRoot, name, sourceId, allowSave)
+}
+class ShortcutValidator <<static>> {
+  +Apply(entries)
+}
+class "ShortcutValidator.Entry" as Entry <<record>> {
+  Template
+  Area : Guid
+  EffectiveMultiKey : string
+}
+class TemplateSearch <<static>> {
+  +Matches(query, item, includeContent, strict) : bool
+  +Prune(items, query, includeContent, node, strict)
+}
+class TreeWalk <<static>> {
+  +Descendants() / SelfAndDescendants()
+  +ContainerOf() / ParentOf() / TopLevelOf()
+}
+class ItemTitles <<static>> {
+  +Unique(baseName, siblings) : string
+}
+ShortcutValidator ..> Entry
+Entry --> Template
+SyncEngine ..> Folder
+TemplateSearch ..> BaseItem
+Template --> PasteMode
+BaseItem --> ItemType
+AppSettings --> PasteMode
+
+note bottom of BaseItem
+  Id: app-wide identity (tree, selection, connector).
+  SyncId: the item's id inside its sync file (null for local items).
+  A synced folder root is a top-level Folder whose Id is the SyncSource.Id.
+end note
+@enduml

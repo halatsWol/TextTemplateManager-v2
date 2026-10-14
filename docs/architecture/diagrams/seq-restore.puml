@@ -1,0 +1,47 @@
+@startuml seq-restore
+!include _style.iuml
+title Restoring a backup while the app runs
+
+actor User
+participant BackupsSettingsPage as Page
+participant App
+participant HotkeyListener
+participant BrowserConnector
+participant BackupScheduler
+participant StorageService
+participant RestoreService
+database "LocalState" as Files
+database "restore-work" as Work
+
+User -> Page : select backup, parts, Restore...
+Page -> RestoreService : FindSyncLocationIssues / FindSyncedFolderTargets
+Page -> User : per missing sync file: recreate here,\nchoose a location, leave missing\n(-> SyncFilePlacement list)
+Page -> App : RestoreFromBackupAsync(path, parts, placements)
+App -> App : PersistPendingAsync()\n(saves + a recent backup of the current state)
+App -> HotkeyListener : Register("None")
+App -> BrowserConnector : Stop()
+App -> BackupScheduler : StopAsync()
+App -> StorageService : SuspendWritesAsync()\n(every later save is dropped)
+App -> RestoreService : RestoreAsync(path, parts, placements)
+activate RestoreService
+RestoreService -> RestoreService : RecoverInterrupted(), Verify(backup)
+RestoreService -> RestoreService : plan: data (all, or local / synced part mixed\nwith the current file), settings (1.x: merged over\ncurrent; 2.x: keeps tour + version state),\nsync settings (paths from placements), sync file copies
+RestoreService -> Work : write each new file to new/<n>, flushed
+RestoreService -> Work : copy each current target to old/<n>\nwrite journal.json, flushed
+RestoreService -> Files : move new/<n> over each target
+alt a move failed
+  RestoreService -> Files : RollBack(journal)
+  RestoreService --> App : failed, nothing changed
+  App -> StorageService : ResumeWrites()
+  App -> App : hotkey, connector, scheduler back on
+else all moved
+  RestoreService -> Work : delete restore-work
+  RestoreService --> App : succeeded
+  deactivate RestoreService
+  App -> App : tray off, instance key unregistered,\nAppInstance.Restart() -> loads the restored files
+end
+note over RestoreService, Files
+  A crash between journal and cleanup is undone by
+  RecoverInterrupted() at the next start.
+end note
+@enduml

@@ -1,0 +1,106 @@
+@startuml class-services
+!include _style.iuml
+title Services and platform (namespaces Services.*, Helpers)
+
+package "Services.Platform" {
+  interface IAppEnvironment {
+    +IsPackaged : bool
+    +DataDirectory : string
+    +BackupDirectory : string
+    +IsAutostartLaunch : bool
+    +OpenedFile : string?
+    +ReadRedirected(activation) : LaunchRequest
+    +GetAutostartAsync() : AutostartState
+    +SetAutostartAsync(on) : AutostartState
+  }
+  class "AppEnvironment.Packaged" as Packaged
+  class "AppEnvironment.Unpackaged" as Unpackaged
+  IAppEnvironment <|.. Packaged
+  IAppEnvironment <|.. Unpackaged
+  note bottom of Packaged
+    LocalFolder of the package, StartupTask "TtmStartup",
+    file and startup-task activation.
+  end note
+  note bottom of Unpackaged
+    Dev run: own data folder ("TextTemplateManager 2 Dev"),
+    --hidden stands in for a startup activation.
+  end note
+
+  class HotkeyListener {
+    +HotkeyPressed (event)
+    +Register(hotkey) : bool
+  }
+  class TrayIconService {
+    +ShowBalloon(title, message)
+  }
+  class UnexpectedErrorHandler {
+    +HandleAsync(exception)
+  }
+  class LegacyApp <<static>> {
+    +CloseRunningAsync(grace)
+    +FindUninstaller()
+    +UninstallAsync(timeout)
+  }
+  class LegacyAutostart <<static>> {
+    +Read() : LegacyAutostartState?
+    +CarryOverAsync(legacy, environment, settings)
+  }
+
+  interface IConnectorDataSource {
+    +AppVersion
+    +PasteModes()
+    +Tree()
+    +Template(id, mode)
+    +CreateTemplateAsync(content, name)
+  }
+  class BrowserConnector {
+    +{static} ProtocolVersion = 2
+    +Start(port, token) / Stop()
+    +Busy : bool
+    -AcceptLoopAsync()
+    -RouteAsync(request)
+  }
+  class AppConnectorData {
+    +Rebuild()  (snapshot, UI thread)
+  }
+  IConnectorDataSource <|.. AppConnectorData
+  BrowserConnector --> IConnectorDataSource
+}
+
+package "Services.Pasting" {
+  class PasteService <<static>> {
+    +HandlePaste(content, mode)
+    +CopyToClipboardAsync(content, mode)
+    +RenderForMode(content, mode)
+    -SnapshotClipboardAsync()
+    -BuildFormatsForMode(html, text, mode)
+    -RestoreClipboardAsync(snapshot)
+  }
+}
+
+package "Helpers" {
+  class WindowHelper <<static>> {
+    +CaptureTargetContext()
+    +ForceWindowToFront(hwnd)
+    +SendKeys(...) / ResetModifiers()
+    +OnSessionEnd(hwnd, query, end)
+    +PumpMessagesUntil(done, timeout)
+  }
+  class VariableHelper <<static>>
+  class HtmlUtils <<static>>
+  class PanelHtml <<static>>
+  class HtmlToRtfHelper <<static>>
+  class HtmlToMarkdown <<static>>
+  class HtmlSanitizer <<static>>
+}
+
+PasteService ..> WindowHelper
+PasteService ..> VariableHelper
+PasteService ..> HtmlUtils
+PasteService ..> PanelHtml
+PasteService ..> HtmlToRtfHelper
+PasteService ..> HtmlToMarkdown
+AppConnectorData ..> PasteService : RenderForMode
+AppConnectorData ..> HtmlSanitizer : created and served content
+LegacyAutostart ..> IAppEnvironment
+@enduml

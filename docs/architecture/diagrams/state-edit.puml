@@ -1,0 +1,32 @@
+@startuml state-edit
+!include _style.iuml
+title The right pane's edits (MainViewModel + ItemDraft)
+
+state "No selection" as None
+state "Autosave on" as Auto : EditedItem = the item itself\nevery edit -> LastChange, 500 ms debounced save
+state "Draft, clean" as Clean : EditedItem = ItemDraft.Edited (a copy)
+state "Draft, dirty" as Dirty : Save button shown
+state "Asking" as Asking : "Save changes?" dialog
+
+[*] --> None
+None --> Auto : select item [Autosave on]
+None --> Clean : select item [Autosave off]\n/ ItemDraft.For(item)
+Clean --> Clean : select another item / new draft
+Clean --> Dirty : edit differs from the saved item
+Dirty --> Clean : edits undone by hand
+Dirty --> Clean : Save / Ctrl+S\n/ Commit() + FlushPendingSaveAsync()
+Dirty --> Asking : selection leaves the item\n(checked at low priority,\nafter the tree settles)
+Asking --> Clean : Save\n/ ResolveSwitchAsync(true), draft of the new item
+Asking --> Clean : Don't save\n/ ResolveSwitchAsync(false), draft of the new item
+Asking --> Dirty : Cancel\n/ CancelSwitch(), back to the edited item
+Dirty --> Dirty : sync refresh replaced the item\n/ RebaseOnto(replacement)
+Clean --> Auto : Autosave switched on
+Dirty --> Auto : Autosave switched on\n/ SaveEditsAsync()
+Auto --> Clean : Autosave switched off
+
+note bottom of Asking
+  Closing the window, File > Exit and the tray Exit ask the
+  same question (ResolveUnsavedEditsAsync). At Windows
+  sign-out nothing can be asked, so the edits are saved.
+end note
+@enduml

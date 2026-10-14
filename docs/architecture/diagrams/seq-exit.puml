@@ -1,0 +1,48 @@
+@startuml seq-exit
+!include _style.iuml
+title Exit (File > Exit, tray Exit) and Windows sign-out
+
+actor User
+participant App
+participant MainPage
+participant HotkeyListener
+participant BrowserConnector
+participant "exit flushes\n(TemplateEditor.FlushAsync)" as Flush
+participant DataNode
+participant StorageService
+participant BackupScheduler
+
+== Exit ==
+User -> App : ExitAsync()
+App -> App : EndTutorial()
+App -> MainPage : ResolveUnsavedEditsAsync()\nSave / Don't save / Cancel
+alt Cancel
+  App --> User : stays open
+end
+App -> HotkeyListener : Register("None")
+App -> BrowserConnector : Stop()
+App -> App : PersistPendingAsync()
+activate App
+App -> Flush : registered flushes (editor content)
+App -> DataNode : FlushPendingSaveAsync()\n(debounced edit + settings save now)
+App -> StorageService : WaitForWritesAsync()
+App -> BackupScheduler : FlushAsync(5 s)\n(a recent backup of changes not backed up)
+deactivate App
+alt still saving after 1 s
+  App -> MainPage : ShowExitProgress()
+  loop every 15 s while not done
+    App -> MainPage : AskKeepWaitingForSaveAsync()
+  end
+end
+App -> App : Shutdown(): tray icon off, instance key\nunregistered, Exit() (+5 s hard-exit watchdog)
+
+== Sign-out / shutdown ==
+participant Windows as OS
+OS -> App : WM_QUERYENDSESSION
+App -> MainPage : KeepUnsavedEditsAsync()\n(nothing can be asked: edits are saved)
+App -> App : PersistPendingAsync() (started now)
+OS -> App : WM_ENDSESSION
+App -> App : stop hotkey and connector
+App -> App : PumpMessagesUntil(saved, 4 s)
+App -> App : Shutdown()
+@enduml

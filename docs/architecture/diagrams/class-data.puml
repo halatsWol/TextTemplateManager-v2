@@ -1,0 +1,117 @@
+@startuml class-data
+!include _style.iuml
+title Data layer (namespace TextTemplateManager.Data)
+
+class DataNode {
+  +Storage : StorageService
+  +LocalItems : ObservableCollection<BaseItem>
+  +CurrentSettings : AppSettings
+  +CurrentSyncSettings : SyncSettings
+  +AllItems : IEnumerable<Template>
+  ..events..
+  +TreeChanged
+  +DataSaved
+  +ShortcutsChanged
+  ..
+  +InitializeAsync()
+  +AddItemAsync() / DeleteItemsAsync()
+  +MoveItemsAsync(items, target, index) : bool
+  +ImportAsync(items, newFolderTitle, conflicts)
+  +ExportFolderAsync() / ExportItemsAsync()
+  +SaveDataAsync() / FlushPendingSaveAsync()
+  +ReapplySyncAsync() / CheckSyncFilesForChangesAsync()
+  +RecreateSyncFileAsync(source, path)
+  +ResolveSingleKey(key) : Template
+  +GetEffectiveMultiKey(t) : string
+  +ShortcutEntries()
+  +IsItemReadOnly(item) / GetAreaKey(item)
+  -SuppressSaves() : IDisposable
+  -ApplySyncAsync()
+  -WriteSyncSourcesAsync()
+}
+
+class StorageService {
+  +DataDirectory / BackupDirectory / LegacyDirectory
+  +{static} CreateDefault(environment)
+  +SaveAsync(path, root)
+  +SaveSharedAsync(path, root)
+  +{static} LoadRootSharedAsync(path)
+  +Load/SaveSettingsAsync()
+  +Load/SaveSyncSettingsAsync()
+  +TakeUnreadableFiles()
+  +WritesInFlight / WriteCount / WritesQuiet(ms)
+  +WaitForWritesAsync()
+  +SuspendWritesAsync() / ResumeWrites()
+  -WithWriteLock(path, write)  (one lock per path)
+  -WriteAtomicAsync()  (temp + flush + move)
+}
+
+class StorageJsonContext <<JsonSerializerContext>>
+class LegacyRtf <<static>> {
+  +ConvertTree(root)
+}
+
+class BackupService {
+  +Directory
+  +CreateAsync(tier, source, quietMs, ...) : BackupResult
+  +List() : IReadOnlyList<BackupInfo>
+  +Prune(tier, keep)
+  +EnsureV1BackupAsync()
+  +{static} Verify(path, out manifest)
+  +{static} ReadContents(path) : BackupContents
+}
+class BackupScheduler {
+  +Start() / StopAsync()
+  +TickAsync()  (every 30 s)
+  +FlushAsync(quietTimeout)  (on exit)
+}
+class BackupManifest {
+  Format, AppVersion, CreatedUtc
+  Tier : BackupTier
+  Files : List<BackupEntry>
+}
+class BackupEntry {
+  Name, Kind, OriginalPath?, SourceId?
+  Included, Problem?, Size, Sha256
+}
+enum BackupTier {
+  Recent
+  TwoHourly
+  Daily
+  V1
+  Exported
+}
+class RestoreService {
+  +RestoreAsync(backupPath, parts, placements) : RestoreResult
+  +RecoverInterrupted()
+  +FindSyncedFolderTargets(backupPath)
+  +{static} FindSyncLocationIssues(backupPath)
+  +{static} LocationProblem(path)
+}
+class RestoreJournal {
+  Items : List<RestoreJournalItem>
+}
+enum RestoreParts <<Flags>> {
+  Local
+  Settings
+  SyncSettings
+  SyncedFolders
+}
+
+DataNode --> StorageService
+DataNode ..> SyncEngine : ApplySyncAsync
+StorageService ..> StorageJsonContext
+StorageService ..> LegacyRtf : on load
+BackupService --> StorageService
+BackupScheduler --> BackupService
+BackupScheduler --> StorageService : WriteCount, WritesQuiet
+BackupService ..> BackupManifest
+BackupManifest *-- BackupEntry
+BackupManifest --> BackupTier
+RestoreService --> StorageService
+RestoreService ..> BackupService : Verify
+RestoreService ..> RestoreJournal
+RestoreService ..> RestoreParts
+
+class SyncEngine <<static>>
+@enduml

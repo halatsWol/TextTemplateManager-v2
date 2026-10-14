@@ -1,0 +1,43 @@
+@startuml seq-store-load
+!include _style.iuml
+title DataNode.InitializeAsync
+
+participant DataNode
+participant StorageService
+participant LegacyRtf
+participant SyncEngine
+database "LocalState" as Files
+database "sync files" as SyncFiles
+
+DataNode -> StorageService : LoadOwnFileAsync<Folder>(data.ttmdata)
+StorageService -> Files : read (3 tries on IOException)
+alt unreadable / not JSON
+  StorageService -> Files : move to data.ttmdata.broken-<time>\n(or protect the path if it can't be moved)
+  StorageService --> DataNode : null (reported via TakeUnreadableFiles)
+else
+  StorageService -> LegacyRtf : ConvertTree (old RTF templates -> HTML)
+  StorageService --> DataNode : root folder
+end
+DataNode -> DataNode : SuppressSaves { copy children into RootFolder,\nAttachChangeTracking }
+DataNode -> StorageService : LoadSettingsAsync() (same set-aside rule)
+DataNode -> StorageService : LoadSyncSettingsAsync()
+opt separator not "-", "." or ""
+  DataNode -> StorageService : SaveSyncSettingsAsync(separator = "-")
+end
+group SuppressSaves: ApplySyncAsync
+  loop each active SyncSource (settings order)
+    DataNode -> StorageService : LoadRootSharedAsync(path)\n(FileShare.ReadWrite|Delete, 5 tries)
+    StorageService -> SyncFiles : read
+    alt file loaded
+      DataNode -> SyncEngine : Merge(cached folder, file root, name, id, AllowSave)
+    else missing or unreadable
+      DataNode -> DataNode : keep cached copy, SyncFileMissing = true
+    end
+  end
+  DataNode -> DataNode : RootFolder = synced folders, then local items
+end
+DataNode -> DataNode : _isInitialized = true
+opt any active source
+  DataNode -> DataNode : SaveDataAsync()\n(persist merge, push newer local edits to the files)
+end
+@enduml

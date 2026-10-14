@@ -1,0 +1,46 @@
+@startuml seq-tour
+!include _style.iuml
+title Guided tour (Help > Start tutorial, or the startup offer)
+
+actor User
+participant App
+participant "MainPage (real)" as Real
+participant TourSample
+participant "MainPage (tour: true)" as TourPage
+participant "TutorialOverlay\n(main window)" as Overlay
+participant "PasteWindow (tour: true)" as TourQP
+participant HotkeyListener
+participant BrowserConnector
+
+User -> App : StartTutorialAsync()
+App -> Real : ResolveUnsavedEditsAsync()
+App -> App : settings.TutorialOfferDone = true
+App -> TourSample : CreateAsync(real settings)\n(temp folder: sample templates, a sample synced\nfolder, two sample backups, a settings copy)
+App -> TourPage : new MainPage(sample.Store, tour: true)
+App -> HotkeyListener : Register("None")
+App -> BrowserConnector : Busy = true (503)
+App -> App : MainWindow.Content = tour page
+App -> TourQP : new PasteWindow(sample.Store, tour: true)
+loop until Done, Skipped, or Back from Quick Paste's first step
+  App -> TourPage : RunTourAsync(startAt, total)
+  TourPage -> Overlay : RunAsync(steps 1-14, endsTour: false)
+  Overlay --> TourPage : Done (window stays dimmed)
+  App -> TourQP : ShowForTour()
+  App -> TourQP : RunTourAsync(15, total)\n(steps 15-21 over Quick Paste; never pastes)
+end
+App -> App : EndTutorial()
+App -> TourQP : CloseForTour()
+App -> Real : MainWindow.Content = real page
+App -> TourSample : Dispose() (temp folder deleted)
+App -> HotkeyListener : Register(real hotkey)
+App -> BrowserConnector : Busy = false
+opt skipped
+  App -> Real : ShowTourHint() ("Start it again any time ...")
+end
+note over Overlay
+  Each TourStep: title, text, target control,
+  Enter / Leave actions (open a page, show a menu picture),
+  optional corner for the card. The overlay dims everything
+  but the target, blocks input, Esc skips.
+end note
+@enduml

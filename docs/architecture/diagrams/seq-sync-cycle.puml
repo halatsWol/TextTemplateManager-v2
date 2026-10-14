@@ -1,0 +1,31 @@
+@startuml seq-sync-cycle
+!include _style.iuml
+title Picking up a change another PC made to a sync file
+
+participant "DispatcherQueueTimer\n(4 s, UI thread)" as Timer
+participant MainViewModel
+participant DataNode
+participant StorageService
+participant SyncEngine
+database "sync file" as SyncFile
+
+loop every 4 s
+  Timer -> DataNode : CheckSyncFilesForChangesAsync()
+  DataNode -> SyncFile : File.GetLastWriteTimeUtc (no open, no lock)
+  alt write time differs from the last one seen\n(own writes and reads update the remembered time)
+    DataNode -> DataNode : ReapplySyncAsync()\n(serialized by _syncApplyLock)
+    activate DataNode
+    DataNode -> StorageService : LoadRootSharedAsync(path)
+    DataNode -> SyncEngine : Merge(...)
+    DataNode -> MainViewModel : TreeChanged
+    MainViewModel -> MainViewModel : (UI thread) ApplyFilter() or ReloadTree()\nwhen the synced folders' order changed;\nkeep the selection; ValidateAllShortcuts()
+    DataNode -> DataNode : SaveDataAsync()\n(cache in data.ttmdata, write back newer local edits)
+    deactivate DataNode
+  end
+end
+note over DataNode
+  Settings > Sync changes (add, remove, reorder, prefix,
+  Active, Save) and opening a .ttmdata file call
+  ReapplySyncAsync() directly.
+end note
+@enduml
