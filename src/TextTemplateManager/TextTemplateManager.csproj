@@ -18,8 +18,8 @@
     <Product>TextTemplateManager</Product>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
-    <Platforms>x64;ARM64</Platforms>
-    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkIdentifier('$(TargetFramework)')) == '.NETCoreApp'">win-x64;win-arm64</RuntimeIdentifiers>
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkIdentifier('$(TargetFramework)')) == '.NETCoreApp'">win-x64</RuntimeIdentifiers>
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <!-- C# 14 (.NET 10 SDK): [ObservableProperty] partial properties with initializers, declared in
          source so the System.Text.Json source generator sees them. -->
@@ -37,7 +37,7 @@
     <WindowsPackageType>None</WindowsPackageType>
   </PropertyGroup>
 
-  <!-- Store package (x64 + arm64 bundle and .msixupload in AppPackages\), from a short path because the
+  <!-- Store package (x64 bundle and .msixupload in AppPackages\), from a short path because the
        XAML compiler fails silently near 260 characters:
          dotnet build -c Release -p:Platform=x64 -p:StoreBuild=true -p:Version=X.Y.Z -p:ReleaseDate=yyyy-MM-dd
        .NET stays self-contained (the Store has no framework package for it); the Windows App SDK becomes a
@@ -49,7 +49,7 @@
     <GenerateAppxPackageOnBuild>true</GenerateAppxPackageOnBuild>
     <UapAppxPackageBuildMode>StoreUpload</UapAppxPackageBuildMode>
     <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
+    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
     <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
     <AppxSymbolPackageEnabled>false</AppxSymbolPackageEnabled>
   </PropertyGroup>
