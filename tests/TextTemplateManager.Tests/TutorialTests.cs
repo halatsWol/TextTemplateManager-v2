@@ -28,6 +28,11 @@ public class TutorialTests
             Assert.Contains(items, i => i.Id == TourSample.ReleaseNotesId && i is Template t && t.Content.Contains("data-panel-type"));
             Assert.Contains(items, i => i is Template t && t.Content.Contains("<pre><code"));
             Assert.StartsWith(Path.GetTempPath(), dir);
+            var backups = new TextTemplateManager.Data.BackupService(sample.Store.Storage).List();
+            Assert.Equal(new[] { TextTemplateManager.Data.BackupTier.Recent, TextTemplateManager.Data.BackupTier.Daily },
+                backups.Select(b => b.Tier));
+            Assert.All(backups, b => Assert.True(b.IsValid, b.Problem));
+            Assert.StartsWith(dir, backups[0].Path);
         }
         Assert.False(Directory.Exists(dir));
     }

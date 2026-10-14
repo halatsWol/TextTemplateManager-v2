@@ -8,6 +8,8 @@
     <!-- The transparent background takes every click, the cutout included: during the tour only the card works. -->
     <Grid x:Name="Root" Background="Transparent" KeyDown="Root_KeyDown" PointerPressed="Root_PointerPressed">
         <Path x:Name="Dim" Fill="#99000000" IsHitTestVisible="False"/>
+        <!-- Shown for one step on top of the dimming (e.g. a picture of an open menu); never takes input. -->
+        <Grid x:Name="Extra" HorizontalAlignment="Left" VerticalAlignment="Top" IsHitTestVisible="False"/>
         <Border x:Name="Highlight" BorderBrush="{ThemeResource AccentFillColorDefaultBrush}" BorderThickness="2"
                 CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" IsHitTestVisible="False" Visibility="Collapsed"/>
 

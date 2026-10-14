@@ -37,6 +37,11 @@ public sealed class TourSample : IDisposable
             Sources = { new SyncSource { Id = TeamId, Name = "Team (sample)", Path = teamFile, ShortcutPrefix = "team" } },
         });
 
+        // Two backups for the Backups page: daily (yesterday) and recent (today).
+        var now = DateTime.Now;
+        foreach (var (tier, at) in new[] { (BackupTier.Daily, now.AddDays(-1).Date.AddHours(9)), (BackupTier.Recent, now.AddMinutes(-10)) })
+            await new BackupService(storage, () => at).CreateAsync(tier, BackupSource.Live(storage), quietMs: 0);
+
         var store = new DataNode(storage);
         await store.InitializeAsync();
         return new TourSample(dir, store);

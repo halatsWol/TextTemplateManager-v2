@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Shapes;
 using TextTemplateManager.Models;
 using TextTemplateManager.Tutorial;
 
@@ -16,6 +20,86 @@ namespace TextTemplateManager
 
         /// <summary>After a skipped tour: where to start it again.</summary>
         public void ShowTourHint() => TourHintTip.IsOpen = true;
+
+        private Task OpenSettings(Controls.SettingsPage page)
+        {
+            Settings.Open(page);
+            return Task.Delay(500);   // the page loads
+        }
+
+        private Task CloseSettings()
+        {
+            if (Settings.IsOpen) Settings.Close();
+            return Task.CompletedTask;
+        }
+
+        // A menu the step is about, shown open: a picture of it built from its own entries, drawn by the tour above the
+        // dimming. The real menu would take the keyboard and swallow the next click on the card.
+        private FrameworkElement? _menuPicture;
+
+        private async Task ShowMenuAsync(MenuBarItem menu)
+        {
+            await CloseSettings();
+            var at = Tour.PositionOf(menu);
+            var items = new StackPanel { Padding = new Thickness(4) };
+            foreach (var entry in menu.Items)
+            {
+                if (entry is MenuFlyoutSeparator)
+                {
+                    items.Children.Add(new Rectangle { Height = 1, Margin = new Thickness(-4, 4, -4, 4),
+                        Fill = (Brush)Application.Current.Resources["DividerStrokeColorDefaultBrush"] });
+                    continue;
+                }
+                if (entry is not MenuFlyoutItem { Visibility: Visibility.Visible } item) continue;
+                var row = new Grid { Padding = new Thickness(11, 8, 16, 9), ColumnSpacing = 12 };
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(16) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                IconElement? icon = item.Icon switch
+                {
+                    SymbolIcon s => new SymbolIcon(s.Symbol),
+                    FontIcon f => new FontIcon { Glyph = f.Glyph },
+                    _ => null,
+                };
+                // Menu icons are 16 px; a SymbolIcon is 20, so it's scaled down rather than cut off.
+                if (icon != null) row.Children.Add(new Viewbox { Width = 16, Height = 16, Child = icon });
+                var text = new TextBlock { Text = item.Text, VerticalAlignment = VerticalAlignment.Center };
+                Grid.SetColumn(text, 1);
+                row.Children.Add(text);
+                items.Children.Add(row);
+            }
+            var picture = new StackPanel { HorizontalAlignment = HorizontalAlignment.Left };
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(picture, $"{menu.Title} menu (picture)");
+            picture.Children.Add(new Border { Height = menu.ActualHeight, Width = menu.ActualWidth, HorizontalAlignment = HorizontalAlignment.Left });   // the menu's title, seen through the cutout
+            picture.Children.Add(new Border
+            {
+                Child = items,
+                Margin = new Thickness(-4, 2, 0, 0),
+                HorizontalAlignment = HorizontalAlignment.Left,
+                CornerRadius = new CornerRadius(8),
+                BorderThickness = new Thickness(1),
+                BorderBrush = (Brush)Application.Current.Resources["SurfaceStrokeColorFlyoutBrush"],
+                Background = (Brush)Application.Current.Resources["SolidBackgroundFillColorQuarternaryBrush"],
+            });
+            Tour.ShowExtra(picture, at.X, at.Y);
+            _menuPicture = picture;
+            await Task.Delay(100);
+        }
+
+        private void HideMenu()
+        {
+            Tour.ClearExtra();
+            _menuPicture = null;
+        }
+
+        // The Save button only shows with unsaved changes; the tour shows it for its step and then puts it back.
+        private Task ShowSaveButtonForTour()
+        {
+            SaveButton.Visibility = Visibility.Visible;
+            return Task.Delay(100);
+        }
+
+        private void ShowSaveButtonAsIs() =>
+            SaveButton.Visibility = ViewModel.HasUnsavedChanges ? Visibility.Visible : Visibility.Collapsed;
 
         private Task SelectSample(System.Guid id)
         {
@@ -46,15 +130,27 @@ namespace TextTemplateManager
                 () => PasteModeBox),
             new("Saving",
                 "Changes to a template or folder wait for Save here (or Ctrl+S), and you're asked before leaving unsaved changes. To save as you type, turn on Autosave in Settings ▸ General.",
-                () => TopRightActions),
-            new("Import and export",
-                "File ▸ Export saves the selected items, or all of them, to a .ttmdata file; File ▸ Import adds such a file to your tree.",
-                () => FileMenu),
+                () => SaveButton, ShowSaveButtonForTour, ShowSaveButtonAsIs),
             new("Always at hand",
                 "Closing the window keeps TextTemplateManager running in the system tray, so Quick Paste is always ready. To quit, use File ▸ Exit or the tray icon."),
+            new("Import and export",
+                "File ▸ Export saves the selected items, or all of them, to a .ttmdata file; File ▸ Import adds such a file to your tree.",
+                () => _menuPicture, () => ShowMenuAsync(FileMenu), HideMenu),
+            new("Settings ▸ General",
+                "File ▸ Settings: the global shortcut that opens Quick Paste, the paste mode for new templates, starting with Windows (hidden in the tray if you like) and Autosave.",
+                () => Settings.PageArea, () => OpenSettings(Controls.SettingsPage.General), Corner: TourCorner.TopRight),
+            new("Settings ▸ Integrations",
+                "The browser connector lets the TTM-Connect browser extension paste your templates on web pages and save selected text as a new template. Here you also make TextTemplateManager open .ttmdata files.",
+                () => Settings.PageArea, () => OpenSettings(Controls.SettingsPage.Integrations), Corner: TourCorner.BottomLeft),
+            new("Settings ▸ Sync",
+                "Share templates with your team through a .ttmdata file on a shared drive or OneDrive. Each linked file becomes a synced folder; choose a shortcut prefix, whether you may change it (or only read it), and link another file if one goes missing.",
+                () => Settings.PageArea, () => OpenSettings(Controls.SettingsPage.Sync), Corner: TourCorner.BottomLeft),
+            new("Settings ▸ Backups",
+                "Backups are made on their own (after changes, every two hours and daily) in your Documents folder. Restore any of them, choosing what to take back, export a backup to move to another PC, or import from TextTemplateManager 1.",
+                () => Settings.PageArea, () => OpenSettings(Controls.SettingsPage.Backups), Corner: TourCorner.BottomRight),
             new("Help",
                 "The manual, and this tour again: Help ▸ Start tutorial.",
-                () => HelpMenu),
+                () => _menuPicture, () => ShowMenuAsync(HelpMenu), HideMenu),
         };
     }
 }

@@ -50,6 +50,12 @@ public sealed partial class BackupsSettingsPage : Page
     /// on its restore confirmation (cancelling it leaves the page to adjust the parts).</summary>
     public sealed record Request(string Select, bool Confirm);
 
+    /// <summary>The backups the page lists (those of the window's store: the tour lists its sample ones), and
+    /// optionally a <see cref="Request"/>.</summary>
+    public sealed record Parameters(BackupService Backups, Request? Request = null);
+
+    private BackupService _backups = null!;   // set on navigation
+
     public BackupsSettingsPage() => InitializeComponent();
 
     private static App App => (App)Application.Current;
@@ -57,17 +63,20 @@ public sealed partial class BackupsSettingsPage : Page
     protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        FolderText.Text = App.Backups.Directory;
+        var parameters = e.Parameter as Parameters;
+        _backups = parameters?.Backups ?? App.Backups;
+        FolderText.Text = _backups.Directory;
         var rows = await LoadRowsAsync();
-        var requested = e.Parameter is Request request ? rows.FirstOrDefault(r => r.Info.IsValid && r.Info.Path == request.Select) : null;
+        var requested = parameters?.Request is { } request ? rows.FirstOrDefault(r => r.Info.IsValid && r.Info.Path == request.Select) : null;
         BackupList.SelectedItem = requested ?? rows.FirstOrDefault(r => r.Info.IsValid);   // else the newest one that can be restored
         ShowAvailableParts();
-        if (requested != null && ((Request)e.Parameter).Confirm) await RestoreAsync(requested.Info.Path, requested.Description);
+        if (requested != null && parameters!.Request!.Confirm) await RestoreAsync(requested.Info.Path, requested.Description);
     }
 
     private async Task<List<BackupRow>> LoadRowsAsync()
     {
-        var (rows, legacy) = await Task.Run(() => (App.Backups.List().Select(b => new BackupRow(b)).ToList(), App.Backups.HasLegacyData));   // reads every zip
+        var backups = _backups;
+        var (rows, legacy) = await Task.Run(() => (backups.List().Select(b => new BackupRow(b)).ToList(), backups.HasLegacyData));   // reads every zip
         BackupList.ItemsSource = rows;
         EmptyText.Visibility = rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         ImportV1Button.Visibility = legacy || rows.Any(r => r.Info.Tier == BackupTier.V1 && r.Info.IsValid) ? Visibility.Visible : Visibility.Collapsed;
@@ -83,7 +92,7 @@ public sealed partial class BackupsSettingsPage : Page
         if (row == null)
         {
             ImportV1Button.IsEnabled = false;
-            var result = await Task.Run(App.Backups.EnsureV1BackupAsync);
+            var result = await Task.Run(_backups.EnsureV1BackupAsync);
             ImportV1Button.IsEnabled = true;
             if (result.Outcome is not (BackupOutcome.Created or BackupOutcome.Unchanged))
             {
@@ -119,8 +128,8 @@ public sealed partial class BackupsSettingsPage : Page
     {
         try
         {
-            System.IO.Directory.CreateDirectory(App.Backups.Directory);
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe", $"\"{App.Backups.Directory}\"") { UseShellExecute = true });
+            System.IO.Directory.CreateDirectory(_backups.Directory);
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe", $"\"{_backups.Directory}\"") { UseShellExecute = true });
         }
         catch (Exception ex) { ShowProblem($"The folder couldn't be opened: {ex.Message}"); }
     }

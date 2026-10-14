@@ -18,6 +18,9 @@ public sealed partial class SettingsView : UserControl
 
     public bool IsOpen => Visibility == Visibility.Visible;
 
+    /// <summary>Where the selected page shows (the guided tour highlights it).</summary>
+    public FrameworkElement PageArea => PageFrame;
+
     /// <summary>Settings were left (back arrow, or <see cref="Close"/>).</summary>
     public event EventHandler? Closed;
 
@@ -68,7 +71,8 @@ public sealed partial class SettingsView : UserControl
                 PageFrame.Navigate(typeof(SyncSettingsPage), new SyncSettingsPage.Parameters(store, hwnd));
                 break;
             case SettingsPage.Backups:
-                PageFrame.Navigate(typeof(BackupsSettingsPage), parameter);
+                PageFrame.Navigate(typeof(BackupsSettingsPage),
+                    new BackupsSettingsPage.Parameters(new BackupService(store.Storage), parameter as BackupsSettingsPage.Request));
                 break;
         }
     }
