@@ -1,0 +1,181 @@
+name: Release
+
+# Tests, then the x64 Store package and the manuals; on a version tag also the GitHub release and the Store submission.
+#
+#   - Push an annotated tag like v2.0.1 -> build, publish the GitHub release (manuals, notes from release.md), then
+#     submit the package to the Microsoft Store.
+#   - Run manually (workflow_dispatch) -> build and upload the files as artifacts ONLY (never publishes).
+#
+# The Store submission is controlled by the annotated tag's message: a line "publish: none" skips it, "publish: store"
+# or no such line submits. The submission job waits for the "store-release" environment, so it goes out only after
+# a manual approval (Settings > Environments). It fails loudly if its secrets are missing. See docs/PUBLISHING.md.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to build (X.Y.Z); nothing is published"
+        default: "0.0.1"
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: windows-latest
+    outputs:
+      publish_store: ${{ steps.targets.outputs.publish_store }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Version
+        id: ver
+        shell: pwsh
+        run: |
+          $v = if ($env:GITHUB_REF -like 'refs/tags/*') { $env:GITHUB_REF_NAME -replace '^v', '' } else { '${{ inputs.version }}' }
+          if ($v -notmatch '^\d+\.\d+\.\d+$') { throw "'$v' is not X.Y.Z: the Store takes plain numeric versions only (no beta tags)." }
+          "version=$v" >> $env:GITHUB_OUTPUT
+          Write-Host "Building $v"
+
+      # The message lives in the annotated tag object, which actions/checkout doesn't fetch: read it from the API,
+      # which also tells an annotated tag from a lightweight one (no message: submit).
+      - name: Store submission from the tag message
+        id: targets
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ref = gh api "repos/$env:GITHUB_REPOSITORY/git/ref/tags/$env:GITHUB_REF_NAME" | ConvertFrom-Json
+          $msg = if ($ref.object.type -eq 'tag') { gh api "repos/$env:GITHUB_REPOSITORY/git/tags/$($ref.object.sha)" --jq '.message' | Out-String } else { '' }
+          $line = @($msg -split "\r?\n" | Where-Object { $_ -match '^\s*publish\s*:' }) | Select-Object -Last 1
+          $target = if ($line) { ($line -replace '^\s*publish\s*:\s*', '').Trim().ToLowerInvariant() } else { 'store' }
+          $store = switch ($target) { { $_ -in 'store', 'all', '' } { 'true' } { $_ -in 'none', 'skip' } { 'false' } default { throw "Unknown 'publish: $target' in the tag message (store or none)." } }
+          "publish_store=$store" >> $env:GITHUB_OUTPUT
+          Write-Host "Store submission: $store"
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Tests
+        shell: pwsh
+        run: ./tests/run-tests.ps1
+
+      - name: Store package and manuals
+        shell: pwsh
+        run: ./build/Build-Release.ps1 -Version ${{ steps.ver.outputs.version }} -OutDir dist
+
+      - name: Release notes
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $changelog = ''
+          if ($env:GITHUB_REF -like 'refs/tags/*') {
+            $json = gh api -X POST "repos/$env:GITHUB_REPOSITORY/releases/generate-notes" -f tag_name="$env:GITHUB_REF_NAME" 2>$null
+            if ($LASTEXITCODE -eq 0 -and $json) { $changelog = ($json | ConvertFrom-Json).body }
+          }
+          ./build/Release-Notes.ps1 -Version ${{ steps.ver.outputs.version }} -Changelog $changelog `
+            -GitHubOut release-notes.md -StoreOut dist/store-notes.txt `
+            -ReleaseUrl "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/releases/tag/v${{ steps.ver.outputs.version }}"
+          Write-Host '----- GitHub release notes -----'; Get-Content release-notes.md
+          Write-Host '----- Store "What''s new" -----'; Get-Content dist/store-notes.txt
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: TextTemplateManager-${{ steps.ver.outputs.version }}
+          path: |
+            dist/*
+            release-notes.md
+          if-no-files-found: error
+
+      - name: Upload the Store submission files
+        uses: actions/upload-artifact@v4
+        with:
+          name: store-submission
+          path: |
+            dist/*.msixupload
+            dist/store-notes.txt
+          if-no-files-found: error
+
+      # Published directly (no draft): 2.x is updated through the Store, nothing reads these releases for updates.
+      # Only the manuals are attached; no installers, never an .exe.
+      - name: GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $assets = @('dist/TextTemplateManager-Manual.pdf', 'dist/TextTemplateManager-AdminManual.pdf')
+          if ($assets | Where-Object { $_ -like '*.exe' }) { throw 'An .exe among the release assets.' }
+          gh release create $env:GITHUB_REF_NAME @assets --title $env:GITHUB_REF_NAME --notes-file release-notes.md
+          if ($LASTEXITCODE -ne 0) { gh release upload $env:GITHUB_REF_NAME @assets --clobber; if ($LASTEXITCODE -ne 0) { throw 'release upload failed' } }
+
+  microsoft-store:
+    needs: package
+    if: startsWith(github.ref, 'refs/tags/') && needs.package.outputs.publish_store == 'true'
+    runs-on: windows-latest
+    environment: store-release
+    env:
+      STORE_PRODUCT_ID: 9NMBSZLLLN6V   # public (the Store link); not a secret
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: store-submission
+          path: store
+
+      - name: Check the Store secrets
+        shell: pwsh
+        env:
+          MSSTORE_TENANT_ID: ${{ secrets.MSSTORE_TENANT_ID }}
+          MSSTORE_SELLER_ID: ${{ secrets.MSSTORE_SELLER_ID }}
+          MSSTORE_CLIENT_ID: ${{ secrets.MSSTORE_CLIENT_ID }}
+          MSSTORE_CLIENT_SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
+        run: |
+          $missing = 'MSSTORE_TENANT_ID', 'MSSTORE_SELLER_ID', 'MSSTORE_CLIENT_ID', 'MSSTORE_CLIENT_SECRET' |
+            Where-Object { [string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($_)) }
+          if ($missing) { throw "Missing secrets: $($missing -join ', ') (see docs/PUBLISHING.md)." }
+
+      - name: Set up the Microsoft Store Developer CLI
+        uses: microsoft/microsoft-store-apppublisher@v1.1
+
+      - name: Sign in to Partner Center
+        shell: pwsh
+        run: |
+          msstore reconfigure --tenantId "${{ secrets.MSSTORE_TENANT_ID }}" --sellerId "${{ secrets.MSSTORE_SELLER_ID }}" `
+            --clientId "${{ secrets.MSSTORE_CLIENT_ID }}" --clientSecret "${{ secrets.MSSTORE_CLIENT_SECRET }}"
+          if ($LASTEXITCODE -ne 0) { throw 'msstore reconfigure failed' }
+
+      # publish recreates the draft from the last published submission, so it runs before the notes are set.
+      - name: Upload the package to a draft submission
+        shell: pwsh
+        run: |
+          $upload = Get-ChildItem store -Filter *.msixupload | Select-Object -First 1
+          msstore publish store -i $upload.FullName -id $env:STORE_PRODUCT_ID --noCommit
+          if ($LASTEXITCODE -ne 0) { throw 'msstore publish failed' }
+
+      - name: Set "What's new"
+        shell: pwsh
+        run: |
+          $notes = Get-Content store/store-notes.txt -Raw
+          $submission = msstore submission get $env:STORE_PRODUCT_ID | Out-String | ConvertFrom-Json
+          $listings = @($submission.Listings.PSObject.Properties)
+          if (-not $listings) { throw 'The submission has no listings.' }
+          foreach ($listing in $listings) { $listing.Value.BaseListing.ReleaseNotes = $notes }
+          msstore submission update $env:STORE_PRODUCT_ID ($submission | ConvertTo-Json -Depth 100 -Compress)
+          if ($LASTEXITCODE -ne 0) { throw 'msstore submission update failed' }
+          Write-Host "What's new set for: $($listings.Name -join ', ')"
+
+      # Certification takes hours to days; the job ends once the submission is committed.
+      - name: Commit the submission
+        shell: pwsh
+        run: |
+          msstore submission publish $env:STORE_PRODUCT_ID
+          if ($LASTEXITCODE -ne 0) { throw 'msstore submission publish failed' }
+          msstore submission status $env:STORE_PRODUCT_ID
