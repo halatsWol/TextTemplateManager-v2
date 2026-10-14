@@ -70,6 +70,22 @@ public class TemplateSearchTests
         Assert.True(TemplateSearch.Matches("a\\*b", new Template { Title = "a*b" }, strict: true));
     }
 
+    [Theory]
+    [InlineData("support billing", true)]
+    [InlineData("billing support", true)]            // tags in any order
+    [InlineData("bill* sup", true)]                  // each word as typed, wildcards and parts of tags too
+    [InlineData("billing support urgent", false)]    // every word in one of the tags
+    [InlineData("support, billing", true)]           // the tags as written still match
+    [InlineData("first contact", true)]              // a tag of several words
+    [InlineData("contact first", true)]
+    [InlineData("first\\ contact", true)]            // \ keeps the space inside one word
+    [InlineData("contact\\ first", false)]
+    public void Strict_search_matches_the_tags_in_any_order(string query, bool expected)
+    {
+        var t = new Template { Title = "Reply", TagsCsv = "support, billing, first contact" };
+        Assert.Equal(expected, TemplateSearch.Matches(query, t, strict: true));
+    }
+
     [Fact]
     public void Tags_count_and_the_text_only_when_asked()
     {

@@ -23,6 +23,12 @@
         <Button.Flyout>
             <!-- Kept inside the window: a separate popup window would deactivate Quick Paste. -->
             <MenuFlyout x:Name="Menu" Placement="BottomEdgeAlignedRight" ShouldConstrainToRootBounds="True">
+                <!-- In-window, the default acrylic background lets the tree show through. -->
+                <MenuFlyout.MenuFlyoutPresenterStyle>
+                    <Style TargetType="MenuFlyoutPresenter">
+                        <Setter Property="Background" Value="{ThemeResource SolidBackgroundFillColorQuarternaryBrush}"/>
+                    </Style>
+                </MenuFlyout.MenuFlyoutPresenterStyle>
                 <ToggleMenuFlyoutItem x:Name="ContentItem"
                                       Text="Search template text"/>
                 <ToggleMenuFlyoutItem x:Name="StrictItem"

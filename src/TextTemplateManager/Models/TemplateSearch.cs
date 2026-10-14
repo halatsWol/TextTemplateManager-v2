@@ -10,7 +10,7 @@ namespace TextTemplateManager.Models;
 /// <summary>The search both windows use: every word of the query must appear in the item's title or tags
 /// (optionally its text), its letters in order but not necessarily next to each other. Strict: the query as one
 /// phrase, as typed, anywhere in one of those fields, case ignored, * for any characters and . for exactly one
-/// (\* and \. for the characters themselves).</summary>
+/// (\* and \. for the characters themselves); in the tags the words may come in any order, each in one of the tags.</summary>
 public static class TemplateSearch
 {
     public static bool Matches(string query, BaseItem item, bool includeContent = false, bool strict = false)
@@ -18,13 +18,10 @@ public static class TemplateSearch
         if (strict)
         {
             if (StrictPattern(query) is not { } pattern) return true;
-            var fields = new List<string> { item.Title };
-            if (item is Template template)
-            {
-                fields.Add(template.TagsCsv);
-                if (includeContent) fields.Add(HtmlUtils.ToPlainText(template.Content));
-            }
-            return fields.Any(f => !string.IsNullOrEmpty(f) && pattern.IsMatch(Spaces.Replace(f, " ")));
+            if (StrictMatch(pattern, item.Title)) return true;
+            if (item is not Template template) return false;
+            if (StrictMatch(pattern, template.TagsCsv) || TagsMatch(query, template.TagsCsv)) return true;
+            return includeContent && StrictMatch(pattern, HtmlUtils.ToPlainText(template.Content));
         }
 
         string text = item.Title;
@@ -65,8 +62,18 @@ public static class TemplateSearch
 
     private static readonly Regex Spaces = new(@"\s+", RegexOptions.CultureInvariant);
 
+    private static bool StrictMatch(Regex pattern, string field) =>
+        !string.IsNullOrEmpty(field) && pattern.IsMatch(Spaces.Replace(field, " "));
+
+    private static bool TagsMatch(string query, string tagsCsv)
+    {
+        var tags = tagsCsv.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        return tags.Length > 0 && StrictWordPatterns(query).All(word => tags.Any(tag => StrictMatch(word, tag)));
+    }
+
     // One query is matched against every item of a search; built once per query.
     private static (string Query, Regex? Pattern) _lastStrict;
+    private static (string Query, Regex[] Words) _lastStrictWords;
 
     /// <summary>The strict query as a pattern (null: an empty query, which matches everything). Runs of spaces
     /// match one space (the fields are compared with theirs collapsed too).</summary>
@@ -76,27 +83,50 @@ public static class TemplateSearch
         if (cached.Query == query) return cached.Pattern;
 
         string q = query.Trim();
-        Regex? pattern = null;
-        if (q.Length > 0)
-        {
-            var sb = new StringBuilder();
-            for (int i = 0; i < q.Length; i++)
-            {
-                char c = q[i];
-                if (c == '\\' && i + 1 < q.Length) sb.Append(Regex.Escape(q[++i].ToString()));
-                else if (c == '*') sb.Append(".*");
-                else if (c == '.') sb.Append('.');
-                else if (char.IsWhiteSpace(c))
-                {
-                    while (i + 1 < q.Length && char.IsWhiteSpace(q[i + 1])) i++;
-                    sb.Append(' ');
-                }
-                else sb.Append(Regex.Escape(c.ToString()));
-            }
-            pattern = new Regex(sb.ToString(), RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Singleline);
-        }
+        var pattern = q.Length > 0 ? BuildStrict(q) : null;
         _lastStrict = (query, pattern);
         return pattern;
+    }
+
+    /// <summary>Each word of the strict query as its own pattern; a backslash keeps a space inside a word.</summary>
+    private static Regex[] StrictWordPatterns(string query)
+    {
+        var cached = _lastStrictWords;
+        if (cached.Query == query) return cached.Words;
+
+        var words = new List<string>();
+        var word = new StringBuilder();
+        for (int i = 0; i < query.Length; i++)
+        {
+            char c = query[i];
+            if (c == '\\' && i + 1 < query.Length) word.Append(c).Append(query[++i]);
+            else if (char.IsWhiteSpace(c)) { if (word.Length > 0) words.Add(word.ToString()); word.Clear(); }
+            else word.Append(c);
+        }
+        if (word.Length > 0) words.Add(word.ToString());
+
+        var patterns = words.Select(BuildStrict).ToArray();
+        _lastStrictWords = (query, patterns);
+        return patterns;
+    }
+
+    private static Regex BuildStrict(string q)
+    {
+        var sb = new StringBuilder();
+        for (int i = 0; i < q.Length; i++)
+        {
+            char c = q[i];
+            if (c == '\\' && i + 1 < q.Length) sb.Append(Regex.Escape(q[++i].ToString()));
+            else if (c == '*') sb.Append(".*");
+            else if (c == '.') sb.Append('.');
+            else if (char.IsWhiteSpace(c))
+            {
+                while (i + 1 < q.Length && char.IsWhiteSpace(q[i + 1])) i++;
+                sb.Append(' ');
+            }
+            else sb.Append(Regex.Escape(c.ToString()));
+        }
+        return new Regex(sb.ToString(), RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Singleline);
     }
 
     private static bool ContainsInOrder(string text, string word)
