@@ -9,9 +9,11 @@ This manual describes every feature of the application. Throughout, a menu path 
 the form **Menu ▸ Item** (for example, **Settings ▸ General**), and keyboard input is shown in
 bold (for example, **Alt**). The installed version is shown under **Help ▸ About**.
 
-The application is self-contained: the .NET runtime and the Windows App SDK are bundled, so no
-separate installation is required. The bundled runtime is always the latest .NET 8 release
-available at the time that version was built.
+### Installing
+
+Install TextTemplateManager from the Microsoft Store: search for *TextTemplateManager* in the Store app, or open [its Store page](https://apps.microsoft.com/detail/9NMBSZLLLN6V). The Store also keeps it up to date (see *Updates*). The .NET runtime is part of the app and the Store adds the Windows App SDK it needs, so nothing else has to be installed, and no administrator rights are needed. In a company, IT may install it for you instead (see the **Administrator & Deployment Guide**).
+
+Coming from TextTemplateManager 1: its templates and settings stay where they are. Version 2 backs them up at its first start and offers to import them (see below), and it closes a version 1 that is still running, so the two don't compete for the Quick Paste shortcut.
 
 ### The first start
 
@@ -21,17 +23,23 @@ When the application starts without any templates yet and finds something to sta
 - **Restore a backup**, if backups from an earlier installation are in your Documents folder: **Settings ▸ Backups** opens with the newest one selected.
 - **Start fresh**: an empty tree. You won't be asked again; importing or restoring is still possible in **Settings ▸ Backups**.
 
+![The first start on a PC where TextTemplateManager 1 was used: import its templates, or start fresh.](../../src/TextTemplateManager/Assets/ManualImages/TTM_FirstStart.png)
+
 If TextTemplateManager 1 is still installed, you're also asked once whether to remove it. **Remove TextTemplateManager 1** runs its own uninstaller; its data folder stays on this PC. If it can't be removed from here, remove it in Windows **Settings ▸ Apps ▸ Installed apps**.
 
 ### The guided tour
 
 **Help ▸ Start tutorial** walks you through the main window, the settings and Quick Paste step by step: each step highlights a part of the window and explains it on a card beside it. The tour uses sample templates, so your own templates and settings are never changed; while it runs, the window can't be used and the Quick Paste shortcut and the browser connector are paused. For its last part the tour opens Quick Paste itself; there it never pastes anything. **Next** and **Back** move between the steps, and **Skip tutorial**, the close button or **Esc** end the tour at any time.
 
+![A step of the guided tour: the tree is highlighted, the card beside it explains it.](../../src/TextTemplateManager/Assets/ManualImages/TTM_GuidedTour.png)
+
 When you start TextTemplateManager the first time, it offers the tour: right after **Start fresh**, or after the restart when you import from TextTemplateManager 1. **Take the tour** starts it, **Later** (or **Esc**) asks again on the next start, and **Don't show again** stops the offer. Once you've started the tour, from the offer or from the Help menu, it isn't offered again. If you restore a backup on the first start, the tour isn't offered; you can still start it from the Help menu.
 
 ### What's new
 
 After an update, the first time the window opens it shows what's new in that version, once. Close it with the **X** in its corner or **Esc**.
+
+![What's new after an update.](../../src/TextTemplateManager/Assets/ManualImages/TTM_WhatsNew.png)
 
 ---
 
@@ -48,7 +56,7 @@ The toolbar above the tree provides buttons to add a template, add a folder, and
 selected item, and on its right two buttons to collapse and expand all folders at once. The menu bar provides the **File** and **Help** menus, and the quick-help button
 in the top-right corner opens a short in-app reference.
 
-![The main window: the template tree and toolbar on the left, and the selected template's editor, properties, and paste-mode list on the right.](../../src/TextTemplateManager/Assets/ManualImages/TTM_MainWindow-Editor-PasteModes.png)
+![The main window: on the left the toolbar (add template, add folder, delete; collapse all and expand all), the search box with its filter button, and the tree with the synced folder Team at the top; on the right the selected template's editor, its shortcuts and tags, and the default paste mode list.](../../src/TextTemplateManager/Assets/ManualImages/TTM_MainWindow-Editor-PasteModes.png)
 
 ---
 
@@ -71,6 +79,8 @@ To work on several items at once, select them as in File Explorer: **Ctrl**+clic
 
 The search box filters the tree: every word you type must appear in an item's title or tags, in any order, and a word's letters only need to appear in order, not next to each other (`mtg` finds *Meeting*). Folders holding a match stay visible and open. To look inside the templates' text as well, open the filter button beside the search box and turn on **Search template text**; a dot on the button shows it is on. It stays on until you turn it off, in both the main window and Quick Paste.
 
+![The search options under the filter button, while a search narrows the tree.](../../src/TextTemplateManager/Assets/ManualImages/TTM_SearchOptions.png)
+
 For an exact search, turn on **Strict search** on the same button. The search box then finds exactly what you type, anywhere in an item's title, its tags or (with **Search template text**) its text: several words as one phrase in the order typed, without the letter skipping of the normal search; upper and lower case don't matter. `lunch` finds *A lunch order*, and so does `unch ord`, but `lunch today` doesn't find *Lunch order for today*. Tags are the exception: there the words may come in any order, each one found in one of the tags, so `billing support` finds a template tagged *support, billing*. `*` stands for any characters (also none) and `.` for exactly one character, so `invoice * reminder` finds *Invoice payment reminder*, and `colo.r` finds *Colour* but not *Color*. To search for a `*` or `.` itself, put a backslash before it (`v2\.0`).
 
 From the search box, **↓** moves into the tree, the same way as in Quick Paste: if the text cursor isn't at the end yet, the first **↓** moves it there.
@@ -83,10 +93,14 @@ callout panels, and code blocks with syntax highlighting.
 
 Changes to a template or folder (its title, text, tags, shortcuts and default paste mode) wait for you to save them: a **Save** button appears in the top-right corner, next to the help button, and **Ctrl+S** saves too, also while typing in the editor. If you select another item, close the window or exit while changes aren't saved, you're asked whether to **Save** them, **Don't save** them (the item goes back to how it was last saved), or **Cancel** (you stay on the item, changes kept, and the window stays open). A brief **Saved** indicator appears each time your data is written. To save as you type instead, switch on **Autosave** in **Settings ▸ General**. Adding, deleting, moving and importing items are always saved at once.
 
+![A changed title: the Save button appears in the top-right corner.](../../src/TextTemplateManager/Assets/ManualImages/TTM_SaveButton.png)
+
+![Selecting another item with unsaved changes asks first.](../../src/TextTemplateManager/Assets/ManualImages/TTM_UnsavedChanges.png)
+
 **Ctrl+click** a link to open it in your default browser, and hover over a link to see where it 
 points. A plain click just places the cursor so you can edit the link.
 
-![A template open in the editor: a formatted body with an Info callout panel, its Single Key (M) and Multi Key (MSG) shortcuts, and the HTML/Jira default paste mode. The badge on the folder marks it as synchronized.](<../../src/TextTemplateManager/Assets/ManualImages/TTM_MainWindow_TemplateExample(syncedTemplate).png>)
+![A template of the synced folder Team in the editor: a heading, an Info callout panel and a list, its Single Key (R) and Multi Key (REL) shortcuts, its tags, and the HTML/Jira default paste mode. The badge on the folder marks it as synchronized.](<../../src/TextTemplateManager/Assets/ManualImages/TTM_MainWindow_TemplateExample(syncedTemplate).png>)
 
 ### Code blocks
 
@@ -198,7 +212,7 @@ on the last row returns to the first, and **↑** on the first row jumps to the 
 
 ![Quick Paste, Single Key tab: press the listed key to paste; the area (here, local) is shown on the right.](../../src/TextTemplateManager/Assets/ManualImages/TTM_QuickPaste_SingleKeyView.png)
 
-![Quick Paste, Multi Key tab: a synchronized shortcut carries its folder prefix (g.MSG); the local one does not (MSG).](../../src/TextTemplateManager/Assets/ManualImages/TTM_QuickPaste_multiKeyView.png)
+![Quick Paste while Alt is held and T is typed: the Multi Key list narrows to the matching shortcuts. Synced ones carry their folder's prefix (TEAM.REL), local ones don't (THX).](../../src/TextTemplateManager/Assets/ManualImages/TTM_QuickPaste_multiKeyView.png)
 
 To paste with a format other than the template's default just this once, right-click it (in the 
 tree or a shortcut list) and choose **Paste As**:
@@ -240,7 +254,7 @@ cross-area shortcut warnings** in **Settings ▸ General**.
 
 ## Settings
 
-Open settings from **File ▸ Settings**. It has a **General**, an **Integrations** and a **Sync** tab.
+Open settings from **File ▸ Settings**. It has a **General**, an **Integrations**, a **Sync** and a **Backups** tab (for backups, see *Automatic backups* and *Restoring a backup*).
 
 ### General
 
@@ -260,22 +274,11 @@ If TextTemplateManager 1 was set up on this PC, both switches take over its choi
 
 - **Autosave** — off by default: changes to a template or folder wait for **Save** (see *The template editor*). On: they are saved a short time after you stop typing, and there is no Save button.
 
-![Settings ▸ General: the Quick Paste hotkey, the default paste mode for new templates, and startup.](../../src/TextTemplateManager/Assets/ManualImages/TTM_GeneralSettings1.png)
-
-**Updates**
-
-- **Automatically check for updates** — check for new releases and download them in the background.
-- **Install updates automatically** — install a downloaded update without asking, at a quiet moment (off by default).
-- **Allow beta updates** — also offer pre-release versions (off by default).
-- **Show update notifications** — (on by default) use a Windows notification when an update needs your attention while the window is closed to the system tray. With it off, updates are shown inside the application instead.
-
-See *Updates* for details.
-
 **Other**
 
 - **Hide cross-area shortcut warnings** — suppress the dismissible note shown when the same shortcut is used in more than one area (local and synchronized folders). Off by default; blocking same-area conflicts are always shown. See *Keyboard shortcuts and conflicts*.
 
-![Settings ▸ General (continued): the update options and Other.](../../src/TextTemplateManager/Assets/ManualImages/TTM_GeneralSettings2.png)
+![Settings ▸ General: the Quick Paste shortcut, the default paste mode for new templates, startup, Autosave and Other.](../../src/TextTemplateManager/Assets/ManualImages/TTM_GeneralSettings1.png)
 
 ### Integrations
 
@@ -370,7 +373,7 @@ If a source's file cannot be found (for example, it has been moved, deleted or i
 - **Link another file…**: points the source at an existing file, for example one that was moved.
 
 You can also add a source by **opening a `.ttmdata` file** — double-click it in File Explorer, or use
-**Open with ▸ ttm**. The app comes to the front on this page with the file linked as an active
+**Open with ▸ TextTemplateManager**. The app comes to the front on this page with the file linked as an active
 source; if the file is already linked it is simply shown here, and the app's own data file is never
 added. (TextTemplateManager runs as a single instance, so opening a file always uses the window that
 is already running.)
@@ -403,6 +406,8 @@ Each backup is one `.zip` file with your templates, your settings, your sync set
 
 **Settings ▸ Backups** shows where they are (**Open backups folder**) and lists them, newest first. A damaged backup is greyed out and can't be chosen. **Export backup…** saves a backup of everything as a `.zip` file wherever you choose, for example to move your templates to another PC.
 
+![Settings ▸ Backups: where the backups are, Export backup…, the backups newest first, and what to restore from the selected one.](../../src/TextTemplateManager/Assets/ManualImages/TTM_BackupsSettings.png)
+
 ### Restoring a backup
 
 1. In **Settings ▸ Backups**, select a backup. The newest one is selected when you open the page.
@@ -426,52 +431,15 @@ The current state is backed up first, so a restore can itself be undone from the
 
 ## Updates
 
-When automatic update checking is enabled, the application checks for a newer release on startup 
-and periodically thereafter, and you can also check on demand from **Help ▸ Check for Updates**. 
-By default only stable releases are offered; enable **Allow beta updates** in **Settings ▸ General** 
-to also receive pre-release (beta / preview) versions.
+The Microsoft Store keeps TextTemplateManager up to date, like any other Store app; it has no updater of its own. You can also look for an update yourself in the Store app under **Library ▸ Get updates**.
 
-When a newer version is available, it is downloaded in the background and the top-right corner of the 
-main window shows what is happening — *Downloading update…* while it fetches, then an **Update now** 
-button once it is ready. The **Help ▸ Check for Updates** entry also carries a small marker while an 
-update is waiting. You are prompted to install immediately or to defer; deferring keeps the button 
-available. Installing closes the application, applies the update silently, and reopens it.
+Windows can't replace an app while it's running, and TextTemplateManager usually keeps running in the system tray. An update therefore installs once the app is closed: when you quit it (**File ▸ Exit** or the tray icon), or when you sign out or restart Windows. The next start then runs the new version.
 
-If the window is closed to the system tray when an update becomes ready, a Windows notification appears 
-instead, with **Install now** on it — so an update is never announced somewhere you cannot see it.
-
-Turn **Show update notifications** off in **Settings ▸ General ▸ Updates** to suppress them. 
-Updates are then only shown inside the application, in the top-right corner of the main window, and you 
-will not hear about one until you open it. Everything else is unaffected: updates are still checked for, 
-still downloaded, and — if you enabled it — still installed automatically.
-
-### Installing updates automatically
-
-With **Install updates automatically** enabled in **Settings ▸ General ▸ Updates**, a downloaded update 
-installs without asking. It waits for a genuinely quiet moment first: several minutes with no keyboard 
-or mouse activity anywhere, no Quick Paste window on screen, and nothing being saved — so an update 
-never interrupts what you are doing. If no such moment comes, it installs the next time the application 
-starts. When the application was running only in the tray, it returns to the tray afterwards rather than 
-opening its window.
-
-The setting is off by default; with it off you are always asked before anything is installed. If an 
-update repeatedly fails to install, automatic attempts stop and you are asked to handle it yourself, 
-rather than the same update being retried indefinitely.
-
-From version 1.2 onward the application downloads a smaller **delta** update — only the files that 
-changed — instead of the full installer, when one applies to the version you are running. A release 
-carries a delta for every earlier version in the same series: updating to 1.3.9 works from any 1.3 
-version, and the first release of a new series (1.4.0) can be reached from any 1.3 version. Older 
-jumps, and releases without a matching delta, use the full installer. The process is the same either 
-way, and the full installer is always available on the Releases page.
+After an update, the first time the window opens it shows what's new in that version, once (see *What's new*).
 
 ### For administrators
 
-Update behavior can be locked down centrally (a registry policy the app only reads), the Setup
-executable accepts command-line options for silent/scripted deployment, and a separate cleanup
-utility can force-remove an installation. These topics are covered in the **Administrator &
-Deployment Guide** (`TextTemplateManager-AdminManual.pdf`), attached to each release on the
-[Releases page](https://github.com/halatsWol/TextTemplateManager/releases).
+Installing with winget or Intune, how updates behave when the Store is restricted by company policy, start with Windows, file locations, and removing the app are covered in the **Administrator & Deployment Guide** (`TextTemplateManager-AdminManual.pdf`), attached to each release on the [Releases page](https://github.com/halatsWol/TextTemplateManager-v2/releases).
 
 ---
 
@@ -510,11 +478,20 @@ Application data is stored per user in the app's own package folder:
 
 `%LocalAppData%\Packages\MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny\LocalState`
 
-This folder contains your template data, application settings, and synchronization configuration. Windows removes it when you uninstall the app or reset it in **Settings ▸ Apps**. Shared synchronization files are stored wherever you place them, and are not kept in this folder.
+This folder contains your template data, application settings, and synchronization configuration. Windows removes it when you uninstall the app or reset it in **Settings ▸ Apps**. Shared synchronization files are stored wherever you place them, and are not kept in this folder. The automatic backups are in `Documents\TextTemplateManager\Backups`, outside this folder, so they stay when the app is reset or removed.
 
 Exiting from **File ▸ Exit** or the tray icon, and signing out of or shutting down Windows, first save anything still pending; if a synced file is slow to respond, a "Saving changes…" message appears until it is done. Changes to a template or folder that you haven't saved (with **Autosave** off) are asked about first, as when closing the window; when Windows signs out or shuts down, they are saved.
 
 If one of these files can't be read at startup (for example after a crash during a save), the app keeps it as `<file>.broken-<date-time>` in this folder, tells you which file was affected, and starts without it. The original is never overwritten.
+
+### Resetting or removing the app
+
+In Windows **Settings ▸ Apps ▸ Installed apps**, open the **…** menu next to TextTemplateManager:
+
+- **Advanced options ▸ Reset** deletes the app's data (templates, settings, sync settings) and starts it as on the first day; **Repair** keeps the data and only fixes the app's files. After a reset, the first start offers to restore a backup.
+- **Uninstall** removes the app together with its data folder.
+
+Neither touches the backups in `Documents\TextTemplateManager\Backups` or your shared sync files; delete those by hand if you no longer need them.
 
 ---
 

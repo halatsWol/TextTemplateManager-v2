@@ -1,198 +1,132 @@
 ## Overview
 
-This guide covers the administrator- and deployment-facing details of TextTemplateManager that
-everyday users do not need: silent/scripted installation, centrally controlling updates, the registry
-and file-system footprint, and the standalone cleanup utility. End-user documentation is in the
-**User Manual** (in the app under **Help > Open Manual**).
+This guide covers the administrator- and deployment-facing details of TextTemplateManager 2 that everyday users don't need: deployment, updates under company policies, moving from version 1, start with Windows, the browser connector, removal, and where the app keeps its files. End-user documentation is in the **User Manual** (in the app under **Help ▸ Open Manual**).
 
-TextTemplateManager is a **per-user** application: it installs under the user's profile, writes only
-to `HKEY_CURRENT_USER`, and needs no administrator rights to install, update, or uninstall. The one
-exception is the cleanup utility's `/user` option (below), which requires elevation.
+TextTemplateManager 2 is a Microsoft Store app (MSIX package `MarflowSoftware.TextTemplateManager`, Store ID `9NMBSZLLLN6V`, x64). It is installed and registered **per user**, needs no administrator rights, writes nothing to the registry itself, and is updated by the Store. The .NET runtime is part of the package; the Windows App SDK runtime is a Store framework package that Windows installs and services alongside it. The editor and preview use the Microsoft Edge WebView2 Runtime, which Windows 11 and current Windows 10 include.
+
+Requirements: Windows 10 version 2004 (build 19041) or later, x64.
 
 ---
 
-## Installation
+## Deployment
 
-The installer is an Inno Setup executable, `TextTemplateManager-Setup-<version>.exe`.
+### Microsoft Store
 
-- Install location: `%LocalAppData%\Programs\Marflow Software\TextTemplateManager`
-- Self-contained: the .NET 8 runtime and the Windows App SDK are bundled; nothing else is required.
-- Registration is per-user (HKCU); no elevation is requested or needed.
+Users install it from the Store app or from [its Store page](https://apps.microsoft.com/detail/9NMBSZLLLN6V).
+
+### winget
+
+The Store catalog is available to winget as the `msstore` source:
+
+    winget install --id 9NMBSZLLLN6V --source msstore --accept-package-agreements --accept-source-agreements
+
+Run it in the context of the user who will use the app (the package is registered per user). `winget upgrade --id 9NMBSZLLLN6V --source msstore` installs an available update.
+
+### Microsoft Intune
+
+Add it as **Apps ▸ Windows ▸ Add ▸ Microsoft Store app (new)**, search for *TextTemplateManager*, and choose the install behavior (User or System). Intune installs and updates it through winget's `msstore` source, so keep that source enabled (see *Updates*).
 
 ### Command-line options
 
-The Setup executable accepts the standard Inno Setup switches. The most useful for deployment:
-
-| Switch | Effect |
-| --- | --- |
-| `/SILENT` | Install with a progress window but no prompts. |
-| `/VERYSILENT` | Install with no UI at all. |
-| `/SUPPRESSMSGBOXES` | Suppress message boxes (use together with a silent switch). |
-| `/NORESTART` | Never restart the machine. |
-| `/NOCANCEL` | Prevent cancelling during a silent install. |
-| `/DIR="path"` | Override the install directory. |
-| `/TASKS="list"` | Select optional tasks (comma-separated): `autostart`, `desktopicon`. |
-| `/MERGETASKS="list"` | Like `/TASKS` but merges with the defaults instead of replacing them. |
-| `/LOG="file"` | Write an installation log to the given file. |
-| `/LANG=english` | Set the setup language. |
-| `/?` | Show the full built-in list of switches. |
-
-Example — silent install with autostart enabled:
-
-    TextTemplateManager-Setup-1.3.0.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /TASKS="autostart"
-
-Notes:
-
-- The optional tasks (`autostart`, `desktopicon`) are **off by default**.
-- On a **fresh** silent install, `/TASKS="autostart"` enables autostart. On a silent **upgrade** of an
-  existing install the current autostart on/off state is preserved and `/TASKS` is ignored, so an
-  auto-update never changes the user's choice.
-- The in-app auto-updater runs the installer as `/SILENT /SP- /NOCANCEL /NORESTART /SUPPRESSMSGBOXES`.
+The app takes no deployment options of its own: there are no installer switches, and nothing needs to be preconfigured. Every user starts with the first-start choice described in the User Manual (import from version 1, restore a backup, or start fresh).
 
 ---
 
-## Autostart
+## Moving from TextTemplateManager 1
 
-"Run at Windows login" is stored entirely in the registry (nothing in the app's settings file), using
-the same two keys Windows' own Startup Apps UI uses:
+TextTemplateManager 2 is a separate app; version 1 stays installed until it is removed. At every start, version 2 closes a running version 1 (within a few seconds), so the two never compete for the Quick Paste shortcut or the browser connector port.
 
-| Registry value | Purpose |
-| --- | --- |
-| `HKCU\...\CurrentVersion\Run` value `TextTemplateManager` | The command line launched at sign-in. |
-| `HKCU\...\Explorer\StartupApproved\Run` value `TextTemplateManager` | Enabled/disabled flag: first byte `0x02` = enabled, `0x03` = disabled; absent = enabled. |
+The first time version 2 finds version 1's data (`%LocalAppData%\Marflow Software\TextTemplateManager`), it:
 
-- The Run value is `"<install>\ttm.exe"`, optionally followed by `--hidden`.
-- **`--hidden`** launches the app minimized to the system tray at sign-in (the Quick Paste hotkey and
-  tray icon still work). The in-app setting *Start hidden in the system tray* adds or removes this flag.
-- Because the choice lives in these keys, it stays in sync with Windows' Startup Apps toggle and is
-  remembered across reinstalls.
+- writes a permanent backup of it (`ttm-backup-v1-<date-time>.zip` in the backups folder, never pruned) and only ever **reads** the version 1 folder, never writes to it;
+- takes over version 1's start-with-Windows and start-hidden choices;
+- offers the user to import version 1's templates, settings and sync settings (also possible later in **Settings ▸ Backups ▸ Import from TextTemplateManager 1**).
+
+If version 1 is still installed, the user is asked once whether to remove it; **Remove TextTemplateManager 1** runs version 1's own uninstaller, which leaves its data folder in place.
+
+Version 1 and version 2 can share the same sync files at the same time; the file format is the same.
+
+The last version 1 release (1.10.0) points its users to the Store and removes itself once version 2 is installed. For a damaged or half-removed version 1 install, the **TextTemplateManager-Support-Cleanup** utility is still available from the [version 1 releases](https://github.com/halatsWol/TextTemplateManager/releases); it only handles version 1.
+
+---
+
+## Updates
+
+The Microsoft Store updates TextTemplateManager like any other Store app. There is no built-in updater and no update policy of the app's own; version 1's `allowUpdate` registry value has no effect on version 2. Updates are controlled with the Windows and Store policies below.
+
+### When an update installs
+
+Windows never replaces a package while it is in use, and TextTemplateManager usually runs all day in the system tray (it starts with Windows). An update is therefore installed once the app is closed: when the user quits it (**File ▸ Exit** or the tray icon), signs out, or restarts. Until then the running version stays in use. To bring a machine up to date on purpose, quit the app and run `winget upgrade --id 9NMBSZLLLN6V --source msstore` or **Library ▸ Get updates** in the Store app.
+
+### Store restricted by policy
+
+- **"Turn off the Store application"** (Administrative Templates ▸ Windows Components ▸ Store) only blocks the Store app's window; according to Microsoft's documentation, Store apps keep updating automatically, and Intune and winget can still install them. Reports differ on whether this holds when the policy is set at computer level and on Windows 11 24H2 and later, so verify it on a pilot device in your configuration.
+- **"Turn off Automatic Download and Install of updates"** stops automatic updates of all Store apps, TextTemplateManager included. Update it then through Intune, winget or the Store app.
+- **"Only display the private store within the Microsoft Store app"** / *Require private store only* is reported to block deliveries of public Store apps, including Intune's *Microsoft Store app (new)* deployments.
+- **Disabling winget's `msstore` source** (Desktop App Installer policy *Enable App Installer Microsoft Store Source*) also breaks Intune's *Microsoft Store app (new)* deployments and `winget upgrade`.
+- **Network:** the Store's download endpoints (and Delivery Optimization) must be reachable; SSL inspection of Microsoft endpoints commonly breaks Store downloads.
+- **Windows LTSC / without the Store:** deploy and update through Intune or winget.
+
+---
+
+## Start with Windows
+
+The package declares a Windows startup task (`TtmStartup`). It is **on** by default from the first time the user opens the app, and **Start hidden in the system tray** (in the app's **Settings ▸ General**) is on by default too: started at sign-in, the app stays in the tray with the Quick Paste shortcut active. Starting it by hand always opens the window.
+
+The startup task is the same switch as the app's entry in Windows **Settings ▸ Apps ▸ Startup** and on the **Startup** tab of Task Manager. When the user switches it off there, Windows only allows switching it back on there; when a policy enables or disables it, the app's switch is locked and says *Set by your organization*. Windows keeps the state per user (read-only reference) under `HKCU\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\SystemAppData\MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny\TtmStartup`, value `State`: `0` off, `1` off by the user in Windows, `2` on.
 
 ---
 
 ## File association
 
-The `.ttmdata` backup/sync format is associated per-user:
-
-- `HKCU\Software\Classes\.ttmdata` points at the `TextTemplateManager.ttmdata` ProgId
-- `HKCU\Software\Classes\TextTemplateManager.ttmdata` (with `DefaultIcon` and `shell\open\command`)
+The package registers the `.ttmdata` file type; Windows adds and removes the association with the package. Opening a `.ttmdata` file starts the app (or brings the running one forward) and adds the file as a sync source. If another program took the file type over, users choose TextTemplateManager again in **Settings ▸ Apps ▸ Default apps**.
 
 ---
 
-## Update delivery
+## Browser connector
 
-The app checks GitHub Releases and updates itself in place. Each release publishes the full installer
-`TextTemplateManager-Setup-<version>.exe`, a `manifest.json` (SHA-256 of every installed file), an
-`update.json` (version, full-installer name, and the list of deltas), and — when applicable — one or
-more **delta** installers `TextTemplateManager-Update-<from>-to-<to>.exe`, each containing only the
-files changed between that specific base version and this release.
-
-A release carries a delta for **every earlier version in the same series**, so a client is not limited
-to updating from the release immediately before it:
-
-| Release | Deltas published for |
-|---|---|
-| `1.3.2` | `1.3.0`, `1.3.1` — every earlier version of the 1.3 series |
-| `1.3.9` | every 1.3 version from `1.3.0` to `1.3.8` |
-| `1.4.0` | every `1.3.*` version — the whole preceding series |
-| `1.4.1` | `1.4.0` — the 1.4 series has only just started |
-
-A client picks the delta whose `from` matches its installed version exactly; anything older, or a
-release with no matching delta, falls back to the full installer, which always works. Each delta also
-refuses to run on the wrong base, so a mismatched download cannot be applied.
-
-Only an asset named `TextTemplateManager-Setup-<version>.exe` is ever treated as the full installer; other executables on a release (the deltas, the cleanup utility) are never run as one. A release without such an asset is not offered as an update.
-
-A release that bundles a refreshed .NET runtime rewrites nearly every file, which would make each
-delta almost as large as the full installer. Deltas that would save less than about 30% are dropped at
-build time, and those base versions take the full installer instead — expected, and not itemised in
-the release notes.
-
-### Unattended installation on the client
-
-Installing a downloaded update always requires the user to confirm, unless they enable *Install updates
-automatically* in **Settings > General > Updates** (off by default; there is no policy value for it).
-When enabled, the client installs only at a quiet moment — no keyboard or mouse input session-wide for
-several minutes, no Quick Paste window on screen, and no data write in progress — or otherwise at the
-next application start. Staged installers live in the user's data folder and are removed once superseded.
-
-If an update repeatedly fails to apply, the client stops retrying it automatically after a small number
-of attempts and prompts the user instead, so a bad release cannot put a machine into a reinstall loop.
-
-### Controlling updates by policy
-
-Updates can be restricted centrally with a registry value the application only ever **reads** (it
-never writes it), so it can be enforced by Group Policy or a deployment script and users cannot change
-it in the app. Set a `DWORD` named `allowUpdate` under `Software\MarflowSoftware\TextTemplateManager`
-in `HKEY_LOCAL_MACHINE` (machine-wide) or `HKEY_CURRENT_USER` (per-user):
-
-| Value | Effect |
-| --- | --- |
-| `0` (or absent) | Updates and beta updates allowed — normal behavior. |
-| `1` | Stable updates allowed; beta updates blocked (the *Allow beta updates* switch is off and disabled). |
-| `2` | All update checks disabled (the *Automatically check for updates* switch is off and disabled; no check runs). |
-
-`HKEY_LOCAL_MACHINE` takes precedence over `HKEY_CURRENT_USER`. When a policy is in effect, a note
-appears under the update switches in **Settings > General**. This restricts only the built-in updater;
-it does not prevent installing a newer version by hand.
+The connector for the TTM-Connect browser extension is **off** by default. When a user turns it on (**Settings ▸ Integrations**), the app listens on `127.0.0.1` only (loopback, never on a network interface; no firewall rule is needed), port `47615` by default, and every request must carry the pairing token shown in the settings. If the port is taken or reserved, the app reports it at startup and the user can choose another port. The API is described in `BrowserConnectorApi.md` in the repository.
 
 ---
 
-## Cleanup / force-uninstall utility
+## Reset and removal
 
-`TextTemplateManager-Support-Cleanup.exe` completely removes an installation **without** the normal
-uninstaller — useful after a corrupted install or uninstall, or to script removal. It is bundled in
-the install folder and also shipped as a standalone release asset. For ordinary removal, users should
-still use **Settings > Apps** (Add/Remove Programs); this tool is the force option.
+Per user, in **Settings ▸ Apps ▸ Installed apps ▸ TextTemplateManager ▸ …**:
 
-It force-closes `ttm.exe` (and its WebView2 processes), restarts `TextInputHost`, then removes the
-install folder, shortcuts, and all registry entries — autostart, file association, and **both** the
-current and the older mis-registered uninstall keys. User data is **kept** unless you opt in.
+- **Advanced options ▸ Reset** deletes the app's data (templates, settings, sync settings); the next start is a first start that offers to restore a backup. **Repair** keeps the data.
+- **Uninstall** removes the app and its data folder.
 
-Run it with no arguments for a small window, or with options:
+With PowerShell, for the current user:
 
-| Option | Effect |
-| --- | --- |
-| `/force` | Proceed without the confirmation prompt. |
-| `/whatif` | Show what would be removed; change nothing. |
-| `/quiet` | No window and no console output (log file only). Requires `/force`. |
-| `/nonewwindow` | No window; show a progress bar in the console. |
-| `/keeptextinputhost` | Do not restart TextInputHost. |
-| `/removesettings`, `/removesync`, `/removetemplates` | Also delete the named user data. |
-| `/removeall` | Also delete all user data. |
-| `/user:NAME` | Clean another local user's installation. Requires **administrator**. |
-| `/log:PATH` | Log file, or a folder (a trailing backslash also means a folder) that gets a default filename. Default location: `%LocalAppData%\Programs\Marflow Software`. |
-| `/loglevel:LEVEL` | Log detail: `normal`, `verbose`, or `debug`. |
-| `/?`, `/h`, `/help` | Show usage. |
+    Get-AppxPackage MarflowSoftware.TextTemplateManager | Remove-AppxPackage
 
-Options accept `/x`, `-x`, or `--x`. If a file is locked by a still-running process it is reported so
-you can restart the device and run the tool again. In a remote or non-interactive session `/force` is
-required, because there is no interactive session to confirm against.
+As an administrator, for every user of the machine (and, if the package was provisioned for new users, its provisioning too):
 
-Example — silent full removal including all data, for the current user:
+    Get-AppxPackage -AllUsers MarflowSoftware.TextTemplateManager | Remove-AppxPackage -AllUsers
+    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -eq 'MarflowSoftware.TextTemplateManager' | Remove-AppxProvisionedPackage -Online
 
-    TextTemplateManager-Support-Cleanup.exe /force /quiet /removeall
-
-Example — an administrator cleaning another user's installation:
-
-    TextTemplateManager-Support-Cleanup.exe /user:jdoe /force
+None of these remove the backups (`Documents\TextTemplateManager\Backups`) or shared sync files; delete them by hand if they are no longer needed. Version 1's data folder is never touched by version 2.
 
 ---
 
-## Registry and file-system reference
-
-All application registry state is under `HKEY_CURRENT_USER` (per install user):
-
-| Location | Contents |
-| --- | --- |
-| `...\CurrentVersion\Uninstall\{9C4E7B2A-...}_is1` | Add/Remove Programs entry (uninstaller, version, size). |
-| `...\CurrentVersion\Run` value `TextTemplateManager` | Autostart command line. |
-| `...\Explorer\StartupApproved\Run` value `TextTemplateManager` | Autostart enabled/disabled flag. |
-| `Software\Classes\.ttmdata` and `Software\Classes\TextTemplateManager.ttmdata` | File association. |
-| `Software\MarflowSoftware\TextTemplateManager` value `allowUpdate` | Update policy (read-only; may also be set in HKLM). |
-
-File-system locations:
+## File-system and registry reference
 
 | Path | Contents |
 | --- | --- |
-| `%LocalAppData%\Programs\Marflow Software\TextTemplateManager` | The application. Removed on uninstall. |
-| `%LocalAppData%\Marflow Software\TextTemplateManager` | User data: `data.ttmdata`, `settings.ttmsettings`, `sync.ttmsettings`, staged update installers, `crash.log`, and any `*.broken-<date-time>` copy of a file that couldn't be read at startup. Kept on uninstall. |
+| `%LocalAppData%\Packages\MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny\LocalState` | User data: `data.ttmdata` (templates), `settings.ttmsettings`, `sync.ttmsettings`, `crash.log`, and any `*.broken-<date-time>` copy of a file that couldn't be read at startup. Removed by Reset and Uninstall. |
+| `Documents\TextTemplateManager\Backups` | Automatic backups (follows a redirected Documents folder, e.g. OneDrive folder backup). Kept on Reset and Uninstall. |
+| Wherever the user puts them | Shared sync files (`.ttmdata`), typically in OneDrive or on a share. |
+| `%LocalAppData%\Marflow Software\TextTemplateManager` | Version 1's data, read only by version 2. |
+
+Backups are `.zip` files named `ttm-backup-<kind>-<yyyyMMdd-HHmmss>.zip`, each holding the templates, settings, sync settings, a copy of every shared sync file and a manifest with checksums:
+
+| Kind | Made | Kept |
+| --- | --- | --- |
+| `recent` | 2 minutes after the last change, and on exit with changes not yet backed up | last 3 |
+| `2h` | every 2 hours while the app runs, if something changed | last 5 |
+| `daily` | at startup and at the first change after midnight | last 5 |
+| `v1` | once, from version 1's data | never pruned |
+
+A backup is written under a temporary name and only appears once it is complete and checked. Damaged backups don't count toward these numbers and are never deleted automatically.
+
+Registry: the app itself writes nothing. Windows keeps the package registration, the file association and the startup task state. Of version 1's keys, only `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`, `...\Explorer\StartupApproved\Run` (to carry over the start-with-Windows choice) and its uninstall entry (to find its uninstaller) are read.

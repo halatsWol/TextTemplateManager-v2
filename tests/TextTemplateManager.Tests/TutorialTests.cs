@@ -65,8 +65,22 @@ public class TutorialTests
         Assert.Empty(WhatsNew.Parse("## No such section\n- x\n"));
     }
 
+    [Fact]
+    public void The_shipped_release_notes_have_a_whats_new_section_the_app_can_show()
+    {
+        // The repository's file, not the copy the app build puts next to the test binaries.
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir != null && !File.Exists(Path.Combine(dir.FullName, "TextTemplateManager.slnx"))) dir = dir.Parent;
+        Assert.NotNull(dir);
+
+        var blocks = WhatsNew.Parse(File.ReadAllText(Path.Combine(dir!.FullName, "release.md")));
+
+        Assert.Contains(blocks, b => b.Kind == WhatsNewKind.Bullet);
+        Assert.DoesNotContain(blocks, b => b.Runs.Any(r => r.Text.Contains("{{") || r.Text.Contains("**")));
+    }
+
     [Theory]
-    [InlineData(10, 10, 100, 40, 122, 12)]    // room on the right, kept inside at the top
+    [InlineData(10, 10, 100, 40, 122, 12)]   // room on the right, kept inside at the top
     [InlineData(700, 100, 280, 40, 328, 100)]  // too close to the right edge: on the left
     [InlineData(4, 10, 900, 40, 12, 62)]       // full-width control: below, kept inside at the left
     [InlineData(10, 520, 900, 60, 12, 168)]    // at the bottom, full width: above
