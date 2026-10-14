@@ -33,7 +33,9 @@
             <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                        Text="Pick a backup and what to take from it. The app saves a backup of the current state first, then restores and restarts."/>
 
+            <!-- A pan (touchpad, touch) that reaches the list's end stays with the list instead of scrolling the page. -->
             <ListView x:Name="BackupList" SelectionMode="Single" MaxHeight="320" SelectionChanged="BackupList_SelectionChanged"
+                      ScrollViewer.IsVerticalScrollChainingEnabled="False"
                       AutomationProperties.Name="Backups">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="local:BackupRow">
