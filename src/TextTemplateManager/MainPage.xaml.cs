@@ -32,6 +32,8 @@ namespace TextTemplateManager
 
         private bool _dialogOpen;                // only one ContentDialog may be open at a time
 
+        public bool IsDialogOpen => _dialogOpen;
+
 
 
         /// <summary>The main window's page over <paramref name="store"/>; <paramref name="tour"/>: the page showing

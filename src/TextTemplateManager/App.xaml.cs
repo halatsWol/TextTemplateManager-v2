@@ -243,7 +243,7 @@ namespace TextTemplateManager
             catch { }
             var blocks = Tutorial.WhatsNew.Parse(notes);
             if (blocks.Count == 0) _store.CurrentSettings.LastRunVersion = AppInfo.Version;
-            else (MainWindow.Content as MainPage)?.ShowWhatsNew(AppInfo.Version, blocks);
+            else (_pageBeforeTour ?? MainWindow.Content as MainPage)?.ShowWhatsNew(AppInfo.Version, blocks);   // the real page: during a tour it waits until the tour ends
         }
 
         private void OnGlobalHotkeyPressed()
@@ -488,7 +488,8 @@ namespace TextTemplateManager
         /// global hotkey is off and the browser connector answers "busy"; everything is put back at the end.</summary>
         public async Task StartTutorialAsync()
         {
-            if (_tour != null || MainWindow.Content is not MainPage page) return;
+            // Not under an open dialog (What's new, a question): swapping the page would leave it over the tour.
+            if (_tour != null || MainWindow.Content is not MainPage page || page.IsDialogOpen) return;
             if (!await page.ResolveUnsavedEditsAsync()) return;
 
             _store.CurrentSettings.TutorialOfferDone = true;

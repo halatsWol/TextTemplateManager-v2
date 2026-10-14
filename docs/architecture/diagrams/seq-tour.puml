@@ -13,6 +13,7 @@ participant HotkeyListener
 participant BrowserConnector
 
 User -> App : StartTutorialAsync()
+App -> Real : IsDialogOpen? (no tour under an open dialog: return)
 App -> Real : ResolveUnsavedEditsAsync()
 App -> App : settings.TutorialOfferDone = true
 App -> TourSample : CreateAsync(real settings)\n(temp folder: sample templates, a sample synced\nfolder, two sample backups, a settings copy)

@@ -23,6 +23,7 @@ The tour walks through the main window, the settings and Quick Paste on sample d
 - The global hotkey is switched off (`Register("None")`) and restored at the end.
 - The browser connector answers 503 (`Busy`).
 - The real main page is swapped out, so nothing the user does can reach the real store; the overlay blocks the sample page too.
+- The tour doesn't start while the real page has a dialog open (`MainPage.IsDialogOpen`): swapping the page would leave the dialog over the tour. A What's new that is still waiting goes to the real page, which shows it once the tour has ended and the page is loaded again.
 - Menus are shown as a picture built from the real menu items (`ShowExtra`), because an open `MenuFlyout` would swallow the next click on the card.
 
 ## Offer and versions
