@@ -78,6 +78,10 @@ public sealed class BrowserConnector : IDisposable
         _ = Task.Run(() => AcceptLoopAsync(listener, ct));
     }
 
+    /// <summary>While set (the tutorial runs on sample data), every authorized request is answered 503 "busy".</summary>
+    public bool Busy { get => _busy; set => _busy = value; }
+    private volatile bool _busy;   // read by the connection threads
+
     public void Stop()
     {
         try { _cts?.Cancel(); } catch { }
@@ -256,6 +260,7 @@ public sealed class BrowserConnector : IDisposable
         req.Headers.TryGetValue(TokenHeader, out string? token);
         if (!TokenMatches(token))
             return new Response(401, "{\"error\":\"unauthorized\"}", corsOrigin);
+        if (Busy) return new Response(503, "{\"error\":\"busy\"}", corsOrigin);
 
         try
         {
@@ -354,6 +359,6 @@ public sealed class BrowserConnector : IDisposable
     private static string Reason(int code) => code switch
     {
         200 => "OK", 204 => "No Content", 400 => "Bad Request", 401 => "Unauthorized",
-        403 => "Forbidden", 404 => "Not Found", _ => "Error",
+        403 => "Forbidden", 404 => "Not Found", 503 => "Service Unavailable", _ => "Error",
     };
 }

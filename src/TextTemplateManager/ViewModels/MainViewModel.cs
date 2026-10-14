@@ -278,8 +278,18 @@ public partial class MainViewModel : ObservableObject
     }
 
     // Poll sync files for external edits (timestamps only; reconcile on real change).
+    /// <summary>Stops the sync file polling (the tour's sample window, when the tour ends).</summary>
+    public void StopBackgroundWork()
+    {
+        _stopped = true;
+        _syncPollTimer?.Stop();
+    }
+
+    private bool _stopped;
+
     private void StartSyncPolling()
     {
+        if (_stopped) return;
         _syncPollTimer = _ui.CreateTimer();
         _syncPollTimer.Interval = TimeSpan.FromSeconds(4);
         _syncPollTimer.Tick += async (s, e) =>

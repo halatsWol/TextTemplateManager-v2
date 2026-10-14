@@ -115,6 +115,20 @@ public sealed class BrowserConnectorTests : IDisposable
     }
 
     [Fact]
+    public async Task While_busy_every_authorized_request_is_turned_away_and_nothing_is_created()
+    {
+        _connector.Busy = true;
+
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, (await Send(HttpMethod.Get, "/tree")).StatusCode);
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, (await Send(HttpMethod.Post, "/template", body: "{\"content\":\"x\"}")).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await Send(HttpMethod.Get, "/tree", token: "wrong")).StatusCode);
+        Assert.Empty(_data.Created);
+
+        _connector.Busy = false;
+        Assert.Equal(HttpStatusCode.OK, (await Send(HttpMethod.Get, "/tree")).StatusCode);
+    }
+
+    [Fact]
     public async Task Posting_content_creates_a_template()
     {
         var res = await Send(HttpMethod.Post, "/template", body: "{\"content\":\"<p>Grüße</p>\",\"name\":\"Clip\"}");

@@ -23,6 +23,10 @@ When the application starts without any templates yet and finds something to sta
 
 If TextTemplateManager 1 is still installed, you're also asked once whether to remove it. **Remove TextTemplateManager 1** runs its own uninstaller; its data folder stays on this PC. If it can't be removed from here, remove it in Windows **Settings ▸ Apps ▸ Installed apps**.
 
+### The guided tour
+
+**Help ▸ Start tutorial** walks you through the main window step by step: each step highlights a part of the window and explains it on a card beside it. The tour uses sample templates, so your own templates and settings are never changed; while it runs, the window can't be used and the Quick Paste shortcut and the browser connector are paused. **Next** and **Back** move between the steps, and **Skip tutorial**, the close button or **Esc** end the tour at any time.
+
 ---
 
 ## The main window

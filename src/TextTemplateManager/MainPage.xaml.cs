@@ -34,7 +34,9 @@ namespace TextTemplateManager
 
 
 
-        public MainPage(DataNode store)
+        /// <summary>The main window's page over <paramref name="store"/>; <paramref name="tour"/>: the page showing
+        /// the guided tour's sample data, which registers nothing with the app.</summary>
+        public MainPage(DataNode store, bool tour = false)
         {
             _store = store;
             this.InitializeComponent();
@@ -87,7 +89,7 @@ namespace TextTemplateManager
             };
 
             // On exit, take the editor's content that it hasn't reported yet; the data save runs after.
-            (Application.Current as App)?.AddExitFlush(Editor.FlushAsync);
+            if (!tour) (Application.Current as App)?.AddExitFlush(Editor.FlushAsync);
 
             Settings.Store = store;
             SearchOptions.Settings = store.CurrentSettings;
@@ -111,6 +113,7 @@ namespace TextTemplateManager
         private async void SaveAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
         {
             args.Handled = true;
+            if (Tour.IsRunning) return;
             await SaveAsync();
         }
 
@@ -408,6 +411,11 @@ namespace TextTemplateManager
         private async void Export_Click(object sender, RoutedEventArgs e) => await ViewModel.ExportAsync(ViewModel.SelectedItems);
 
         private void OpenPreferences_Click(object sender, RoutedEventArgs e) => Settings.Open();
+
+        private async void StartTutorial_Click(object sender, RoutedEventArgs e)
+        {
+            if (Application.Current is App app) await app.StartTutorialAsync();
+        }
 
         /// <summary>Leaves the Settings view if it is open. Called when the window is hidden to the tray so
         /// that reopening lands on the template list, rather than resuming wherever Settings was left —
@@ -795,6 +803,7 @@ namespace TextTemplateManager
         private void SearchAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
         {
             args.Handled = true;
+            if (Tour.IsRunning) return;
             FocusSearchBox();
         }
 

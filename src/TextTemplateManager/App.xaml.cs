@@ -126,6 +126,7 @@ namespace TextTemplateManager
                 if (!_isClosingFromTray)
                 {
                     e.Cancel = true;
+                    EndTutorial();
                     if (MainWindow.Content is MainPage page && !await page.ResolveUnsavedEditsAsync()) return;
                     MainWindow.Hide();
                     // Reopen in a clean state rather than wherever the window was left.
@@ -415,6 +416,7 @@ namespace TextTemplateManager
         /// takes more than a second and asks before giving up on a save that hangs.</summary>
         public async Task ExitAsync()
         {
+            EndTutorial();
             if (MainWindow.Content is MainPage editing)
             {
                 if (editing.ViewModel.HasUnsavedChanges) ShowMainWindow();   // the question needs the window
@@ -436,6 +438,56 @@ namespace TextTemplateManager
                 await page.HideExitProgressAsync();
             }
             Shutdown();
+        }
+
+        // ---- Guided tour: the main window shows a sample store while it runs ----
+
+        private Tutorial.TourSample? _tour;
+        private MainPage? _tourPage, _pageBeforeTour;
+
+        /// <summary>Runs the guided tour on sample data: the main window shows a page over a throwaway store, the
+        /// global hotkey is off and the browser connector answers "busy"; everything is put back at the end.</summary>
+        public async Task StartTutorialAsync()
+        {
+            if (_tour != null || MainWindow.Content is not MainPage page) return;
+            if (!await page.ResolveUnsavedEditsAsync()) return;
+
+            _tour = await Tutorial.TourSample.CreateAsync(_store.CurrentSettings);
+            _pageBeforeTour = page;
+            _tourPage = new MainPage(_tour.Store, tour: true);
+            _hotkeyListener?.Register("None");
+            if (_connector != null) _connector.Busy = true;
+            MainWindow.Content = _tourPage;
+            ShowMainWindow();
+
+            bool completed = false;
+            try
+            {
+                if (!_tourPage.IsLoaded)
+                {
+                    var loaded = new TaskCompletionSource();
+                    _tourPage.Loaded += (_, _) => loaded.TrySetResult();
+                    await loaded.Task;
+                }
+                completed = await _tourPage.RunTourAsync();
+            }
+            finally { EndTutorial(); }
+            if (!completed) page.ShowTourHint();
+        }
+
+        /// <summary>Puts the real page back and turns input on again; nothing when no tour runs.</summary>
+        public void EndTutorial()
+        {
+            if (_tourPage is not { } tourPage || _pageBeforeTour is not { } page) return;
+            _tourPage = null;
+            _pageBeforeTour = null;
+            tourPage.EndTour();
+            MainWindow.Content = page;
+            tourPage.ViewModel.StopBackgroundWork();
+            _tour?.Dispose();
+            _tour = null;
+            UpdateGlobalHotkey(_store.CurrentSettings.PasteWindowHotkey);
+            if (_connector != null) _connector.Busy = false;
         }
 
         // Sign-out/shutdown announced: start saving right away; the session may still be cancelled.
