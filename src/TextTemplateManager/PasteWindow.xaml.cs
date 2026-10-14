@@ -33,9 +33,12 @@ namespace TextTemplateManager
         private readonly DataNode _store;
         private readonly QuickPasteController _entry;
 
-        public PasteWindow(DataNode store)
+        private readonly bool _tour;   // opened by the guided tour: shows its sample data, never pastes
+
+        public PasteWindow(DataNode store, bool tour = false)
         {
             _store = store;
+            _tour = tour;
             _entry = new QuickPasteController(store.ShortcutEntries, () => store.CurrentSyncSettings.Sources, store.ResolveSingleKey);
             this.InitializeComponent();
             _hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
@@ -61,8 +64,8 @@ namespace TextTemplateManager
 
                         // Open in "shortcut mode" (focus the root, not search) so a single-key
                         // shortcut pastes immediately; a letter/digit that isn't a shortcut beeps, and
-                        // Tab or a click moves into search.
-                        RootGrid.Focus(FocusState.Programmatic);
+                        // Tab or a click moves into search. In the tour the keyboard stays on its card.
+                        if (!_tour) RootGrid.Focus(FocusState.Programmatic);
                     });
                 }
                 else if (!_hasExecuted)
@@ -151,7 +154,8 @@ namespace TextTemplateManager
             {
                 if (_closingForPaste) return;
                 e.Cancel = true;
-                Dismiss();
+                if (_tour) TourWindowClosed?.Invoke(this, EventArgs.Empty);   // the X ends the tour
+                else Dismiss();
             };
 
             if (appWindow?.Presenter is Microsoft.UI.Windowing.OverlappedPresenter p)
@@ -267,6 +271,7 @@ namespace TextTemplateManager
         #region Input & Paste Logic
         private void OnKeyDown(object sender, KeyRoutedEventArgs e)
         {
+            if (_tour) return;   // the tour's card has the keyboard; a key must never paste or close here
             // ALT via event args — more reliable than InputKeyboardSource here.
             bool altIsDown = e.KeyStatus.IsMenuKeyDown || e.Key == VirtualKey.Menu;
 
@@ -502,6 +507,7 @@ namespace TextTemplateManager
 
         private void OnKeyUp(object sender, KeyRoutedEventArgs e)
         {
+            if (_tour) return;
             if (_hasExecuted) return;   // already pasted (e.g. via Enter) — window is closing
             if (e.Key == VirtualKey.Menu)
             {
@@ -570,7 +576,11 @@ namespace TextTemplateManager
         // Focus moved: the visible shortcut list carries a highlighted row only while shortcut mode is
         // active, so it never looks live while you type in search or browse the tree. Leaving clears both
         // lists; coming back (Esc, Tab, or a click that didn't land on a row) re-selects the first row.
-        private void OnContentGotFocus(object sender, RoutedEventArgs e) => SyncShortcutHighlight();
+        // A window being closed (a paste, or the tour ending) can still get a late focus event; its content is gone.
+        private void OnContentGotFocus(object sender, RoutedEventArgs e)
+        {
+            if (!_closingForPaste) SyncShortcutHighlight();
+        }
 
         private void SyncShortcutHighlight()
         {
@@ -615,7 +625,7 @@ namespace TextTemplateManager
 
         private void ExecutePaste(Template item, PasteMode mode)
         {
-            if (_hasExecuted) return;   // guard double-trigger
+            if (_hasExecuted || _tour) return;   // guard double-trigger; the tour never pastes
             _hasExecuted = true;
 
             string content = item.Content;   // capture before the window is torn down

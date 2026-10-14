@@ -22,7 +22,9 @@ public sealed partial class TutorialOverlay : UserControl
     private int _index;
     private TourStep? _shown;   // the step on screen, left (Leave) before the next one or at the end
     private int _showing;
-    private TaskCompletionSource<bool>? _done;
+    private TaskCompletionSource<TourOutcome>? _done;
+    private int _numberFrom = 1, _total;
+    private bool _canGoBackFromFirst, _endsTour = true;
     private DispatcherQueueTimer? _follow;
     private FrameworkElement? _target;
     private (Rect? Cut, Size Size) _placed;
@@ -35,13 +37,21 @@ public sealed partial class TutorialOverlay : UserControl
 
     public bool IsRunning => _done != null;
 
-    /// <summary>Shows the steps one after another. True when the last one was finished with Done; false when the
-    /// tour was skipped or ended from outside (<see cref="End"/>).</summary>
-    public Task<bool> RunAsync(IReadOnlyList<TourStep> steps)
+    /// <summary>Shows the steps one after another, from <paramref name="startAt"/>. A tour in several parts (windows)
+    /// numbers them from <paramref name="numberFrom"/> of <paramref name="total"/>; Back on the first step ends this
+    /// part with <see cref="TourOutcome.BackFromFirst"/> when <paramref name="canGoBackFromFirst"/>; unless
+    /// <paramref name="endsTour"/>, the last step says Next and the window stays dimmed afterwards (<see cref="End"/>).</summary>
+    public Task<TourOutcome> RunAsync(IReadOnlyList<TourStep> steps, int startAt = 0, int numberFrom = 1, int? total = null,
+        bool canGoBackFromFirst = false, bool endsTour = true)
     {
         _steps = steps;
-        _index = 0;
-        _done = new TaskCompletionSource<bool>();
+        _index = Math.Clamp(startAt, 0, steps.Count - 1);
+        _numberFrom = numberFrom;
+        _total = total ?? steps.Count;
+        _canGoBackFromFirst = canGoBackFromFirst;
+        _endsTour = endsTour;
+        _done = new TaskCompletionSource<TourOutcome>();
+        Card.Visibility = Visibility.Visible;
         Visibility = Visibility.Visible;
         // The cutout follows its control through resizes, scrolling and layout changes.
         _follow ??= CreateFollowTimer();
@@ -50,8 +60,12 @@ public sealed partial class TutorialOverlay : UserControl
         return _done.Task;
     }
 
-    /// <summary>Ends the tour as if skipped (the window closes, the app exits).</summary>
-    public void End() => Finish(completed: false);
+    /// <summary>Ends the tour as if skipped (the window closes, the app exits), also a dimmed wait between parts.</summary>
+    public void End()
+    {
+        Finish(TourOutcome.Skipped);
+        Visibility = Visibility.Collapsed;
+    }
 
     private DispatcherQueueTimer CreateFollowTimer()
     {
@@ -61,7 +75,7 @@ public sealed partial class TutorialOverlay : UserControl
         return timer;
     }
 
-    private void Finish(bool completed)
+    private void Finish(TourOutcome outcome)
     {
         if (_done is not { } done) return;
         _done = null;
@@ -70,8 +84,15 @@ public sealed partial class TutorialOverlay : UserControl
         _follow?.Stop();
         _target = null;
         ClearExtra();
-        Visibility = Visibility.Collapsed;
-        done.TrySetResult(completed);
+        if (outcome == TourOutcome.Done && !_endsTour)
+        {
+            // Another part follows in another window: this one stays dimmed and blocked, without a card.
+            Card.Visibility = Visibility.Collapsed;
+            Highlight.Visibility = Visibility.Collapsed;
+            Dim.Data = new RectangleGeometry { Rect = new Rect(0, 0, Root.ActualWidth, Root.ActualHeight) };
+        }
+        else Visibility = Visibility.Collapsed;
+        done.TrySetResult(outcome);
     }
 
     private void LeaveShown()
@@ -102,11 +123,11 @@ public sealed partial class TutorialOverlay : UserControl
 
         _shown = step;
         _target = step.Target?.Invoke();
-        Counter.Text = $"{_index + 1} / {_steps.Count}";
+        Counter.Text = $"{_numberFrom + _index} / {_total}";
         StepTitle.Text = step.Title;
         StepText.Text = step.Text;
-        BackButton.IsEnabled = _index > 0;
-        NextButton.Content = _index == _steps.Count - 1 ? "Done" : "Next";
+        BackButton.IsEnabled = _index > 0 || _canGoBackFromFirst;
+        NextButton.Content = _index == _steps.Count - 1 && _endsTour ? "Done" : "Next";
         UpdateLayout();
         Place(force: true);
         Card.Opacity = 1;
@@ -184,19 +205,23 @@ public sealed partial class TutorialOverlay : UserControl
 
     private void Next_Click(object sender, RoutedEventArgs e)
     {
-        if (_index >= _steps.Count - 1) { Finish(completed: true); return; }
+        if (_index >= _steps.Count - 1) { Finish(TourOutcome.Done); return; }
         _index++;
         _ = ShowStepAsync();
     }
 
     private void Back_Click(object sender, RoutedEventArgs e)
     {
-        if (_index == 0) return;
+        if (_index == 0)
+        {
+            if (_canGoBackFromFirst) Finish(TourOutcome.BackFromFirst);
+            return;
+        }
         _index--;
         _ = ShowStepAsync();
     }
 
-    private void Skip_Click(object sender, RoutedEventArgs e) => Finish(completed: false);
+    private void Skip_Click(object sender, RoutedEventArgs e) => Finish(TourOutcome.Skipped);
 
     /// <summary>Shows <paramref name="element"/> above the dimming at (<paramref name="x"/>, <paramref name="y"/>) of the
     /// window, for the current step (cleared with <see cref="ClearExtra"/>).</summary>
@@ -223,6 +248,6 @@ public sealed partial class TutorialOverlay : UserControl
     {
         if (e.Key != VirtualKey.Escape) return;
         e.Handled = true;
-        Finish(completed: false);
+        Finish(TourOutcome.Skipped);
     }
 }

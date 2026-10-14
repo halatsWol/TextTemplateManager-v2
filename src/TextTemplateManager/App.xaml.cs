@@ -444,6 +444,7 @@ namespace TextTemplateManager
 
         private Tutorial.TourSample? _tour;
         private MainPage? _tourPage, _pageBeforeTour;
+        private PasteWindow? _tourQuickPaste;
 
         /// <summary>Runs the guided tour on sample data: the main window shows a page over a throwaway store, the
         /// global hotkey is off and the browser connector answers "busy"; everything is put back at the end.</summary>
@@ -460,7 +461,7 @@ namespace TextTemplateManager
             MainWindow.Content = _tourPage;
             ShowMainWindow();
 
-            bool completed = false;
+            var outcome = Tutorial.TourOutcome.Skipped;
             try
             {
                 if (!_tourPage.IsLoaded)
@@ -469,10 +470,27 @@ namespace TextTemplateManager
                     _tourPage.Loaded += (_, _) => loaded.TrySetResult();
                     await loaded.Task;
                 }
-                completed = await _tourPage.RunTourAsync();
+                // The main window's part, then Quick Paste's (opened by the tour); Back from Quick Paste's first step
+                // returns to the main window's last one.
+                _tourQuickPaste = new PasteWindow(_tour.Store, tour: true);
+                _tourQuickPaste.TourWindowClosed += (_, _) => EndTutorial();
+                int mainSteps = _tourPage.TourStepCount, startAt = 0;
+                while (_tourPage is { } tourPage && _tourQuickPaste != null)
+                {
+                    outcome = await tourPage.RunTourAsync(startAt, mainSteps + _tourQuickPaste.TourStepCount);
+                    if (outcome != Tutorial.TourOutcome.Done || _tourQuickPaste == null) break;
+
+                    _tourQuickPaste.ShowForTour();
+                    await Task.Delay(400);   // shown and laid out
+                    outcome = await _tourQuickPaste.RunTourAsync(mainSteps + 1, mainSteps + _tourQuickPaste.TourStepCount);
+                    if (outcome != Tutorial.TourOutcome.BackFromFirst) break;
+                    _tourQuickPaste?.Hide();
+                    MainWindow.Activate();
+                    startAt = mainSteps - 1;
+                }
             }
             finally { EndTutorial(); }
-            if (!completed) page.ShowTourHint();
+            if (outcome != Tutorial.TourOutcome.Done) page.ShowTourHint();
         }
 
         /// <summary>Puts the real page back and turns input on again; nothing when no tour runs.</summary>
@@ -481,6 +499,8 @@ namespace TextTemplateManager
             if (_tourPage is not { } tourPage || _pageBeforeTour is not { } page) return;
             _tourPage = null;
             _pageBeforeTour = null;
+            _tourQuickPaste?.CloseForTour();
+            _tourQuickPaste = null;
             tourPage.EndTour();
             MainWindow.Content = page;
             tourPage.ViewModel.StopBackgroundWork();

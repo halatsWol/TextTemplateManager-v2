@@ -59,7 +59,7 @@
             <SymbolIcon Symbol="Help"/>
         </Button>
 
-        <Grid Grid.Column="0" Background="{ThemeResource LayerFillColorDefaultBrush}">
+        <Grid x:Name="TreePane" Grid.Column="0" Background="{ThemeResource LayerFillColorDefaultBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -181,7 +181,7 @@
             <!-- Bottom group: the shortcut buffer bar is a FIXED height; the shortcut list below
                  flexes. The splitter resizes this whole group vs. the preview, so dragging the
                  preview never changes the buffer bar's height. -->
-            <Grid Grid.Row="2">
+            <Grid x:Name="ShortcutPane" Grid.Row="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
@@ -338,5 +338,8 @@
                 </Grid>
             </TeachingTip.Content>
         </TeachingTip>
+
+        <!-- The guided tour's Quick Paste part (only in the window opened by the tour, on its sample data). -->
+        <appcontrols:TutorialOverlay x:Name="Tour" Grid.ColumnSpan="3"/>
     </Grid>
 </Window>

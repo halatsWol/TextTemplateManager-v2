@@ -12,3 +12,7 @@ public sealed record TourStep(string Title, string Text, Func<FrameworkElement?>
     Action? Leave = null, TourCorner? Corner = null);
 
 public enum TourCorner { TopLeft, TopRight, BottomLeft, BottomRight }
+
+/// <summary>How a part of the tour ended: finished, skipped (or ended from outside), or Back on its first step
+/// (the previous part continues).</summary>
+public enum TourOutcome { Done, Skipped, BackFromFirst }

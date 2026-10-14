@@ -13,8 +13,12 @@ namespace TextTemplateManager
     // The guided tour's part in the main window (the window then shows the tour's sample data, see App.StartTutorialAsync).
     public sealed partial class MainPage
     {
-        /// <summary>Shows the tour over this window. True when it was finished, false when skipped or ended.</summary>
-        public Task<bool> RunTourAsync() => Tour.RunAsync(TourSteps());
+        /// <summary>The main window's part of the tour, from <paramref name="startAt"/>, numbered within
+        /// <paramref name="total"/> steps; Quick Paste's part follows (the window stays dimmed until <see cref="EndTour"/>).</summary>
+        public Task<TourOutcome> RunTourAsync(int startAt, int total) =>
+            Tour.RunAsync(TourSteps(), startAt, numberFrom: 1, total, canGoBackFromFirst: false, endsTour: false);
+
+        public int TourStepCount => TourSteps().Count;
 
         public void EndTour() => Tour.End();
 
