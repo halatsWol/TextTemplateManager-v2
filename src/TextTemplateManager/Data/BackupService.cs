@@ -238,8 +238,6 @@ public sealed class BackupService
         catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException) { return null; }
     }
 
-    /// <summary>Deletes the oldest valid backups of <paramref name="tier"/> beyond <paramref name="keep"/>. Damaged
-    /// ones don't count and are left alone.</summary>
     /// <summary>1.x data is on this PC (whether or not its v1 backup exists yet).</summary>
     public bool HasLegacyData => File.Exists(BackupSource.Folder(_storage.LegacyDirectory).DataPath);
 
@@ -253,6 +251,8 @@ public sealed class BackupService
         return await CreateAsync(BackupTier.V1, source, quietMs: 0);
     }
 
+    /// <summary>Deletes the oldest valid backups of <paramref name="tier"/> beyond <paramref name="keep"/>. Damaged
+    /// ones don't count and are left alone.</summary>
     public void Prune(BackupTier tier, int keep)
     {
         foreach (var old in List().Where(b => b.Tier == tier && b.IsValid).Skip(keep))
