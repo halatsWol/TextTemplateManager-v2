@@ -554,7 +554,13 @@ namespace TextTemplateManager
             _store.CurrentSettings.LegacyRemovalOffered = true;
             if (answer != ContentDialogResult.Primary) return;
 
-            if (await LegacyApp.UninstallAsync(TimeSpan.FromSeconds(60)))
+            // Holds the dialog slot while the uninstaller runs, or a waiting startup dialog (the tour offer)
+            // takes it and the result message below can't be shown.
+            _dialogOpen = true;
+            bool removed;
+            try { removed = await LegacyApp.UninstallAsync(TimeSpan.FromSeconds(60)); }
+            finally { _dialogOpen = false; }
+            if (removed)
                 await ShowMessageAsync("TextTemplateManager 1 removed", "The old version was removed. Its data folder was kept.");
             else
                 await ShowMessageAsync("TextTemplateManager 1 wasn't removed",

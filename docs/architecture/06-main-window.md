@@ -10,7 +10,7 @@
 
 `MainPage` (`MainPage.xaml.cs`, tour steps in `MainPage.Tour.cs`) is the view: menu bar, tree, search box, toolbar, the right pane with `TemplateEditor` and the item's fields, the `ConflictPanel`, the in-window `SettingsView`, and the `TutorialOverlay`. It handles what needs the view: drag and drop on the tree, keyboard navigation, context menus, file pickers, and every dialog.
 
-**Dialogs.** Only one `ContentDialog` may be open at a time, and startup notices arrive on their own schedule, so every dialog goes through `ShowDialogAsync`: it opens nothing while another dialog is open (returns `None`), and startup messages wait until the page is loaded and no dialog is open (`WaitUntilDialogCanOpenAsync`). Startup offers that must not be lost retry when another dialog got there first (`ShowWhenFreeAsync`).
+**Dialogs.** Only one `ContentDialog` may be open at a time, and startup notices arrive on their own schedule, so every dialog goes through `ShowDialogAsync`: it opens nothing while another dialog is open (returns `None`), and startup messages wait until the page is loaded and no dialog is open (`WaitUntilDialogCanOpenAsync`). Startup offers that must not be lost retry when another dialog got there first (`ShowWhenFreeAsync`). The 1.x removal offer keeps the slot while the uninstaller runs, so its result message isn't pushed out by the waiting tour offer.
 
 ## MainViewModel
 
