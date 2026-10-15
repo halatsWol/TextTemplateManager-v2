@@ -93,6 +93,29 @@ public class BackupServiceTests
         Assert.Empty(_backups.List());
     }
 
+    [Theory]
+    [InlineData(BackupTier.Recent)]
+    [InlineData(BackupTier.TwoHourly)]
+    [InlineData(BackupTier.Daily)]
+    public async Task An_empty_state_gets_no_automatic_backup(BackupTier tier)
+    {
+        await _storage.SaveAsync(_storage.GetDataPath(), new Folder { Title = "Root", LastChange = "20261012090000" });
+        await _storage.SaveSettingsAsync(new AppSettings { TutorialOfferDone = true });
+
+        Assert.Equal(BackupOutcome.NothingToBackUp, (await Create(tier)).Outcome);
+        Assert.Empty(_backups.List());
+    }
+
+    [Fact]
+    public async Task An_empty_tree_with_a_sync_source_or_an_export_is_still_backed_up()
+    {
+        await _storage.SaveAsync(_storage.GetDataPath(), new Folder { Title = "Root", LastChange = "20261012090000" });
+        Assert.Equal(BackupOutcome.Created, (await Create(BackupTier.Exported)).Outcome);
+
+        await LinkSyncFile("team.ttmdata");
+        Assert.Equal(BackupOutcome.Created, (await Create(BackupTier.Recent)).Outcome);
+    }
+
     [Fact]
     public async Task An_app_file_that_doesnt_load_stops_the_backup_and_leaves_nothing_behind()
     {

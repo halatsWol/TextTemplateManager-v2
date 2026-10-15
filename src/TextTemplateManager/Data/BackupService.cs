@@ -30,7 +30,7 @@ public enum BackupOutcome
     Unchanged,
     /// <summary>Files kept being written; try again later.</summary>
     NotQuiet,
-    /// <summary>No data file yet (fresh start).</summary>
+    /// <summary>No data file yet (fresh start), or for an automatic backup: no templates and no sync sources.</summary>
     NothingToBackUp,
     /// <summary>One of the app's own files didn't load; no backup, try again later.</summary>
     SourceUnreadable,
@@ -153,6 +153,12 @@ public sealed class BackupService
             entry.SourceId = syncSource.Id;
             files.Add((entry, problem == null ? content : null));
         }
+
+        // An automatic backup of nothing (no templates, no sync sources, e.g. right after a reset) would push real
+        // ones out and become the newest backup a first start offers to restore.
+        if ((tier is BackupTier.Recent or BackupTier.TwoHourly or BackupTier.Daily) && (syncSettings?.Sources.Count ?? 0) == 0
+            && StorageService.ParseTree(files.First(f => f.Entry.Kind == BackupFileKind.Data).Content!) is { Children.Count: 0 })
+            return new(BackupOutcome.NothingToBackUp);
 
         if (skipIfSameAs != null && Fingerprint(skipIfSameAs.Files) == Fingerprint(files.Select(f => f.Entry)))
             return new(BackupOutcome.Unchanged);

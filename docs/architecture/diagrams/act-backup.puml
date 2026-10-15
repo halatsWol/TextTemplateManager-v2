@@ -25,6 +25,10 @@ if (data.ttmdata exists?) then (no)
 endif
 :read data, settings, sync settings (shared read)\nand check each parses -> else SourceUnreadable;
 :read every linked sync file\n(missing or broken: listed with Included = false);
+if (automatic tier, no templates and no sync sources?) then (yes)
+  :NothingToBackUp\n(an empty state would push real backups out);
+  stop
+endif
 if (fingerprint equals the newest of the tier?) then (yes)
   :Unchanged;
   stop
