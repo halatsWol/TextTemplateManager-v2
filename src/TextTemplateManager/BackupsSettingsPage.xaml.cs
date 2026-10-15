@@ -1,5 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
@@ -56,7 +58,37 @@ public sealed partial class BackupsSettingsPage : Page
 
     private BackupService _backups = null!;   // set on navigation
 
-    public BackupsSettingsPage() => InitializeComponent();
+    private ScrollViewer? _listScroll;
+
+    public BackupsSettingsPage()
+    {
+        InitializeComponent();
+        // Touch and touchpad pans chain from the list to the page on their own, the mouse wheel doesn't: at the
+        // list's end it scrolls the page. Also for turns the list already handled.
+        BackupList.AddHandler(PointerWheelChangedEvent, new PointerEventHandler(BackupList_PointerWheelChanged), true);
+    }
+
+    private void BackupList_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
+    {
+        var point = e.GetCurrentPoint(BackupList).Properties;
+        int delta = point.MouseWheelDelta;
+        if (delta == 0 || point.IsHorizontalMouseWheel) return;
+        _listScroll ??= FindScrollViewer(BackupList);
+        if (_listScroll == null) return;
+        bool atEnd = delta < 0 ? _listScroll.VerticalOffset >= _listScroll.ScrollableHeight - 1 : _listScroll.VerticalOffset <= 0;
+        if (atEnd) PageScroll.ChangeView(null, PageScroll.VerticalOffset - delta, null);
+    }
+
+    private static ScrollViewer? FindScrollViewer(DependencyObject parent)
+    {
+        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, i);
+            if (child is ScrollViewer sv) return sv;
+            if (FindScrollViewer(child) is { } found) return found;
+        }
+        return null;
+    }
 
     private static App App => (App)Application.Current;
 
@@ -71,6 +103,10 @@ public sealed partial class BackupsSettingsPage : Page
         BackupList.SelectedItem = requested ?? rows.FirstOrDefault(r => r.Info.IsValid);   // else the newest one that can be restored
         ShowAvailableParts();
         if (requested != null && parameters!.Request!.Confirm) await RestoreAsync(requested.Info.Path, requested.Description);
+        // Sent here to restore: a long list would leave "Restore…" below the fold. After layout, so the list has its rows.
+        else if (requested != null)
+            DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low,
+                () => RestoreButton.StartBringIntoView(new BringIntoViewOptions { AnimationDesired = false }));
     }
 
     private async Task<List<BackupRow>> LoadRowsAsync()
