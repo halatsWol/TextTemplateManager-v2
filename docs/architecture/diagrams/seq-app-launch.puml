@@ -34,7 +34,7 @@ end
 App -> BackupScheduler : new + Start() (ticks every 30 s)
 App -> HotkeyListener : Register(settings.PasteWindowHotkey)
 App -> MainPage : new MainPage(store)\nMainWindow.Content = page
-App -> App : icon, min size 720x560,\nWM_QUERYENDSESSION / WM_ENDSESSION hook,\ntray icon, Closing -> hide to tray
+App -> App : icon, min size 720x560,\n1200x820 centred (at most 90 % of the work area),\nWM_QUERYENDSESSION / WM_ENDSESSION hook,\ntray icon, Closing -> hide to tray
 App -> BrowserConnector : ApplyBrowserConnectorSettings()\n(start on 127.0.0.1:port when enabled)
 opt not (autostart and StartHidden)
   App -> MainPage : MainWindow.Activate()

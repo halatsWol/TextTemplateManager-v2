@@ -199,6 +199,16 @@ namespace TextTemplateManager.Helpers
             return hook;
         }
 
+        /// <summary>Bounds (physical pixels) for a window of <paramref name="widthDip"/> x <paramref name="heightDip"/>
+        /// at <paramref name="scale"/> (DPI / 96), at most 90 % of the work area, centred in it.</summary>
+        public static (int X, int Y, int Width, int Height) CenteredBounds(int workX, int workY, int workWidth, int workHeight,
+            double scale, int widthDip, int heightDip)
+        {
+            int width = Math.Min((int)Math.Round(widthDip * scale), (int)(workWidth * 0.9));
+            int height = Math.Min((int)Math.Round(heightDip * scale), (int)(workHeight * 0.9));
+            return (workX + (workWidth - width) / 2, workY + (workHeight - height) / 2, width, height);
+        }
+
         /// <summary>Enforces a minimum window size (in DIPs) by subclassing the window proc.</summary>
         public static void SetWindowMinSize(IntPtr hWnd, int minWidthDip, int minHeightDip)
         {

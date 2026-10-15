@@ -117,6 +117,11 @@ namespace TextTemplateManager
             appWindow.SetIcon("Assets/AppIcon.ico");
 
             WindowHelper.SetWindowMinSize(hwnd, 720, 560);   // don't clip the panes
+            // Windows' default size is too small for the settings pages (Sync rows, Backups).
+            var work = DisplayArea.GetFromWindowId(windowId, DisplayAreaFallback.Primary).WorkArea;
+            var bounds = WindowHelper.CenteredBounds(work.X, work.Y, work.Width, work.Height,
+                WindowHelper.GetDpiForWindow(hwnd) / 96.0, 1200, 820);
+            appWindow.MoveAndResize(new Windows.Graphics.RectInt32(bounds.X, bounds.Y, bounds.Width, bounds.Height));
             WindowHelper.OnSessionEnd(hwnd, OnQueryEndSession, OnEndSession);
 
 
