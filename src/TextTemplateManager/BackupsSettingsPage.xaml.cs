@@ -264,6 +264,9 @@ public sealed partial class BackupsSettingsPage : Page
         var issues = parts.HasFlag(RestoreParts.SyncSettings)
             ? await Task.Run(() => RestoreService.FindSyncLocationIssues(backupPath))
             : Array.Empty<SyncLocationIssue>();
+        var changed = parts.HasFlag(RestoreParts.SyncSettings)
+            ? await Task.Run(() => RestoreService.FindChangedSyncFiles(backupPath))
+            : Array.Empty<ChangedSyncFile>();
         var targets = parts.HasFlag(RestoreParts.SyncedFolders) && !parts.HasFlag(RestoreParts.SyncSettings)
             ? await Task.Run(() => App.SyncedFolderTargets(backupPath))
             : Array.Empty<SyncedFolderTarget>();
@@ -272,7 +275,11 @@ public sealed partial class BackupsSettingsPage : Page
         if (targets.Count > 0)
             message += "\n\nWithout the sync settings, the synced templates and folders are restored into their sync files. You're asked next for each synced folder.";
         else if ((parts & RestoreParts.Sync) != 0)
-            message += "\n\nShared sync files themselves aren't changed: a file that still exists keeps its contents, and the folder of a missing one shows its copy from the backup.";
+            message += "\n\nA shared sync file that still exists stays as it is, unless you choose to overwrite it; the folder of a missing one shows its copy from the backup.";
+        if (changed.Count > 0)
+            message += changed.Count == 1
+                ? "\n\nOne shared sync file has changed since the backup. You're asked next whether to overwrite it or keep it."
+                : $"\n\n{changed.Count} shared sync files have changed since the backup. You're asked next whether to overwrite or keep each.";
         if (issues.Count > 0)
             message += issues.Count == 1
                 ? "\n\nOne sync file of the backup isn't on this PC. You're asked next what to do with it."
@@ -294,6 +301,9 @@ public sealed partial class BackupsSettingsPage : Page
         foreach (var issue in issues)
             if (await AskAboutMissingFileAsync(issue.SourceId, issue.Name, issue.Path, issue.Problem, issue.HasCopy, "Leave it missing") is { } placement)
                 placements.Add(placement);
+        foreach (var file in changed)
+            if (await AskOverwriteSyncFileAsync(file, description))
+                placements.Add(new SyncFilePlacement(file.SourceId, file.Path, WriteCopy: true));
         foreach (var target in targets)
             if (await AskAboutSyncedFolderAsync(target) is { } placement) placements.Add(placement);
 
@@ -311,6 +321,24 @@ public sealed partial class BackupsSettingsPage : Page
         // Restored, but the restart didn't happen: nothing may be saved over the restored files any more.
         await new ContentDialog { XamlRoot = XamlRoot, Title = "Backup restored", Content = outcome.Problem, CloseButtonText = "Quit" }.ShowAsync();
         App.Shutdown();
+    }
+
+    // A shared sync file that has changed since the backup: true to overwrite it with the backup's copy. Keeping it is
+    // the default, also on Esc.
+    private async Task<bool> AskOverwriteSyncFileAsync(ChangedSyncFile file, string description)
+    {
+        var dialog = new ContentDialog
+        {
+            XamlRoot = XamlRoot,
+            Title = $"Sync file \"{file.Name}\" has changed",
+            Content = $"{file.Path}\n\nThe file was last changed {file.FileChanged:f} and differs from the backup's copy ({description}).\n\n"
+                + "Keep it: the folder shows the file as it is now.\n"
+                + "Overwrite it: the file gets the backup's copy, for everyone who uses it.",
+            PrimaryButtonText = "Overwrite with the backup's copy",
+            CloseButtonText = "Keep the file",
+            DefaultButton = ContentDialogButton.Close,
+        };
+        return await dialog.ShowAsync() == ContentDialogResult.Primary;
     }
 
     // A sync file that isn't usable where it should be: recreated there (with its folder if that is gone too), placed

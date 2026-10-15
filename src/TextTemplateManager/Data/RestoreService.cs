@@ -42,6 +42,10 @@ public enum SyncLocationProblem
 /// backup holds its contents (the file itself, or the synced folder's cached copy).</summary>
 public sealed record SyncLocationIssue(Guid SourceId, string Name, string Path, SyncLocationProblem Problem, bool HasCopy);
 
+/// <summary>An active source in a backup's sync settings whose file exists and differs from the backup's copy of it:
+/// the restore asks whether to overwrite it.</summary>
+public sealed record ChangedSyncFile(Guid SourceId, string Name, string Path, DateTime FileChanged);
+
 /// <summary>Points a source of the restored sync settings at <paramref name="Path"/>, writing the backup's copy of its
 /// file there when <paramref name="WriteCopy"/> (otherwise the file there is linked as it is). Restoring only the synced
 /// folders, the copy is the synced folder of the backup, merged into the file there when <paramref name="MergeAs"/>
@@ -70,7 +74,8 @@ public sealed class RestoreJournalItem
 /// <summary>Puts a backup's files back into the data folder: all of them or nothing. Each file is unpacked
 /// and checked first, the current files are copied aside with a journal, then each is swapped in; a failure,
 /// or a crash found at the next start, puts the previous files back. Linked sync files are only written where
-/// the user placed a missing one (<see cref="SyncFilePlacement"/>), as part of the same all-or-nothing swap.</summary>
+/// the user placed a missing one or chose to overwrite an existing one (<see cref="SyncFilePlacement"/>), as part of
+/// the same all-or-nothing swap; an existing file that is kept stays the only source of its folder.</summary>
 public sealed class RestoreService
 {
     private readonly StorageService _storage;
@@ -105,26 +110,40 @@ public sealed class RestoreService
 
                 bool local = parts.HasFlag(RestoreParts.Local), synced = parts.HasFlag(RestoreParts.SyncedFolders);
                 byte[]? data = local || synced ? Take(BackupFileKind.Data) : null;
+                byte[]? sync = parts.HasFlag(RestoreParts.SyncSettings) ? Take(BackupFileKind.SyncSettings) : null;
+
+                var placedFiles = new List<(byte[] Content, string Target)>();
+                var keptFiles = new HashSet<Guid>();
+                if (sync != null)
+                {
+                    var syncSettings = StorageService.ParseSyncSettings(sync)!;
+                    foreach (var placement in placements ?? Array.Empty<SyncFilePlacement>())
+                    {
+                        if (syncSettings.Sources.FirstOrDefault(s => s.Id == placement.SourceId) is not { } source) continue;
+                        if (placement.WriteCopy)
+                            placedFiles.Add((SyncFileCopy(zip, manifest!, source.Id) ?? throw new InvalidDataException($"the backup holds no copy of {source.Name}"),
+                                placement.Path));
+                        source.Path = placement.Path;
+                    }
+                    if (placements is { Count: > 0 }) sync = StorageService.SerializeSyncSettings(syncSettings);
+
+                    // A linked file that exists and isn't overwritten stays the truth for its folder: the backup's cached
+                    // copy of the folder is left out, so the next load builds it from the file alone.
+                    foreach (var source in syncSettings.Sources.Where(s => s.IsActive && !string.IsNullOrWhiteSpace(s.Path) && File.Exists(s.Path)))
+                        if (placements?.Any(p => p.SourceId == source.Id && p.WriteCopy) != true) keptFiles.Add(source.Id);
+                }
+
                 if (data != null)
-                    plan.Add((local && synced ? data : MixData(data, takeLocal: local), _storage.GetDataPath()));
+                {
+                    byte[] restored = local && synced ? data : MixData(data, takeLocal: local);
+                    plan.Add((synced && keptFiles.Count > 0 ? WithoutCachedFolders(restored, keptFiles) : restored, _storage.GetDataPath()));
+                }
                 if (parts.HasFlag(RestoreParts.Settings) && Take(BackupFileKind.Settings) is { } settings)
                     plan.Add((manifest!.Tier == BackupTier.V1 ? OverCurrentSettings(settings) : KeepGreetingState(settings), _storage.GetSettingsPath()));
-                if (parts.HasFlag(RestoreParts.SyncSettings) && Take(BackupFileKind.SyncSettings) is { } sync)
+                if (sync != null)
                 {
-                    if (placements is { Count: > 0 })
-                    {
-                        var syncSettings = StorageService.ParseSyncSettings(sync)!;
-                        foreach (var placement in placements)
-                        {
-                            if (syncSettings.Sources.FirstOrDefault(s => s.Id == placement.SourceId) is not { } source) continue;
-                            if (placement.WriteCopy)
-                                plan.Add((SyncFileCopy(zip, manifest!, source.Id) ?? throw new InvalidDataException($"the backup holds no copy of {source.Name}"),
-                                    placement.Path));
-                            source.Path = placement.Path;
-                        }
-                        sync = StorageService.SerializeSyncSettings(syncSettings);
-                    }
-                    plan.Add((sync, _storage.GetSyncSettingsPath()));
+                    plan.AddRange(placedFiles);
+                    plan.Add((sync, _storage.GetSyncSettingsPath()));   // last, after the files it points at
                 }
                 else if (synced && data != null && placements is { Count: > 0 })
                     PlaceSyncedFolders(plan, data, Take(BackupFileKind.SyncSettings), placements);
@@ -391,6 +410,24 @@ public sealed class RestoreService
         return issues;
     }
 
+    /// <summary>The active sources in the backup's sync settings whose file exists and holds something else than the
+    /// backup's copy of it (compared as trees, so formatting alone doesn't count).</summary>
+    public static IReadOnlyList<ChangedSyncFile> FindChangedSyncFiles(string backupPath)
+    {
+        var changed = new List<ChangedSyncFile>();
+        if (BackupService.Verify(backupPath, out var manifest) != null) return changed;
+        using var zip = ZipFile.OpenRead(backupPath);
+        if (manifest!.Files.FirstOrDefault(f => f.Kind == BackupFileKind.SyncSettings && f.Included) is not { } entry) return changed;
+        foreach (var source in StorageService.ParseSyncSettings(ReadChecked(zip, entry))!.Sources.Where(s => s.IsActive))
+        {
+            if (string.IsNullOrWhiteSpace(source.Path) || !File.Exists(source.Path)) continue;
+            if (SyncFileCopy(zip, manifest, source.Id) is not { } copy || ReadSyncFile(source.Path) is not { } current) continue;
+            if (StorageService.SerializeTree(current).AsSpan().SequenceEqual(StorageService.SerializeTree(StorageService.ParseTree(copy)!))) continue;
+            changed.Add(new(source.Id, source.Name, source.Path, File.GetLastWriteTime(source.Path)));
+        }
+        return changed;
+    }
+
     /// <summary>What keeps a file from being at <paramref name="path"/>; null when it is there.</summary>
     public static SyncLocationProblem? LocationProblem(string path)
     {
@@ -435,6 +472,14 @@ public sealed class RestoreService
         foreach (var synced in syncedSource.Children.Where(c => c is Models.Folder && c.SyncId != null)) mixed.Children.Add(synced);
         foreach (var item in localSource.Children.Where(c => !(c is Models.Folder && c.SyncId != null))) mixed.Children.Add(item);
         return StorageService.SerializeTree(mixed);
+    }
+
+    private static byte[] WithoutCachedFolders(byte[] data, ISet<Guid> sourceIds)
+    {
+        var tree = StorageService.ParseTree(data)!;
+        foreach (var folder in tree.Children.Where(c => c is Models.Folder && c.SyncId != null && sourceIds.Contains(c.Id)).ToList())
+            tree.Children.Remove(folder);
+        return StorageService.SerializeTree(tree);
     }
 
     /// <summary>At startup: a restore cut off by a crash or power loss is undone, so the files are never a mix.</summary>

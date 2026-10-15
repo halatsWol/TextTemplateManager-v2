@@ -14,8 +14,8 @@ database "LocalState" as Files
 database "restore-work" as Work
 
 User -> Page : select backup, parts, Restore...
-Page -> RestoreService : FindSyncLocationIssues / FindSyncedFolderTargets
-Page -> User : per missing sync file: recreate here,\nchoose a location, leave missing\n(-> SyncFilePlacement list)
+Page -> RestoreService : FindSyncLocationIssues / FindChangedSyncFiles /\nFindSyncedFolderTargets
+Page -> User : per missing sync file: recreate here,\nchoose a location, leave missing;\nper changed existing file: overwrite or keep\n(-> SyncFilePlacement list)
 Page -> App : RestoreFromBackupAsync(path, parts, placements)
 App -> App : PersistPendingAsync()\n(saves + a recent backup of the current state)
 App -> HotkeyListener : Register("None")
@@ -25,7 +25,7 @@ App -> StorageService : SuspendWritesAsync()\n(every later save is dropped)
 App -> RestoreService : RestoreAsync(path, parts, placements)
 activate RestoreService
 RestoreService -> RestoreService : RecoverInterrupted(), Verify(backup)
-RestoreService -> RestoreService : plan: data (all, or local / synced part mixed\nwith the current file), settings (1.x: merged over\ncurrent; 2.x: keeps tour + version state),\nsync settings (paths from placements), sync file copies
+RestoreService -> RestoreService : plan: data (all, or local / synced part mixed\nwith the current file), settings (1.x: merged over\ncurrent; 2.x: keeps tour + version state),\nsync settings (paths from placements), sync file copies;\nkept existing files: their folder's cached copy left out
 RestoreService -> Work : write each new file to new/<n>, flushed
 RestoreService -> Work : copy each current target to old/<n>\nwrite journal.json, flushed
 RestoreService -> Files : move new/<n> over each target

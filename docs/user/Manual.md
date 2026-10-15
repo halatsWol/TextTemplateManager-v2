@@ -421,11 +421,15 @@ Each backup is one `.zip` file with your templates, your settings, your sync set
    - **Choose a location…**: the file is written where you choose, and the sync settings point there. This is the only way when the location can't exist on this PC, for example a drive or network share that isn't there.
    - **Leave it missing**: the synced folder shows its copy from the backup until the file is back (see **Sync** for recreating it later).
    - If the backup holds no copy of the file, you can only link another existing file instead.
+
+   For each linked sync file that is there but has changed since the backup, you're asked whether to keep it:
+   - **Keep the file** (the default): the file stays as it is, and its synced folder shows the file's contents.
+   - **Overwrite with the backup's copy**: the file gets the backup's copy, for everyone who uses it.
 5. When restoring **Synced templates and folders** without the sync settings, each synced folder of the backup is restored into its sync file (the one your current sync settings link, otherwise the one the backup's settings linked, which is then linked again):
    - If the file is there, its templates are merged like an import: folders with the same name are merged, and for templates that already exist you choose to overwrite all of them, overwrite only where the backup's is more recent, or keep the ones in the file.
    - If the file is missing, you get the same choices as above (recreate it, choose a location, or skip the folder).
 
-The current state is backed up first, so a restore can itself be undone from the newest backup. The application then puts the chosen files back and restarts. If anything goes wrong, nothing is changed, and a recreated sync file is removed again. A shared sync file that still exists is never overwritten by a restore; it keeps its contents.
+The current state is backed up first, so a restore can itself be undone from the newest backup. The application then puts the chosen files back and restarts. If anything goes wrong, nothing is changed, and a recreated or overwritten sync file is put back as it was. A shared sync file that still exists is only overwritten when you choose so; otherwise it keeps its contents and is what its synced folder shows.
 
 ---
 

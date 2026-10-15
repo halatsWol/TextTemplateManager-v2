@@ -5,8 +5,8 @@ using Xunit;
 
 namespace TextTemplateManager.Tests;
 
-/// <summary>A restore puts back all chosen files or none, never a mix, and never overwrites a linked sync file
-/// that still exists.</summary>
+/// <summary>A restore puts back all chosen files or none, never a mix, and overwrites a linked sync file that still
+/// exists only when that was chosen; a kept one stays the only source of its folder.</summary>
 public class RestoreServiceTests
 {
     private readonly string _dir = TestEnvironment.NewScratchDir();
@@ -345,6 +345,50 @@ public class RestoreServiceTests
         Assert.True(result.Succeeded, result.Problem);
         Assert.Equal(otherBefore, Read(other));
         Assert.Equal(other, (await _storage.LoadSyncSettingsAsync()).Sources.Single(s => s.Id == _lost.Id).Path);
+    }
+
+    [Fact]
+    public async Task Existing_sync_files_that_differ_from_the_backup_are_listed()
+    {
+        string backup = await BackUpStateA();
+        Assert.Empty(RestoreService.FindChangedSyncFiles(backup));   // unchanged since the backup
+
+        await ChangeToStateB();   // kept.ttmdata changed, lost.ttmdata deleted
+
+        var changed = Assert.Single(RestoreService.FindChangedSyncFiles(backup));
+        Assert.Equal((_kept.Id, "Kept", _kept.Path), (changed.SourceId, changed.Name, changed.Path));
+    }
+
+    [Fact]
+    public async Task An_existing_sync_file_is_overwritten_only_when_chosen()
+    {
+        string backup = await BackUpStateA();
+        string keptA = Read(_kept.Path);
+        await ChangeToStateB();
+
+        var result = await _restore.RestoreAsync(backup, RestoreParts.All, new[] { new SyncFilePlacement(_kept.Id, _kept.Path, WriteCopy: true) });
+
+        Assert.True(result.Succeeded, result.Problem);
+        Assert.Equal(keptA, Read(_kept.Path));
+    }
+
+    [Fact]
+    public async Task A_kept_sync_file_is_the_only_source_of_its_folder_after_the_restore()
+    {
+        var team = new SyncSource { Id = TeamId, Name = "Team", Path = Path.Combine(_shared, "team.ttmdata") };
+        await _storage.SaveSharedAsync(team.Path, Tree("Team file"));
+        await _storage.SaveAsync(_storage.GetDataPath(), DataWith("Synced A", "Local A"));
+        await _storage.SaveSyncSettingsAsync(new SyncSettings { Sources = { team } });
+        string backup = (await _backups.CreateAsync(BackupTier.Recent, BackupSource.Live(_storage), quietMs: 0)).Path!;
+        string fileBefore = Read(team.Path);
+
+        var result = await _restore.RestoreAsync(backup, RestoreParts.All);
+
+        Assert.True(result.Succeeded, result.Problem);
+        Assert.Equal(fileBefore, Read(team.Path));
+        var data = await StorageService.LoadRootAsync(_storage.GetDataPath());
+        Assert.DoesNotContain(data!.Children, c => c.Id == TeamId);   // no cached copy that could outrank the file at load
+        Assert.Contains(data.Children, c => c.Title == "Local A");
     }
 
     [Fact]
