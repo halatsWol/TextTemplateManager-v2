@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <radialGradient id="bg" cx="512" cy="530" r="620" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#d0ccdd"/>
+      <stop offset="0.22" stop-color="#d0ccdd"/>
+      <stop offset="0.82" stop-color="#9193ad"/>
+      <stop offset="1" stop-color="#9193ad"/>
+    </radialGradient>
+    <linearGradient id="ink" x1="820" y1="380" x2="280" y2="680" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#545d7e"/>
+      <stop offset="1" stop-color="#8389a8"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="120" y1="120" x2="430" y2="430" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.30"/>
+    </linearGradient>
+    <clipPath id="tile"><rect x="6" y="6" width="1012" height="1012" rx="200"/></clipPath>
+    <!-- the first T wraps around the second T's rounded crossbar end with a 12 px gap -->
+    <mask id="gapT1" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <rect width="1024" height="1024" fill="#fff"/>
+      <circle cx="353" cy="394" r="60" fill="#000"/>
+    </mask>
+  </defs>
+
+  <rect x="6" y="6" width="1012" height="1012" rx="200" fill="url(#bg)"/>
+
+  <!-- document, TTM and cursor, 10 % larger around the centre -->
+  <g transform="translate(512,520) scale(1.1) translate(-512,-520)">
+  <!-- document outline with folded corner; broken where the letters cross it -->
+  <g fill="none" stroke="#898da9" stroke-width="21" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M264,370 V214 Q264,191.5 286.5,191.5 H622 L737.5,307 V410"/>
+    <path d="M632,200 V280 Q632,302 654,302 H728"/>
+    <path d="M264,578 V826.5 Q264,849 286.5,849 H715 Q737.5,849 737.5,826.5 V578"/>
+  </g>
+
+  <!-- TTM -->
+  <g fill="url(#ink)">
+    <path mask="url(#gapT1)" d="M205,393 H346 V662 H341 A45,45 0 0 1 296,617 V442 H205 Z"/>
+    <path d="M305,394 H585.7 A45,45 0 0 1 550.4,442 H353 A48,48 0 0 1 305,394 Z"/>
+    <path d="M416,442 H465 V662 H461 A45,45 0 0 1 416,617 Z"/>
+    <path d="M541,662 V455 A57,57 0 0 0 598,398 L670,516 L751,393 H807 V662 H805 A50,50 0 0 1 755,612 V490
+             L695,585 H652 L605,490 H592 V617 A45,45 0 0 1 547,662 Z"/>
+    <path transform="translate(780,664) scale(1.3) translate(-780,-664)" d="M780,664 L821,693 L804,699 L818,720 L810,725 L796,704 L785,714 Z"/>
+  </g>
+  </g>
+
+  <!-- glass sheen, upper left of a curved edge (steep at the top, flatter towards the lower left) -->
+  <g clip-path="url(#tile)">
+    <path d="M0,0 H666 Q281.2,584.6 10,705 L0,705 Z" fill="url(#glass)"/>
+    <path d="M666,0 Q281.2,584.6 10,705" fill="none" stroke="#ffffff" stroke-opacity="0.32" stroke-width="2.5"/>
+  </g>
+  <rect x="9" y="9" width="1006" height="1006" rx="197" fill="none" stroke="#bdbccd" stroke-opacity="0.55" stroke-width="5"/>
+</svg>
