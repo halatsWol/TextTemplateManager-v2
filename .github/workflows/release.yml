@@ -81,8 +81,7 @@ jobs:
             if ($LASTEXITCODE -eq 0 -and $json) { $changelog = ($json | ConvertFrom-Json).body }
           }
           ./build/Release-Notes.ps1 -Version ${{ steps.ver.outputs.version }} -Changelog $changelog `
-            -GitHubOut release-notes.md -StoreOut dist/store-notes.txt `
-            -ReleaseUrl "$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY/releases/tag/v${{ steps.ver.outputs.version }}"
+            -GitHubOut release-notes.md -StoreOut dist/store-notes.txt
           Write-Host '----- GitHub release notes -----'; Get-Content release-notes.md
           Write-Host '----- Store "What''s new" -----'; Get-Content dist/store-notes.txt
 

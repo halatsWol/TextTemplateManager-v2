@@ -36,4 +36,4 @@ The project is unpackaged by default (`WindowsPackageType=None`); `StoreBuild=tr
 
 ([source](diagrams/act-release.puml))
 
-The git tag is the only version source. How to publish, the secrets and their renewal are in [`../PUBLISHING.md`](../PUBLISHING.md); `release.md` is the release-notes template (its "What's new" section is also the in-app What's new and the Store's "What's new").
+The git tag is the only version source. How to publish, the secrets and their renewal are in [`../PUBLISHING.md`](../PUBLISHING.md); `release.md` is the release-notes template (its "What's new" section is also the in-app What's new); `store.md` holds the Store texts, its "What's new" block is sent with the submission.

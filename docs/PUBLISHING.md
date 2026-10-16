@@ -6,7 +6,7 @@ How a release is published, and how to renew the Partner Center credentials the 
 
 ## How a release is published
 
-1. Update `release.md`: the "What's new in this release" section lists the changes since the last tag. It becomes the GitHub release text and the Store's "What's new", and the app shows it once after the update.
+1. Update `release.md`: the "What's new in this release" section lists the changes since the last tag. It becomes the GitHub release text, and the app shows it once after the update. Update the short "What's new" text in [`store.md`](../store.md) too (at most 1500 characters); it is the Store's "What's new".
 2. Commit, then create an **annotated** tag and push it:
    ```bash
    git tag -a v2.0.1 -m 'v2.0.1'
@@ -19,7 +19,7 @@ Rules:
 
 - The tag is the only version source: `vX.Y.Z` becomes the app version and the package version `X.Y.Z.0`. Plain numbers only; the Store has no beta versions (use a package flight in Partner Center for that).
 - Every release needs a **higher** version than the one live in the Store.
-- The Store's "What's new" is cut to 1500 characters, with a link to the GitHub release when it's longer.
+- The Store's "What's new" comes from `store.md` as it is; a text over 1500 characters fails the build instead of being cut.
 
 ### Skipping the Store submission
 
@@ -40,7 +40,7 @@ git tag -a v2.0.0 -m 'v2.0.0' -m 'publish: none'
 The Store API can only update an app that already has a published submission, so the first one goes in by hand:
 
 1. Tag `v2.0.0` with `publish: none` (see above).
-2. Download the `TextTemplateManager-2.0.0` artifact from the run and upload its `.msixupload` in a new submission in Partner Center, together with the listing, screenshots, age rating and pricing.
+2. Download the `TextTemplateManager-2.0.0` artifact from the run and upload its `.msixupload` in a new submission in Partner Center, together with the listing, screenshots, age rating and pricing. The texts to paste are in [`store.md`](../store.md).
 3. From then on, tags submit automatically.
 
 ---

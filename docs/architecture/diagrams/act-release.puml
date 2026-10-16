@@ -12,7 +12,7 @@ endif
 :setup .NET 8 + 10;
 :tests/run-tests.ps1;
 :build/Build-Release.ps1\n-> x64 .msixupload (StoreBuild), Manual.pdf, AdminManual.pdf;
-:build/Release-Notes.ps1\n-> GitHub notes (release.md + generated changelog),\n   Store "What's new" (<= 1500 chars);
+:build/Release-Notes.ps1\n-> GitHub notes (release.md + generated changelog),\n   Store "What's new" (store.md, <= 1500 chars or fail);
 :upload artifacts;
 if (tag?) then (yes)
   :gh release create (published, PDFs only, no .exe);
