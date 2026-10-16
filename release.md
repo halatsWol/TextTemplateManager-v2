@@ -17,7 +17,7 @@ TextTemplateManager 2 comes from the Microsoft Store, which installs and updates
 #### New
 
 - **Moving from version 1.** At the first start, version 1's templates, settings and sync settings are backed up once and offered for import, and its start-with-Windows choice carries over. A version 1 that is still installed can be removed from here.
-- **Automatic backups.** After your changes, every two hours and daily, in `Documents\TextTemplateManager\Backups`. **Settings ▸ Backups** restores all or part of a backup and exports one to move to another PC.
+- **Automatic backups.** After your changes, every two hours and daily, in `Documents\TextTemplateManager\Backups`. **Settings ▸ Backups** restores all or part of a backup and exports one to move to another PC. A shared sync file that changed since the backup is only overwritten if you choose so.
 - **Save when you're ready.** Changes to a template or folder wait for **Save** (or **Ctrl+S**), and you're asked before leaving unsaved changes. **Autosave** in **Settings ▸ General** saves as you type instead.
 - **Import and export.** **File ▸ Import…** merges a `.ttmdata` file into your tree; **File ▸ Export…** saves the selection or everything.
 - **Several items at once.** **Ctrl**+click and **Shift**+click select several items to move, export or delete together.
@@ -32,6 +32,7 @@ TextTemplateManager 2 comes from the Microsoft Store, which installs and updates
 - Updates come from the Microsoft Store; the app's own updater is gone. Start with Windows is now Windows' own startup setting (**Settings ▸ Apps ▸ Startup**), on and starting hidden by default.
 - After an unexpected error, your changes are saved and you can choose to quit or keep running.
 - Pastes are kept out of the Windows clipboard history.
+- A new, sharper app icon.
 
 {{CHANGELOG}}
 
