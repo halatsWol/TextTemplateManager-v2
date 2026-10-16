@@ -617,11 +617,12 @@ namespace TextTemplateManager
             }
         }
 
-        // Everything the v1 backup holds, asking only about its sync files; the app restarts. When it fails nothing
-        // is saved, so the welcome is offered again on the next start.
+        // Everything the v1 backup holds except the synced folders' contents (shared sync files are never written from
+        // here), asking only about missing sync files; the app restarts. When it fails nothing is saved, so the welcome
+        // is offered again on the next start.
         private async Task ImportV1Async(BackupInfo v1)
         {
-            var parts = (await Task.Run(() => BackupService.ReadContents(v1.Path)))?.Available ?? RestoreParts.All;
+            var parts = ((await Task.Run(() => BackupService.ReadContents(v1.Path)))?.Available ?? RestoreParts.All) & ~RestoreParts.SyncedFolders;
             _dialogOpen = true;
             RestoreFlow.Outcome outcome;
             try { outcome = await new RestoreFlow(XamlRoot).RunAsync(v1.Path, parts, "TextTemplateManager 1", confirm: false); }

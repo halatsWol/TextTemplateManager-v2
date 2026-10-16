@@ -22,13 +22,15 @@ public sealed class RestoreFlow
 
     /// <summary>Restores <paramref name="parts"/> of the backup; returns only when it wasn't restored. Without
     /// <paramref name="confirm"/> the user already chose it, and only the sync files are asked about.
-    /// <paramref name="restoring"/> runs once the questions are answered.</summary>
+    /// <paramref name="restoring"/> runs once the questions are answered. A shared sync file is only ever written with
+    /// <see cref="RestoreParts.SyncedFolders"/> chosen.</summary>
     public async Task<Outcome> RunAsync(string backupPath, RestoreParts parts, string description, bool confirm, Action? restoring = null)
     {
+        bool writeFiles = parts.HasFlag(RestoreParts.SyncedFolders);
         var issues = parts.HasFlag(RestoreParts.SyncSettings)
             ? await Task.Run(() => RestoreService.FindSyncLocationIssues(backupPath))
             : Array.Empty<SyncLocationIssue>();
-        var changed = parts.HasFlag(RestoreParts.SyncSettings)
+        var changed = parts.HasFlag(RestoreParts.SyncSettings) && writeFiles
             ? await Task.Run(() => RestoreService.FindChangedSyncFiles(backupPath))
             : Array.Empty<ChangedSyncFile>();
         var targets = parts.HasFlag(RestoreParts.SyncedFolders) && !parts.HasFlag(RestoreParts.SyncSettings)
@@ -40,7 +42,7 @@ public sealed class RestoreFlow
 
         var placements = new List<SyncFilePlacement>();
         foreach (var issue in issues)
-            if (await AskAboutMissingFileAsync(issue.SourceId, issue.Name, issue.Path, issue.Problem, issue.HasCopy, "Leave it missing") is { } placement)
+            if (await AskAboutMissingFileAsync(issue.SourceId, issue.Name, issue.Path, issue.Problem, issue.HasCopy && writeFiles, "Leave it missing", copyNotChosen: issue.HasCopy && !writeFiles) is { } placement)
                 placements.Add(placement);
         foreach (var file in changed)
             if (await AskOverwriteSyncFileAsync(file, description))
@@ -70,6 +72,8 @@ public sealed class RestoreFlow
         string message = $"Your current {what} are replaced with the ones from {description}.";
         if (targets > 0)
             message += "\n\nWithout the sync settings, the synced templates and folders are restored into their sync files. You're asked next for each synced folder.";
+        else if (parts.HasFlag(RestoreParts.SyncSettings) && !parts.HasFlag(RestoreParts.SyncedFolders))
+            message += "\n\nThe shared sync files aren't changed: an existing one is linked as it is, a missing one can be linked to another file or left missing. To restore their contents, also tick \"Synced templates and folders\".";
         else if ((parts & RestoreParts.Sync) != 0)
             message += "\n\nA shared sync file that still exists stays as it is, unless you choose to overwrite it; the folder of a missing one shows its copy from the backup.";
         if (changed > 0)
@@ -116,7 +120,7 @@ public sealed class RestoreFlow
     // somewhere else, or not (null, the close button). Without a copy in the backup an existing file can only be
     // linked instead.
     private async Task<SyncFilePlacement?> AskAboutMissingFileAsync(Guid sourceId, string name, string? path,
-        SyncLocationProblem problem, bool hasCopy, string closeText)
+        SyncLocationProblem problem, bool hasCopy, string closeText, bool copyNotChosen = false)
     {
         string what = path == null ? "No sync file is known for it, neither in the current sync settings nor in the backup's." : problem switch
         {
@@ -125,8 +129,8 @@ public sealed class RestoreFlow
             SyncLocationProblem.Unreadable => "A file is there, but it isn't a valid sync file, so it isn't overwritten.",
             _ => "This location can't exist on this PC, for example because the drive or network share isn't there.",
         };
-        string copy = hasCopy
-            ? "The backup holds a copy of its templates and folders."
+        string copy = hasCopy ? "The backup holds a copy of its templates and folders."
+            : copyNotChosen ? "Synced templates and folders aren't restored, so only an existing file can be linked instead."
             : "The backup holds no copy of it, so only an existing file can be linked instead.";
         string recreate = !hasCopy || path == null ? "" : problem switch
         {

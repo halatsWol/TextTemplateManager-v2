@@ -19,7 +19,7 @@ Coming from TextTemplateManager 1: its templates and settings stay where they ar
 
 When the application starts without any templates yet and finds something to start from, it asks how you'd like to start:
 
-- **Import from TextTemplateManager 1**, if version 1 was used on this PC: its templates, settings and sync settings, taken from the backup made of them (see *Automatic backups*). They are imported right away; you're only asked about shared sync files that are missing or have changed since. Then the app restarts. To take over only some parts, choose **Start fresh**, then pick the "From TextTemplateManager v1" backup in **Settings ▸ Backups**, untick what you don't want and click **Restore…**.
+- **Import from TextTemplateManager 1**, if version 1 was used on this PC: its templates, settings and sync settings, taken from the backup made of them (see *Automatic backups*). They are imported right away; you're only asked about linked sync files that are missing (link another file or leave it missing). Shared sync files are never written by the import: an existing one is linked as it is. Then the app restarts. To take over only some parts, choose **Start fresh**, then pick the "From TextTemplateManager v1" backup in **Settings ▸ Backups**, untick what you don't want and click **Restore…**.
 - **Restore a backup**, if backups from an earlier installation are in your Documents folder: **Settings ▸ Backups** opens with the newest one selected.
 - **Start fresh**: an empty tree. You won't be asked again; importing or restoring is still possible in **Settings ▸ Backups**.
 
@@ -411,18 +411,18 @@ Each backup is one `.zip` file with your templates, your settings, your sync set
 ### Restoring a backup
 
 1. In **Settings ▸ Backups**, select a backup. The newest one is selected when you open the page.
-2. Choose what to restore. Everything the selected backup holds is ticked; a part it doesn't hold (for example sync settings, if you had no synced folders then) is greyed out.
+2. Choose what to restore. Everything the selected backup holds is ticked, except **Synced templates and folders**: they write into shared sync files, so tick them yourself when you want that. A part the backup doesn't hold (for example sync settings, if you had no synced folders then) is greyed out.
    - **Templates and folders**: your local templates and folders.
    - **Settings**.
    - **Sync**, made of two parts you can also choose one by one: **Sync settings** (the linked files and their options) and **Synced templates and folders** (the synced folders as last seen in their files, which is what they show while a file is missing). With only one part chosen, Sync shows a dash.
 3. Click **Restore…** and confirm. To restore an exported backup instead, click **Restore from file…** and pick the `.zip` file: it is checked the same way, added to the top of the list and offered for restoring with everything it holds; cancel the confirmation to change what is ticked, then click **Restore…**. To take over version 1's data, click **Import from TextTemplateManager 1…** (shown when TextTemplateManager 1 was used on this PC): its backup is made first if there isn't one yet, then selected and confirmed the same way. Of the settings, only those version 1 had are replaced.
-4. When restoring sync settings, you're asked about each linked sync file of the backup that isn't on this PC:
+4. When restoring sync settings, you're asked about each linked sync file of the backup that isn't on this PC. Recreating it from the backup's copy is only offered with **Synced templates and folders** ticked; otherwise you can link another existing file or leave it missing:
    - **Recreate it there** (the folder still exists) or **Create the folder and the file** (the folder is gone too): the file is written where it was, from the backup's copy.
    - **Choose a location…**: the file is written where you choose, and the sync settings point there. This is the only way when the location can't exist on this PC, for example a drive or network share that isn't there.
    - **Leave it missing**: the synced folder shows its copy from the backup until the file is back (see **Sync** for recreating it later).
    - If the backup holds no copy of the file, you can only link another existing file instead.
 
-   For each linked sync file that is there but has changed since the backup, you're asked whether to keep it:
+   With **Synced templates and folders** ticked, you're also asked for each linked sync file that is there but has changed since the backup whether to keep it:
    - **Keep the file** (the default): the file stays as it is, and its synced folder shows the file's contents.
    - **Overwrite with the backup's copy**: the file gets the backup's copy, for everyone who uses it.
 5. When restoring **Synced templates and folders** without the sync settings, each synced folder of the backup is restored into its sync file (the one your current sync settings link, otherwise the one the backup's settings linked, which is then linked again):

@@ -17,7 +17,7 @@ database "restore-work" as Work
 User -> Page : select backup, parts, Restore...\n(first start: Import from TextTemplateManager 1)
 Page -> Flow : RunAsync(path, parts, confirm)
 Flow -> RestoreService : FindSyncLocationIssues / FindChangedSyncFiles /\nFindSyncedFolderTargets
-Flow -> User : confirm (the page only);\nper missing sync file: recreate here,\nchoose a location, leave missing;\nper changed existing file: overwrite or keep\n(-> SyncFilePlacement list)
+Flow -> User : confirm (the page only);\nper missing sync file: recreate here, choose a location\n(synced folders chosen) or link another file, leave missing;\nper changed existing file (synced folders chosen):\noverwrite or keep (-> SyncFilePlacement list)
 Flow -> App : RestoreFromBackupAsync(path, parts, placements)
 App -> App : PersistPendingAsync()\n(saves + a recent backup of the current state)
 App -> HotkeyListener : Register("None")

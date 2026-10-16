@@ -141,14 +141,15 @@ public sealed partial class BackupsSettingsPage : Page
         await RestoreAsync(row.Info.Path, row.Description);
     }
 
-    // Only what the selected backup holds can be ticked; all of that is ticked when another backup is chosen.
+    // Only what the selected backup holds can be ticked; all of that is ticked when another backup is chosen, except
+    // the synced templates and folders: they overwrite shared sync files, so they are only restored when ticked by hand.
     private void ShowAvailableParts()
     {
         var available = (BackupList.SelectedItem as BackupRow)?.Contents?.Available ?? RestoreParts.All;
         void Offer(CheckBox box, RestoreParts part)
         {
             box.IsEnabled = available.HasFlag(part);
-            box.IsChecked = available.HasFlag(part);
+            box.IsChecked = available.HasFlag(part) && part != RestoreParts.SyncedFolders;
         }
         Offer(LocalBox, RestoreParts.Local);
         Offer(SettingsBox, RestoreParts.Settings);
