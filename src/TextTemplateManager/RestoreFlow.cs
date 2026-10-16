@@ -22,8 +22,8 @@ public sealed class RestoreFlow
 
     /// <summary>Restores <paramref name="parts"/> of the backup; returns only when it wasn't restored. Without
     /// <paramref name="confirm"/> the user already chose it, and only the sync files are asked about.
-    /// <paramref name="restoring"/> runs once the questions are answered. A shared sync file is only ever written with
-    /// <see cref="RestoreParts.SyncedFolders"/> chosen.</summary>
+    /// <paramref name="restoring"/> runs once the questions are answered. Without <see cref="RestoreParts.SyncedFolders"/>
+    /// a shared sync file is only written when the user recreates a missing one.</summary>
     public async Task<Outcome> RunAsync(string backupPath, RestoreParts parts, string description, bool confirm, Action? restoring = null)
     {
         bool writeFiles = parts.HasFlag(RestoreParts.SyncedFolders);
@@ -42,7 +42,7 @@ public sealed class RestoreFlow
 
         var placements = new List<SyncFilePlacement>();
         foreach (var issue in issues)
-            if (await AskAboutMissingFileAsync(issue.SourceId, issue.Name, issue.Path, issue.Problem, issue.HasCopy && writeFiles, "Leave it missing", copyNotChosen: issue.HasCopy && !writeFiles) is { } placement)
+            if (await AskAboutMissingFileAsync(issue.SourceId, issue.Name, issue.Path, issue.Problem, issue.HasCopy, "Leave it missing", linkElsewhere: !writeFiles) is { } placement)
                 placements.Add(placement);
         foreach (var file in changed)
             if (await AskOverwriteSyncFileAsync(file, description))
@@ -73,7 +73,7 @@ public sealed class RestoreFlow
         if (targets > 0)
             message += "\n\nWithout the sync settings, the synced templates and folders are restored into their sync files. You're asked next for each synced folder.";
         else if (parts.HasFlag(RestoreParts.SyncSettings) && !parts.HasFlag(RestoreParts.SyncedFolders))
-            message += "\n\nThe shared sync files aren't changed: an existing one is linked as it is, a missing one can be linked to another file or left missing. To restore their contents, also tick \"Synced templates and folders\".";
+            message += "\n\nAn existing shared sync file is linked as it is; you're asked about a missing one. To restore the synced templates and folders into the files, also tick \"Synced templates and folders\".";
         else if ((parts & RestoreParts.Sync) != 0)
             message += "\n\nA shared sync file that still exists stays as it is, unless you choose to overwrite it; the folder of a missing one shows its copy from the backup.";
         if (changed > 0)
@@ -117,10 +117,10 @@ public sealed class RestoreFlow
     }
 
     // A sync file that isn't usable where it should be: recreated there (with its folder if that is gone too), placed
-    // somewhere else, or not (null, the close button). Without a copy in the backup an existing file can only be
-    // linked instead.
+    // somewhere else, or not (null, the close button). Without a copy in the backup, or with <paramref name="linkElsewhere"/>
+    // (synced folders not restored), only an existing file can be linked somewhere else.
     private async Task<SyncFilePlacement?> AskAboutMissingFileAsync(Guid sourceId, string name, string? path,
-        SyncLocationProblem problem, bool hasCopy, string closeText, bool copyNotChosen = false)
+        SyncLocationProblem problem, bool hasCopy, string closeText, bool linkElsewhere = false)
     {
         string what = path == null ? "No sync file is known for it, neither in the current sync settings nor in the backup's." : problem switch
         {
@@ -130,8 +130,8 @@ public sealed class RestoreFlow
             _ => "This location can't exist on this PC, for example because the drive or network share isn't there.",
         };
         string copy = hasCopy ? "The backup holds a copy of its templates and folders."
-            : copyNotChosen ? "Synced templates and folders aren't restored, so only an existing file can be linked instead."
             : "The backup holds no copy of it, so only an existing file can be linked instead.";
+        bool placeCopy = hasCopy && !linkElsewhere;
         string recreate = !hasCopy || path == null ? "" : problem switch
         {
             SyncLocationProblem.FileMissing => "Recreate it there",
@@ -146,7 +146,7 @@ public sealed class RestoreFlow
                 Title = problem == SyncLocationProblem.Unreadable ? $"Sync file \"{name}\" can't be read" : $"Sync file \"{name}\" is missing",
                 Content = path == null ? $"{what}\n\n{copy}" : $"{path}\n\n{what}\n\n{copy}",
                 PrimaryButtonText = recreate,
-                SecondaryButtonText = hasCopy ? "Choose a location…" : "Link another file…",
+                SecondaryButtonText = placeCopy ? "Choose a location…" : "Link another file…",
                 CloseButtonText = closeText,
                 DefaultButton = ContentDialogButton.Close,
             };
@@ -156,10 +156,10 @@ public sealed class RestoreFlow
                     return new SyncFilePlacement(sourceId, path!, WriteCopy: true);
                 case ContentDialogResult.Secondary:
                     var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
-                    string? chosen = hasCopy
+                    string? chosen = placeCopy
                         ? await Helpers.DataFilePicker.PickToSaveAsync(hwnd, path == null ? name : System.IO.Path.GetFileNameWithoutExtension(path))
                         : await Helpers.DataFilePicker.PickToOpenAsync(hwnd);
-                    if (chosen != null) return new SyncFilePlacement(sourceId, chosen, WriteCopy: hasCopy);
+                    if (chosen != null) return new SyncFilePlacement(sourceId, chosen, WriteCopy: placeCopy);
                     break;   // the picker was cancelled: ask again
                 default:
                     return null;

@@ -617,8 +617,8 @@ namespace TextTemplateManager
             }
         }
 
-        // Everything the v1 backup holds except the synced folders' contents (shared sync files are never written from
-        // here), asking only about missing sync files; the app restarts. When it fails nothing is saved, so the welcome
+        // Everything the v1 backup holds except the synced folders' contents (an existing shared sync file stays as it
+        // is), asking only about missing sync files; the app restarts. When it fails nothing is saved, so the welcome
         // is offered again on the next start.
         private async Task ImportV1Async(BackupInfo v1)
         {

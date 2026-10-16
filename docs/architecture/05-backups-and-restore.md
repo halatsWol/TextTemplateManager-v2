@@ -31,7 +31,7 @@ The scheduler notices changes through `StorageService.WriteCount` (writes that c
 
 ## Restore
 
-Settings > Backups shows the backups and lets the user choose the parts (`RestoreParts`): local templates and folders, settings, sync settings, synced templates and folders. Only parts the backup holds are offered (`BackupService.ReadContents`). `RestoreFlow` asks the questions below and runs the restore; the page uses it after a confirmation, the first start's import from 1.x without one, with every part the v1 backup holds except the synced folders. Shared sync files are only written with the synced folders chosen, which the page never ticks on its own: without them `RestoreFlow` offers no copy for a missing file (only linking another one) and doesn't ask about changed ones, which stay as they are.
+Settings > Backups shows the backups and lets the user choose the parts (`RestoreParts`): local templates and folders, settings, sync settings, synced templates and folders. Only parts the backup holds are offered (`BackupService.ReadContents`). `RestoreFlow` asks the questions below and runs the restore; the page uses it after a confirmation, the first start's import from 1.x without one, with every part the v1 backup holds except the synced folders. The page never ticks the synced folders on its own. Without them `RestoreFlow` doesn't ask about changed sync files, which stay as they are, and for a missing one offers recreating it where it was, linking another existing file, or leaving it missing (no other location for the copy).
 
 ![Restore](diagrams/seq-restore.svg)
 
