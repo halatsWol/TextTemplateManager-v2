@@ -80,6 +80,9 @@ class GeneralSettingsPage
 class IntegrationsSettingsPage
 class SyncSettingsPage
 class BackupsSettingsPage
+class RestoreFlow {
+  +RunAsync(backup, parts, description, confirm) : Outcome
+}
 class SearchOptionsButton <<UserControl>>
 class TutorialOverlay <<UserControl>> {
   +RunAsync(steps, startAt, numberFrom, total, ...) : TourOutcome
@@ -121,6 +124,8 @@ SettingsView o-- GeneralSettingsPage
 SettingsView o-- IntegrationsSettingsPage
 SettingsView o-- SyncSettingsPage
 SettingsView o-- BackupsSettingsPage
+BackupsSettingsPage ..> RestoreFlow
+MainPage ..> RestoreFlow : 1.x import
 PasteWindow *-- QuickPasteController
 PasteWindow *-- SearchOptionsButton
 PasteWindow *-- TutorialOverlay

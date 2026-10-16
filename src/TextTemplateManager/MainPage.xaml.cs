@@ -568,7 +568,8 @@ namespace TextTemplateManager
         }
 
         /// <summary>The first start with no data yet, when there is something to start from: the 1.x data (its v1
-        /// backup) and/or the newest backup. Importing or restoring goes through Settings › Backups; starting fresh
+        /// backup) and/or the newest backup. Importing restores the v1 backup right away; restoring goes through
+        /// Settings › Backups to pick the backup; starting fresh
         /// (also on Esc) saves the empty tree, so this isn't asked again; then the tour is offered when
         /// <paramref name="offerTour"/>.</summary>
         public async void OfferFirstStart(BackupInfo? v1, BackupInfo? newest, bool offerTour)
@@ -576,7 +577,7 @@ namespace TextTemplateManager
             await WaitUntilDialogCanOpenAsync();
             var import = new RadioButton
             {
-                Content = "Import from TextTemplateManager 1: your templates, settings and sync settings as you left them there",
+                Content = "Import from TextTemplateManager 1: your templates, settings and sync settings as you left them there. The app restarts afterwards.",
                 GroupName = "FirstStart",
             };
             var restore = new RadioButton
@@ -606,14 +607,27 @@ namespace TextTemplateManager
             if (chosen && restore.IsChecked == true && newest != null)
                 _store.CurrentSettings.TutorialOfferDone = true;
             if (chosen && import.IsChecked == true && v1 != null)
-                Settings.Open(SettingsPage.Backups, new BackupsSettingsPage.Request(v1.Path, Confirm: true));
+                await ImportV1Async(v1);
             else if (chosen && restore.IsChecked == true && newest != null)
-                Settings.Open(SettingsPage.Backups, new BackupsSettingsPage.Request(newest.Path, Confirm: false));
+                Settings.Open(SettingsPage.Backups, new BackupsSettingsPage.Request(newest.Path));
             else
             {
                 await _store.SaveDataAsync();
                 if (offerTour) OfferTour();
             }
+        }
+
+        // Everything the v1 backup holds, asking only about its sync files; the app restarts. When it fails nothing
+        // is saved, so the welcome is offered again on the next start.
+        private async Task ImportV1Async(BackupInfo v1)
+        {
+            var parts = (await Task.Run(() => BackupService.ReadContents(v1.Path)))?.Available ?? RestoreParts.All;
+            _dialogOpen = true;
+            RestoreFlow.Outcome outcome;
+            try { outcome = await new RestoreFlow(XamlRoot).RunAsync(v1.Path, parts, "TextTemplateManager 1", confirm: false); }
+            finally { _dialogOpen = false; }
+            await ShowMessageAsync("Import from TextTemplateManager 1 failed",
+                $"{outcome.Problem}\n\nYou can try again in Settings ▸ Backups ▸ Import from TextTemplateManager 1.");
         }
 
         /// <summary>Take the tour, Later (also Esc: asked again on the next start) or Don't show again.</summary>

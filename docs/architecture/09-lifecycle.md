@@ -16,7 +16,7 @@
 
 The startup dialogs are queued (see [6](06-main-window.md)) in this order: unreadable files, the first-start choice, removing TextTemplateManager 1, a hotkey or port that can't be used, a `.ttmdata` file to link, and finally the tour offer or What's new.
 
-- **First start** (no `data.ttmdata` yet) with something to start from (`FirstStartOffer`: a v1 backup and/or another valid backup): Import from TextTemplateManager 1, Restore a backup, or Start fresh. Import and restore open Settings > Backups on the backup; they end in a restart.
+- **First start** (no `data.ttmdata` yet) with something to start from (`FirstStartOffer`: a v1 backup and/or another valid backup): Import from TextTemplateManager 1, Restore a backup, or Start fresh. Import restores the v1 backup right away, asking only about its sync files; restore opens Settings > Backups on the newest backup. Both end in a restart.
 - **Removing TextTemplateManager 1** is offered once (packaged runs, 1.x uninstaller found): it runs the 1.x uninstaller silently; the 1.x data folder stays.
 - **Start with Windows**: the first time 1.x data is found, 1.x's autostart and start-hidden choices carry over (`LegacyAutostart.CarryOverAsync`).
 

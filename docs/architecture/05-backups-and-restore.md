@@ -31,7 +31,7 @@ The scheduler notices changes through `StorageService.WriteCount` (writes that c
 
 ## Restore
 
-Settings > Backups shows the backups and lets the user choose the parts (`RestoreParts`): local templates and folders, settings, sync settings, synced templates and folders. Only parts the backup holds are offered (`BackupService.ReadContents`).
+Settings > Backups shows the backups and lets the user choose the parts (`RestoreParts`): local templates and folders, settings, sync settings, synced templates and folders. Only parts the backup holds are offered (`BackupService.ReadContents`). `RestoreFlow` asks the questions below and runs the restore; the page uses it after a confirmation, the first start's import from 1.x without one, with every part the v1 backup holds.
 
 ![Restore](diagrams/seq-restore.svg)
 
@@ -46,4 +46,4 @@ What `RestoreService.RestoreAsync` puts back:
 
 The swap is all or nothing: new files are staged in `restore-work\new`, the current ones copied to `restore-work\old`, a journal is written and flushed, then each file is moved into place. A failure rolls back from the journal; a crash during the swap is rolled back by `RecoverInterrupted()` at the next start. A shared sync file that still exists is only overwritten when the user chose so.
 
-Because the running app holds the old state, `App.RestoreFromBackupAsync` first saves everything (and makes a recent backup, so the restore can be undone), stops the hotkey, the connector and the scheduler, suspends writes, and after a successful restore restarts the app (`AppInstance.Restart`). The first-start "Restore a backup" and "Import from TextTemplateManager 1" use the same path.
+Because the running app holds the old state, `App.RestoreFromBackupAsync` first saves everything (and makes a recent backup, so the restore can be undone), stops the hotkey, the connector and the scheduler, suspends writes, and after a successful restore restarts the app (`AppInstance.Restart`). The first-start "Import from TextTemplateManager 1" (straight through `RestoreFlow`) and "Restore a backup" (Settings > Backups on the newest backup) use the same path.

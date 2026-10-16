@@ -19,7 +19,7 @@ Coming from TextTemplateManager 1: its templates and settings stay where they ar
 
 When the application starts without any templates yet and finds something to start from, it asks how you'd like to start:
 
-- **Import from TextTemplateManager 1**, if version 1 was used on this PC: its templates, settings and sync settings, taken from the backup made of them (see *Automatic backups*). **Settings ▸ Backups** opens on that backup, ready to restore; cancel the confirmation to choose which parts to take over.
+- **Import from TextTemplateManager 1**, if version 1 was used on this PC: its templates, settings and sync settings, taken from the backup made of them (see *Automatic backups*). They are imported right away; you're only asked about shared sync files that are missing or have changed since. Then the app restarts. To take over only some parts, choose **Start fresh**, then pick the "From TextTemplateManager v1" backup in **Settings ▸ Backups**, untick what you don't want and click **Restore…**.
 - **Restore a backup**, if backups from an earlier installation are in your Documents folder: **Settings ▸ Backups** opens with the newest one selected.
 - **Start fresh**: an empty tree. You won't be asked again; importing or restoring is still possible in **Settings ▸ Backups**.
 
