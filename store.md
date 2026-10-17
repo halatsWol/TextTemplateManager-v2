@@ -85,7 +85,7 @@ Leave this field **empty for the first submission (2.0.0)**: Microsoft asks for 
 ```text
 TextTemplateManager 2 now comes from the Microsoft Store, which installs and updates it.
 
-- Moving from version 1: at the first start, your templates, settings and sync settings are backed up and offered for import; version 1 can be removed from here.
+- Moving from version 1: at the first start, your templates, settings and sync settings are backed up and imported in one step if you choose so; version 1 can be removed from here.
 - Automatic backups after your changes, every two hours and daily. Settings > Backups restores all or part of a backup or exports one.
 - Save when you're ready: changes wait for Save (Ctrl+S), and you're asked before leaving unsaved changes. Autosave saves as you type instead.
 - Import and export of .ttmdata files, and several items at once with Ctrl+click and Shift+click.

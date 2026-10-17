@@ -6,7 +6,7 @@ A hotkey-driven text-template paste tool for Windows: organize reusable snippets
 
 Get **TextTemplateManager** from the [Microsoft Store](https://apps.microsoft.com/detail/9NMBSZLLLN6V). The Store installs and updates it; no administrator rights are needed. In a company it can also be deployed with winget or Intune (see the Administrator & Deployment Guide below).
 
-Coming from TextTemplateManager 1: your templates and settings are backed up at the first start and offered for import; version 1's data folder is left as it was.
+Coming from TextTemplateManager 1: your templates and settings are backed up at the first start and imported in one step if you choose so; version 1's data folder is left as it was.
 
 > **Note — Remote Desktop (RDP):** If TextTemplateManager runs on both your local computer and a remote computer you connect to over RDP, the global Quick Paste hotkey always opens Quick Paste on the **local** computer — Windows delivers a registered global hotkey locally, so it never reaches the remote session. Give each machine a **different** Quick Paste hotkey, or run only one instance, to avoid the clash.
 
@@ -16,8 +16,8 @@ TextTemplateManager 2 comes from the Microsoft Store, which installs and updates
 
 #### New
 
-- **Moving from version 1.** At the first start, version 1's templates, settings and sync settings are backed up once and offered for import, and its start-with-Windows choice carries over. A version 1 that is still installed can be removed from here.
-- **Automatic backups.** After your changes, every two hours and daily, in `Documents\TextTemplateManager\Backups`. **Settings ▸ Backups** restores all or part of a backup and exports one to move to another PC. A shared sync file that changed since the backup is only overwritten if you choose so.
+- **Moving from version 1.** At the first start, version 1's templates, settings and sync settings are backed up once and, if you choose to import them, taken over in one step (the app restarts); its start-with-Windows choice carries over. A version 1 that is still installed can be removed from here.
+- **Automatic backups.** After your changes, every two hours and daily, in `Documents\TextTemplateManager\Backups`. **Settings ▸ Backups** restores all or part of a backup and exports one to move to another PC. Shared sync files are left as they are: synced templates and folders are only restored when you tick them, and a sync file that changed since the backup is only overwritten if you choose so.
 - **Save when you're ready.** Changes to a template or folder wait for **Save** (or **Ctrl+S**), and you're asked before leaving unsaved changes. **Autosave** in **Settings ▸ General** saves as you type instead.
 - **Import and export.** **File ▸ Import…** merges a `.ttmdata` file into your tree; **File ▸ Export…** saves the selection or everything.
 - **Several items at once.** **Ctrl**+click and **Shift**+click select several items to move, export or delete together.
