@@ -40,7 +40,7 @@ git tag -a v2.0.0 -m 'v2.0.0' -m 'publish: none'
 The Store API can only update an app that already has a published submission, so the first one goes in by hand:
 
 1. Tag `v2.0.0` with `publish: none` (see above).
-2. Download the `TextTemplateManager-2.0.0` artifact from the run and upload its `.msixupload` in a new submission in Partner Center, together with the listing, screenshots, age rating and pricing. The texts to paste are in [`store.md`](../store.md).
+2. Download the `TextTemplateManager-2.0.0` artifact from the run and upload its `.msixupload` in a new submission in Partner Center, together with the listing, screenshots, age rating and pricing. The texts to paste are in [`store.md`](../store.md); the screenshots (2560x1440, one colour scheme: `amber` or `slate`) and the 300x300 app tile are in [`design/store`](../design/store).
 3. From then on, tags submit automatically.
 
 ---
