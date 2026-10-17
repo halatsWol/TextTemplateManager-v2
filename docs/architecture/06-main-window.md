@@ -39,7 +39,7 @@ Details that keep this correct:
 - **Editor baseline.** TipTap normalizes HTML when it loads a template, so the loaded text can differ from the stored text without any edit. The editor reports what it shows (`ContentLoaded`), and the draft takes that as its unedited content.
 - **Leaving an item** is decided at low dispatcher priority (`CheckSwitch`), after the selection has settled: a tree refresh can pass through no selection and back, which isn't leaving.
 - **Sync refresh.** When a sync re-apply replaces the edited item, the draft moves its edits onto the replacement (`RebaseOnto`); when the item was deleted, the edits go with it.
-- **Before anything that ends editing** (Save, selecting another item, closing the window, exit) the page first pulls the editor's latest content (`TemplateEditor.FlushAsync`), because the editor reports changes with a 250 ms delay.
+- **Before anything that ends editing** (Save, selecting another item, closing the window, exit) the page first pulls the editor's latest content (`TemplateEditor.FlushAsync`), because the editor reports changes with a 250 ms delay. A read that fails is ignored, never taken as empty: a script that can't run returns JSON null instead of throwing, and an empty editor still returns `<p></p>` (`ContentFromScriptResult`). Taking that null as "" once emptied a synced template at exit.
 
 ## TemplateEditor: the WebView2 bridge
 

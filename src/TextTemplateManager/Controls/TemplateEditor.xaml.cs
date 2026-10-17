@@ -55,13 +55,27 @@ public sealed partial class TemplateEditor : UserControl
         {
             // ExecuteScriptAsync returns the result JSON-encoded (a quoted string).
             string result = await EditorWebView.CoreWebView2.ExecuteScriptAsync("window.editorApi.getContent()");
-            return System.Text.Json.JsonSerializer.Deserialize<string>(result) ?? string.Empty;
+            return ContentFromScriptResult(result);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[Editor] reading the content failed: {ex.Message}");
             return null;
         }
+    }
+
+    /// <summary>The editor's HTML from getContent()'s JSON result; null when it couldn't be read. A script that fails
+    /// (page gone while the app closes, not loaded yet) yields JSON null rather than an exception, and an empty editor
+    /// still returns "&lt;p&gt;&lt;/p&gt;", so null or "" must never be saved as the template's content.</summary>
+    internal static string? ContentFromScriptResult(string? result)
+    {
+        if (string.IsNullOrWhiteSpace(result)) return null;
+        try
+        {
+            string? html = System.Text.Json.JsonSerializer.Deserialize<string>(result);
+            return string.IsNullOrEmpty(html) ? null : html;
+        }
+        catch (System.Text.Json.JsonException) { return null; }
     }
 
     private async void EditorWebView_Loaded(object sender, RoutedEventArgs e)
@@ -149,7 +163,7 @@ public sealed partial class TemplateEditor : UserControl
             else if (type == "change")
             {
                 var html = doc.RootElement.TryGetProperty("html", out var h) ? h.GetString() : null;
-                OnContentChanged(html ?? string.Empty);
+                if (!string.IsNullOrEmpty(html)) OnContentChanged(html);
             }
             else if (type == "openLink")
             {
