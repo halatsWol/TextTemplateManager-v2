@@ -70,6 +70,35 @@ Optional local connector for the TTM-Connect browser extension
 Imports your templates from TextTemplateManager 1
 ```
 
+### Search terms
+
+One per field, at most 7, each under 30 characters, 21 words in all; no brand names of other products.
+
+```text
+text templates
+text snippets
+quick paste
+canned responses
+reply templates
+email templates
+snippet manager
+```
+
+### Screenshots and logo
+
+From `design/store`: one colour scheme, `amber/` or `slate/` (2560x1440 PNG), uploaded in this order; the caption field (optional, up to 200 characters) takes the text below. The Store tile is `StoreTile-300.png` (Store logos, 1:1 app tile icon, 300x300).
+
+```text
+01  Your text templates, in one place: folders, rich text, tags and shortcuts for every reply you write again and again.
+02  Paste any template with a single key: Shift+Alt+Y opens Quick Paste in any app.
+03  Or hold Alt and type a short code: multi-key shortcuts narrow the list as you type.
+04  Pasted in the format the app needs: Auto, HTML/Jira, HTML, RTF, Markdown or plain text.
+05  Find any template as you type, by title, tags or the text itself, fuzzy or strict.
+06  Share templates with your team through a synced file on OneDrive or a network share.
+07  Automatic backups you can restore: after your changes, every two hours and daily.
+08  A guided tour gets you started, on sample templates; yours stay untouched.
+```
+
 ### Copyright and trademark info
 
 ```text
@@ -104,6 +133,7 @@ TextTemplateManager 2 now comes from the Microsoft Store, which installs and upd
 
 - **Category:** Productivity. Secondary category (optional): Utilities & tools.
 - **Personal information:** No. The app doesn't access, collect or transmit personal information.
+- **System requirements:** minimum: Keyboard only. Recommended: Keyboard and Mouse. Leave memory, DirectX and the rest unset. Windows version and x64 come from the package.
 
 ### Privacy policy
 
@@ -128,12 +158,22 @@ Questions: Marflow Software, https://github.com/halatsWol/TextTemplateManager-v2
 
 ---
 
+## Pricing and availability, age rating, packages
+
+Suggested answers; the decisions are yours.
+
+- **Pricing and availability:** Free, no free trial, no in-app purchases. Markets: all. Visibility: public, available in the Store. Publish as soon as certified (or set a date).
+- **Age rating (IARC questionnaire):** category Productivity/Utility. No violence, sexual content, bad language, drugs, gambling or scary content. Users don't interact or share content with other users through the app (shared sync files are the user's own files in their own storage), no location sharing, no digital purchases, no unrestricted web browsing (links open the system browser). Expected result: suitable for all ages.
+- **Packages:** the `.msixupload` from the release run's `TextTemplateManager-<version>` artifact. Remove any test package of the same version from the submission first. Device family: Windows 10/11 desktop (minimum 10.0.19041, from the package).
+
+---
+
 ## Submission options: notes for certification
 
 Update the date with each submission.
 
 ```text
-Notes from 2026-10-16. Thank you for testing TextTemplateManager.
+Notes from 2026-10-17. Thank you for testing TextTemplateManager.
 
 No account, sign-in, service or internet connection is needed; everything runs and is stored locally.
 
