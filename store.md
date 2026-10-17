@@ -86,7 +86,7 @@ snippet manager
 
 ### Screenshots and logo
 
-From `design/store`: one colour scheme, `amber/` or `slate/` (2560x1440 PNG), uploaded in this order; the caption field (optional, up to 200 characters) takes the text below. The Store tile is `StoreTile-300.png` (Store logos, 1:1 app tile icon, 300x300).
+From `design/store`: one colour scheme, `amber/` or `slate/` (2560x1440 PNG), uploaded in this order; the caption field (optional, up to 200 characters) takes the text below. The Store tile is `StoreTile-300.png` (Store logos, 1:1 app tile icon, 300x300). From the same scheme folder: `poster-art-<scheme>.png` for the 2:3 poster art (1440x2160), `box-art-<scheme>.png` for the 1:1 box art (2160x2160) and `super-hero-art-<scheme>.png` for the 16:9 super hero art (3840x2160, no text, as required).
 
 ```text
 01  Your text templates, in one place: folders, rich text, tags and shortcuts for every reply you write again and again.
