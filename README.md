@@ -119,3 +119,5 @@ Pushing a version tag runs the release workflow ([`.github/workflows/release.yml
 Source-available under a custom license, see [LICENSE](LICENSE). In short: free to use, run, copy and modify for any purpose that complies with the terms (including inside a company), but **not** for sale and **not** to be provided as, or as part of, a service, directly or indirectly, and not by modifying it first.
 
 Copyright © 2026 Marflow Software.
+
+Privacy: the app collects and sends nothing, see [PRIVACY.md](PRIVACY.md).

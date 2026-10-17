@@ -137,7 +137,13 @@ TextTemplateManager 2 now comes from the Microsoft Store, which installs and upd
 
 ### Privacy policy
 
-Can be pasted as text in Partner Center instead of a URL; recommended, and required if Partner Center marks the question as Yes.
+Partner Center requires a URL, because the package declares restricted capabilities (`runFullTrust`). The policy is [`PRIVACY.md`](PRIVACY.md) in this repository; keep it and the text below in step.
+
+```text
+https://github.com/halatsWol/TextTemplateManager-v2/blob/main/PRIVACY.md
+```
+
+The policy text:
 
 ```text
 TextTemplateManager does not collect, transmit or share any personal information.
