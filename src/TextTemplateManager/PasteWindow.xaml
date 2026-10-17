@@ -339,7 +339,8 @@
             </TeachingTip.Content>
         </TeachingTip>
 
-        <!-- The guided tour's Quick Paste part (only in the window opened by the tour, on its sample data). -->
-        <appcontrols:TutorialOverlay x:Name="Tour" Grid.ColumnSpan="3"/>
+        <!-- The guided tour's Quick Paste part (only in the window opened by the tour, on its sample data). Above the
+             help button (ZIndex 100), which otherwise covers the card's close button in the top-right corner. -->
+        <appcontrols:TutorialOverlay x:Name="Tour" Grid.ColumnSpan="3" Canvas.ZIndex="200"/>
     </Grid>
 </Window>
