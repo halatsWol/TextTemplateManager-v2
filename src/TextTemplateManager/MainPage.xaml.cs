@@ -980,12 +980,33 @@ namespace TextTemplateManager
         private void MainGrid_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
         {
             if (e.Key != VirtualKey.Tab || IsCtrlDown() || IsAltDown()) return;
-            var cycle = TabCycle();
-            var focused = FocusManager.GetFocusedElement(XamlRoot) as DependencyObject;
-            int current = cycle.FindIndex(stop => IsWithin(focused, stop));
-            if (current < 0) return;
+            if (FocusedCycleStop() < 0) return;
             e.Handled = true;
-            var next = cycle[SearchNavigation.NextInCycle(current, cycle.Count, IsShiftDown())];
+            // Right after an arrow key the pane may still show the item before (the editor reports its content
+            // first): Tab would land in fields that are about to go, so it waits for the switch.
+            if (ViewModel.IsSwitchPending) TabWhenSwitchedAsync(IsShiftDown());
+            else MoveInCycle(IsShiftDown());
+        }
+
+        private async void TabWhenSwitchedAsync(bool back)
+        {
+            for (int i = 0; i < 100 && ViewModel.IsSwitchPending; i++) await Task.Delay(50);   // the first template waits for the editor to start
+            await Task.Delay(50);   // a layout pass, so the new item's fields can take the focus
+            MoveInCycle(back);
+        }
+
+        private int FocusedCycleStop()
+        {
+            var focused = FocusManager.GetFocusedElement(XamlRoot) as DependencyObject;
+            return TabCycle().FindIndex(stop => IsWithin(focused, stop));
+        }
+
+        private void MoveInCycle(bool back)
+        {
+            var cycle = TabCycle();
+            int current = FocusedCycleStop();
+            if (current < 0) return;
+            var next = cycle[SearchNavigation.NextInCycle(current, cycle.Count, back)];
             if (ReferenceEquals(next, ItemTreeView)) FocusTree();
             else next.Focus(FocusState.Keyboard);
         }

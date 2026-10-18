@@ -138,6 +138,10 @@ public partial class MainViewModel : ObservableObject
 
     private void OnDraftDirtyChanged() => OnPropertyChanged(nameof(HasUnsavedChanges));
 
+    /// <summary>The selection moved but the pane still shows the item before (the switch waits for the editor's
+    /// last content and maybe the unsaved-changes question).</summary>
+    public bool IsSwitchPending => !ReferenceEquals(_draft?.Original ?? EditedItem, SelectedItem);
+
     // Leaving a draft is decided once the selection has settled: a tree refresh can pass through no selection
     // and back to the same item, which isn't leaving it.
     private void OnSelectionMoved(BaseItem? value)
