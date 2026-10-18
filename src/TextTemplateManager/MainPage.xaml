@@ -61,6 +61,10 @@
          panes kept their width and were clipped instead of shrinking when the window narrowed.) -->
     <Grid>
 
+        <!-- The guided tour, drawn on top of everything (only in the window showing the tour's sample data). First in
+             the tree, so screen readers reach its card before the editor: a UI Automation search stops at a WebView2. -->
+        <appcontrols:TutorialOverlay x:Name="Tour" Canvas.ZIndex="200"/>
+
         <!-- Main layout grid -->
         <Grid x:Name="MainGrid" PreviewKeyDown="MainGrid_PreviewKeyDown">
             <Grid.RowDefinitions>
@@ -428,8 +432,5 @@
         <!-- After a skipped tour: where it can be started again. -->
         <TeachingTip x:Name="TourHintTip" Title="Tutorial closed" Target="{x:Bind HelpMenu}"
                      Subtitle="Start it again any time with Help ▸ Start tutorial." PreferredPlacement="Bottom" IsLightDismissEnabled="True"/>
-
-        <!-- The guided tour, on top of everything (only in the window showing the tour's sample data). -->
-        <appcontrols:TutorialOverlay x:Name="Tour"/>
     </Grid>
 </Page>

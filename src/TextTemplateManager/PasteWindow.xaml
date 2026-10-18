@@ -46,6 +46,11 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
+        <!-- The guided tour's Quick Paste part (only in the window opened by the tour, on its sample data). Above the
+             help button (ZIndex 100), which otherwise covers the card's close button in the top-right corner. First
+             in the tree, so screen readers reach its card before the preview: a UI Automation search stops at a WebView2. -->
+        <appcontrols:TutorialOverlay x:Name="Tour" Grid.ColumnSpan="3" Canvas.ZIndex="200"/>
+
         <Button x:Name="HelpButton"
                 Grid.Column="2"
                 Click="HelpButton_Click"
@@ -338,9 +343,5 @@
                 </Grid>
             </TeachingTip.Content>
         </TeachingTip>
-
-        <!-- The guided tour's Quick Paste part (only in the window opened by the tour, on its sample data). Above the
-             help button (ZIndex 100), which otherwise covers the card's close button in the top-right corner. -->
-        <appcontrols:TutorialOverlay x:Name="Tour" Grid.ColumnSpan="3" Canvas.ZIndex="200"/>
     </Grid>
 </Window>

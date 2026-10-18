@@ -25,6 +25,7 @@ The tour walks through the main window, the settings and Quick Paste on sample d
 - The real main page is swapped out, so nothing the user does can reach the real store; the overlay blocks the sample page too.
 - The tour doesn't start while the real page has a dialog open (`MainPage.IsDialogOpen`): swapping the page would leave the dialog over the tour. A What's new that is still waiting goes to the real page, which shows it once the tour has ended and the page is loaded again.
 - Menus are shown as a picture built from the real menu items (`ShowExtra`), because an open `MenuFlyout` would swallow the next click on the card.
+- The overlay is the first child of each window's root grid and drawn on top with `Canvas.ZIndex`. Screen readers so meet the card before the editor's or the preview's WebView2: a UI Automation search stops at a WebView2 and never reached a card placed after it. Each step is announced as a UI Automation notification (counter, title and text), because the focus stays on Next and a screen reader would otherwise only say "Next".
 
 ## Offer and versions
 

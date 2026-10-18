@@ -1,5 +1,6 @@
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
@@ -132,6 +133,14 @@ public sealed partial class TutorialOverlay : UserControl
         Place(force: true);
         Card.Opacity = 1;
         NextButton.Focus(FocusState.Programmatic);
+        Announce($"{Counter.Text}: {step.Title}. {step.Text}");
+    }
+
+    // Focus stays on Next from step to step, so a screen reader would only say "Next": the step itself is announced.
+    private void Announce(string text)
+    {
+        var peer = FrameworkElementAutomationPeer.FromElement(Card) ?? FrameworkElementAutomationPeer.CreatePeerForElement(Card);
+        peer?.RaiseNotificationEvent(AutomationNotificationKind.Other, AutomationNotificationProcessing.ImportantMostRecent, text, "TourStep");
     }
 
     // The control's bounds on the overlay, with a little room around it; null when it isn't on screen.
