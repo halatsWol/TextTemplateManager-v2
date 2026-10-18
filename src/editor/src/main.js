@@ -524,7 +524,8 @@ const editor = new Editor({
         // Clean pasted HTML from EXTERNAL sources (stray <br> runs before a block close).
         transformPastedHTML(html) {
             return html
-                .replace(/(?:\s*<br\s*\/?>\s*)+(<\/(?:p|h[1-6]|li|div)>)/gi, '$1')
+                // The leading \s* stays outside the group: inside it, "<br> <br> <br>…" backtracked exponentially.
+                .replace(/\s*(?:<br\s*\/?>\s*)+(<\/(?:p|h[1-6]|li|div)>)/gi, '$1')
                 .replace(/(?:<br\s*\/?>\s*){2,}/gi, '<br>')
         },
         // Clean pasted content at the NODE level — this also covers editor→editor paste, which
