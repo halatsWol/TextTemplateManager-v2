@@ -29,7 +29,7 @@ public class RestoreServiceTests
         Children = { new Template { Title = title, Content = $"<p>{title}</p>", LastChange = "20261012090000" } },
     };
 
-    private readonly SyncSource _kept = new() { Name = "Kept" };
+    private readonly SyncSource _kept = new() { Name = "Kept", AllowSave = true };
     private readonly SyncSource _lost = new() { Name = "Lost" };
 
     // State A, backed up: data "A", hotkey A, two linked sync files.
@@ -357,6 +357,21 @@ public class RestoreServiceTests
 
         var changed = Assert.Single(RestoreService.FindChangedSyncFiles(backup));
         Assert.Equal((_kept.Id, "Kept", _kept.Path), (changed.SourceId, changed.Name, changed.Path));
+    }
+
+    [Fact]
+    public async Task A_read_only_sources_changed_file_is_not_offered_for_overwriting_and_stays_as_it_is()
+    {
+        _kept.AllowSave = false;
+        string backup = await BackUpStateA();
+        await ChangeToStateB();
+
+        Assert.Empty(RestoreService.FindChangedSyncFiles(backup));
+
+        var result = await _restore.RestoreAsync(backup, RestoreParts.All);
+
+        Assert.True(result.Succeeded, result.Problem);
+        Assert.Contains("Kept B", Read(_kept.Path));
     }
 
     [Fact]

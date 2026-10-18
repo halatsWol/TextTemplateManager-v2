@@ -410,15 +410,16 @@ public sealed class RestoreService
         return issues;
     }
 
-    /// <summary>The active sources in the backup's sync settings whose file exists and holds something else than the
-    /// backup's copy of it (compared as trees, so formatting alone doesn't count).</summary>
+    /// <summary>The active, writable sources in the backup's sync settings whose file exists and holds something else
+    /// than the backup's copy of it (compared as trees, so formatting alone doesn't count). A read-only source's file
+    /// always wins, so it is kept without asking.</summary>
     public static IReadOnlyList<ChangedSyncFile> FindChangedSyncFiles(string backupPath)
     {
         var changed = new List<ChangedSyncFile>();
         if (BackupService.Verify(backupPath, out var manifest) != null) return changed;
         using var zip = ZipFile.OpenRead(backupPath);
         if (manifest!.Files.FirstOrDefault(f => f.Kind == BackupFileKind.SyncSettings && f.Included) is not { } entry) return changed;
-        foreach (var source in StorageService.ParseSyncSettings(ReadChecked(zip, entry))!.Sources.Where(s => s.IsActive))
+        foreach (var source in StorageService.ParseSyncSettings(ReadChecked(zip, entry))!.Sources.Where(s => s.IsActive && s.AllowSave))
         {
             if (string.IsNullOrWhiteSpace(source.Path) || !File.Exists(source.Path)) continue;
             if (SyncFileCopy(zip, manifest, source.Id) is not { } copy || ReadSyncFile(source.Path) is not { } current) continue;
