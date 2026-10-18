@@ -143,6 +143,27 @@ jobs:
             Where-Object { [string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($_)) }
           if ($missing) { throw "Missing secrets: $($missing -join ', ') (see docs/PUBLISHING.md)." }
 
+      # msstore reports any failure to reach the app as "check the AppId"; this shows the real reason (sign-in, access).
+      - name: Check access to the app in Partner Center
+        shell: pwsh
+        env:
+          MSSTORE_TENANT_ID: ${{ secrets.MSSTORE_TENANT_ID }}
+          MSSTORE_CLIENT_ID: ${{ secrets.MSSTORE_CLIENT_ID }}
+          MSSTORE_CLIENT_SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
+        run: |
+          try {
+            $token = (Invoke-RestMethod -Method Post "https://login.microsoftonline.com/$env:MSSTORE_TENANT_ID/oauth2/token" -Body @{
+              grant_type = 'client_credentials'; client_id = $env:MSSTORE_CLIENT_ID; client_secret = $env:MSSTORE_CLIENT_SECRET
+              resource = 'https://manage.devcenter.microsoft.com' }).access_token
+          } catch { throw "Sign-in to Microsoft Entra failed (tenant ID, client ID or client secret): $($_.ErrorDetails.Message)" }
+          Write-Host "::add-mask::$token"
+          try {
+            $app = Invoke-RestMethod "https://manage.devcenter.microsoft.com/v1.0/my/applications/$env:STORE_PRODUCT_ID" -Headers @{ Authorization = "Bearer $token" }
+            Write-Host "Access OK: $($app.primaryName) ($($app.id))"
+          } catch {
+            throw "Partner Center refused the app $env:STORE_PRODUCT_ID with HTTP $([int]$_.Exception.Response.StatusCode): $($_.ErrorDetails.Message)"
+          }
+
       # Pinned: the commands below follow this version's syntax (publish takes the package file, update takes --payload).
       - name: Set up the Microsoft Store Developer CLI
         uses: microsoft/microsoft-store-apppublisher@v1.1
