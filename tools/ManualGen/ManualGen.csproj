@@ -9,6 +9,6 @@
     <!-- Markdig parses the markdown; QuestPDF renders it. We render blocks ourselves (rather than
          using QuestPDF.Markdown) to control table-header repetition and heading page breaks. -->
     <PackageReference Include="Markdig" Version="0.37.0" />
-    <PackageReference Include="QuestPDF" Version="2024.10.2" />
+    <PackageReference Include="QuestPDF" Version="2026.9.1" />
   </ItemGroup>
 </Project>
