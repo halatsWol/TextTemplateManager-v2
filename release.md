@@ -12,27 +12,19 @@ Coming from TextTemplateManager 1: your templates and settings are backed up at 
 
 ### What's new in this release
 
-TextTemplateManager 2 comes from the Microsoft Store, which installs and updates it.
+Fixes for synced folders, restoring backups, the editor and the guided tour.
 
-#### New
+#### Security
 
-- **Moving from version 1.** At the first start, version 1's templates, settings and sync settings are backed up once and, if you choose to import them, taken over in one step (the app restarts); its start-with-Windows choice carries over. A version 1 that is still installed can be removed from here.
-- **Automatic backups.** After your changes, every two hours and daily, in `Documents\TextTemplateManager\Backups`. **Settings ▸ Backups** restores all or part of a backup and exports one to move to another PC. Shared sync files are left as they are: synced templates and folders are only restored when you tick them, and a sync file that changed since the backup is only overwritten if you choose so.
-- **Save when you're ready.** Changes to a template or folder wait for **Save** (or **Ctrl+S**), and you're asked before leaving unsaved changes. **Autosave** in **Settings ▸ General** saves as you type instead.
-- **Import and export.** **File ▸ Import…** merges a `.ttmdata` file into your tree; **File ▸ Export…** saves the selection or everything.
-- **Several items at once.** **Ctrl**+click and **Shift**+click select several items to move, export or delete together.
-- **Strict search.** Finds exactly what you type, with `*` and `.` as wildcards; tags match in any order. Search can also look in the template text.
-- **Missing sync files.** A synced folder whose file is gone keeps showing its last contents and can recreate the file.
-- **Guided tour.** **Help ▸ Start tutorial** shows the main window, the settings and Quick Paste on sample templates.
-- **Collapse all and expand all** in the tree toolbar.
-- **Keyboard.** **Tab** goes round the search box, the tree and the selected item's fields; typing in the tree carries on in the search box.
+- **Pasting into the editor.** Pasting specially crafted HTML, for example from a web page, could run script in the editor or freeze it. Both are fixed, and the editor's components are up to date.
 
-#### Changed
+#### Fixed
 
-- Updates come from the Microsoft Store; the app's own updater is gone. Start with Windows is now Windows' own startup setting (**Settings ▸ Apps ▸ Startup**), on and starting hidden by default.
-- After an unexpected error, your changes are saved and you can choose to quit or keep running.
-- Pastes are kept out of the Windows clipboard history.
-- A new, sharper app icon.
+- **Sync files that are briefly locked.** A change made elsewhere is no longer missed when the sync file was locked at that moment (for example while OneDrive uploads it); it is read once the file is free.
+- **Sync files that can't be written.** If your changes can't be saved to a sync file (read-only, or the shared folder refuses writes), a warning now shows on the synced folder and in **Settings ▸ Sync**. Your changes are kept and saved as soon as the file can be written; no temporary file is left behind.
+- **Restoring a backup** no longer asks whether to overwrite the file of a read-only synced folder; that file always stays as it is.
+- **Guided tour.** Screen readers read every step, also once the editor is shown; while Quick Paste shows its part, keys no longer reach the dimmed main window.
+- Screen readers now name the dividers that resize the panes.
 
 {{CHANGELOG}}
 

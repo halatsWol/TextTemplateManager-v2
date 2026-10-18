@@ -109,22 +109,17 @@ Copyright © 2026 Marflow Software
 
 ## What's new in this version
 
-Leave this field **empty for the first submission (2.0.0)**: Microsoft asks for it only on updates. From the first update on, this block is the Store's "What's new"; keep it in step with `release.md`.
+This block is the Store's "What's new" (Microsoft asks for it on updates only; it stayed empty for 2.0.0). It lists only what changed since the previous release; keep it in step with `release.md`.
 
 ```text
-TextTemplateManager 2 now comes from the Microsoft Store, which installs and updates it.
+Fixes for synced folders, restoring backups, the editor and the guided tour.
 
-- Moving from version 1: at the first start, your templates, settings and sync settings are backed up and imported in one step if you choose so; version 1 can be removed from here.
-- Automatic backups after your changes, every two hours and daily. Settings > Backups restores all or part of a backup or exports one.
-- Save when you're ready: changes wait for Save (Ctrl+S), and you're asked before leaving unsaved changes. Autosave saves as you type instead.
-- Import and export of .ttmdata files, and several items at once with Ctrl+click and Shift+click.
-- Strict search with * and . as wildcards; search can also look in the template text.
-- Synced folders keep their contents when their file is missing and can recreate it.
-- A guided tour: Help > Start tutorial.
-- Collapse all and expand all in the tree toolbar, and better keyboard navigation.
-- Start with Windows is now Windows' own startup setting.
-- Pastes are kept out of the Windows clipboard history.
-- A new app icon.
+- Security: pasting specially crafted HTML into the editor could run script in it or freeze it. Both are fixed, and the editor's components are up to date.
+- A change made elsewhere to a sync file is no longer missed when the file was briefly locked, for example while OneDrive uploads it.
+- If your changes can't be saved to a sync file (read-only, or the shared folder refuses writes), a warning now shows on the synced folder and in Settings > Sync. Your changes are kept and saved as soon as the file can be written.
+- Restoring a backup no longer asks whether to overwrite the file of a read-only synced folder; that file always stays as it is.
+- Guided tour: screen readers read every step, and keys no longer reach the dimmed main window while Quick Paste shows its part.
+- Screen readers now name the dividers that resize the panes.
 ```
 
 ---

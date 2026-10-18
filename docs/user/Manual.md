@@ -372,6 +372,8 @@ If a source's file cannot be found (for example, it has been moved, deleted or i
 - **Recreate the file from the cached copy**: writes the folder back out as the sync file where it was, or, if that folder no longer exists, where you choose. The source then uses the new file.
 - **Link another file…**: points the source at an existing file, for example one that was moved.
 
+If your changes can't be saved to a source's file (for example because the file is read-only, or the shared folder refuses writes), a yellow warning icon appears on its folder in the tree and on its row here; point at it to see the reason. Your changes are kept, and the app keeps trying: as soon as the file can be written again, they are saved and the warning goes away. A file that is briefly locked, for example while OneDrive uploads it, is simply read again once it is free.
+
 You can also add a source by **opening a `.ttmdata` file** — double-click it in File Explorer, or use
 **Open with ▸ TextTemplateManager**. The app comes to the front on this page with the file linked as an active
 source; if the file is already linked it is simply shown here, and the app's own data file is never
@@ -422,7 +424,7 @@ Each backup is one `.zip` file with your templates, your settings, your sync set
    - **Leave it missing**: the synced folder shows its copy from the backup until the file is back (see **Sync** for recreating it later).
    - If the backup holds no copy of the file, you can only link another existing file instead.
 
-   With **Synced templates and folders** ticked, you're also asked for each linked sync file that is there but has changed since the backup whether to keep it:
+   With **Synced templates and folders** ticked, you're also asked for each linked sync file you may save to (**Save** ticked in **Settings ▸ Sync**) that is there but has changed since the backup whether to keep it; the file of a read-only source always stays as it is, without asking:
    - **Keep the file** (the default): the file stays as it is, and its synced folder shows the file's contents.
    - **Overwrite with the backup's copy**: the file gets the backup's copy, for everyone who uses it.
 5. When restoring **Synced templates and folders** without the sync settings, each synced folder of the backup is restored into its sync file (the one your current sync settings link, otherwise the one the backup's settings linked, which is then linked again):
