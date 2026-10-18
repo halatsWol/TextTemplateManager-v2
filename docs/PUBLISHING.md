@@ -12,7 +12,7 @@ How a release is published, and how to renew the Partner Center credentials the 
    git tag -a v2.0.1 -m 'v2.0.1'
    git push origin v2.0.1
    ```
-3. [`.github/workflows/release.yml`](../.github/workflows/release.yml) runs the tests, builds the x64 Store package (`.msixupload`) and both manuals, and publishes the GitHub release with the manuals attached (no installers, never an `.exe`).
+3. [`.github/workflows/release.yml`](../.github/workflows/release.yml) runs the tests, builds the x64 Store package (`.msixupload`) and both manuals, and creates the GitHub release as a **draft** with the manuals attached (no installers, never an `.exe`). Read the notes under **Releases** and click **Publish release**; nothing is public before that.
 4. The `microsoft-store` job then waits for the **`store-release`** environment. Approve it under **Actions ▸ the run ▸ Review deployments**; it uploads the package to a new Store submission, sets "What's new" for every listing language, and commits the submission. Certification takes hours to days; the job doesn't wait for it.
 
 Rules:
@@ -23,7 +23,7 @@ Rules:
 
 ### Skipping the Store submission
 
-A line `publish: none` in the tag message skips the `microsoft-store` job; the GitHub release is still published. `publish: store` or no such line submits.
+A line `publish: none` in the tag message skips the `microsoft-store` job; the draft GitHub release is still created. `publish: store` or no such line submits.
 
 ```bash
 git tag -a v2.0.0 -m 'v2.0.0' -m 'publish: none'
@@ -56,7 +56,7 @@ Stored in **GitHub ▸ repo ▸ Settings ▸ Secrets and variables ▸ Actions**
 | `MSSTORE_CLIENT_SECRET` | Same page ▸ the application ▸ **Add new key** (shown once) | **Yes: 1 or 2 years** |
 | `MSSTORE_SELLER_ID` | Partner Center ▸ Account settings ▸ Legal info ▸ Developer (Seller ID) | No |
 
-A missing secret fails the `microsoft-store` job with its name; the GitHub release is already published by then.
+A missing secret fails the `microsoft-store` job with its name; the draft GitHub release exists by then.
 
 ### One-time setup
 

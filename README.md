@@ -84,7 +84,7 @@ The manuals in `docs/user/` are rendered to PDF by `tools/ManualGen` during the 
 
 ## Releasing
 
-Pushing a version tag runs the release workflow ([`.github/workflows/release.yml`](.github/workflows/release.yml)): tests, the x64 Store package, the manuals as PDFs, a GitHub release with notes rendered from [`release.md`](release.md), and the Store submission including its "What's new" text. The tag (without the leading `v`) is the single source of the version. Details, including how to skip the Store submission, are in [Publishing a release](docs/PUBLISHING.md).
+Pushing a version tag runs the release workflow ([`.github/workflows/release.yml`](.github/workflows/release.yml)): tests, the x64 Store package, the manuals as PDFs, a draft GitHub release with notes rendered from [`release.md`](release.md) (published by hand), and the Store submission including its "What's new" text. The tag (without the leading `v`) is the single source of the version. Details, including how to skip the Store submission, are in [Publishing a release](docs/PUBLISHING.md).
 
 ---
 

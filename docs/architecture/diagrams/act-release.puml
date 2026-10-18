@@ -15,7 +15,7 @@ endif
 :build/Release-Notes.ps1\n-> GitHub notes (release.md + generated changelog),\n   Store "What's new" (store.md, <= 1500 chars or fail);
 :upload artifacts;
 if (tag?) then (yes)
-  :gh release create (published, PDFs only, no .exe);
+  :gh release create --draft (PDFs only, no .exe;\npublished by hand);
   |microsoft-store (environment store-release)|
   if (publish_store?) then (yes)
     :manual approval;
