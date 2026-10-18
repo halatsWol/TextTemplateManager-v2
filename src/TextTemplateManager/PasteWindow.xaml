@@ -137,7 +137,8 @@
                                 IsThumbVisible="False"
                                 IsTabStop="False"
                                 Background="Transparent"
-                                Foreground="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+                                Foreground="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                AutomationProperties.Name="Resize the template list"/>
         <FontIcon Grid.Column="1" Glyph="&#xE784;" FontSize="14" FontFamily="Segoe MDL2 Assets"
                   IsHitTestVisible="False"
                   Foreground="{ThemeResource TextFillColorTertiaryBrush}"
@@ -176,7 +177,8 @@
                                    IsThumbVisible="False"
                                    IsTabStop="False"
                                    Background="Transparent"
-                                   Foreground="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+                                   Foreground="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                   AutomationProperties.Name="Resize the preview"/>
             <!-- Gripper glyph: click & drag affordance; IsHitTestVisible=False so the splitter gets the drag. -->
             <FontIcon Grid.Row="1" Glyph="&#xE76F;" FontSize="14" FontFamily="Segoe MDL2 Assets"
                       IsHitTestVisible="False"

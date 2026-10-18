@@ -243,7 +243,8 @@
                 <!-- Splitter: the gripper glyph shows you can click & drag here to resize the panes.
                      The glyph is IsHitTestVisible=False so drags pass through to the GridSplitter, which
                      stays a direct child of this Grid (column 1) so it still resizes the outer columns. -->
-                <controls:GridSplitter Grid.Column="1" Width="12" Background="Transparent" IsThumbVisible="False"/>
+                <controls:GridSplitter Grid.Column="1" Width="12" Background="Transparent" IsThumbVisible="False"
+                                       AutomationProperties.Name="Resize the template list"/>
                 <FontIcon Grid.Column="1" Glyph="&#xE784;" FontSize="14" FontFamily="Segoe MDL2 Assets"
                           IsHitTestVisible="False"
                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
