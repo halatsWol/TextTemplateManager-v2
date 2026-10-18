@@ -737,6 +737,14 @@ function closePopup() {
 document.addEventListener('click', (e) => {
     if (openPopup && !openPopup.contains(e.target) && !e.target.closest('.tb-btn[data-pop]')) closePopup()
 })
+// Esc closes an open popup and gives the focus back to its button.
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || !openPopup) return
+    const btn = openPopup._button
+    e.preventDefault()
+    closePopup()
+    btn?.focus()
+})
 
 // Ctrl+F and Ctrl+S never reach the host's XAML accelerators while the WebView has focus, so forward them.
 window.addEventListener('keydown', (e) => {
@@ -838,11 +846,10 @@ function colorPopup(colors, resetLabel, apply, reset) {
         const grid = document.createElement('div')
         grid.className = 'swatches'
         for (const [name, hex] of colors) {
-            const sw = document.createElement('div')
+            const sw = document.createElement('button')
             sw.className = 'swatch'
             sw.style.background = hex
             sw.title = name
-            sw.setAttribute('role', 'button')
             sw.setAttribute('aria-label', name)
             sw.onclick = (e) => { e.preventDefault(); apply(hex); close() }
             grid.appendChild(sw)
@@ -880,24 +887,43 @@ popupButton(ICONS.table, 'Insert table', (pop, close) => {
     const grid = document.createElement('div')
     grid.className = 'table-grid'
     const cells = []
+    // The size picked so far; the arrow keys change it, the pointer sets it.
+    let size = { r: 0, col: 0 }
+    const show = (r, col) => {
+        size = { r, col }
+        for (let i = 0; i < cells.length; i++) {
+            const cr = Math.floor(i / N), cc = i % N
+            cells[i].classList.toggle('on', cr <= r && cc <= col)
+        }
+        label.textContent = (r + 1) + ' × ' + (col + 1) + ' table'
+    }
+    const insert = (r, col) => {
+        run(c => c.insertTable({ rows: r + 1, cols: col + 1, withHeaderRow: false }))
+        close()
+    }
     for (let r = 0; r < N; r++) {
         for (let col = 0; col < N; col++) {
             const cell = document.createElement('div')
             cell.className = 'table-cell'
-            cell.onmouseenter = () => {
-                for (let i = 0; i < cells.length; i++) {
-                    const cr = Math.floor(i / N), cc = i % N
-                    cells[i].classList.toggle('on', cr <= r && cc <= col)
-                }
-                label.textContent = (r + 1) + ' × ' + (col + 1) + ' table'
-            }
-            cell.onclick = (e) => {
-                e.preventDefault()
-                run(c => c.insertTable({ rows: r + 1, cols: col + 1, withHeaderRow: false }))
-                close()
-            }
+            cell.onmouseenter = () => show(r, col)
+            cell.onclick = (e) => { e.preventDefault(); insert(r, col) }
             cells.push(cell)
             grid.appendChild(cell)
+        }
+    }
+    label.setAttribute('aria-live', 'polite')
+    grid.tabIndex = 0
+    grid.setAttribute('role', 'group')
+    grid.setAttribute('aria-label', 'Table size: arrow keys choose rows and columns, Enter inserts')
+    grid.onfocus = () => show(size.r, size.col)
+    grid.onkeydown = (e) => {
+        const step = { ArrowRight: [0, 1], ArrowLeft: [0, -1], ArrowDown: [1, 0], ArrowUp: [-1, 0] }[e.key]
+        if (step) {
+            e.preventDefault()
+            show(Math.min(N - 1, Math.max(0, size.r + step[0])), Math.min(N - 1, Math.max(0, size.col + step[1])))
+        } else if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            insert(size.r, size.col)
         }
     }
     pop.appendChild(grid)

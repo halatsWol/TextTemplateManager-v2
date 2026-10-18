@@ -91,6 +91,8 @@ Selecting a template opens it in the editor, which supports bold, italic, underl
 strikethrough, text and highlight colors, headings, bulleted and numbered lists, links, tables, 
 callout panels, and code blocks with syntax highlighting.
 
+The toolbar works from the keyboard too: **Tab** moves along its buttons, **Enter** opens a button's menu (text and highlight colors, table, alignment, symbols) and **Tab** moves into it, **Esc** closes the menu again. In the table menu, the arrow keys choose the number of rows and columns and **Enter** inserts the table.
+
 Changes to a template or folder (its title, text, tags, shortcuts and default paste mode) wait for you to save them: a **Save** button appears in the top-right corner, next to the help button, and **Ctrl+S** saves too, also while typing in the editor. If you select another item, close the window or exit while changes aren't saved, you're asked whether to **Save** them, **Don't save** them (the item goes back to how it was last saved), or **Cancel** (you stay on the item, changes kept, and the window stays open). A brief **Saved** indicator appears each time your data is written. To save as you type instead, switch on **Autosave** in **Settings ▸ General**. Adding, deleting, moving and importing items are always saved at once.
 
 ![A changed title: the Save button appears in the top-right corner.](../../src/TextTemplateManager/Assets/ManualImages/TTM_SaveButton.png)
@@ -456,6 +458,7 @@ Installing with winget or Intune, how updates behave when the Store is restricte
 | --- | --- | --- |
 | Main window | **Ctrl + F** | Focus the search box. |
 | Main window | **Ctrl + S** | Save the changes to the selected template or folder (also in the editor). |
+| Editor toolbar | **Enter** / **Esc** | Open / close a button's menu (**Tab** moves into it); in the table menu the arrow keys choose the size. |
 | Main window | **Tab** / **Shift + Tab** | Go round the search box, the tree and the selected item's fields (title, shortcuts, tags, default paste mode). In the editor, **Tab** indents. |
 | Main window (Tree) | **Delete** | Delete the selected item(s) (with confirmation). |
 | Main window (Tree) | **Ctrl**+click / **Shift**+click | Add or remove an item / select a range of rows. |

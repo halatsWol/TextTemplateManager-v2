@@ -188,10 +188,13 @@ body {
     height: 24px;
     border-radius: 5px;
     border: 1px solid var(--border);
+    padding: 0;
     cursor: pointer;
 }
 
-.swatch:hover {
+.swatch:hover,
+.swatch:focus-visible,
+.table-grid:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 1px;
 }
