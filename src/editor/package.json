@@ -28,6 +28,6 @@
     "lowlight": "^3.3.0"
   },
   "devDependencies": {
-    "esbuild": "^0.23.1"
+    "esbuild": "^0.28.1"
   }
 }
