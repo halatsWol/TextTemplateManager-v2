@@ -4,6 +4,8 @@ A hotkey-driven text-template paste tool for Windows: organize reusable snippets
 
 > Made by **Marflow Software**. Built with WinUI 3 (Windows App SDK) and .NET 8, distributed through the [Microsoft Store](https://apps.microsoft.com/detail/9NMBSZLLLN6V).
 
+[![Tests](https://github.com/halatsWol/TextTemplateManager-v2/actions/workflows/tests.yml/badge.svg)](https://github.com/halatsWol/TextTemplateManager-v2/actions/workflows/tests.yml) [![CodeQL](https://github.com/halatsWol/TextTemplateManager-v2/actions/workflows/codeql.yml/badge.svg)](https://github.com/halatsWol/TextTemplateManager-v2/actions/workflows/codeql.yml)
+
 ---
 
 ## Background
@@ -57,6 +59,7 @@ Get **TextTemplateManager** from the [Microsoft Store](https://apps.microsoft.co
 - [Browser connector API](docs/user/BrowserConnectorApi.md)
 - [Architecture](docs/architecture/README.md): classes, relations and runtime flows, with diagrams
 - [Publishing a release](docs/PUBLISHING.md)
+- [Security policy](SECURITY.md): how to report a vulnerability
 
 ---
 
@@ -88,6 +91,18 @@ Pushing a version tag runs the release workflow ([`.github/workflows/release.yml
 
 ---
 
+## Security
+
+- **Tests** run on every push to `main` and on every pull request ([`tests.yml`](.github/workflows/tests.yml)), and again for each release.
+- **CodeQL** scans the C# code, the editor's JavaScript and the workflows on every push, on pull requests and weekly ([`codeql.yml`](.github/workflows/codeql.yml)); findings are listed under the repository's **Security ▸ Code scanning**.
+- **Dependabot** reports dependencies with known vulnerabilities and opens pull requests for security fixes at once and for other updates monthly ([`dependabot.yml`](.github/dependabot.yml)), for NuGet, the editor's npm packages and the GitHub Actions.
+- **Secret scanning** with push protection rejects a push that contains a credential.
+- The Microsoft Store certifies and signs every package before it is published.
+
+Found a vulnerability? Please report it privately as described in [SECURITY.md](SECURITY.md), not as a public issue.
+
+---
+
 ## Repository layout
 
 | Folder | Contents |
@@ -98,7 +113,7 @@ Pushing a version tag runs the release workflow ([`.github/workflows/release.yml
 | [`tools/ManualGen/`](tools/ManualGen/) | Renders the manuals in `docs/user/` to PDF |
 | [`build/`](build/) | Release build and release-notes scripts used by the workflow |
 | [`design/logo/`](design/logo/) | The logo as SVG and the script that renders the app's icon and tile images |
-| [`.github/workflows/`](.github/workflows/) | Release workflow |
+| [`.github/`](.github/) | Release, test and CodeQL workflows; Dependabot configuration |
 | [`docs/user/`](docs/user/) | User manual, admin guide, browser connector API |
 | [`docs/architecture/`](docs/architecture/) | Technical documentation |
 

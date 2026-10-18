@@ -1,6 +1,6 @@
 ## Overview
 
-This guide covers the administrator- and deployment-facing details of TextTemplateManager 2 that everyday users don't need: deployment, updates under company policies, moving from version 1, start with Windows, the browser connector, removal, and where the app keeps its files. End-user documentation is in the **User Manual** (in the app under **Help ▸ Open Manual**).
+This guide covers the administrator- and deployment-facing details of TextTemplateManager 2 that everyday users don't need: deployment, updates under company policies, security, moving from version 1, start with Windows, the browser connector, removal, and where the app keeps its files. End-user documentation is in the **User Manual** (in the app under **Help ▸ Open Manual**).
 
 TextTemplateManager 2 is a Microsoft Store app (MSIX package `MarflowSoftware.TextTemplateManager`, Store ID `9NMBSZLLLN6V`, x64). It is installed and registered **per user**, needs no administrator rights, writes nothing to the registry itself, and is updated by the Store. The .NET runtime is part of the package; the Windows App SDK runtime is a Store framework package that Windows installs and services alongside it. The editor and preview use the Microsoft Edge WebView2 Runtime, which Windows 11 and current Windows 10 include.
 
@@ -66,6 +66,16 @@ Windows never replaces a package while it is in use, and TextTemplateManager usu
 - **Disabling winget's `msstore` source** (Desktop App Installer policy *Enable App Installer Microsoft Store Source*) also breaks Intune's *Microsoft Store app (new)* deployments and `winget upgrade`.
 - **Network:** the Store's download endpoints (and Delivery Optimization) must be reachable; SSL inspection of Microsoft endpoints commonly breaks Store downloads.
 - **Windows LTSC / without the Store:** deploy and update through Intune or winget.
+
+---
+
+## Security
+
+- **Package:** the Microsoft Store certifies every release and signs the package; Windows installs it per user in its own package folder, without administrator rights. The app collects and sends no data (see the privacy policy, `PRIVACY.md` in the repository).
+- **Network:** the app listens only when a user turns on the browser connector, and then only on the local loopback address, with pairing (see *Browser connector*).
+- **Source checks:** the public source code is scanned with GitHub CodeQL on every change and weekly, the test suite runs on every change, and Dependabot reports dependencies (NuGet, npm, GitHub Actions) with known vulnerabilities and proposes the fixes. Secret scanning keeps credentials out of the repository.
+- **Fixes** ship as a regular Store update (see *Updates*); a published security advisory names the fixed version. Only the current version gets fixes.
+- **Reporting a vulnerability:** privately through **Report a vulnerability** on the repository's **Security** tab ([github.com/halatsWol/TextTemplateManager-v2](https://github.com/halatsWol/TextTemplateManager-v2)), not as a public issue.
 
 ---
 

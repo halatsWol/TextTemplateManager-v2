@@ -7,13 +7,14 @@ How a release is published, and how to renew the Partner Center credentials the 
 ## How a release is published
 
 1. Update `release.md`: the "What's new in this release" section lists the changes since the last tag. It becomes the GitHub release text, and the app shows it once after the update. Update the short "What's new" text in [`store.md`](../store.md) too (at most 1500 characters); it is the Store's "What's new".
-2. Commit, then create an **annotated** tag and push it:
+2. Commit and push, then check that **Tests** and **CodeQL** are green for that commit under **Actions**, and that **Security** (Code scanning, Dependabot) shows no open alert you haven't looked at. A merged Dependabot npm update reaches the app only after `npm ci` and `npm run build` in `src/editor` and a commit of the rebuilt bundle.
+3. Create an **annotated** tag and push it:
    ```bash
    git tag -a v2.0.1 -m 'v2.0.1'
    git push origin v2.0.1
    ```
-3. [`.github/workflows/release.yml`](../.github/workflows/release.yml) runs the tests, builds the x64 Store package (`.msixupload`) and both manuals, and creates the GitHub release as a **draft** with the manuals attached (no installers, never an `.exe`). Read the notes under **Releases** and click **Publish release**; nothing is public before that.
-4. The `microsoft-store` job then waits for the **`store-release`** environment. Approve it under **Actions ▸ the run ▸ Review deployments**; it uploads the package to a new Store submission, sets "What's new" for every listing language, and commits the submission. Certification takes hours to days; the job doesn't wait for it.
+4. [`.github/workflows/release.yml`](../.github/workflows/release.yml) runs the tests, builds the x64 Store package (`.msixupload`) and both manuals, and creates the GitHub release as a **draft** with the manuals attached (no installers, never an `.exe`). Read the notes under **Releases** and click **Publish release**; nothing is public before that.
+5. The `microsoft-store` job then waits for the **`store-release`** environment. Approve it under **Actions ▸ the run ▸ Review deployments**; it uploads the package to a new Store submission, sets "What's new" for every listing language, and commits the submission. Certification takes hours to days; the job doesn't wait for it.
 
 Rules:
 

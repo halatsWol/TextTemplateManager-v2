@@ -503,3 +503,5 @@ Neither touches the backups in `Documents\TextTemplateManager\Backups` or your s
 
 For questions, permission requests, or to report an issue, contact 
 `contact@kmarflow.com`, or visit the project on GitHub via **Help ▸ Go to GitHub**.
+
+To report a security vulnerability, please don't open a public issue: on the project's GitHub page, open the **Security** tab and choose **Report a vulnerability**. Only the developer sees the report until a fix is out.
