@@ -18,6 +18,7 @@ class DataNode {
   +MoveItemsAsync(items, target, index) : bool
   +ImportAsync(items, newFolderTitle, conflicts)
   +ExportFolderAsync() / ExportItemsAsync()
+  +ExportTree(items) / InOneArea(items)
   +SaveDataAsync() / FlushPendingSaveAsync()
   +ReapplySyncAsync() / CheckSyncFilesForChangesAsync()
   +RecreateSyncFileAsync(source, path)

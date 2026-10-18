@@ -232,9 +232,66 @@ public class DataNode
     public Task ExportFolderAsync(string path, Folder folder) =>
         ExportAsync(path, new Folder { Id = folder.Id, Title = folder.Title, LastChange = folder.LastChange }, folder.Children);
 
-    /// <summary>Export templates and folders into one file, under a plain root.</summary>
+    /// <summary>Export templates and folders into one file, under a plain root, as <see cref="ExportTree"/> lays
+    /// them out.</summary>
     public Task ExportItemsAsync(string path, IEnumerable<BaseItem> items) =>
-        ExportAsync(path, new Folder { Id = Guid.Empty, Title = "Root" }, items);
+        ExportAsync(path, new Folder { Id = Guid.Empty, Title = "Root" }, ExportTree(items.ToList()));
+
+    /// <summary>Whether <paramref name="items"/> lie in one area: all local, or all in the same synced folder.</summary>
+    public bool InOneArea(IEnumerable<BaseItem> items) =>
+        items.Select(AreaOf).Distinct().Count() <= 1;
+
+    /// <summary>The top level of an export of <paramref name="items"/>: in tree order, each under copies of its
+    /// folders down from the deepest folder they all share (a synced folder's root at the most, which plays the
+    /// file's root). The copies hold only the exported items; an item inside another exported folder comes along
+    /// with it. Throws when the items lie in different areas.</summary>
+    public List<BaseItem> ExportTree(IReadOnlyList<BaseItem> items)
+    {
+        if (!InOneArea(items)) throw new InvalidOperationException("Items from different areas can't be exported together.");
+
+        var order = RootFolder.Children.Descendants().Select((item, index) => (item, index)).ToDictionary(p => p.item, p => p.index);
+        var entries = items
+            .SelectMany(i => i.IsSyncRoot ? i.Children.Select(c => (Item: c, Path: new List<BaseItem> { i })) : new[] { (Item: i, Path: PathTo(i)) })
+            .ToList();
+        entries = entries.Where(e => !entries.Any(other => e.Path.Contains(other.Item))).ToList();
+        entries.Sort((a, b) => order.GetValueOrDefault(a.Item).CompareTo(order.GetValueOrDefault(b.Item)));
+
+        int shared = entries.Count == 0 ? 0 : entries.Min(e => e.Path.Count);
+        for (int level = 0; level < shared; level++)
+            if (entries.Any(e => !ReferenceEquals(e.Path[level], entries[0].Path[level]))) { shared = level; break; }
+
+        var top = new List<BaseItem>();
+        var copies = new Dictionary<BaseItem, Folder>();
+        foreach (var (item, path) in entries)
+        {
+            IList<BaseItem> into = top;
+            foreach (var folder in path.Skip(shared))
+            {
+                if (!copies.TryGetValue(folder, out var copy))
+                {
+                    copy = new Folder { Id = folder.Id, Title = folder.Title, LastChange = folder.LastChange };
+                    copies[folder] = copy;
+                    into.Add(copy);
+                }
+                into = copy.Children;
+            }
+            into.Add(item);
+        }
+        return top;
+    }
+
+    // The folders above an item, from the top level down (empty for a top-level item).
+    private List<BaseItem> PathTo(BaseItem item)
+    {
+        var path = new List<BaseItem>();
+        for (var parent = RootFolder.Children.ParentOf(item); parent != null; parent = RootFolder.Children.ParentOf(parent))
+            path.Insert(0, parent);
+        return path;
+    }
+
+    // The synced folder's root for an item in (or being) a synced folder, null for a local one.
+    private BaseItem? AreaOf(BaseItem item) =>
+        RootFolder.Children.TopLevelOf(item) is { IsSyncRoot: true } root ? root : null;
 
     /// <summary>The local templates and folders (not the synced folders, which have their own files).</summary>
     public IEnumerable<BaseItem> LocalOnlyItems => RootFolder.Children.Where(c => !c.IsSyncRoot && c.SyncId == null).ToList();

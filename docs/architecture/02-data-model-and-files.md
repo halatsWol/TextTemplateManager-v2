@@ -53,7 +53,7 @@ All files are UTF-8 JSON without BOM (a BOM is accepted when reading), written i
 | `sync.ttmsettings` | `SyncSettings` | Data folder |
 | `crash.log` | Text, appended | Data folder |
 | sync file (`*.ttmdata`) | `Folder` root as written by `DataNode.BuildFileTree` | Anywhere (OneDrive, share) |
-| exported file (`*.ttmdata`) | `Folder`: a folder export has that folder as root, a full or multi-item export a plain root; no `SyncId`s | Anywhere |
+| exported file (`*.ttmdata`) | `Folder`: a folder export has that folder as root, a full or multi-item export a plain root (multi-item: tree order, folder copies down from the shared level, `DataNode.ExportTree`); no `SyncId`s | Anywhere |
 | backup (`ttm-backup-*.zip`) | Zip with the files above and `manifest.json` | Backups folder (see [5](05-backups-and-restore.md)) |
 
 A tree file looks like this (polymorphism through the `$type` discriminator, `Title` written last):

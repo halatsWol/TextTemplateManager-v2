@@ -41,6 +41,7 @@ class MainViewModel <<ObservableObject>> {
   +AddTemplate / AddFolder / CloneItem / DeleteItem
   +MoveAsync(items, folder, index)
   +ImportAsync() / ExportAsync()
+  +CanExportSelection
   +SaveEditsAsync() / DiscardEdits()
   +ApplyFilter() / ReloadTree()
   +ValidateAllShortcuts()

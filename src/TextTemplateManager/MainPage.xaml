@@ -79,8 +79,9 @@
                 <MenuBarItem x:Name="FileMenu" Title="File">
                     <MenuFlyoutItem Text="Import…" Icon="OpenFile" Click="Import_Click"
                                     ToolTipService.ToolTip="Adds the templates and folders of a .ttmdata file to your local ones"/>
-                    <MenuFlyoutItem Text="Export…" Icon="Save" Click="Export_Click"
-                                    ToolTipService.ToolTip="Saves the selected folder or template (or, with nothing selected, all your local templates and folders) to a .ttmdata file"/>
+                    <MenuFlyoutItem Text="{x:Bind ExportLabel(ViewModel.CanExportSelection), Mode=OneWay}" Icon="Save" Click="Export_Click"
+                                    IsEnabled="{x:Bind ViewModel.CanExportSelection, Mode=OneWay}"
+                                    ToolTipService.ToolTip="Saves the selected items (or, with nothing selected, all your local templates and folders) to a .ttmdata file"/>
                     <MenuFlyoutSeparator/>
                     <MenuFlyoutItem Text="Settings" Icon="Setting" Click="OpenPreferences_Click"/>
                     <MenuFlyoutSeparator/>

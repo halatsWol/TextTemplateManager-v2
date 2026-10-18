@@ -61,6 +61,7 @@ With **Autosave** on, the right pane edits the tree item itself, so every edit t
 
 - `ImportAsync(items, newFolderTitle, conflicts)`: into a new folder (every id renewed), or merged directly into the local root: folders matched by id, then by title, are merged; an existing template (same id, or same title in the same folder) is overwritten always, only when the imported one is newer, or skipped (`ImportConflicts`). Imported items become plain local items (`SyncId` cleared, ids already in the tree renewed). `CountImportConflicts` is the dry run for the dialog. Synced-folder snapshots inside an older full export are skipped (`ImportedItems`).
 - `ExportFolderAsync` / `ExportItemsAsync`: a serialized copy with `SyncId`s removed, so the file is a plain export and never mistaken for another PC's synced folder.
+- `ExportTree(items)` lays out a multi-item export: tree order; each item under copies of its folders below the deepest folder all items share (a synced folder's root at the most, never in the file; a selected sync root stands for its children); the copies hold only exported items, an item inside another exported folder comes along with it. `InOneArea` is false for items of different areas (local, each synced folder): such a selection can't be exported (`ExportTree` throws; the menus are disabled via `MainViewModel.CanExportSelection`).
 
 ### Moving
 

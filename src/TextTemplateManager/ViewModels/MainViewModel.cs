@@ -503,10 +503,11 @@ public partial class MainViewModel : ObservableObject
     private static IntPtr MainWindowHandle => WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
 
     /// <summary>Exports <paramref name="items"/> to a .ttmdata file the user picks: one folder as itself (with its
-    /// contents), one template or several items under a plain root, and all local templates and folders when
-    /// nothing is given.</summary>
+    /// contents), one template or several items under a plain root (several keep the folders between them, see
+    /// <see cref="DataNode.ExportTree"/>), and all local templates and folders when nothing is given.</summary>
     public async Task ExportAsync(IReadOnlyList<BaseItem> items)
     {
+        if (!_dataNode.InOneArea(items)) return;
         string name = items.Count == 1 && items[0].Title is { Length: > 0 } title ? title : $"Templates_{DateTime.Now:yyyyMMdd}";
         if (await DataFilePicker.PickToSaveAsync(MainWindowHandle, name) is not { } path) return;
         if (items is [Folder folder]) await _dataNode.ExportFolderAsync(path, folder);
@@ -674,8 +675,13 @@ public partial class MainViewModel : ObservableObject
     {
         bool several = _selection.Items.Count > 1;
         foreach (var node in _nodes.Values) node.IsMultiSelected = several && _selection.Contains(node.Item);
+        OnPropertyChanged(nameof(CanExportSelection));
         SelectionLookChanged?.Invoke();
     }
+
+    /// <summary>False when the selection mixes areas (local items and a synced folder, or two synced folders),
+    /// which can't go into one export file.</summary>
+    public bool CanExportSelection => _dataNode.InOneArea(SelectedItems);
 
     /// <summary>Raised when which rows count as selected changed, so the page can draw them.</summary>
     public event Action? SelectionLookChanged;

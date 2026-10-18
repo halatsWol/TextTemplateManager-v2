@@ -247,7 +247,12 @@ namespace TextTemplateManager
             if (ViewModel.IsInSelection(item))
             {
                 int count = ViewModel.SelectedItems.Count;
-                var exportAll = new MenuFlyoutItem { Text = $"Export {count} items…", Icon = new SymbolIcon(Symbol.Save) };
+                var exportAll = new MenuFlyoutItem
+                {
+                    Text = ViewModel.CanExportSelection ? $"Export {count} items…" : ExportLabel(false),
+                    Icon = new SymbolIcon(Symbol.Save),
+                    IsEnabled = ViewModel.CanExportSelection,
+                };
                 exportAll.Click += async (_, _) => await ViewModel.ExportAsync(ViewModel.SelectedItems);
                 flyout.Items.Add(exportAll);
                 if (ViewModel.DeletableSelection.Count > 0)
@@ -412,6 +417,9 @@ namespace TextTemplateManager
         }
         // The selected folder(s) and template(s), or all local templates and folders when nothing is selected.
         private async void Export_Click(object sender, RoutedEventArgs e) => await ViewModel.ExportAsync(ViewModel.SelectedItems);
+
+        // A disabled menu item shows no tooltip, so the label says why.
+        public string ExportLabel(bool canExport) => canExport ? "Export…" : "Export… (not across areas)";
 
         private void OpenPreferences_Click(object sender, RoutedEventArgs e) => Settings.Open();
 

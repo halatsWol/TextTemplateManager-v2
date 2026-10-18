@@ -336,6 +336,97 @@ public class DataNodeTests
         Assert.Equal("Inside", everything.Children[0].Children[0].Title);
     }
 
+    // Titles of an export's top level, with each folder's contents in brackets.
+    private static string Layout(IEnumerable<BaseItem> items) =>
+        string.Join(",", items.Select(i => i is Folder ? $"{i.Title}[{Layout(i.Children)}]" : i.Title));
+
+    private static async Task<Folder> AddFolderAsync(DataNode node, string title, Folder? into, params string[] templates)
+    {
+        var folder = new Folder { Title = title };
+        await node.AddItemAsync(folder, into);
+        foreach (var t in templates) await node.AddItemAsync(new Template { Title = t }, folder);
+        return folder;
+    }
+
+    private static BaseItem Find(DataNode node, string title) => node.LocalItems.Descendants().First(i => i.Title == title);
+
+    [Fact]
+    public async Task Several_items_keep_their_folders_down_from_the_level_they_share_in_tree_order()
+    {
+        var (node, _) = await NewNodeAsync();
+        await AddFolderAsync(node, "F1", null, "f1t1", "f1t2", "f1t3", "f1t4");
+        var f2 = await AddFolderAsync(node, "F2", null, "f2t1", "f2t2");
+        string path = Path.Combine(TestEnvironment.NewScratchDir(), "export.ttmdata");
+
+        await node.ExportItemsAsync(path, new[] { f2, Find(node, "f1t4") });   // selection order: F2 first
+
+        Assert.Equal("F1[f1t4],F2[f2t1,f2t2]", Layout((await StorageService.LoadRootAsync(path))!.Children));
+        Assert.Equal(4, Find(node, "F1").Children.Count);   // the tree itself is untouched
+    }
+
+    [Fact]
+    public async Task Folders_above_the_shared_level_are_left_out()
+    {
+        var (node, _) = await NewNodeAsync();
+        var f1 = await AddFolderAsync(node, "F1", null);
+        await AddFolderAsync(node, "Sub", f1, "a", "a2");
+        await AddFolderAsync(node, "Sub2", f1, "b");
+        var deep = await AddFolderAsync(node, "Deep", (Folder)Find(node, "Sub"), "d");
+        await node.AddItemAsync(new Template { Title = "c" });
+
+        Assert.Equal("Sub[a],Sub2[b]", Layout(node.ExportTree(new[] { Find(node, "b"), Find(node, "a") })));
+        Assert.Equal("F1[Sub[Deep[d]]],c", Layout(node.ExportTree(new[] { Find(node, "c"), Find(node, "d") })));
+        Assert.Equal("Sub[a,Deep[d]],Sub2[b]", Layout(node.ExportTree(new[] { Find(node, "Sub2"), Find(node, "a"), deep })));
+        Assert.Equal("d", Layout(node.ExportTree(new[] { Find(node, "d") })));
+    }
+
+    [Fact]
+    public async Task An_item_inside_another_exported_folder_comes_along_with_it_once()
+    {
+        var (node, _) = await NewNodeAsync();
+        var f1 = await AddFolderAsync(node, "F1", null, "x", "y");
+        await node.AddItemAsync(new Template { Title = "z" });
+
+        Assert.Equal("F1[x,y],z", Layout(node.ExportTree(new[] { Find(node, "y"), f1, Find(node, "z") })));
+    }
+
+    [Fact]
+    public async Task In_a_synced_folder_the_sync_root_plays_the_files_root()
+    {
+        var (node, _) = await NewNodeAsync();
+        var team = AddSyncFolder(node, allowSave: true);
+        var sub = new Folder { Title = "S", Children = { new Template { Title = "x" } } };
+        team.Children.Add(sub);
+        team.Children.Add(new Template { Title = "y" });
+        var other = new Folder { Title = "Other", Children = { new Template { Title = "o" } } };
+        team.Children.Add(other);
+
+        Assert.Equal("S[x],y", Layout(node.ExportTree(new[] { Find(node, "y"), Find(node, "x") })));
+        Assert.Equal("x", Layout(node.ExportTree(new[] { Find(node, "x") })));
+        Assert.Equal("S[x],y,Other[o]", Layout(node.ExportTree(new BaseItem[] { team, Find(node, "o") })));
+    }
+
+    [Fact]
+    public async Task Items_from_different_areas_cant_be_exported_together()
+    {
+        var (node, _) = await NewNodeAsync();
+        var team = AddSyncFolder(node, allowSave: true);
+        team.Children.Add(new Template { Title = "shared" });
+        var second = new Folder { Id = Guid.NewGuid(), Title = "Second", IsSyncRoot = true, SyncId = Guid.Empty, Children = { new Template { Title = "s2" } } };
+        node.LocalItems.Insert(1, second);
+        await node.AddItemAsync(new Template { Title = "local" });
+        await node.AddItemAsync(new Template { Title = "local2" });
+
+        Assert.True(node.InOneArea(new[] { Find(node, "local"), Find(node, "local2") }));
+        Assert.True(node.InOneArea(new BaseItem[] { team, Find(node, "shared") }));
+        Assert.False(node.InOneArea(new[] { Find(node, "local"), Find(node, "shared") }));
+        Assert.False(node.InOneArea(new[] { Find(node, "shared"), Find(node, "s2") }));
+        Assert.False(node.InOneArea(new BaseItem[] { team, second }));
+        string path = Path.Combine(TestEnvironment.NewScratchDir(), "mixed.ttmdata");
+        await Assert.ThrowsAsync<InvalidOperationException>(() => node.ExportItemsAsync(path, new[] { Find(node, "local"), Find(node, "shared") }));
+        Assert.False(File.Exists(path));
+    }
+
     [Fact]
     public async Task Several_items_move_into_a_folder_in_tree_order_with_one_save()
     {
