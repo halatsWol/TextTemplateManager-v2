@@ -38,7 +38,7 @@ A source whose file is missing is never written back automatically; the user cho
 
 ([source](diagrams/seq-sync-cycle.puml))
 
-`MainViewModel` polls every 4 seconds (`CheckSyncFilesForChangesAsync`). The poll only reads each active file's last-write time; DataNode remembers the time after its own reads and writes, so only a change made elsewhere triggers `ReapplySyncAsync`. Re-applies are serialized (`_syncApplyLock`), because the poll, a settings change and opening a `.ttmdata` file can overlap.
+`MainViewModel` polls every 4 seconds (`CheckSyncFilesForChangesAsync`). The poll only reads each active file's last-write time; DataNode remembers the time after its own reads and writes, so only a change made elsewhere triggers `ReapplySyncAsync`. A file that stays locked through the read's retries (`StorageService.ReadRootSharedAsync` reports `Locked`, e.g. OneDrive uploading it) is shown as missing and its time is not remembered, so the next poll reads it again; a file that doesn't load is not retried until it changes. Re-applies are serialized (`_syncApplyLock`), because the poll, a settings change and opening a `.ttmdata` file can overlap.
 
 After a re-apply, `TreeChanged` makes `MainViewModel` refresh the tree in place (`ApplyFilter`), or rebind it completely (`ReloadTree`) when the synced folders' order changed, because WinUI's `TreeView` can't move items of its bound root collection. The selection is put back if the refresh dropped it, and shortcuts are validated again.
 

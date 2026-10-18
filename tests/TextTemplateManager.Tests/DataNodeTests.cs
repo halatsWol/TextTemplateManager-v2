@@ -188,6 +188,37 @@ public class DataNodeTests
     }
 
     [Fact]
+    public async Task A_sync_file_locked_after_an_outside_edit_is_read_again_once_it_is_free()
+    {
+        string dir = TestEnvironment.NewScratchDir();
+        var storage = new StorageService(dir);
+        string path = Path.Combine(dir, "shared", "team.ttmdata");
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        await storage.SaveSharedAsync(path, new Folder { Title = "Root", Children = { new Template { Title = "Shared one", Content = "<p>s</p>" } } });
+        await storage.SaveSyncSettingsAsync(new SyncSettings { Sources = { new SyncSource { Name = "Team", Path = path, IsActive = true } } });
+        var node = new DataNode(storage);
+        await node.InitializeAsync();
+
+        // Edited on another PC, then held by OneDrive or a virus scan while the poll notices the change.
+        await new StorageService(TestEnvironment.NewScratchDir()).SaveSharedAsync(path, new Folder
+        {
+            Title = "Root",
+            Children = { new Template { Title = "Shared one", Content = "<p>s</p>" }, new Template { Title = "Added outside", Content = "<p>o</p>" } },
+        });
+        File.SetLastWriteTimeUtc(path, DateTime.UtcNow.AddMinutes(1));
+        using (new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None))
+        {
+            await node.CheckSyncFilesForChangesAsync();
+            Assert.True(node.LocalItems[0].SyncFileMissing);
+        }
+
+        await node.CheckSyncFilesForChangesAsync();
+
+        Assert.False(node.LocalItems[0].SyncFileMissing);
+        Assert.Contains("Added outside", node.LocalItems[0].Children.Select(c => c.Title));
+    }
+
+    [Fact]
     public async Task A_lost_sync_file_is_recreated_where_it_was_from_the_cached_copy()
     {
         var (node, source) = await NodeWithLostSyncFileAsync();

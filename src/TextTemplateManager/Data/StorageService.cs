@@ -336,25 +336,31 @@ public sealed class StorageService
     // ---- Shared (non-locking) IO for sync files, which may live on OneDrive ----
 
     /// <summary>Read a root Folder without locking the file, retrying transient locks (OneDrive).</summary>
-    public static async Task<Folder?> LoadRootSharedAsync(string filePath)
+    public static async Task<Folder?> LoadRootSharedAsync(string filePath) => (await ReadRootSharedAsync(filePath)).Root;
+
+    /// <summary>A sync file read: its tree, or null; <paramref name="Locked"/> when the file is there but stayed
+    /// locked through the retries (worth reading again later, unlike a file that doesn't load).</summary>
+    public sealed record SharedRead(Folder? Root, bool Locked);
+
+    public static async Task<SharedRead> ReadRootSharedAsync(string filePath)
     {
-        if (!File.Exists(filePath)) return null;
+        if (!File.Exists(filePath)) return new(null, false);
         for (int attempt = 0; attempt < 5; attempt++)
         {
             try
             {
                 using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read,
                     FileShare.ReadWrite | FileShare.Delete);
-                return LegacyRtf.ConvertTree(await JsonSerializer.DeserializeAsync(fs, Json.Folder));
+                return new(LegacyRtf.ConvertTree(await JsonSerializer.DeserializeAsync(fs, Json.Folder)), false);
             }
             catch (IOException) { await Task.Delay(150); }        // transient lock -> retry
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Sync read error: {ex.Message}");
-                return null;
+                return new(null, false);
             }
         }
-        return null;
+        return new(null, File.Exists(filePath));
     }
 
     private static async Task<string?> ReadAllTextSharedAsync(string path)

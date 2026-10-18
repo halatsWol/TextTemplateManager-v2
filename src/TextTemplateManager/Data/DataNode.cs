@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -634,9 +634,12 @@ public class DataNode
             Folder? fileRoot = null;
             if (!string.IsNullOrWhiteSpace(source.Path) && File.Exists(source.Path))
             {
-                try { fileRoot = await StorageService.LoadRootSharedAsync(source.Path); }
+                bool locked = false;
+                try { (fileRoot, locked) = await StorageService.ReadRootSharedAsync(source.Path); }
                 catch { fileRoot = null; }
-                _lastSeenWrite[source.Id] = GetLastWriteSafe(source.Path); // ignore our own reads later
+                // A file still locked (OneDrive upload, virus scan) is read again at the next poll: recording its
+                // time would leave it unread, and an outside edit made meanwhile would later be overwritten.
+                _lastSeenWrite[source.Id] = locked ? default : GetLastWriteSafe(source.Path);
             }
 
             if (fileRoot != null)

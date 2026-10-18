@@ -142,6 +142,22 @@ public class StorageServiceTests
     }
 
     [Fact]
+    public async Task A_sync_file_read_tells_a_locked_file_from_one_that_does_not_load()
+    {
+        string dir = TestEnvironment.NewScratchDir();
+        string good = Path.Combine(dir, "good.ttmdata"), broken = Path.Combine(dir, "broken.ttmdata");
+        await _storage.SaveSharedAsync(good, Tree("Root", "Alpha"));
+        await File.WriteAllTextAsync(broken, "{ not json");
+
+        var read = await StorageService.ReadRootSharedAsync(good);
+        Assert.Equal((true, false), (read.Root != null, read.Locked));
+        Assert.Equal(new StorageService.SharedRead(null, false), await StorageService.ReadRootSharedAsync(broken));
+        Assert.Equal(new StorageService.SharedRead(null, false), await StorageService.ReadRootSharedAsync(Path.Combine(dir, "missing.ttmdata")));
+        using (new FileStream(good, FileMode.Open, FileAccess.Read, FileShare.None))
+            Assert.Equal(new StorageService.SharedRead(null, true), await StorageService.ReadRootSharedAsync(good));
+    }
+
+    [Fact]
     public async Task Unreadable_settings_fall_back_to_defaults_but_keep_the_original()
     {
         string path = _storage.GetSettingsPath();
