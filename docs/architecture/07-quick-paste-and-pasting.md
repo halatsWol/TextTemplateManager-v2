@@ -20,7 +20,7 @@
 
 ## Input: PasteWindow and QuickPasteController
 
-`QuickPasteController` is Quick Paste's input logic without the window (and unit-tested without it): the single-key and multi-key lists (`ShortcutRow`s, local first, then sync order), the highlighted row of each, the active tab, and the multi key typed while Alt is held. `PasteWindow` feeds it keys and focus changes, renders its state, and executes the `PasteRequest` it returns.
+`QuickPasteController` is Quick Paste's input logic without the window (and unit-tested without it): the single-key and multi-key lists (`ShortcutRow`s, local first, then sync order), the highlighted row of each, the active tab, and the multi key typed while Alt is held. `PasteWindow` feeds it keys and focus changes, renders its state, and executes the `PasteRequest` it returns. Screen readers name the tree rows (`TreeViewNode.Content` is the `BaseItem`) and the list rows by `ToString()`, so `BaseItem` returns its title and `ShortcutRow` "title, shortcut key, source".
 
 ![Quick Paste input](diagrams/state-quick-paste-input.svg)
 

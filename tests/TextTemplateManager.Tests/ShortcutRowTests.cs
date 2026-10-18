@@ -44,4 +44,15 @@ public class ShortcutRowTests
         Assert.Same(shared, row.Template);
         Assert.Equal("tm-MSG", row.Key);
     }
+
+    // Screen readers name Quick Paste's rows and tree items by their text.
+    [Fact]
+    public void Rows_and_items_read_as_their_title_not_as_a_type_or_record_dump()
+    {
+        var template = new Template { Title = "Team msg" };
+
+        Assert.Equal("Team msg, shortcut tm-MSG, Team", new ShortcutRow(template, "tm-MSG", "Team", false).ToString());
+        Assert.Equal("Team msg", template.ToString());
+        Assert.Equal("Work", new Folder { Title = "Work" }.ToString());
+    }
 }

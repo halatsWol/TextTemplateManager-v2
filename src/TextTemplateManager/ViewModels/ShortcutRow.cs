@@ -13,6 +13,9 @@ public sealed record ShortcutRow(Template Template, string Key, string Source, b
 
     public FontStyle SourceStyle => IsLocal ? FontStyle.Italic : FontStyle.Normal;
 
+    // What a screen reader says for the row; a record would print all its members.
+    public override string ToString() => $"{Title}, shortcut {Key}, {Source}";
+
     /// <summary>The rows for every template with a single key (or a multi key, with the sync prefix),
     /// local first, then in sync-source order, as a single-key press resolves them.</summary>
     public static List<ShortcutRow> For(IEnumerable<ShortcutValidator.Entry> entries, IReadOnlyList<SyncSource> sources, bool multiKey)

@@ -27,6 +27,9 @@ namespace TextTemplateManager.Models
 
         public ObservableCollection<BaseItem> Children { get; set; } = new();
 
+        // Screen readers name Quick Paste's tree rows by it (their content is the item itself).
+        public override string ToString() => Title;
+
         /// <summary>Top-level folder representing a sync source. Transient; drives the icon badge.</summary>
         [JsonIgnore]
         public bool IsSyncRoot { get; set; }
