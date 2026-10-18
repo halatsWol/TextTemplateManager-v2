@@ -1,12 +1,14 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
+    <!-- Also the hosting window's name for screen readers; without it, that is the whole page as a data: URL. -->
+    <title>Template editor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="editor.css" />
 </head>
 <body>
-    <div id="toolbar"></div>
+    <div id="toolbar" role="toolbar" aria-label="Formatting"></div>
     <div id="editor-scroll">
         <div id="editor"></div>
     </div>

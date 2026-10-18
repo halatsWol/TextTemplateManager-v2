@@ -43,7 +43,7 @@ Details that keep this correct:
 
 ## TemplateEditor: the WebView2 bridge
 
-The editor is TipTap running in a WebView2 (`src/editor/src/main.js`, built into `Assets/editor/editor.html` with CSS and script inlined; the page is loaded with `NavigateToString`, so nothing is fetched and nothing can be cached stale). The preview in Quick Paste uses `preview.html` the same way.
+The editor is TipTap running in a WebView2 (`src/editor/src/main.js`, built into `Assets/editor/editor.html` with CSS and script inlined; the page is loaded with `NavigateToString`, so nothing is fetched and nothing can be cached stale). The preview in Quick Paste uses `preview.html` the same way. Both pages need their `<title>`: Chromium names its hosting window after it, and without one that name is the whole page as a `data:` URL, which a screen reader reads out when the focus enters the editor. The editing area is a named `role="textbox"`, and toolbar buttons are named by their tooltip (`aria-label`; their content is an icon or a glyph), with `aria-pressed` / `aria-haspopup` / `aria-expanded` for state.
 
 | Direction | Message | Purpose |
 | --- | --- | --- |

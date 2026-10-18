@@ -165,7 +165,7 @@
                         BorderThickness="1"
                         CornerRadius="4"
                         Background="{ThemeResource ControlFillColorDefaultBrush}">
-                    <WebView2 x:Name="PreviewWebView" Loaded="PreviewWebView_Loaded" IsTabStop="False"/>
+                    <WebView2 x:Name="PreviewWebView" Loaded="PreviewWebView_Loaded" IsTabStop="False" AutomationProperties.Name="Template preview"/>
                 </Border>
             </Grid>
 

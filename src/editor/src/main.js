@@ -496,7 +496,7 @@ const editor = new Editor({
     content: '',
     editorProps: {
         // Enable the browser spell checker so WebView2's context menu offers suggestions.
-        attributes: { spellcheck: 'true' },
+        attributes: { spellcheck: 'true', role: 'textbox', 'aria-multiline': 'true', 'aria-label': 'Template text' },
         handleDOMEvents: {
             // Right-click should place the caret under the pointer so the spell-check menu targets
             // the word you clicked. Chromium doesn't move the caret mid-word on right-click inside
@@ -704,6 +704,8 @@ function button(html, title, onClick, isActive) {
     b.className = 'tb-btn'
     b.innerHTML = html
     b.title = title
+    // Named by the tooltip: the content is an icon or a glyph (B, x2, ▾) that reads as nonsense.
+    b.setAttribute('aria-label', title)
     b.onclick = (e) => { e.preventDefault(); onClick() }
     if (isActive) b._active = isActive
     return b
@@ -717,12 +719,21 @@ function sep() {
 
 const activeChecks = []
 function refreshToolbar() {
-    for (const { el, fn } of activeChecks) el.classList.toggle('active', !!fn())
+    for (const { el, fn } of activeChecks) {
+        const on = !!fn()
+        el.classList.toggle('active', on)
+        if (el.tagName === 'BUTTON') el.setAttribute('aria-pressed', String(on))
+    }
 }
 
 // Popups: only one open at a time.
 let openPopup = null
-function closePopup() { if (openPopup) { openPopup.classList.add('hidden'); openPopup = null } }
+function closePopup() {
+    if (!openPopup) return
+    openPopup.classList.add('hidden')
+    openPopup._button?.setAttribute('aria-expanded', 'false')
+    openPopup = null
+}
 document.addEventListener('click', (e) => {
     if (openPopup && !openPopup.contains(e.target) && !e.target.closest('.tb-btn[data-pop]')) closePopup()
 })
@@ -749,6 +760,8 @@ function placePopup(pop, btn) {
 function popupButton(html, title, buildContent) {
     const b = button(html + '<span class="caret">▾</span>', title, () => {})
     b.dataset.pop = '1'
+    b.setAttribute('aria-haspopup', 'true')
+    b.setAttribute('aria-expanded', 'false')
     const pop = document.createElement('div')
     pop.className = 'popup hidden'
     buildContent(pop, () => closePopup())
@@ -759,6 +772,8 @@ function popupButton(html, title, buildContent) {
         if (!wasOpen) {
             placePopup(pop, b)
             openPopup = pop
+            pop._button = b
+            b.setAttribute('aria-expanded', 'true')
         }
     }
     toolbar.appendChild(b)
@@ -827,6 +842,8 @@ function colorPopup(colors, resetLabel, apply, reset) {
             sw.className = 'swatch'
             sw.style.background = hex
             sw.title = name
+            sw.setAttribute('role', 'button')
+            sw.setAttribute('aria-label', name)
             sw.onclick = (e) => { e.preventDefault(); apply(hex); close() }
             grid.appendChild(sw)
         }
@@ -910,6 +927,8 @@ toolbar.appendChild(sep())
 ;(function addLinkControl() {
     const b = button(ICONS.link + '<span class="caret">▾</span>', 'Link', () => {})
     b.dataset.pop = '1'
+    b.setAttribute('aria-haspopup', 'true')
+    b.setAttribute('aria-expanded', 'false')
     const pop = document.createElement('div')
     pop.className = 'popup hidden link-popup'
 
@@ -1007,6 +1026,8 @@ toolbar.appendChild(sep())
             }
             placePopup(pop, b)
             openPopup = pop
+            pop._button = b
+            b.setAttribute('aria-expanded', 'true')
             setTimeout(() => (urlInput.value ? textInput : urlInput).focus(), 0)
         }
     }
@@ -1047,6 +1068,7 @@ popupButton(ICONS.alignLeft, 'Text alignment', (pop, close) => {
         el.className = 'tb-btn'
         el.innerHTML = icon
         el.title = title
+        el.setAttribute('aria-label', title)
         el.onclick = (e) => { e.preventDefault(); run(c => c.setTextAlign(value)); close() }
         alignRow.appendChild(el)
     }
