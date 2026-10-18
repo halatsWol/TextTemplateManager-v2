@@ -35,6 +35,7 @@ jobs:
       - uses: actions/checkout@v5
 
       # The committed editor bundle is minified third-party code (TipTap, highlight.js): its sources are scanned instead.
+      # design/store/*.jsx are Photoshop ExtendScript (#target directive), not parseable as JavaScript.
       - uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
@@ -43,6 +44,7 @@ jobs:
             paths-ignore:
               - src/TextTemplateManager/Assets/editor
               - src/editor/node_modules
+              - design/store/*.jsx
 
       - uses: github/codeql-action/analyze@v4
         with:
