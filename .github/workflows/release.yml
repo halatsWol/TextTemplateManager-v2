@@ -33,8 +33,10 @@ jobs:
       - name: Version
         id: ver
         shell: pwsh
+        env:
+          INPUT_VERSION: ${{ inputs.version }}   # through the environment, never pasted into the script
         run: |
-          $v = if ($env:GITHUB_REF -like 'refs/tags/*') { $env:GITHUB_REF_NAME -replace '^v', '' } else { '${{ inputs.version }}' }
+          $v = if ($env:GITHUB_REF -like 'refs/tags/*') { $env:GITHUB_REF_NAME -replace '^v', '' } else { $env:INPUT_VERSION }
           if ($v -notmatch '^\d+\.\d+\.\d+$') { throw "'$v' is not X.Y.Z: the Store takes plain numeric versions only (no beta tags)." }
           "version=$v" >> $env:GITHUB_OUTPUT
           Write-Host "Building $v"
@@ -146,9 +148,14 @@ jobs:
 
       - name: Sign in to Partner Center
         shell: pwsh
+        env:
+          MSSTORE_TENANT_ID: ${{ secrets.MSSTORE_TENANT_ID }}
+          MSSTORE_SELLER_ID: ${{ secrets.MSSTORE_SELLER_ID }}
+          MSSTORE_CLIENT_ID: ${{ secrets.MSSTORE_CLIENT_ID }}
+          MSSTORE_CLIENT_SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
         run: |
-          msstore reconfigure --tenantId "${{ secrets.MSSTORE_TENANT_ID }}" --sellerId "${{ secrets.MSSTORE_SELLER_ID }}" `
-            --clientId "${{ secrets.MSSTORE_CLIENT_ID }}" --clientSecret "${{ secrets.MSSTORE_CLIENT_SECRET }}"
+          msstore reconfigure --tenantId $env:MSSTORE_TENANT_ID --sellerId $env:MSSTORE_SELLER_ID `
+            --clientId $env:MSSTORE_CLIENT_ID --clientSecret $env:MSSTORE_CLIENT_SECRET
           if ($LASTEXITCODE -ne 0) { throw 'msstore reconfigure failed' }
 
       # publish recreates the draft from the last published submission, so it runs before the notes are set.

@@ -1,0 +1,49 @@
+name: CodeQL
+
+# Code scanning (advanced setup): C#, the editor's JavaScript and the workflows themselves, without building
+# (build-mode none). Findings go to Security > Code scanning. Default setup must stay off, the two can't run together.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "17 5 * * 1"   # weekly, for new queries on unchanged code
+
+permissions: {}
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ${{ matrix.os }}
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: csharp
+            os: windows-latest
+          - language: javascript-typescript
+            os: ubuntu-latest
+          - language: actions
+            os: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # The committed editor bundle is minified third-party code (TipTap, highlight.js): its sources are scanned instead.
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+          config: |
+            paths-ignore:
+              - src/TextTemplateManager/Assets/editor
+              - src/editor/node_modules
+
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:${{ matrix.language }}

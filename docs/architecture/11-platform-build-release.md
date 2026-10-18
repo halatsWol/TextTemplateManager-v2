@@ -30,6 +30,14 @@
 
 The project is unpackaged by default (`WindowsPackageType=None`); `StoreBuild=true` switches to MSIX with the Windows App SDK as a framework dependency and an unsigned bundle (the Store signs it). The XAML compiler fails silently near 260-character paths, so release builds run from a short path. The editor bundle under `Assets/editor` is committed, so the app builds without Node; after changing `src/editor`, run `npm run build` there. `Manual.pdf` is generated from `docs/user/Manual.md` by `tools/ManualGen` during the build. The icon and tile PNGs and `AppIcon.ico` under `Assets` are committed too; they are rendered from `design/logo/logo.svg` by `design/logo/Render-Assets.ps1` (ImageMagick), so after changing the logo run that script. The Store listing images (screenshots in two colour schemes, `amber` and `slate`, and the 300x300 tile) are in `design/store`. They are built in Photoshop: `Make-StoreTemplates.jsx` makes the layered PSD templates in `templates` (live text layers, a smart object for the screenshot), and `Make-StoreImages.jsx` fills them with the captions and the window captures in `captures` (72 dpi, or Replace Contents scales them) and saves the PNGs. `Make-StoreArt.ps1` renders the poster, box and super hero art from the logo (ImageMagick).
 
+## Checks and dependency updates
+
+- `tests.yml` runs the test suite on every push to main (except docs-only changes) and on every pull request.
+- `codeql.yml` scans C#, the editor's JavaScript and the workflows with CodeQL (build-mode none) on pushes, pull requests and weekly. It skips the committed editor bundle, which is minified third-party code.
+- `dependabot.yml` opens grouped update pull requests monthly for NuGet, npm (`src/editor`) and the GitHub Actions; security updates come as soon as an advisory is out. An npm update changes the app only after `npm ci` and `npm run build` in `src/editor` and a commit of the rebuilt bundle; TipTap major versions are ignored.
+- Vulnerabilities are reported privately through the repository's Security tab (`SECURITY.md`).
+- Workflow inputs and secrets reach scripts through environment variables, never pasted into the script text.
+
 ## Release
 
 ![Release workflow](diagrams/act-release.svg)

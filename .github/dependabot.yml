@@ -1,0 +1,42 @@
+# Version updates once a month, minor and patch bumps grouped into one pull request per ecosystem. Security updates
+# (Settings > Advanced Security > Dependabot security updates) come as soon as an advisory is published.
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directories:
+      - /src/TextTemplateManager
+      - /tests/TextTemplateManager.Tests
+      - /tools/ManualGen
+    schedule:
+      interval: monthly
+    groups:
+      nuget:
+        update-types: [minor, patch]
+    commit-message:
+      prefix: deps
+
+  # The editor ships as the bundle committed under src/TextTemplateManager/Assets/editor: a merged update changes
+  # nothing in the app until `npm ci` and `npm run build` in src/editor and a commit of the rebuilt bundle.
+  - package-ecosystem: npm
+    directory: /src/editor
+    schedule:
+      interval: monthly
+    groups:
+      editor:
+        update-types: [minor, patch]
+    ignore:
+      # TipTap 3 is a rewrite of the extension API.
+      - dependency-name: "@tiptap/*"
+        update-types: ["version-update:semver-major"]
+    commit-message:
+      prefix: deps
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: ci
