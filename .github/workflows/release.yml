@@ -143,8 +143,11 @@ jobs:
             Where-Object { [string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($_)) }
           if ($missing) { throw "Missing secrets: $($missing -join ', ') (see docs/PUBLISHING.md)." }
 
+      # Pinned: the commands below follow this version's syntax (publish takes the package file, update takes --payload).
       - name: Set up the Microsoft Store Developer CLI
         uses: microsoft/microsoft-store-apppublisher@v1.1
+        with:
+          version: v0.4.3
 
       - name: Sign in to Partner Center
         shell: pwsh
@@ -158,12 +161,14 @@ jobs:
             --clientId $env:MSSTORE_CLIENT_ID --clientSecret $env:MSSTORE_CLIENT_SECRET
           if ($LASTEXITCODE -ne 0) { throw 'msstore reconfigure failed' }
 
-      # publish recreates the draft from the last published submission, so it runs before the notes are set.
+      # publish recreates the draft from the last published submission, so it runs before the notes are set. A built
+      # package is published by passing the .msixupload itself; -i would be the folder of a project's packages.
       - name: Upload the package to a draft submission
         shell: pwsh
         run: |
           $upload = Get-ChildItem store -Filter *.msixupload | Select-Object -First 1
-          msstore publish store -i $upload.FullName -id $env:STORE_PRODUCT_ID --noCommit
+          if (-not $upload) { throw 'No .msixupload in the store-submission artifact.' }
+          msstore publish $upload.FullName -id $env:STORE_PRODUCT_ID --noCommit
           if ($LASTEXITCODE -ne 0) { throw 'msstore publish failed' }
 
       - name: Set "What's new"
@@ -174,7 +179,10 @@ jobs:
           $listings = @($submission.Listings.PSObject.Properties)
           if (-not $listings) { throw 'The submission has no listings.' }
           foreach ($listing in $listings) { $listing.Value.BaseListing.ReleaseNotes = $notes }
-          msstore submission update $env:STORE_PRODUCT_ID ($submission | ConvertTo-Json -Depth 100 -Compress)
+          # From a file: the whole submission inline can exceed the command-line length limit.
+          $payload = Join-Path $env:RUNNER_TEMP 'submission.json'
+          $submission | ConvertTo-Json -Depth 100 -Compress | Set-Content -Path $payload -Encoding utf8NoBOM
+          msstore submission update $env:STORE_PRODUCT_ID --payload $payload
           if ($LASTEXITCODE -ne 0) { throw 'msstore submission update failed' }
           Write-Host "What's new set for: $($listings.Name -join ', ')"
 

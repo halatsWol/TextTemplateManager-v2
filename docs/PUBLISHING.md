@@ -82,4 +82,4 @@ If a submission failed because the secret had expired, renew it and re-run the f
 
 - **Before "Commit the submission"**: the package sits in a draft submission in Partner Center. Re-running the job replaces the draft. Or finish it by hand in Partner Center.
 - **After it**: the submission is in certification; check its status in Partner Center.
-- The workflow uses the Microsoft Store Developer CLI (`msstore`, installed by `microsoft/microsoft-store-apppublisher`). If its commands or the submission format change, the fix is in the `microsoft-store` job of `release.yml`.
+- The workflow uses the Microsoft Store Developer CLI (`msstore`, installed by `microsoft/microsoft-store-apppublisher`), pinned to a version (`version:` in the `microsoft-store` job). The package is published by passing the `.msixupload` file itself to `msstore publish`; the submission JSON goes to `msstore submission update` as a file (`--payload`). Before raising the pinned version, check these commands against its release notes; the fix is in the `microsoft-store` job of `release.yml`.
