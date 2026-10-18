@@ -158,6 +158,25 @@ public class StorageServiceTests
     }
 
     [Fact]
+    public async Task A_sync_file_that_cannot_be_written_reports_why_and_leaves_no_temp_file()
+    {
+        string path = Path.Combine(TestEnvironment.NewScratchDir(), "team.ttmdata");
+        Assert.Null(await _storage.SaveSharedAsync(path, Tree("Root", "Alpha")));
+        string before = await File.ReadAllTextAsync(path);
+        File.SetAttributes(path, FileAttributes.ReadOnly);
+        try
+        {
+            Assert.NotNull(await _storage.SaveSharedAsync(path, Tree("Root", "Beta")));
+            Assert.Equal(before, await File.ReadAllTextAsync(path));
+            Assert.False(File.Exists(path + ".tmp"));
+        }
+        finally { File.SetAttributes(path, FileAttributes.Normal); }
+
+        Assert.Null(await _storage.SaveSharedAsync(path, Tree("Root", "Beta")));
+        Assert.Contains("Beta", await File.ReadAllTextAsync(path));
+    }
+
+    [Fact]
     public async Task Unreadable_settings_fall_back_to_defaults_but_keep_the_original()
     {
         string path = _storage.GetSettingsPath();

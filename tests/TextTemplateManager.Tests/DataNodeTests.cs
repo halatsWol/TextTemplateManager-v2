@@ -219,6 +219,41 @@ public class DataNodeTests
     }
 
     [Fact]
+    public async Task A_sync_file_that_cannot_be_written_shows_a_warning_and_is_written_once_it_can_be()
+    {
+        string dir = TestEnvironment.NewScratchDir();
+        var storage = new StorageService(dir);
+        string path = Path.Combine(dir, "shared", "team.ttmdata");
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        await storage.SaveSharedAsync(path, new Folder { Title = "Root", Children = { new Template { Title = "Shared one", Content = "<p>s</p>" } } });
+        await storage.SaveSyncSettingsAsync(new SyncSettings { Sources = { new SyncSource { Name = "Team", Path = path, IsActive = true, AllowSave = true } } });
+        var node = new DataNode(storage);
+        await node.InitializeAsync();
+        var source = node.CurrentSyncSettings.Sources[0];
+        var folder = node.LocalItems[0];
+        string before = await File.ReadAllTextAsync(path);
+
+        File.SetAttributes(path, FileAttributes.ReadOnly);
+        try
+        {
+            ((Template)folder.Children[0]).Content = "<p>edited here</p>";
+            await node.SaveDataAsync();
+
+            Assert.True(source.HasWriteProblem);
+            Assert.True(folder.HasSyncWriteProblem);
+            Assert.Equal(before, await File.ReadAllTextAsync(path));
+            Assert.False(File.Exists(path + ".tmp"));
+        }
+        finally { File.SetAttributes(path, FileAttributes.Normal); }
+
+        await node.CheckSyncFilesForChangesAsync();   // the poll retries
+
+        Assert.False(source.HasWriteProblem);
+        Assert.False(folder.HasSyncWriteProblem);
+        Assert.Contains("edited here", await File.ReadAllTextAsync(path));
+    }
+
+    [Fact]
     public async Task A_lost_sync_file_is_recreated_where_it_was_from_the_cached_copy()
     {
         var (node, source) = await NodeWithLostSyncFileAsync();

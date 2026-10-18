@@ -514,8 +514,7 @@ public class DataNode
     public async Task<bool> RecreateSyncFileAsync(SyncSource source, string path)
     {
         if (RootFolder.Children.FirstOrDefault(c => c.Id == source.Id) is not Folder folder) return false;
-        await Storage.SaveSharedAsync(path, BuildFileTree(folder));
-        if (!File.Exists(path)) return false;
+        if (await Storage.SaveSharedAsync(path, BuildFileTree(folder)) != null || !File.Exists(path)) return false;
 
         source.Path = path;
         await SaveSyncSettingsAsync();
@@ -539,6 +538,7 @@ public class DataNode
         }
 
         if (changed) await ReapplySyncAsync();
+        else if (CurrentSyncSettings.Sources.Any(s => s.HasWriteProblem)) await SaveDataAsync();   // retry the failed write
     }
 
     private static DateTime GetLastWriteSafe(string path)
@@ -667,22 +667,34 @@ public class DataNode
     }
 
     /// <summary>Writes each active, save-enabled source's folder back to its file (skips missing
-    /// files). StorageService skips the write when the content is unchanged.</summary>
+    /// files). StorageService skips the write when the content is unchanged. A failed write is shown on the
+    /// source and its folder until a later write (the next save, or the poll's retry) succeeds.</summary>
     private async Task WriteSyncSourcesAsync()
     {
         // Snapshot: the loop awaits file writes, during which another flow (opening a .ttmdata, a
         // Sync-settings edit, a save/poll timer) may add or remove a source and invalidate the iterator.
-        foreach (var source in CurrentSyncSettings.Sources.Where(s => s.IsActive && s.AllowSave).ToList())
+        foreach (var source in CurrentSyncSettings.Sources.ToList())
         {
-            if (RootFolder.Children.FirstOrDefault(c => c.Id == source.Id) is not Folder folder) continue;
-            if (folder.SyncFileMissing) continue;
-            try
+            var folder = RootFolder.Children.FirstOrDefault(c => c.Id == source.Id) as Folder;
+            if (!source.IsActive || !source.AllowSave || folder == null || folder.SyncFileMissing)
             {
-                await Storage.SaveSharedAsync(source.Path, BuildFileTree(folder));
-                _lastSeenWrite[source.Id] = GetLastWriteSafe(source.Path); // don't treat our write as external
+                SetWriteProblem(source, folder, null);   // nothing written, nothing failing
+                continue;
             }
-            catch { /* best effort */ }
+            string? problem;
+            try { problem = await Storage.SaveSharedAsync(source.Path, BuildFileTree(folder)); }
+            catch (Exception ex) { problem = ex.Message; }
+            if (problem == null) _lastSeenWrite[source.Id] = GetLastWriteSafe(source.Path); // don't treat our write as external
+            SetWriteProblem(source, folder, problem);
         }
+    }
+
+    private static void SetWriteProblem(SyncSource source, Folder? folder, string? problem)
+    {
+        string? message = problem == null ? null
+            : $"Couldn't save to the sync file: {problem} Your changes are kept here and saved to the file as soon as it can be written.";
+        source.WriteProblem = message;
+        if (folder != null) folder.SyncWriteProblem = message;
     }
 
     /// <summary>Convert a synced folder's subtree into a sync-file tree keyed by SyncId

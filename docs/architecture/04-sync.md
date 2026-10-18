@@ -30,6 +30,8 @@ Items are matched by `SyncId` and **reused in place**, so the tree keeps expansi
 
 `SaveDataAsync` calls `WriteSyncSourcesAsync`: for each active source with `AllowSave` and an existing file, `BuildFileTree` turns the synced folder into a file tree keyed by `SyncId` (items added locally get a new `SyncId` here), and `SaveSharedAsync` writes it when it differs from the file. The root's title is always "Root" and its `LastChange` is the file's, so PCs with different local names write identical files.
 
+A write that fails (a read-only file, a share refusing writes, a lock outlasting the retries) leaves no `<file>.tmp` behind: `SaveSharedAsync` removes it and returns the reason. The changes stay in the local data; `SetWriteProblem` puts the message on the source (`SyncSource.WriteProblem`, a warning on its Settings > Sync row) and on its folder (`SyncWriteProblem`, a warning icon in the tree), and while any source has one, the 4-second poll calls `SaveDataAsync` again until the write succeeds and the warnings clear.
+
 A source whose file is missing is never written back automatically; the user chooses **Recreate the file from the cached copy** (`RecreateSyncFileAsync`, writes the cached folder to the old or a new path and relinks) or **Link another file** in Settings > Sync.
 
 ## Noticing changes from other PCs

@@ -34,6 +34,17 @@ namespace TextTemplateManager.Models
         /// same path (recreated, back online).</summary>
         public void RefreshFileState() => OnPropertyChanged(nameof(IsFileMissing));
 
+        /// <summary>The message for a failed write to the file (read-only, a share refusing writes); null once a
+        /// write succeeds. Transient, not persisted.</summary>
+        [ObservableProperty]
+        [JsonIgnore]
+        public partial string? WriteProblem { get; set; }
+
+        [JsonIgnore]
+        public bool HasWriteProblem => WriteProblem != null;
+
+        partial void OnWriteProblemChanged(string? value) => OnPropertyChanged(nameof(HasWriteProblem));
+
         /// <summary>Reorder-arrow affordances, set by the Sync settings page from list position:
         /// the top row can't move up, the bottom can't move down. Transient, not persisted.</summary>
         [ObservableProperty]

@@ -34,5 +34,16 @@ namespace TextTemplateManager.Models
         /// <summary>Sync-root folder whose file is missing; cached content still shown. Transient.</summary>
         [JsonIgnore]
         public bool SyncFileMissing { get; set; }
+
+        /// <summary>Sync-root folder whose file couldn't be written: the message for the tree's warning, or null.
+        /// Transient.</summary>
+        [ObservableProperty]
+        [JsonIgnore]
+        public partial string? SyncWriteProblem { get; set; }
+
+        [JsonIgnore]
+        public bool HasSyncWriteProblem => SyncWriteProblem != null;
+
+        partial void OnSyncWriteProblemChanged(string? value) => OnPropertyChanged(nameof(HasSyncWriteProblem));
     }
 }

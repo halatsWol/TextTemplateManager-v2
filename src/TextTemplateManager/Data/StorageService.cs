@@ -376,24 +376,34 @@ public sealed class StorageService
     }
 
     /// <summary>Write a sync file: skip if unchanged, else temp-then-atomic-move, retrying if the
-    /// target is briefly locked (OneDrive).</summary>
-    public async Task SaveSharedAsync(string path, Folder root)
+    /// target is briefly locked (OneDrive). Returns why it couldn't be written (read-only file, a share
+    /// refusing writes, a lock that outlasts the retries), or null; a failed write leaves no temp file.</summary>
+    public async Task<string?> SaveSharedAsync(string path, Folder root)
     {
         string json = JsonSerializer.Serialize(root, Json.Folder);
+        string? problem = null;
         await WithWriteLock(path, async () =>
         {
             string? existing = File.Exists(path) ? await ReadAllTextSharedAsync(path) : null;
             if (string.Equals(existing, json, StringComparison.Ordinal)) return;
 
             string tmp = path + ".tmp";
-            await WriteTempAsync(tmp, json);
-            for (int attempt = 0; attempt < 6; attempt++)
+            try
             {
-                try { File.Move(tmp, path, overwrite: true); Interlocked.Increment(ref _writeCount); return; }
-                catch (IOException) { await Task.Delay(200); }        // target locked -> retry
+                await WriteTempAsync(tmp, json);
+                for (int attempt = 0; ; attempt++)
+                {
+                    try { File.Move(tmp, path, overwrite: true); Interlocked.Increment(ref _writeCount); return; }
+                    catch (IOException) when (attempt < 5) { await Task.Delay(200); }   // target locked -> retry
+                }
             }
-            try { File.Delete(tmp); } catch { /* leave temp if even delete fails */ }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                problem = ex.Message;
+                try { if (File.Exists(tmp)) File.Delete(tmp); } catch { /* leave temp if even delete fails */ }
+            }
         });
+        return problem;
     }
 
     public async Task<AppSettings> LoadSettingsAsync() =>

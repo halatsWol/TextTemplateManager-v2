@@ -169,6 +169,10 @@
                                     </MenuFlyout>
                                 </Button.Flyout>
                             </Button>
+                            <FontIcon Glyph="&#xE7BA;" Foreground="#E6A700" FontSize="16"
+                                      Visibility="{x:Bind HasWriteProblem, Mode=OneWay, Converter={StaticResource BoolToVis}}"
+                                      AutomationProperties.Name="{x:Bind WriteProblem, Mode=OneWay}"
+                                      ToolTipService.ToolTip="{x:Bind WriteProblem, Mode=OneWay}"/>
                             <TextBlock Text="{x:Bind Path, Mode=OneWay}" TextTrimming="CharacterEllipsis"
                                        VerticalAlignment="Center"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
