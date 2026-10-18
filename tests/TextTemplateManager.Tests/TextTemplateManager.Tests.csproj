@@ -4,6 +4,8 @@
     <!-- Must match the app's TFM to reference it. UseWinUI stays off: these tests exercise the
          non-UI logic only, so the test host needs no WinUI bootstrap. -->
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <!-- Lets GitHub's dependency submission restore on Linux; no effect on Windows. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <Platforms>x64</Platforms>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>

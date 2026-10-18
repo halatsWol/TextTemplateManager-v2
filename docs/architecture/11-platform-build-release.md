@@ -35,6 +35,7 @@ The project is unpackaged by default (`WindowsPackageType=None`); `StoreBuild=tr
 - `tests.yml` runs the test suite on every push to main (except docs-only changes) and on every pull request.
 - `codeql.yml` scans C#, the editor's JavaScript and the workflows with CodeQL (build-mode none) on pushes, pull requests and weekly. It skips the committed editor bundle, which is minified third-party code.
 - `dependabot.yml` opens grouped update pull requests monthly for NuGet, npm (`src/editor`) and the GitHub Actions; security updates come as soon as an advisory is out. An npm update changes the app only after `npm ci` and `npm run build` in `src/editor` and a commit of the rebuilt bundle; TipTap major versions are ignored.
+- GitHub's automatic dependency submission restores the projects on Linux to list the transitive NuGet packages too; `EnableWindowsTargeting` in the app and test projects allows that (it has no effect on Windows).
 - Vulnerabilities are reported privately through the repository's Security tab (`SECURITY.md`).
 - Workflow inputs and secrets reach scripts through environment variables, never pasted into the script text.
 

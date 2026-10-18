@@ -2,6 +2,8 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <!-- Lets GitHub's dependency submission restore on Linux; no effect on Windows. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
     <RootNamespace>TextTemplateManager</RootNamespace>
     <!-- Ship the executable as ttm2.exe (independent of the .csproj / namespace name); 1.x is ttm.exe. -->
