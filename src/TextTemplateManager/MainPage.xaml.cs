@@ -47,6 +47,7 @@ namespace TextTemplateManager
             // never sees them — attach here to still get folder expand/collapse on those keys.
             ItemTreeView.AddHandler(UIElement.KeyDownEvent, new KeyEventHandler(ItemTreeView_KeyDown), true);
             ItemTreeView.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(ItemTreeView_PointerPressed), true);
+            ItemTreeView.PreviewKeyDown += ItemTreeView_PreviewKeyDown;
             // The list marks drag events over its empty space handled; a drop there moves to the end.
             ItemTreeView.AddHandler(UIElement.DragOverEvent, new DragEventHandler(ItemTreeView_DragOver), true);
             ItemTreeView.AddHandler(UIElement.DropEvent, new DragEventHandler(ItemTreeView_Drop), true);
@@ -917,6 +918,24 @@ namespace TextTemplateManager
                     box.SelectionLength = 0;
                     box.SelectionStart = box.Text.Length;
                 }
+            }
+        }
+
+        // Taken before the tree's own arrow handling, which would select just the next row.
+        private void ItemTreeView_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (IsAltDown()) return;
+            if (e.Key is VirtualKey.Up or VirtualKey.Down && IsShiftDown() && !IsCtrlDown())
+            {
+                e.Handled = true;
+                if (ViewModel.ExtendSelection(e.Key == VirtualKey.Down ? 1 : -1)
+                    && ViewModel.SelectedNode is TreeNode node && ItemTreeView.ContainerFromItem(node) is TreeViewItem row)
+                    row.Focus(FocusState.Keyboard);
+            }
+            else if (e.Key == VirtualKey.A && IsCtrlDown() && !IsShiftDown())
+            {
+                e.Handled = true;
+                ViewModel.SelectAllVisible();
             }
         }
 

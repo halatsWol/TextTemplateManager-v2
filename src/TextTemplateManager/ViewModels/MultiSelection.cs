@@ -5,7 +5,8 @@ using TextTemplateManager.Models;
 namespace TextTemplateManager.ViewModels;
 
 /// <summary>Several selected tree items, chosen as in Explorer: a click selects one, Ctrl+click adds or removes
-/// one, Shift+click selects the visible rows between the anchor (the last click without Shift) and the clicked one.</summary>
+/// one, Shift+click selects the visible rows between the anchor (the last click without Shift) and the clicked one;
+/// Shift+Up/Down and Ctrl+A do the same from the keyboard.</summary>
 public sealed class MultiSelection
 {
     private readonly List<BaseItem> _items = new();
@@ -61,6 +62,28 @@ public sealed class MultiSelection
 
         Reset(item);
         return item;
+    }
+
+    /// <summary>Shift+Up/Down: moves the focus <paramref name="step"/> rows from <paramref name="focus"/> and
+    /// selects the rows from the anchor to it. Returns the new focus, or null at the first or last row.</summary>
+    public BaseItem? Extend(BaseItem focus, int step, IList<BaseItem> visible)
+    {
+        int at = visible.IndexOf(focus);
+        if (at < 0 || at + step < 0 || at + step >= visible.Count) return null;
+        if (_anchor == null || !visible.Contains(_anchor)) _anchor = focus;   // e.g. inside a folder collapsed since
+        return Click(visible[at + step], ctrl: false, shift: true, visible);
+    }
+
+    /// <summary>Ctrl+A: selects all <paramref name="visible"/> rows, the focus kept (or the first row without
+    /// one). Returns the focus.</summary>
+    public BaseItem SelectAll(IList<BaseItem> visible, BaseItem? focus)
+    {
+        if (focus == null || !visible.Contains(focus)) focus = visible[0];
+        _items.Clear();
+        _items.AddRange(visible.Where(i => !ReferenceEquals(i, focus)));
+        _items.Add(focus);
+        _anchor = focus;
+        return focus;
     }
 
     /// <summary>The selected items without those inside another selected folder (which come along anyway).</summary>

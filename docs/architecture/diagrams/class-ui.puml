@@ -45,6 +45,8 @@ class MainViewModel <<ObservableObject>> {
   +ApplyFilter() / ReloadTree()
   +ValidateAllShortcuts()
   +ClickItem(item, ctrl, shift)
+  +ExtendSelection(step)
+  +SelectAllVisible()
 }
 class TreeNode <<ObservableObject>> {
   +Item : BaseItem
@@ -63,6 +65,8 @@ class ItemDraft {
 class MultiSelection {
   +Items
   +Click(item, ctrl, shift, visible)
+  +Extend(focus, step, visible)
+  +SelectAll(visible, focus)
   +{static} TopMost(items)
 }
 class ConflictReport

@@ -58,6 +58,56 @@ public class MultiSelectionTests
     }
 
     [Fact]
+    public void Shift_arrows_extend_from_the_anchor_and_shrink_back()
+    {
+        _selection.Click(B, false, false, Rows);
+
+        Assert.Equal(C, _selection.Extend(B, 1, Rows));
+        Assert.Equal(D, _selection.Extend(C, 1, Rows));
+        Assert.Equal("BCD", Selected());
+        Assert.Null(_selection.Extend(D, 1, Rows));   // last row: nothing changes
+        Assert.Equal("BCD", Selected());
+
+        Assert.Equal(C, _selection.Extend(D, -1, Rows));
+        Assert.Equal(B, _selection.Extend(C, -1, Rows));
+        Assert.Equal(A, _selection.Extend(B, -1, Rows));   // past the anchor the other way
+        Assert.Equal("BA", Selected());
+        Assert.Null(_selection.Extend(A, -1, Rows));
+    }
+
+    [Fact]
+    public void Shift_arrows_start_at_the_focus_when_the_anchor_is_no_longer_visible()
+    {
+        var hidden = new Template { Title = "H" };
+        var withHidden = new List<BaseItem> { A, hidden, B, C, D };
+        _selection.Click(hidden, false, false, withHidden);
+        _selection.Click(B, false, shift: true, withHidden);   // anchor H, focus B; then H's folder is collapsed
+
+        Assert.Equal(C, _selection.Extend(B, 1, Rows));
+
+        Assert.Equal("BC", Selected());
+    }
+
+    [Fact]
+    public void Ctrl_a_selects_every_visible_row_and_keeps_the_focus()
+    {
+        _selection.Click(C, false, false, Rows);
+
+        Assert.Equal(C, _selection.SelectAll(Rows, C));
+        Assert.Equal("ABDC", Selected());
+
+        Assert.Equal(B, _selection.Extend(C, -1, Rows));   // the focus is the new anchor
+        Assert.Equal("CB", Selected());
+    }
+
+    [Fact]
+    public void Ctrl_a_without_a_focus_focuses_the_first_row()
+    {
+        Assert.Equal(A, _selection.SelectAll(Rows, null));
+        Assert.Equal("BCDA", Selected());
+    }
+
+    [Fact]
     public void Items_inside_a_selected_folder_are_left_out_of_the_top_most()
     {
         var inner = new Template { Title = "Inner" };

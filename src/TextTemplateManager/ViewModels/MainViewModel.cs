@@ -620,10 +620,7 @@ public partial class MainViewModel : ObservableObject
     {
         ModifierClickPending = false;
         var focus = _selection.Click(item, ctrl, shift, VisibleItems());
-        _clicking = true;
-        try { SelectedItem = focus; }
-        finally { _clicking = false; }
-        UpdateSelectionHighlight();
+        FocusInSelection(focus);
 
         // The TreeView handles the same click after this, and on a Ctrl+click its own single-select logic
         // deselects: put the focus back once it is done, and don't let its interim changes reset the selection.
@@ -643,6 +640,29 @@ public partial class MainViewModel : ObservableObject
     }
 
     private BaseItem? _settlingFocus;
+
+    /// <summary>Shift+Up/Down in the tree. False at the first or last row (nothing changed).</summary>
+    public bool ExtendSelection(int step)
+    {
+        if (SelectedItem is not { } focus || _selection.Extend(focus, step, VisibleItems()) is not { } next) return false;
+        FocusInSelection(next);
+        return true;
+    }
+
+    /// <summary>Ctrl+A in the tree: every visible row.</summary>
+    public void SelectAllVisible()
+    {
+        var visible = VisibleItems();
+        if (visible.Count > 0) FocusInSelection(_selection.SelectAll(visible, SelectedItem));
+    }
+
+    private void FocusInSelection(BaseItem focus)
+    {
+        _clicking = true;
+        try { SelectedItem = focus; }
+        finally { _clicking = false; }
+        UpdateSelectionHighlight();
+    }
 
     private void ResetSelection(BaseItem? item)
     {

@@ -121,7 +121,7 @@ namespace TextTemplateManager
                 "Your templates, in folders. Synced folders (with the badge) come from a shared file and stay at the top. The search box filters the tree; Ctrl+F jumps to it, and ↓ moves on into the tree.",
                 () => LeftPane),
             new("Organizing",
-                "Add a template or a folder (into the selected folder), delete the selection, and collapse or expand all folders. Drag and drop moves items; Ctrl+click and Shift+click select several.",
+                "Add a template or a folder (into the selected folder), delete the selection, and collapse or expand all folders. Drag and drop moves items; Ctrl+click, Shift+click and Shift+arrow keys select several, Ctrl+A all.",
                 () => TreeToolbar),
             new("The editor",
                 "Format text with headings, lists, tables, code blocks with syntax highlighting, and callout panels like the Info panel here.",
