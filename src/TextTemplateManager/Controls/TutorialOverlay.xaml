@@ -3,7 +3,7 @@
     x:Class="TextTemplateManager.Controls.TutorialOverlay"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Visibility="Collapsed">
+    Visibility="Collapsed" IsTabStop="False" UseSystemFocusVisuals="False" PreviewKeyDown="Overlay_PreviewKeyDown">
 
     <!-- The transparent background takes every click, the cutout included: during the tour only the card works. -->
     <Grid x:Name="Root" Background="Transparent" KeyDown="Root_KeyDown" PointerPressed="Root_PointerPressed">

@@ -52,6 +52,7 @@ public sealed partial class TutorialOverlay : UserControl
         _canGoBackFromFirst = canGoBackFromFirst;
         _endsTour = endsTour;
         _done = new TaskCompletionSource<TourOutcome>();
+        IsTabStop = false;
         Card.Visibility = Visibility.Visible;
         Visibility = Visibility.Visible;
         // The cutout follows its control through resizes, scrolling and layout changes.
@@ -65,6 +66,7 @@ public sealed partial class TutorialOverlay : UserControl
     public void End()
     {
         Finish(TourOutcome.Skipped);
+        IsTabStop = false;
         Visibility = Visibility.Collapsed;
     }
 
@@ -87,7 +89,10 @@ public sealed partial class TutorialOverlay : UserControl
         ClearExtra();
         if (outcome == TourOutcome.Done && !_endsTour)
         {
-            // Another part follows in another window: this one stays dimmed and blocked, without a card.
+            // Another part follows in another window: this one stays dimmed and blocked, without a card. The overlay
+            // keeps the focus, else it falls to the page (its File menu), where Enter or Space would act.
+            IsTabStop = true;
+            Focus(FocusState.Programmatic);
             Card.Visibility = Visibility.Collapsed;
             Highlight.Visibility = Visibility.Collapsed;
             Dim.Data = new RectangleGeometry { Rect = new Rect(0, 0, Root.ActualWidth, Root.ActualHeight) };
@@ -250,7 +255,14 @@ public sealed partial class TutorialOverlay : UserControl
     private void Root_PointerPressed(object sender, PointerRoutedEventArgs e)
     {
         e.Handled = true;
-        NextButton.Focus(FocusState.Programmatic);
+        if (_done != null) NextButton.Focus(FocusState.Programmatic);
+        else Focus(FocusState.Programmatic);
+    }
+
+    // Dimmed while another window shows its part: no key may reach the page, not even its shortcuts.
+    private void Overlay_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        if (_done == null) e.Handled = true;
     }
 
     private void Root_KeyDown(object sender, KeyRoutedEventArgs e)
