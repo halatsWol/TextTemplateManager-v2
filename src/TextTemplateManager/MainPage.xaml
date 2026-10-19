@@ -125,7 +125,7 @@
                 </Button>
                 <Button x:Name="MainHelpButton"
                         Content="&#xE897;" FontFamily="Segoe MDL2 Assets" Click="MainHelpButton_Click"
-                        ToolTipService.ToolTip="Quick Help" Style="{StaticResource SubtleButtonStyle}"/>
+                        ToolTipService.ToolTip="Quick Help" AutomationProperties.Name="Quick Help" Style="{StaticResource SubtleButtonStyle}"/>
             </StackPanel>
 
             <!-- Main Content Grid -->
@@ -155,7 +155,7 @@
                                     AutomationProperties.Name="Add Template" IsEnabled="{x:Bind ViewModel.CanAddHere, Mode=OneWay}"/>
                             <Button Content="&#xE8B7;" FontFamily="Segoe MDL2 Assets" Click="AddFolder_Click" ToolTipService.ToolTip="Add Folder"
                                     AutomationProperties.Name="Add Folder" IsEnabled="{x:Bind ViewModel.CanAddHere, Mode=OneWay}"/>
-                            <Button Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" Click="DeleteItem_Click" ToolTipService.ToolTip="Delete Item"
+                            <Button Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" Click="DeleteItem_Click" ToolTipService.ToolTip="Delete Item" AutomationProperties.Name="Delete Item"
                                     IsEnabled="{x:Bind ViewModel.CanDeleteSelection, Mode=OneWay}"/>
                         </StackPanel>
                         <!-- Chevrons as on the tree's folders: right = collapsed, down = expanded. Smaller glyphs; the
@@ -287,7 +287,7 @@
 
                                 <StackPanel Grid.Column="0" HorizontalAlignment="Left">
                                     <TextBlock Text="Single Key" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                    <TextBox x:Name="SingleKeyBox" Width="50"
+                                    <TextBox x:Name="SingleKeyBox" Width="50" AutomationProperties.Name="Single Key"
                                              CharacterCasing="Upper"
                                              MaxLength="1"
                                              IsReadOnly="{x:Bind ViewModel.IsSelectedReadOnly, Mode=OneWay}"
@@ -300,7 +300,7 @@
 
                                 <StackPanel Grid.Column="1" HorizontalAlignment="Left">
                                     <TextBlock Text="Multi Key" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                    <TextBox x:Name="MultiKeyBox" Width="250"
+                                    <TextBox x:Name="MultiKeyBox" Width="250" AutomationProperties.Name="Multi Key"
                                              MaxLength="20"
                                              CharacterCasing="Upper"
                                              IsReadOnly="{x:Bind ViewModel.IsSelectedReadOnly, Mode=OneWay}"

@@ -38,7 +38,7 @@
             <StackPanel Spacing="4">
                 <TextBlock Text="Default paste mode"/>
                 <TextBlock Text="Used for newly created templates." Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                <ComboBox x:Name="PasteModeCombo"
+                <ComboBox x:Name="PasteModeCombo" AutomationProperties.Name="Default paste mode"
                           MinWidth="200"
                           SelectedItem="{x:Bind ViewModel.DefaultPasteMode, Mode=TwoWay}">
                     <ComboBox.ItemTemplate>

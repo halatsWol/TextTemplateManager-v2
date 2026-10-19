@@ -1,4 +1,4 @@
-﻿<Window
+<Window
     x:Class="TextTemplateManager.PasteWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -60,7 +60,7 @@
                 Margin="0,10,15,0"
                 IsTabStop="False"
                 Style="{StaticResource SubtleButtonStyle}"
-                ToolTipService.ToolTip="Usage Help">
+                ToolTipService.ToolTip="Usage Help" AutomationProperties.Name="Usage Help">
             <SymbolIcon Symbol="Help"/>
         </Button>
 
@@ -210,14 +210,14 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Border BorderThickness="0,1,0,1" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" Padding="6,0">
-                    <SelectorBar x:Name="ShortcutTabs" SelectionChanged="ShortcutTabs_SelectionChanged" IsTabStop="False">
+                    <SelectorBar x:Name="ShortcutTabs" AutomationProperties.Name="Shortcut lists" SelectionChanged="ShortcutTabs_SelectionChanged" IsTabStop="False">
                         <SelectorBarItem x:Name="TabSingle" Text="Single Key" IsSelected="True"/>
                         <SelectorBarItem x:Name="TabMulti" Text="Multi Key"/>
                     </SelectorBar>
                 </Border>
 
                 <Grid Grid.Row="1">
-                    <ListView x:Name="SingleKeyList" SelectionMode="Single" IsTabStop="False" SelectionChanged="SingleKeyList_SelectionChanged">
+                    <ListView x:Name="SingleKeyList" AutomationProperties.Name="Single Key shortcuts" SelectionMode="Single" IsTabStop="False" SelectionChanged="SingleKeyList_SelectionChanged">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -248,7 +248,7 @@
                         </ListView.ItemTemplate>
                     </ListView>
 
-                    <ListView x:Name="MultiKeyList" SelectionMode="Single" IsTabStop="False" Visibility="Collapsed" SelectionChanged="MultiKeyList_SelectionChanged">
+                    <ListView x:Name="MultiKeyList" AutomationProperties.Name="Multi Key shortcuts" SelectionMode="Single" IsTabStop="False" Visibility="Collapsed" SelectionChanged="MultiKeyList_SelectionChanged">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>

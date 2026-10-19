@@ -54,5 +54,6 @@ public class ShortcutRowTests
         Assert.Equal("Team msg, shortcut tm-MSG, Team", new ShortcutRow(template, "tm-MSG", "Team", false).ToString());
         Assert.Equal("Team msg", template.ToString());
         Assert.Equal("Work", new Folder { Title = "Work" }.ToString());
+        Assert.Equal("Team", new SyncSource { Name = "Team" }.ToString());
     }
 }

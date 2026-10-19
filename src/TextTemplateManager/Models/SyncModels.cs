@@ -24,6 +24,9 @@ namespace TextTemplateManager.Models
         /// <summary>Namespaces this folder's multikey shortcuts (e.g. "and" → "and-msg").</summary>
         [ObservableProperty] public partial string ShortcutPrefix { get; set; } = string.Empty;
 
+        // Screen readers name the Sync settings rows by it.
+        public override string ToString() => Name;
+
         /// <summary>Path configured but file absent (moved/offline). Not persisted.</summary>
         [JsonIgnore]
         public bool IsFileMissing => !string.IsNullOrWhiteSpace(Path) && !File.Exists(Path);

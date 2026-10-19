@@ -48,6 +48,7 @@ namespace TextTemplateManager
             ItemTreeView.AddHandler(UIElement.KeyDownEvent, new KeyEventHandler(ItemTreeView_KeyDown), true);
             ItemTreeView.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(ItemTreeView_PointerPressed), true);
             ItemTreeView.PreviewKeyDown += ItemTreeView_PreviewKeyDown;
+            TreeViewNames.NameForScreenReaders(ItemTreeView, "Templates");
             // The list marks drag events over its empty space handled; a drop there moves to the end.
             ItemTreeView.AddHandler(UIElement.DragOverEvent, new DragEventHandler(ItemTreeView_DragOver), true);
             ItemTreeView.AddHandler(UIElement.DropEvent, new DragEventHandler(ItemTreeView_Drop), true);

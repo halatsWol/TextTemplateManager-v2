@@ -29,7 +29,7 @@
                     <TextBlock Text="Shortcut prefix separator" VerticalAlignment="Center"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     <!-- Value is mapped by index: 0='-', 1='.', 2=none (""). See the code-behind. -->
-                    <ComboBox x:Name="SeparatorBox" Width="96"
+                    <ComboBox x:Name="SeparatorBox" Width="96" AutomationProperties.Name="Shortcut prefix separator"
                               SelectionChanged="Separator_SelectionChanged">
                         <ComboBoxItem Content="-"/>
                         <ComboBoxItem Content="."/>
@@ -41,7 +41,7 @@
                 </StackPanel>
             </StackPanel>
             <Button x:Name="SyncHelpButton" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Right"
-                    Click="SyncHelpButton_Click" ToolTipService.ToolTip="Quick Help" Style="{StaticResource SubtleButtonStyle}">
+                    Click="SyncHelpButton_Click" ToolTipService.ToolTip="Quick Help" AutomationProperties.Name="Quick Help" Style="{StaticResource SubtleButtonStyle}">
                 <FontIcon Glyph="&#xE897;"/>
             </Button>
         </Grid>
@@ -127,7 +127,7 @@
         </Grid>
 
         <!-- Source list -->
-        <ListView Grid.Row="3" x:Name="SourceList" SelectionMode="None">
+        <ListView Grid.Row="3" x:Name="SourceList" SelectionMode="None" AutomationProperties.Name="Sync sources">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -148,9 +148,9 @@
                         </Grid.ColumnDefinitions>
 
                         <CheckBox Grid.Column="0" MinWidth="0" IsChecked="{x:Bind IsActive, Mode=TwoWay}"
-                                  ToolTipService.ToolTip="Active (loaded into the tree)"/>
+                                  ToolTipService.ToolTip="Active (loaded into the tree)" AutomationProperties.Name="Active"/>
                         <CheckBox Grid.Column="1" MinWidth="0" IsChecked="{x:Bind AllowSave, Mode=TwoWay}"
-                                  ToolTipService.ToolTip="Allow save (editable / writes back)"/>
+                                  ToolTipService.ToolTip="Allow save (editable / writes back)" AutomationProperties.Name="Allow save"/>
                         <TextBox Grid.Column="2" Text="{x:Bind Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  PlaceholderText="Folder name"/>
                         <TextBox Grid.Column="3" Text="{x:Bind ShortcutPrefix, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -179,15 +179,15 @@
                         </StackPanel>
 
                         <StackPanel Grid.Column="5" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
-                            <Button Click="MoveUp_Click" Padding="6" ToolTipService.ToolTip="Move up"
+                            <Button Click="MoveUp_Click" Padding="6" ToolTipService.ToolTip="Move up" AutomationProperties.Name="Move up"
                                     IsEnabled="{x:Bind CanMoveUp, Mode=OneWay}">
                                 <FontIcon Glyph="&#xE70E;" FontSize="14"/>
                             </Button>
-                            <Button Click="MoveDown_Click" Padding="6" ToolTipService.ToolTip="Move down"
+                            <Button Click="MoveDown_Click" Padding="6" ToolTipService.ToolTip="Move down" AutomationProperties.Name="Move down"
                                     IsEnabled="{x:Bind CanMoveDown, Mode=OneWay}">
                                 <FontIcon Glyph="&#xE70D;" FontSize="14"/>
                             </Button>
-                            <Button Click="Remove_Click" Padding="6" ToolTipService.ToolTip="Remove">
+                            <Button Click="Remove_Click" Padding="6" ToolTipService.ToolTip="Remove" AutomationProperties.Name="Remove">
                                 <FontIcon Glyph="&#xE74D;" FontSize="14"/>
                             </Button>
                         </StackPanel>
