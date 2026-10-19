@@ -28,7 +28,7 @@ jobs:
     outputs:
       publish_store: ${{ steps.targets.outputs.publish_store }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Version
         id: ver
@@ -58,7 +58,7 @@ jobs:
           "publish_store=$store" >> $env:GITHUB_OUTPUT
           Write-Host "Store submission: $store"
 
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: |
             8.0.x
@@ -88,7 +88,7 @@ jobs:
           Write-Host '----- Store "What''s new" -----'; Get-Content dist/store-notes.txt
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: TextTemplateManager-${{ steps.ver.outputs.version }}
           path: |
@@ -97,7 +97,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload the Store submission files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: store-submission
           path: |
@@ -126,7 +126,7 @@ jobs:
     env:
       STORE_PRODUCT_ID: 9NMBSZLLLN6V   # public (the Store link); not a secret
     steps:
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         with:
           name: store-submission
           path: store
@@ -166,7 +166,7 @@ jobs:
 
       # Pinned: the commands below follow this version's syntax (publish takes the package file, update takes --payload).
       - name: Set up the Microsoft Store Developer CLI
-        uses: microsoft/microsoft-store-apppublisher@v1.1
+        uses: microsoft/microsoft-store-apppublisher@v1.4
         with:
           version: v0.4.3
 
