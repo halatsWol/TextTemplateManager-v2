@@ -20,7 +20,7 @@ The Store catalog is available to winget as the `msstore` source:
 
     winget install --id 9NMBSZLLLN6V --source msstore --accept-package-agreements --accept-source-agreements
 
-Run it in the context of the user who will use the app (the package is registered per user). `winget upgrade --id 9NMBSZLLLN6V --source msstore` installs an available update.
+Run it in the context of the user who will use the app (the package is registered per user). It needs no Microsoft account on the device: on a managed Windows Enterprise PC without one, the Store's first licence request fails (`0x80070525` in its log), is retried and succeeds. `winget upgrade --id 9NMBSZLLLN6V --source msstore` installs an available update.
 
 ### Microsoft Intune
 
@@ -56,16 +56,49 @@ The Microsoft Store updates TextTemplateManager like any other Store app. There 
 
 ### When an update installs
 
-Windows never replaces a package while it is in use, and TextTemplateManager usually runs all day in the system tray (it starts with Windows). An update is therefore installed once the app is closed: when the user quits it (**File ▸ Exit** or the tray icon), signs out, or restarts. Until then the running version stays in use. To bring a machine up to date on purpose, quit the app and run `winget upgrade --id 9NMBSZLLLN6V --source msstore` or **Library ▸ Get updates** in the Store app.
+An update is installed in two steps: the Store downloads and **stages** the new version next to the installed one, then Windows **registers** it, which switches the app over. Windows never switches a package while the app is running and doesn't close it for a Store update.
+
+- **Automatic updates** come from the Store's background check, which runs on Windows' own schedule (typically every few hours, not when a new version is published). It only gets through when TextTemplateManager isn't running at that moment.
+- TextTemplateManager **starts with Windows and runs in the system tray all day**, so that moment can be a long time coming: a machine can stay on an older version for days. Signing out or restarting doesn't reliably help, because the app starts again right at logon.
+- **Opening the Store app** also checks for updates, and the Store then shows **Update**. It doesn't install by itself; clicking **Update** does.
+
+To bring a machine up to date on purpose:
+
+1. Quit the app completely: tray icon ▸ **Exit App**, or **File ▸ Exit** (closing the window only hides it).
+2. Run `winget upgrade --id 9NMBSZLLLN6V --source msstore`, or click **Update** in the Store app (**Library**, or the app's Store page).
+3. Start TextTemplateManager again; **Help ▸ About** shows the version.
+
+With Intune, an assigned *Microsoft Store app (new)* is brought up to date by Intune's own schedule, under the same rule: the switch happens while the app isn't running.
 
 ### Store restricted by policy
 
 - **"Turn off the Store application"** (Administrative Templates ▸ Windows Components ▸ Store) only blocks the Store app's window; according to Microsoft's documentation, Store apps keep updating automatically, and Intune and winget can still install them. Reports differ on whether this holds when the policy is set at computer level and on Windows 11 24H2 and later, so verify it on a pilot device in your configuration.
-- **"Turn off Automatic Download and Install of updates"** stops automatic updates of all Store apps, TextTemplateManager included. Update it then through Intune, winget or the Store app.
+- **"Turn off Automatic Download and Install of updates"** (registry: `HKLM\SOFTWARE\Policies\Microsoft\WindowsStore`, `AutoDownload` = 4; 2 = always on) stops automatic updates of all Store apps, TextTemplateManager included. The background check still finds the update but only parks it; nothing is downloaded. Update it then through Intune, `winget upgrade` or **Update** in the Store app, which this policy doesn't block.
 - **"Only display the private store within the Microsoft Store app"** / *Require private store only* is reported to block deliveries of public Store apps, including Intune's *Microsoft Store app (new)* deployments.
 - **Disabling winget's `msstore` source** (Desktop App Installer policy *Enable App Installer Microsoft Store Source*) also breaks Intune's *Microsoft Store app (new)* deployments and `winget upgrade`.
 - **Network:** the Store's download endpoints (and Delivery Optimization) must be reachable; SSL inspection of Microsoft endpoints commonly breaks Store downloads.
 - **Windows LTSC / without the Store:** deploy and update through Intune or winget.
+
+### Checking a machine
+
+Installed version, and whether the app is running (and from which version):
+
+    (Get-AppxPackage MarflowSoftware.TextTemplateManager).Version
+    Get-Process ttm2 -ErrorAction Ignore | Select-Object StartTime, Path
+
+The Store and Windows log every step of an install or update under **Event Viewer ▸ Applications and Services Logs ▸ Microsoft ▸ Windows**, in **Store ▸ Operational** (search, download, pause, cancel, and who started it: the background check, the Store app or winget) and **AppXDeploymentServer ▸ Operational** (stage, register, remove). Filter for `TextTemplateManager` or `9NMBSZLLLN6V`:
+
+    $log = 'Microsoft-Windows-AppXDeploymentServer/Operational'
+    Get-WinEvent -LogName $log -MaxEvents 500 |
+        Where-Object Message -match 'TextTemplateManager'
+
+Codes you may meet there:
+
+| Code | Meaning |
+| --- | --- |
+| `0x80073D02` | The package is in use: the app was running when Windows tried to switch versions. Quit it and update again. |
+| `0x80073CF1` | Remove of a package that isn't installed for this user. Harmless; Windows tidies up a leftover or staged copy. |
+| `0x80070525` | No Microsoft account for a licence request; the Store retries without one. Harmless if the install completes. |
 
 ---
 
