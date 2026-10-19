@@ -60,13 +60,14 @@ An update is installed in two steps: the Store downloads and **stages** the new 
 
 - **Automatic updates** come from the Store's background check, which runs on Windows' own schedule (typically every few hours, not when a new version is published). It only gets through when TextTemplateManager isn't running at that moment.
 - TextTemplateManager **starts with Windows and runs in the system tray all day**, so that moment can be a long time coming: a machine can stay on an older version for days. Signing out or restarting doesn't reliably help, because the app starts again right at logon.
+- When the switch fails because the app is running (`0x80073D02` in the log), the new version stays staged and Windows marks it as waiting. The next time the app is **started from the Start menu while it isn't running**, Windows registers the waiting version first, and the new version starts. A start while the app is still running doesn't count (it only brings up the running window), and a version that is only staged, without a failed switch, isn't picked up at start.
 - **Opening the Store app** also checks for updates, and the Store then shows **Update**. It doesn't install by itself; clicking **Update** does.
 
 To bring a machine up to date on purpose:
 
 1. Quit the app completely: tray icon ▸ **Exit App**, or **File ▸ Exit** (closing the window only hides it).
-2. Run `winget upgrade --id 9NMBSZLLLN6V --source msstore`, or click **Update** in the Store app (**Library**, or the app's Store page).
-3. Start TextTemplateManager again; **Help ▸ About** shows the version.
+2. Start TextTemplateManager again from the Start menu. If the update was already downloaded and a switch had failed, it's installed now.
+3. If **Help ▸ About** still shows the old version, quit the app again, run `winget upgrade --id 9NMBSZLLLN6V --source msstore` or click **Update** in the Store app (**Library**, or the app's Store page), then start the app again.
 
 With Intune, an assigned *Microsoft Store app (new)* is brought up to date by Intune's own schedule, under the same rule: the switch happens while the app isn't running.
 
@@ -96,7 +97,7 @@ Codes you may meet there:
 
 | Code | Meaning |
 | --- | --- |
-| `0x80073D02` | The package is in use: the app was running when Windows tried to switch versions. Quit it and update again. |
+| `0x80073D02` | The package is in use: the app was running when Windows tried to switch versions. The update now waits; quit the app and start it from the Start menu. |
 | `0x80073CF1` | Remove of a package that isn't installed for this user. Harmless; Windows tidies up a leftover or staged copy. |
 | `0x80070525` | No Microsoft account for a licence request; the Store retries without one. Harmless if the install completes. |
 

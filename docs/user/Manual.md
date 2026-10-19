@@ -445,8 +445,8 @@ The Microsoft Store keeps TextTemplateManager up to date, like any other Store a
 Windows can't switch an app to a new version while it's running, and TextTemplateManager usually runs all day in the system tray (it starts with Windows). So an automatic update often has to wait, sometimes for days; signing out or restarting doesn't reliably help, because the app starts again right away. To update now:
 
 1. Quit the app completely: tray icon ▸ **Exit App**, or **File ▸ Exit** (closing the window only hides it).
-2. In the Store app, open **Library** and click **Update** next to TextTemplateManager (**Get updates** only looks for updates; the update itself starts with **Update**).
-3. Start TextTemplateManager again. **Help ▸ About** shows the version.
+2. Start TextTemplateManager again from the Start menu. If Windows has already downloaded the update, it's installed now, and the window opens with what's new.
+3. If **Help ▸ About** still shows the old version, the update hasn't been downloaded yet: quit the app again, open **Library** in the Store app and click **Update** next to TextTemplateManager (**Get updates** only looks for updates; the update itself starts with **Update**), then start the app again.
 
 After an update, the first time the window opens it shows what's new in that version, once (see *What's new*).
 
