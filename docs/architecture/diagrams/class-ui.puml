@@ -75,7 +75,8 @@ class ConflictPanel <<UserControl>>
 class TemplateEditor <<UserControl>> {
   +Show(template, editable)
   +FlushAsync()
-  +ContentLoaded / SaveRequested / FocusSearchRequested
+  +FocusPart(text)
+  +ContentLoaded / SaveRequested / FocusSearchRequested / TabOut
 }
 class SettingsView <<UserControl>> {
   +Open(page, parameter)

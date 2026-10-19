@@ -91,7 +91,7 @@ Selecting a template opens it in the editor, which supports bold, italic, underl
 strikethrough, text and highlight colors, headings, bulleted and numbered lists, links, tables, 
 callout panels, and code blocks with syntax highlighting.
 
-The toolbar works from the keyboard too: **Tab** moves along its buttons, **Enter** opens a button's menu (text and highlight colors, table, alignment, symbols) and **Tab** moves into it, **Esc** closes the menu again. In the table menu, the arrow keys choose the number of rows and columns and **Enter** inserts the table.
+The toolbar works from the keyboard too. It is one stop of the main window's **Tab** order: the arrow keys (**←** / **→**, **Home**, **End**) move along its buttons, **Enter** opens a button's menu (text and highlight colors, table, alignment, symbols) and **Tab** moves into it, **Esc** closes the menu again. **Tab** from the toolbar goes into the text, with the cursor at the end. In the text, **Tab** nests a list item (**Shift + Tab** moves it back out), moves to the next table cell and indents a line in a code block (**Shift + Tab** takes the indent off again); anywhere else **Tab** moves on to the template's shortcuts and **Shift + Tab** goes back to the toolbar. **Ctrl + Tab** always moves on. In the table menu, the arrow keys choose the number of rows and columns and **Enter** inserts the table.
 
 Changes to a template or folder (its title, text, tags, shortcuts and default paste mode) wait for you to save them: a **Save** button appears in the top-right corner, next to the help button, and **Ctrl+S** saves too, also while typing in the editor. If you select another item, close the window or exit while changes aren't saved, you're asked whether to **Save** them, **Don't save** them (the item goes back to how it was last saved), or **Cancel** (you stay on the item, changes kept, and the window stays open). A brief **Saved** indicator appears each time your data is written. To save as you type instead, switch on **Autosave** in **Settings ▸ General**. Adding, deleting, moving and importing items are always saved at once.
 
@@ -463,7 +463,9 @@ Installing with winget or Intune, how updates behave when the Store is restricte
 | Main window | **Ctrl + F** | Focus the search box. |
 | Main window | **Ctrl + S** | Save the changes to the selected template or folder (also in the editor). |
 | Editor toolbar | **Enter** / **Esc** | Open / close a button's menu (**Tab** moves into it); in the table menu the arrow keys choose the size. |
-| Main window | **Tab** / **Shift + Tab** | Go round the search box, the tree and the selected item's fields (title, shortcuts, tags, default paste mode). In the editor, **Tab** indents. |
+| Main window | **Tab** / **Shift + Tab** | Go round the toolbar above the tree, the search box, the tree and the selected item's fields: title, editor toolbar, template text, shortcuts, tags, default paste mode. |
+| Main window (toolbars) | **←** / **→** | Move between the buttons of the toolbar above the tree or of the editor toolbar. |
+| Editor (text) | **Tab** / **Shift + Tab** | Nest / un-nest a list item, next / previous table cell, indent / outdent a code line; elsewhere move on to the shortcuts / back to the editor toolbar. **Ctrl + Tab** always moves on. |
 | Main window (Tree) | **Delete** | Delete the selected item(s) (with confirmation). |
 | Main window (Tree) | **Ctrl**+click / **Shift**+click | Add or remove an item / select a range of rows. |
 | Main window (Tree) | **Shift + ↑ / ↓** | Extend the selection to the row above / below. |

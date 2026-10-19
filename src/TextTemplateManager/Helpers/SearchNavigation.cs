@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Windows.System;
 
 namespace TextTemplateManager.Helpers;
@@ -20,6 +21,18 @@ public static class SearchNavigation
     /// <summary>The next stop of a fixed Tab cycle of <paramref name="count"/> stops (Shift+Tab: the previous one),
     /// wrapping at both ends.</summary>
     public static int NextInCycle(int current, int count, bool back) => (current + (back ? count - 1 : 1)) % count;
+
+    /// <summary>Left/Right in a button row that is one Tab stop: the next enabled button in that direction,
+    /// wrapping; <paramref name="current"/> when no other button is enabled.</summary>
+    public static int NextInRow(int current, IReadOnlyList<bool> enabled, bool back)
+    {
+        for (int step = 1; step < enabled.Count; step++)
+        {
+            int i = ((current + (back ? -step : step)) % enabled.Count + enabled.Count) % enabled.Count;
+            if (enabled[i]) return i;
+        }
+        return current;
+    }
 
     /// <summary>The character a letter or digit key types (lower case), for single-key shortcuts and for
     /// typing from the tree into the search box.</summary>

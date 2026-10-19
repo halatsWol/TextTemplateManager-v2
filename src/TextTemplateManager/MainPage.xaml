@@ -151,11 +151,11 @@
                     <Grid x:Name="TreeToolbar" Margin="10,10,10,5">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <!-- The tree's item icons (Symbol.Document / Symbol.Folder), as glyphs to match the other buttons' size. -->
-                            <Button Content="&#xE8A5;" FontFamily="Segoe MDL2 Assets" Click="AddTemplate_Click" ToolTipService.ToolTip="Add Template"
+                            <Button x:Name="AddTemplateButton" Content="&#xE8A5;" FontFamily="Segoe MDL2 Assets" Click="AddTemplate_Click" ToolTipService.ToolTip="Add Template"
                                     AutomationProperties.Name="Add Template" IsEnabled="{x:Bind ViewModel.CanAddHere, Mode=OneWay}"/>
-                            <Button Content="&#xE8B7;" FontFamily="Segoe MDL2 Assets" Click="AddFolder_Click" ToolTipService.ToolTip="Add Folder"
+                            <Button x:Name="AddFolderButton" Content="&#xE8B7;" FontFamily="Segoe MDL2 Assets" Click="AddFolder_Click" ToolTipService.ToolTip="Add Folder"
                                     AutomationProperties.Name="Add Folder" IsEnabled="{x:Bind ViewModel.CanAddHere, Mode=OneWay}"/>
-                            <Button Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" Click="DeleteItem_Click" ToolTipService.ToolTip="Delete Item" AutomationProperties.Name="Delete Item"
+                            <Button x:Name="DeleteButton" Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" Click="DeleteItem_Click" ToolTipService.ToolTip="Delete Item" AutomationProperties.Name="Delete Item"
                                     IsEnabled="{x:Bind ViewModel.CanDeleteSelection, Mode=OneWay}"/>
                         </StackPanel>
                         <!-- Chevrons as on the tree's folders: right = collapsed, down = expanded. Smaller glyphs; the

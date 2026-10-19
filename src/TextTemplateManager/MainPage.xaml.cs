@@ -100,6 +100,8 @@ namespace TextTemplateManager
             Settings.Closed += Settings_Closed;
             Editor.FocusSearchRequested += (_, _) => FocusSearchBox();
             Editor.SaveRequested += async (_, _) => await SaveAsync();
+            Editor.TabOut += Editor_TabOut;
+            TreeToolbar.GotFocus += (_, e) => { if (e.OriginalSource is Button button) _lastToolbarButton = button; };
             Editor.ContentLoaded += ViewModel.EditorLoaded;
         }
 
@@ -975,11 +977,20 @@ namespace TextTemplateManager
 
         private void FocusSearchBox() => SearchBox.Focus(FocusState.Programmatic);
 
-        // Tab and Shift+Tab outside the editor go round a fixed cycle: search box, tree, then the selected item's
-        // fields, so focus never lands on display-only parts. From anywhere else (menus, toolbar, the editor) Tab
-        // works as usual.
+        // Tab and Shift+Tab go round a fixed cycle: the tree toolbar, the search box, the tree, then the selected
+        // item's fields with the editor between the title and the shortcuts (its page takes the keys while it has the
+        // focus and hands Tab back through TabOut), so focus never lands on display-only parts. The toolbar is one
+        // stop: Left/Right move between its buttons. From anywhere else (menus, Save, help) Tab works as usual.
         private void MainGrid_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
         {
+            if (e.Key is VirtualKey.Left or VirtualKey.Right && !IsCtrlDown() && !IsAltDown() && !IsShiftDown()
+                && FocusManager.GetFocusedElement(XamlRoot) is Button focusedButton && ToolbarButtons().IndexOf(focusedButton) is int at and >= 0)
+            {
+                e.Handled = true;
+                var buttons = ToolbarButtons();
+                buttons[SearchNavigation.NextInRow(at, buttons.Select(IsUsable).ToList(), e.Key == VirtualKey.Left)].Focus(FocusState.Keyboard);
+                return;
+            }
             if (e.Key != VirtualKey.Tab || IsCtrlDown() || IsAltDown()) return;
             if (FocusedCycleStop() < 0) return;
             e.Handled = true;
@@ -1004,23 +1015,55 @@ namespace TextTemplateManager
 
         private void MoveInCycle(bool back)
         {
-            var cycle = TabCycle();
             int current = FocusedCycleStop();
-            if (current < 0) return;
-            var next = cycle[SearchNavigation.NextInCycle(current, cycle.Count, back)];
-            if (ReferenceEquals(next, ItemTreeView)) FocusTree();
-            else next.Focus(FocusState.Keyboard);
+            if (current >= 0) MoveInCycle(TabCycle(), current, back);
         }
 
-        private List<Control> TabCycle()
+        // Tab or Shift+Tab out of the editor's page (from its text forward, from its toolbar back).
+        private void Editor_TabOut(bool back)
         {
-            var cycle = new List<Control> { SearchBox };
+            var cycle = TabCycle();
+            int at = cycle.IndexOf(Editor);
+            if (at >= 0) MoveInCycle(cycle, at, back);
+        }
+
+        private void MoveInCycle(List<FrameworkElement> cycle, int current, bool back)
+        {
+            var next = cycle[SearchNavigation.NextInCycle(current, cycle.Count, back)];
+            if (ReferenceEquals(next, ItemTreeView)) FocusTree();
+            else if (ReferenceEquals(next, TreeToolbar)) FocusToolbar();
+            else if (ReferenceEquals(next, Editor)) Editor.FocusPart(text: back);   // forward: its toolbar; back: its text
+            else if (next is Control control) control.Focus(FocusState.Keyboard);
+        }
+
+        private List<FrameworkElement> TabCycle()
+        {
+            var cycle = new List<FrameworkElement>();
+            if (ToolbarButtons().Any(IsUsable)) cycle.Add(TreeToolbar);
+            cycle.Add(SearchBox);
             if (ViewModel.RootNodes.Count > 0) cycle.Add(ItemTreeView);
             if (TemplatePanel.Visibility == Visibility.Visible)
-                cycle.AddRange(new Control[] { TemplateTitleBox, SingleKeyBox, MultiKeyBox, TagsBox, PasteModeBox }.Where(c => c.IsEnabled));
+            {
+                if (TemplateTitleBox.IsEnabled) cycle.Add(TemplateTitleBox);
+                cycle.Add(Editor);
+                cycle.AddRange(new Control[] { SingleKeyBox, MultiKeyBox, TagsBox, PasteModeBox }.Where(c => c.IsEnabled));
+            }
             else if (FolderPanel.Visibility == Visibility.Visible)
                 cycle.Add(FolderTitleBox);
             return cycle;
+        }
+
+        private List<Button> ToolbarButtons() => new() { AddTemplateButton, AddFolderButton, DeleteButton, CollapseAllButton, ExpandAllButton };
+
+        private static bool IsUsable(Button button) => button.IsEnabled && button.Visibility == Visibility.Visible;
+
+        private Button? _lastToolbarButton;
+
+        // The toolbar stop: the button last used there, else the first one that can be used.
+        private void FocusToolbar()
+        {
+            var target = _lastToolbarButton is { } last && IsUsable(last) ? last : ToolbarButtons().FirstOrDefault(IsUsable);
+            target?.Focus(FocusState.Keyboard);
         }
 
         private static bool IsWithin(DependencyObject? element, DependencyObject container)

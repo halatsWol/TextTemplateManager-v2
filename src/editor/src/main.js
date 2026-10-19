@@ -546,18 +546,6 @@ const editor = new Editor({
             }
             return false
         },
-        handleKeyDown(view, event) {
-            // Tab in plain text inserts spaces; inside lists StarterKit handles nesting.
-            if (event.key === 'Tab') {
-                const inList = editor.isActive('listItem')
-                if (!inList) {
-                    event.preventDefault()
-                    if (!event.shiftKey) editor.commands.insertContent('    ')
-                    return true
-                }
-            }
-            return false
-        },
     },
     onCreate() { refreshToolbar(); post({ type: 'ready' }) },
     onUpdate() { emitChange() },
@@ -1145,6 +1133,75 @@ popupButton(ICONS.dateTime, 'Insert date / time', (pop, close) => {
     item('Date & time', '$[DATE(YYYY-MM-DD)] $[TIME(HH:mm)]')
     item('Year', '$[YEAR]')
 })
+
+// ---- Keyboard: the main window's Tab cycle runs through the toolbar and the text ----------
+// The toolbar is one Tab stop (roving tabindex): Left/Right/Home/End move between its buttons, Tab goes to the end
+// of the text, Shift+Tab back to the host (the title). In the text, Tab nests list items, moves between table cells
+// and indents code; anywhere else Tab hands back to the host (the shortcuts) and Shift+Tab goes to the toolbar.
+// Ctrl+Tab always leaves the text.
+const rowButtons = () => [...toolbar.children].filter(el => el.classList.contains('tb-btn'))
+const usableButtons = () => document.body.classList.contains('readonly') ? [] : rowButtons().filter(b => !b.disabled && b.offsetParent !== null)
+function setRoving(active) { for (const b of rowButtons()) b.tabIndex = b === active ? 0 : -1 }
+setRoving(rowButtons()[0])
+
+function focusTextEnd() { editor.commands.focus('end') }
+function focusToolbarOrLeave() {
+    const buttons = usableButtons()
+    if (!buttons.length) { post({ type: 'tabOut', back: true }); return }
+    ;(buttons.find(b => b.tabIndex === 0) || buttons[0]).focus()
+}
+window.editorApi.focusTextEnd = focusTextEnd
+window.editorApi.focusToolbar = () => usableButtons().length ? focusToolbarOrLeave() : focusTextEnd()
+
+toolbar.addEventListener('focusin', (e) => { if (e.target.parentElement === toolbar && e.target.classList.contains('tb-btn')) setRoving(e.target) })
+toolbar.addEventListener('keydown', (e) => {
+    const btn = e.target
+    if (btn.parentElement !== toolbar || !btn.classList.contains('tb-btn') || e.altKey || e.metaKey) return
+    const buttons = usableButtons()
+    const at = buttons.indexOf(btn)
+    const to = { ArrowRight: at + 1, ArrowLeft: at - 1, Home: 0, End: buttons.length - 1 }[e.key]
+    if (to !== undefined && !e.ctrlKey && !e.shiftKey) {
+        e.preventDefault()
+        buttons[(to + buttons.length) % buttons.length].focus()
+    } else if (e.key === 'Tab' && !e.ctrlKey) {
+        if (!e.shiftKey && openPopup && openPopup._button === btn) return   // into the open menu
+        e.preventDefault()
+        closePopup()
+        if (e.shiftKey) post({ type: 'tabOut', back: true })
+        else focusTextEnd()
+    }
+})
+
+// Shift+Tab in a code block: take one indent step off the start of the current line.
+function outdentCodeLine() {
+    const { $from } = editor.state.selection
+    const text = $from.parent.textContent
+    const lineStart = text.lastIndexOf('\n', $from.parentOffset - 1) + 1
+    const spaces = /^ */.exec(text.slice(lineStart))[0].length
+    const n = Math.min(spaces, INDENT_UNIT.length)
+    if (n) editor.commands.command(({ tr }) => { tr.delete($from.start() + lineStart, $from.start() + lineStart + n); return true })
+}
+
+// Capture phase on the editable element, so it also runs for a read-only template and before ProseMirror's own
+// keymaps; lists and tables are left to those.
+editor.view.dom.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab' || e.altKey || e.metaKey) return
+    const editing = editor.isEditable && !e.ctrlKey
+    if (editing && editor.isActive('table')) return
+    // A list item that can't move (the first one can't nest, a top-level one can't outdent further) keeps the focus:
+    // left alone, the browser's own Tab would take it out of the editor.
+    if (editing && editor.isActive('listItem')) {
+        if (!(e.shiftKey ? editor.can().liftListItem('listItem') : editor.can().sinkListItem('listItem'))) e.preventDefault()
+        return
+    }
+    e.preventDefault()
+    e.stopPropagation()
+    if (editing && editor.isActive('codeBlock')) {
+        if (e.shiftKey) outdentCodeLine()
+        else editor.commands.insertContent(INDENT_UNIT)
+    } else if (e.shiftKey) focusToolbarOrLeave()
+    else post({ type: 'tabOut', back: false })
+}, true)
 
 // Report the very first ready state (in case onCreate fired before this file finished)
 post({ type: 'ready' })

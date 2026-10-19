@@ -145,4 +145,17 @@ public class PasteWindowNavigationTests
     {
         Assert.Equal(expected, SearchNavigation.NextInCycle(current, count, back));
     }
+
+    // The tree toolbar is one Tab stop: Left/Right go to the next enabled button, wrapping.
+    [Theory]
+    [InlineData(0, "11111", false, 1)]
+    [InlineData(4, "11111", false, 0)]
+    [InlineData(0, "11111", true, 4)]
+    [InlineData(1, "10011", false, 3)]   // disabled Delete and Add Folder skipped
+    [InlineData(3, "10011", true, 0)]
+    [InlineData(0, "10000", false, 0)]   // nothing else enabled: stays
+    public void Arrows_in_a_button_row_skip_disabled_buttons(int current, string enabled, bool back, int expected)
+    {
+        Assert.Equal(expected, SearchNavigation.NextInRow(current, enabled.Select(c => c == '1').ToList(), back));
+    }
 }

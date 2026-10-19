@@ -26,6 +26,9 @@ public sealed partial class TemplateEditor : UserControl
     /// <summary>Ctrl+S was pressed in the editor.</summary>
     public event EventHandler? SaveRequested;
 
+    /// <summary>Tab left the editor: forward from its text (true = Shift+Tab, back from its toolbar).</summary>
+    public event Action<bool>? TabOut;
+
     /// <summary>A template was loaded; its content as the editor shows it (normalised HTML, which can differ
     /// from the stored text without any edit).</summary>
     public event Action<Template, string>? ContentLoaded;
@@ -39,6 +42,15 @@ public sealed partial class TemplateEditor : UserControl
         _requested = template;
         _requestedEditable = editable;
         LoadRequested();
+    }
+
+    /// <summary>Moves the keyboard focus into the editor: its toolbar, or its text with the caret at the end (the
+    /// text when the toolbar is hidden for a read-only template).</summary>
+    public void FocusPart(bool text)
+    {
+        if (!_ready || EditorWebView?.CoreWebView2 == null) return;
+        EditorWebView.Focus(FocusState.Keyboard);
+        _ = EditorWebView.CoreWebView2.ExecuteScriptAsync(text ? "window.editorApi.focusTextEnd()" : "window.editorApi.focusToolbar()");
     }
 
     /// <summary>Reads the editor's HTML and saves it to the template it belongs to.</summary>
@@ -177,6 +189,10 @@ public sealed partial class TemplateEditor : UserControl
             else if (type == "save")
             {
                 SaveRequested?.Invoke(this, EventArgs.Empty);
+            }
+            else if (type == "tabOut")
+            {
+                TabOut?.Invoke(doc.RootElement.TryGetProperty("back", out var b) && b.GetBoolean());
             }
         }
         catch (Exception ex)
