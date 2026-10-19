@@ -112,14 +112,13 @@ Copyright © 2026 Marflow Software
 This block is the Store's "What's new" (Microsoft asks for it on updates only; it stayed empty for 2.0.0). It lists only what changed since the previous release; keep it in step with `release.md`.
 
 ```text
-Fixes for synced folders, restoring backups, the editor and the guided tour.
+Selecting several items from the keyboard, exports that keep their folders, and much better support for screen readers.
 
-- Security: pasting specially crafted HTML into the editor could run script in it or freeze it. Both are fixed, and the editor's components are up to date.
-- A change made elsewhere to a sync file is no longer missed when the file was briefly locked, for example while OneDrive uploads it.
-- If your changes can't be saved to a sync file (read-only, or the shared folder refuses writes), a warning now shows on the synced folder and in Settings > Sync. Your changes are kept and saved as soon as the file can be written.
-- Restoring a backup no longer asks whether to overwrite the file of a read-only synced folder; that file always stays as it is.
-- Guided tour: screen readers read every step, and keys no longer reach the dimmed main window while Quick Paste shows its part.
-- Screen readers now name the dividers that resize the panes.
+- Select several items from the keyboard: in the tree, Shift + Up / Down extends the selection and Ctrl + A selects all visible rows, as in File Explorer.
+- Exporting several items keeps their folders: the file lists them in tree order, each with its folders down from the deepest folder they share. Local items and items of synced folders can't be mixed in one export; the export entries then say so.
+- The editor's toolbar menus work from the keyboard: Enter opens a menu, Tab moves into it (the colors included), Esc closes it; in the table menu the arrow keys choose the size and Enter inserts the table.
+- Screen readers: moving into the editor no longer reads out a long string of random characters, and the editor, its toolbar, Quick Paste and the controls of the main window and Settings now have proper names.
+- Fixed: Tab right after moving to another item now goes to that item's fields instead of the previous item's.
 ```
 
 ---

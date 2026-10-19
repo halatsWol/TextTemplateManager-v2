@@ -12,19 +12,21 @@ Coming from TextTemplateManager 1: your templates and settings are backed up at 
 
 ### What's new in this release
 
-Fixes for synced folders, restoring backups, the editor and the guided tour.
+Selecting several items from the keyboard, exports that keep their folders, and much better support for screen readers.
 
-#### Security
+#### New
 
-- **Pasting into the editor.** Pasting specially crafted HTML, for example from a web page, could run script in the editor or freeze it. Both are fixed, and the editor's components are up to date.
+- **Select several items from the keyboard.** In the tree, **Shift + ↑ / ↓** extends the selection row by row and **Ctrl + A** selects all visible rows, as in File Explorer.
+- **Exporting several items keeps their folders.** The file lists them in tree order, each with its folders down from the deepest folder they share: the template `f1t4` from folder F1 together with folder F2 gives `F1 ▸ f1t4` and `F2`. Local items and items of a synced folder, or of two synced folders, can't be exported together; the export entries then say **(not across areas)**.
+- **Editor toolbar menus by keyboard.** **Enter** opens a button's menu, **Tab** moves into it (the colors included), **Esc** closes it. In the table menu, the arrow keys choose the number of rows and columns and **Enter** inserts the table.
+
+#### Improved
+
+- **Screen readers.** Moving into the editor no longer reads out a long string of random characters. The editor, its toolbar buttons, Quick Paste's tree and shortcut lists, and the controls of the main window and of Settings now have proper names.
 
 #### Fixed
 
-- **Sync files that are briefly locked.** A change made elsewhere is no longer missed when the sync file was locked at that moment (for example while OneDrive uploads it); it is read once the file is free.
-- **Sync files that can't be written.** If your changes can't be saved to a sync file (read-only, or the shared folder refuses writes), a warning now shows on the synced folder and in **Settings ▸ Sync**. Your changes are kept and saved as soon as the file can be written; no temporary file is left behind.
-- **Restoring a backup** no longer asks whether to overwrite the file of a read-only synced folder; that file always stays as it is.
-- **Guided tour.** Screen readers read every step, also once the editor is shown; while Quick Paste shows its part, keys no longer reach the dimmed main window.
-- Screen readers now name the dividers that resize the panes.
+- **Tab right after moving to another item** now goes to that item's fields. Before, especially on the first template opened, it could land in the previous item's fields and then on the File menu.
 
 {{CHANGELOG}}
 
