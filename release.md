@@ -12,17 +12,11 @@ Coming from TextTemplateManager 1: your templates and settings are backed up at 
 
 ### What's new in this release
 
-Updates install with one click instead of waiting until Windows gets round to it, and the main window works better from the keyboard.
+A small fix.
 
-#### New
+#### Fixed
 
-- **Updates inside the app.** TextTemplateManager looks for a new version in the Store and downloads it in the background while you work. When it's ready, a notice above the template list (and the tray menu) offers **Restart to update**: your work is saved, the app closes, the new version is installed and the app is back within seconds, showing what's new. Not now? Quitting the app installs it too.
-- **Update settings** in **Settings ▸ General ▸ Updates**: the version, **Check for updates**, a switch to update only when you ask, and an optional switch to install updates while the app isn't in use.
-- **For administrators:** policy keys under `HKLM\SOFTWARE\Policies\Marflow Software\TextTemplateManager` turn in-app updates off or to notices only, lock the automatic updates and the idle install, and allow updating while automatic Store updates are turned off. See the Administrator & Deployment Guide.
-
-#### Improved
-
-- **Keyboard in the main window.** The toolbar above the tree and the editor toolbar are one **Tab** stop each, with the arrow keys moving along their buttons. **Tab** goes from the editor toolbar into the text and on to the template's shortcuts; in the text it only indents in lists, tables and code blocks (**Ctrl + Tab** always moves on).
+- **Open Default apps** in **Settings ▸ Integrations ▸ File association** opens Windows Settings again. Before, clicking it did nothing.
 
 {{CHANGELOG}}
 

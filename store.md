@@ -112,12 +112,9 @@ Copyright © 2026 Marflow Software
 This block is the Store's "What's new" (Microsoft asks for it on updates only; it stayed empty for 2.0.0). It lists only what changed since the previous release; keep it in step with `release.md`.
 
 ```text
-Updates install with one click, and the main window works better from the keyboard.
+A small fix.
 
-- Updates inside the app: TextTemplateManager downloads a new version in the background while you work. When it's ready, click Restart to update (above the template list or in the tray menu): your work is saved and the app is back within seconds, showing what's new. Quitting the app installs it too.
-- Settings > General > Updates shows the version and has Check for updates, a switch to update only when you ask, and an optional switch to install updates while the app isn't in use.
-- For administrators: policy keys turn in-app updates off or to notices only and lock the switches; see the Administrator & Deployment Guide.
-- Keyboard: the toolbar above the tree and the editor toolbar are one Tab stop each, with the arrow keys moving along their buttons. In the template text, Tab only indents in lists, tables and code blocks; elsewhere it moves on to the shortcuts (Ctrl + Tab always moves on).
+- Fixed: Open Default apps in Settings > Integrations > File association opens Windows Settings again; before, clicking it did nothing.
 ```
 
 ---
