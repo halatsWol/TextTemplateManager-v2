@@ -46,7 +46,7 @@ The project is unpackaged by default (`WindowsPackageType=None`); `StoreBuild=tr
 
 ([source](diagrams/act-release.puml))
 
-The git tag is the only version source. The tag message picks the Store submission: `publish: store` (default), `publish: draft` (uploaded, not committed) or `publish: none`. The `microsoft-store` job uploads the package with the Microsoft Store Developer CLI and does the access check, "What's new" and the commit through the Partner Center submission API (`build/Store-Api.ps1`); a manual run with **Check Store access** runs only that check. How to publish, the secrets and their renewal are in [`../PUBLISHING.md`](../PUBLISHING.md); `release.md` is the release-notes template (its "What's new" section is also the in-app What's new); `store.md` holds the Store texts, its "What's new" block is sent with the submission.
+The git tag is the only version source. The tag message picks the Store submission: `publish: store` (default), `publish: draft` (uploaded, not committed) or `publish: none`. The `microsoft-store` job uploads the package with the Microsoft Store Developer CLI and does the access check, "What's new" and the commit through the Partner Center submission API (`build/Store-Api.ps1`); a manual run with **Check Store access** runs only that check, and one with **Commit the pending Store submission** commits a `publish: draft` submission (Partner Center shows the package only after the commit). How to publish, the secrets and their renewal are in [`../PUBLISHING.md`](../PUBLISHING.md); `release.md` is the release-notes template (its "What's new" section is also the in-app What's new); `store.md` holds the Store texts, its "What's new" block is sent with the submission.
 
 ---
 

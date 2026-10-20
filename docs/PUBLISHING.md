@@ -29,18 +29,20 @@ A line in the tag message decides what the `microsoft-store` job does; the draft
 | Line | Store submission |
 | --- | --- |
 | `publish: store` or no such line | Package uploaded, "What's new" set, submission committed (certification starts) |
-| `publish: draft` | Package uploaded and "What's new" set, but not committed: check the draft in Partner Center (**Apps and games ▸ TextTemplateManager**) and submit it there |
+| `publish: draft` | Package uploaded and "What's new" set, but not committed; commit it with the manual run below |
 | `publish: none` | Skipped |
 
 ```bash
 git tag -a v2.2.0 -m 'v2.2.0' -m 'publish: draft'
 ```
 
-Use `publish: draft` whenever the automation hasn't been through a release yet, or after changing the `microsoft-store` job.
+Use `publish: draft` after changing the `microsoft-store` job.
+
+Partner Center shows a package uploaded through the API only after the commit: until then the draft there still lists the previous package, and **Submit** in Partner Center would send that one again. So don't submit an API draft in Partner Center. **Actions ▸ Release ▸ Run workflow** with **Check Store access** lists the pending submission's packages (the new one as `PendingUpload`, the old one as `PendingDelete`); **Commit the pending Store submission** commits it after the `store-release` approval, and certification starts.
 
 ### Checking the Store access
 
-**Actions ▸ Release ▸ Run workflow** with **Check Store access** ticked runs only `build/Store-Api.ps1 -Check`: it signs in with the secrets and reads the app in Partner Center, and prints the last published and the pending submission. Nothing is built or submitted, and no approval is needed. Run it after setting up or renewing the secrets.
+**Actions ▸ Release ▸ Run workflow** with **Check Store access** ticked runs only `build/Store-Api.ps1 -Check`: it signs in with the secrets and reads the app in Partner Center, and prints the last published and the pending submission with its packages. Nothing is built or submitted, and no approval is needed. Run it after setting up or renewing the secrets.
 
 The same check runs first in every Store submission. Its errors name the cause:
 

@@ -6,7 +6,12 @@ title Release workflow (.github/workflows/release.yml)
 start
 if (workflow_dispatch with\n"Check Store access"?) then (yes)
   |store-access|
-  :build/Store-Api.ps1 -Check\n(sign-in, read the app; no build);
+  :build/Store-Api.ps1 -Check\n(sign-in, read the app and the pending\npackages; no build);
+  stop
+elseif (workflow_dispatch with\n"Commit the pending Store submission"?) then (yes)
+  |store-commit (environment store-release)|
+  :manual approval;
+  :Store-Api.ps1 -Check -Commit\n(certification follows);
   stop
 endif
 |package (windows-latest)|
@@ -32,7 +37,7 @@ if (tag?) then (yes)
     if (store?) then (yes)
       :Store-Api.ps1 -Commit\n(certification follows);
     else (draft)
-      :left as a draft: submit in Partner Center;
+      :left uncommitted: commit with the manual run\n(Partner Center shows the package only after it);
     endif
   endif
 endif

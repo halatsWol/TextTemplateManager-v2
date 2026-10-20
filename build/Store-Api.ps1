@@ -30,9 +30,10 @@ $headers = @{ Authorization = "Bearer $token" }
 
 function Invoke-Api([string]$Method, [string]$Uri, $Body) {
     $call = @{ Method = $Method; Uri = $Uri; Headers = $headers }
-    if ($null -ne $Body) {
+    # The API refuses a POST without a JSON content type, even one without a body (commit).
+    if ($Method -ne 'Get') {
         $call.ContentType = 'application/json; charset=utf-8'
-        $call.Body = [Text.Encoding]::UTF8.GetBytes(($Body | ConvertTo-Json -Depth 100))
+        $call.Body = if ($null -ne $Body) { [Text.Encoding]::UTF8.GetBytes(($Body | ConvertTo-Json -Depth 100)) } else { [byte[]]@() }
     }
     try { Invoke-RestMethod @call }
     catch {
@@ -48,6 +49,11 @@ Write-Host "Access OK: $($app.primaryName) ($($app.id))"
 if ($Check) {
     Write-Host "Last published submission: $($app.lastPublishedApplicationSubmission.id)"
     Write-Host "Pending submission: $(if ($app.pendingApplicationSubmission) { $app.pendingApplicationSubmission.id } else { 'none' })"
+    # Partner Center shows an uploaded package only after the commit; until then only the API lists it (PendingUpload).
+    if ($app.pendingApplicationSubmission) {
+        $pending = Invoke-Api Get "$base/$AppId/submissions/$($app.pendingApplicationSubmission.id)"
+        foreach ($package in $pending.applicationPackages) { Write-Host "  $($package.fileName): $($package.fileStatus)" }
+    }
 }
 
 if ($ReleaseNotesFile) {

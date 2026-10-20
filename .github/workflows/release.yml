@@ -5,12 +5,14 @@ name: Release
 #   - Push an annotated tag like v2.0.1 -> build, create a draft GitHub release (manuals, notes from release.md), then
 #     submit the package to the Microsoft Store.
 #   - Run manually (workflow_dispatch) -> build and upload the files as artifacts ONLY (never publishes), or, with
-#     "Check Store access", only sign in to Partner Center and read the app (no build, nothing submitted).
+#     "Check Store access", only sign in to Partner Center and read the app (no build, nothing submitted), or, with
+#     "Commit the pending Store submission", commit a submission left by "publish: draft".
 #
 # The Store submission is controlled by the annotated tag's message: "publish: none" skips it, "publish: draft"
-# uploads the package and sets "What's new" but leaves the submission as a draft to submit in Partner Center,
-# "publish: store" or no such line submits. The submission job waits for the "store-release" environment, so it goes
-# out only after a manual approval (Settings > Environments). See docs/PUBLISHING.md.
+# uploads the package and sets "What's new" but doesn't commit (Partner Center shows the package only after the
+# commit, so commit with the manual run, not Submit in Partner Center), "publish: store" or no such line submits.
+# The submission jobs wait for the "store-release" environment, so they go out only after a manual approval
+# (Settings > Environments). See docs/PUBLISHING.md.
 
 on:
   push:
@@ -22,6 +24,10 @@ on:
         default: "0.0.1"
       check_store_access:
         description: "Only check the Store access (sign-in and the app in Partner Center); no build"
+        type: boolean
+        default: false
+      commit_store_submission:
+        description: "Only commit the pending Store submission (left by 'publish: draft'); certification starts"
         type: boolean
         default: false
 
@@ -43,8 +49,24 @@ jobs:
           MSSTORE_CLIENT_SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
         run: ./build/Store-Api.ps1 -AppId 9NMBSZLLLN6V -Check
 
+  store-commit:
+    if: github.event_name == 'workflow_dispatch' && inputs.commit_store_submission && !inputs.check_store_access
+    runs-on: windows-latest
+    environment: store-release
+    steps:
+      - uses: actions/checkout@v5
+
+      # The check lists the pending submission's packages first, for the log.
+      - name: Commit the pending submission
+        shell: pwsh
+        env:
+          MSSTORE_TENANT_ID: ${{ secrets.MSSTORE_TENANT_ID }}
+          MSSTORE_CLIENT_ID: ${{ secrets.MSSTORE_CLIENT_ID }}
+          MSSTORE_CLIENT_SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
+        run: ./build/Store-Api.ps1 -AppId 9NMBSZLLLN6V -Check -Commit
+
   package:
-    if: github.event_name != 'workflow_dispatch' || !inputs.check_store_access
+    if: github.event_name != 'workflow_dispatch' || !(inputs.check_store_access || inputs.commit_store_submission)
     runs-on: windows-latest
     outputs:
       store_mode: ${{ steps.targets.outputs.store_mode }}
@@ -215,6 +237,6 @@ jobs:
         if: needs.package.outputs.store_mode == 'draft'
         shell: pwsh
         run: |
-          $text = "The submission is a draft (publish: draft): check it in Partner Center (Apps and games > TextTemplateManager) and submit it there."
+          $text = "The submission is uploaded but not committed (publish: draft). Partner Center shows the new package only after the commit, so don't use Submit there: commit with Actions > Release > Run workflow > 'Commit the pending Store submission'."
           Write-Host $text
           "### Store submission left as a draft`n`n$text" >> $env:GITHUB_STEP_SUMMARY
