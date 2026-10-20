@@ -14,6 +14,7 @@ participant HotkeyListener
 participant MainPage
 participant BrowserConnector
 participant PasteWindow
+participant UpdateService
 
 OS -> App : OnLaunched
 App -> Instance : FindOrRegisterForKey("main")
@@ -47,5 +48,6 @@ group startup questions (queued dialogs, one at a time)
   App -> MainPage : HandleOpenTtmDataFile(file)  [launched with a .ttmdata]
   App -> MainPage : OfferTour() or ShowWhatsNew()  [StartupGreeting]
 end
+App -> UpdateService : StartUpdates(): EvaluateStartup()\n(last switch worked?), Start() (checks in 2 min,\nthen every 6 h), idle-install timer
 App -> PasteWindow : (low priority) EnsurePasteWindow().Prewarm()
 @enduml

@@ -47,3 +47,7 @@ After a re-apply, `TreeChanged` makes `MainViewModel` refresh the tree in place 
 ## Opening a .ttmdata file
 
 The package registers `.ttmdata`. Opening one (double-click, Open with) activates the app with the file; a second launch hands the activation to the running instance (`AppInstance.RedirectActivationToAsync`). `MainPage.HandleOpenTtmDataFile` links it as a new active source and shows Settings > Sync (or just shows it when it is already linked; the app's own data file is never added).
+
+---
+
+[← 3. Storage and saving](03-storage-and-saving.md) · [Contents](README.md) · [5. Backups and restore →](05-backups-and-restore.md)

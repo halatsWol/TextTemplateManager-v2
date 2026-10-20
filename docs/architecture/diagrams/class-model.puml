@@ -46,6 +46,8 @@ class AppSettings <<ObservableObject>> {
   +Autosave : bool
   +TutorialOfferDone : bool
   +LastRunVersion : string
+  +IdleInstall : bool
+  +KeepUpdatingDespiteStorePolicy : bool
 }
 
 class SyncSettings <<ObservableObject>> {

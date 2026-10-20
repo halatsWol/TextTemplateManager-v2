@@ -1,0 +1,23 @@
+@startuml state-update
+!include _style.iuml
+title Update stages (UpdateService.Status.Stage)
+
+[*] --> Unavailable : dev run /\nsideloaded build
+[*] --> DisabledByPolicy : InAppUpdates = 0
+[*] --> UpToDate
+
+UpToDate --> Checking : timer / Check for updates
+Checking --> UpToDate : nothing newer
+Checking --> Ready : newer, already staged
+Checking --> Downloading : newer, silent download allowed\n(or the user's opt-in under the Store policy)
+Checking --> Available : newer, consent needed\nor notice only
+Available --> Downloading : Download\n(Store consent dialog)
+Downloading --> Ready : staged
+Downloading --> Failed : error
+Downloading --> Available : canceled
+Failed --> Checking : Try again
+Ready --> Installing : Restart to update /\nidle install / quit
+Installing --> [*] : Windows closes and\nrestarts the app
+Installing --> Ready : switch failed (1st)
+Installing --> ManualStepsNeeded : switch failed (2nd)
+@enduml

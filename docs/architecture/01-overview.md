@@ -1,6 +1,6 @@
 # 1. Overview
 
-TextTemplateManager stores reusable text templates (rich text as HTML) in a tree of folders, gives them single-key and multi-key shortcuts, and pastes them into any other application through a global hotkey window called Quick Paste. Folders can be shared through `.ttmdata` sync files (typically in OneDrive), and a browser extension can list, paste and create templates through a local HTTP connector.
+TextTemplateManager stores reusable text templates (rich text as HTML) in a tree of folders, gives them single-key and multi-key shortcuts, and pastes them into any other application through a global hotkey window called Quick Paste. Folders can be shared through `.ttmdata` sync files (typically in OneDrive), and a browser extension can list, paste and create templates through a local HTTP connector. The Store package updates itself while it runs (download in the background, **Restart to update**).
 
 ## Technology
 
@@ -19,13 +19,14 @@ TextTemplateManager stores reusable text templates (rich text as HTML) in a tree
 | Path | Contents |
 | --- | --- |
 | `src/TextTemplateManager/` | The app (`ttm2.exe`) |
-| `  App.xaml.cs` | Startup, single instance, global services, exit, tour orchestration |
+| `  App.xaml.cs` | Startup, single instance, global services, exit, tour orchestration, the update switch |
 | `  MainPage.*`, `PasteWindow.*`, `*SettingsPage.*` | Windows and pages (code-behind); `*.Tour.cs` holds each window's tour steps |
 | `  ViewModels/` | `MainViewModel`, `TreeNode`, `ItemDraft`, `MultiSelection`, `ConflictReport`, `QuickPasteController`, `ShortcutRow` |
 | `  Models/` | Items, settings, sync settings, `SyncEngine`, `ShortcutValidator`, `TemplateSearch`, tree helpers |
 | `  Data/` | `DataNode` (the store), `StorageService` (file IO), backups and restore |
 | `  Services/Platform/` | Environment (packaged or dev), hotkey, tray, browser connector, TextTemplateManager 1 handling, error handler |
 | `  Services/Pasting/` | `PasteService` (clipboard and `Ctrl+V`) |
+| `  Services/Updates/` | The in-app updater: `UpdateService`, Store and test sources, package switch, update policy (see [13](13-updates.md)) |
 | `  Helpers/` | HTML conversions (RTF, Markdown, panels, sanitizer), template variables, Win32 window helpers, converters |
 | `  Controls/` | User controls: editor, settings view, conflict panel, search options, tutorial overlay, About |
 | `  Tutorial/` | Tour steps and sample data, startup greeting, What's new parser |
@@ -34,6 +35,7 @@ TextTemplateManager stores reusable text templates (rich text as HTML) in a tree
 | `tools/ManualGen/` | Renders the Markdown manuals to PDF (QuestPDF) |
 | `build/` | Release build and release-notes scripts |
 | `design/logo/` | The logo as SVG and the script that renders the icon and tile assets from it |
+| `design/store/` | Store listing images: Photoshop scripts and templates, window captures, the rendered PNGs |
 | `.github/workflows/release.yml` | Release workflow (see [11](11-platform-build-release.md)) |
 | `.github/workflows/tests.yml`, `codeql.yml`, `.github/dependabot.yml` | Tests on pushes and pull requests, code scanning, dependency updates (see [11](11-platform-build-release.md)) |
 
@@ -57,6 +59,7 @@ The app has three layers plus platform services. Dependencies point downward; th
 - The **backup scheduler** runs on a thread-pool timer (every 30 s).
 - The **browser connector** accepts and serves connections on the thread pool, reading an immutable snapshot; a create request is marshalled to the UI thread.
 - The **hotkey** arrives on a message-only window on the UI thread.
+- The **updater** checks on a thread-pool timer (2 minutes after the start, then every 6 hours); its `Changed` event is marshalled to the UI thread. The idle-install check is a one-minute dispatcher timer.
 
 ## Deployment
 
@@ -65,3 +68,7 @@ The app has three layers plus platform services. Dependencies point downward; th
 ([source](diagrams/deployment.puml))
 
 The installed app lives in the read-only package folder. All user data is in the package's `LocalState` folder (removed by Windows on Reset and Uninstall); automatic backups go to `Documents\TextTemplateManager\Backups` so they survive both. Sync files live wherever the user put them. The environment variable `TTM_DATA_DIR` redirects the data folder, the backups and the 1.x folder for tests and dev runs (see [11](11-platform-build-release.md)).
+
+---
+
+[Contents](README.md) · [2. Data model and files →](02-data-model-and-files.md)

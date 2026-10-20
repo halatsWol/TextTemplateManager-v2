@@ -492,8 +492,8 @@ namespace TextTemplateManager
             }
             // A downloaded update is installed on the way out (Windows closes the app for it); the next start is the new
             // version. Not when the save above was given up on.
-            if (save.IsCompletedSuccessfully && _updates is { Status.IsReady: true } updates
-                && updates.Policy.Mode == InAppUpdatesMode.Full)
+            if (save.IsCompletedSuccessfully && _updates is { Status.IsReady: true } updates && updates.RefreshPolicyForSwitch()
+                && updates.InstallOnQuit)
             {
                 ReleaseForSwitch();
                 var exitSwitch = updates.SwitchAsync(idle: false, restart: false);
@@ -530,6 +530,7 @@ namespace TextTemplateManager
         {
             _updates = CreateUpdateService();
             _updates.KeepUpdatingDespiteStorePolicy = _store.CurrentSettings.KeepUpdatingDespiteStorePolicy;
+            _updates.CheckAutomatically = !_store.CurrentSettings.NoAutomaticUpdates;
             _updates.Changed += status => _uiDispatcher.TryEnqueue(() => OnUpdateStatus(status));
 
             var previous = _updates.EvaluateStartup();
@@ -569,6 +570,11 @@ namespace TextTemplateManager
         public async Task InstallUpdateAsync(bool idle)
         {
             if (_updates is not { Status.IsReady: true } updates) return;
+            if (!updates.RefreshPolicyForSwitch())
+            {
+                if (!idle && MainWindow.Content is MainPage refused) refused.ReportUpdateProblem("Updates on this PC are managed by your organization.");
+                return;
+            }
             if (!idle)
             {
                 EndTutorial();

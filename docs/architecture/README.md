@@ -16,6 +16,9 @@ Technical documentation of TextTemplateManager 2: which classes exist, how they 
 | [10. Guided tour](10-guided-tour.md) | Sample store, overlay, steps, input suspension |
 | [11. Platform, build and release](11-platform-build-release.md) | Packaged vs. dev runs, manifest, build properties, release workflow |
 | [12. Testing](12-testing.md) | The test project, what it covers, UI checks |
+| [13. In-app updates](13-updates.md) | Store updates while running, Restart to update, idle install, policies, the switch |
+
+Start reading: [1. Overview →](01-overview.md)
 
 ## Diagrams
 
@@ -31,4 +34,4 @@ Diagram names start with their kind: `class-`, `component-`, `deployment`, `seq-
 
 ## Keeping it current
 
-These pages describe the code as of TextTemplateManager 2.0. When a change moves responsibilities between classes, adds a file or setting, or changes a runtime flow shown here, update the page and its diagram in the same change.
+These pages describe the current code of TextTemplateManager 2. When a change moves responsibilities between classes, adds a file or setting, or changes a runtime flow shown here, update the page and its diagram in the same change.

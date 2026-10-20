@@ -1,0 +1,51 @@
+@startuml seq-update
+!include _style.iuml
+title In-app update: download while running, Restart to update
+
+actor User
+participant App
+participant UpdateService
+participant "IUpdateSource\n(StoreUpdateSource)" as Source
+participant "IPackageSwitcher\n(PackageSwitcher)" as Switcher
+participant Windows as OS
+
+== Check and download (2 min after start, then every 6 h) ==
+UpdateService -> Source : CheckAsync()
+Source --> UpdateService : UpdateOffer(2.2.0)
+alt staged already (Windows' own updater)
+  UpdateService -> Switcher : IsStaged(2.2.0) = true
+else silent download allowed
+  UpdateService -> Source : DownloadAsync() (stage only, progress)
+else Store policy off + admin allows + user opted in
+  UpdateService -> Switcher : RegisterRestart("--updated")
+  UpdateService -> Source : DownloadDespitePolicyAsync()\n(winget upgrade, msstore)
+else automatic Store updates off
+  UpdateService --> App : Available + Download
+  User -> App : Download
+  App -> UpdateService : DownloadAsync(window)
+  UpdateService -> Source : RequestDownloadAsync()\n(Store consent dialog)
+end
+UpdateService --> App : Changed(Ready 2.2.0)
+App -> App : notice "Update ready", tray item
+
+== Restart to update (or idle install) ==
+User -> App : Restart to update
+App -> App : ResolveUnsavedEdits, StopAcceptingWork,\nPersistPendingAsync (saves + backup)
+App -> UpdateService : SwitchAsync(idle)
+UpdateService -> UpdateService : write update-attempt.json
+UpdateService -> Switcher : RegisterRestart("--updated")
+UpdateService -> Switcher : StartWatchdog(120 s)\n(one-time scheduled task,\noutside the package)
+UpdateService -> Switcher : SwitchAsync()
+Switcher -> OS : RegisterPackageByFamilyNameAsync(\nForceTargetApplicationShutdown)
+alt switch works
+  OS -> App : closes the app, registers 2.2.0
+  OS -> App : starts 2.2.0 with "--updated"
+  App -> UpdateService : EvaluateStartup(): Succeeded
+  App -> User : window + What's new
+else switch fails
+  OS --> Switcher : error
+  Switcher --> UpdateService : reason
+  UpdateService --> App : Ready again (2nd failure: manual steps)
+  App -> App : hotkey + connector back on, show the reason
+end
+@enduml

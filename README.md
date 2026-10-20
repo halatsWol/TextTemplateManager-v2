@@ -16,7 +16,7 @@ This is my **first C# / WinUI 3 / .NET project**. It has been in the works since
 
 ### Why version 2
 
-Version 1 shipped as a per-user installer from GitHub with its own updater. Version 2 moves to the **Microsoft Store**: Windows installs and updates the app, no code-signing certificate of my own is needed, and companies can deploy it with their usual tools (winget, Intune). It lives in its own repository, so the code base could be cleaned up without carrying version 1's installer and updater around. Your templates come along: at its first start, version 2 backs up version 1's data and offers to import it.
+Version 1 shipped as a per-user installer from GitHub with its own updater. Version 2 moves to the **Microsoft Store**: the Store delivers the app and its updates (the app installs a downloaded update itself, with **Restart to update**), no code-signing certificate of my own is needed, and companies can deploy it with their usual tools (winget, Intune). It lives in its own repository, so the code base could be cleaned up without carrying version 1's installer and updater around. Your templates come along: at its first start, version 2 backs up version 1's data and offers to import it.
 
 > **Version 1** ([TextTemplateManager](https://github.com/halatsWol/TextTemplateManager)) has reached its end of life: it gets only important bug fixes. Its last release points to the Store and removes itself once version 2 is installed.
 
@@ -39,14 +39,15 @@ Version 1 shipped as a per-user installer from GitHub with its own updater. Vers
   - [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/ttm-connect/fbpmhopmnaoedcnbegdkpfblekhaindm)
   - [Firefox Add-ons](https://addons.mozilla.org/addon/ttm-connect/)
 - **Start with Windows** (Windows' own startup setting, hidden in the system tray by default) and a configurable global hotkey.
+- **Updates while it runs**: new versions are downloaded from the Store in the background; **Restart to update** (or quitting the app) installs them in seconds, optionally also while the app isn't in use. Policy keys let administrators turn this off or limit it.
 
 ---
 
 ## Install
 
-Get **TextTemplateManager** from the [Microsoft Store](https://apps.microsoft.com/detail/9NMBSZLLLN6V). No administrator rights are needed; the Store keeps it up to date.
+Get **TextTemplateManager** from the [Microsoft Store](https://apps.microsoft.com/detail/9NMBSZLLLN6V). No administrator rights are needed; the app keeps itself up to date from the Store.
 
-> **Administrators:** deployment with winget or Intune, updates under company policies, the app's data and removal are covered in the [Administrator & Deployment Guide](docs/user/AdminManual.md), also attached as a PDF to each release.
+> **Administrators:** deployment with winget or Intune, updates under company policies (including the app's own update policy keys), the app's data and removal are covered in the [Administrator & Deployment Guide](docs/user/AdminManual.md), also attached as a PDF to each release.
 
 > **Note: Remote Desktop (RDP).** If TextTemplateManager runs on both your local computer and a remote computer you connect to over RDP, the global Quick Paste hotkey always opens Quick Paste on the **local** computer: Windows delivers a registered global hotkey locally, so it never reaches the remote session. Give each machine a **different** Quick Paste hotkey, or run only one instance.
 
@@ -113,6 +114,7 @@ Found a vulnerability? Please report it privately as described in [SECURITY.md](
 | [`tools/ManualGen/`](tools/ManualGen/) | Renders the manuals in `docs/user/` to PDF |
 | [`build/`](build/) | Release build and release-notes scripts used by the workflow |
 | [`design/logo/`](design/logo/) | The logo as SVG and the script that renders the app's icon and tile images |
+| [`design/store/`](design/store/) | The Store listing images and the scripts that make them |
 | [`.github/`](.github/) | Release, test and CodeQL workflows; Dependabot configuration |
 | [`docs/user/`](docs/user/) | User manual, admin guide, browser connector API |
 | [`docs/architecture/`](docs/architecture/) | Technical documentation |

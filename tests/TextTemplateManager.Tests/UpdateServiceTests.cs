@@ -215,6 +215,87 @@ public class UpdateServiceTests
     }
 
     [Fact]
+    public async Task With_automatic_updates_off_only_a_check_the_user_asks_for_runs()
+    {
+        var (service, source, _, _) = Create();
+        service.CheckAutomatically = false;
+
+        await service.CheckAsync(userInitiated: false);
+        Assert.Equal((UpdateStage.UpToDate, 0), (service.Status.Stage, source.Downloads));
+        Assert.Null(service.Status.LastChecked);
+
+        await service.CheckAsync(userInitiated: true);
+        Assert.Equal((UpdateStage.Ready, 1), (service.Status.Stage, source.Downloads));
+    }
+
+    [Fact]
+    public void With_automatic_updates_off_there_is_no_idle_install_or_install_on_quit_unless_the_policy_forces_idle_install()
+    {
+        var (service, _, _, _) = Create();
+        service.CheckAutomatically = false;
+        Assert.False(service.IdleInstallAllowed(userSetting: true));
+        Assert.False(service.InstallOnQuit);
+
+        var (forced, _, _, _) = Create(UpdatePolicy.FromValues(null, null, 1, null));
+        forced.CheckAutomatically = false;
+        Assert.True(forced.IdleInstallAllowed(userSetting: false));
+
+        service.CheckAutomatically = true;
+        Assert.True(service.InstallOnQuit);
+    }
+
+    [Fact]
+    public async Task Notice_only_keeps_an_update_windows_already_staged_a_notice()
+    {
+        var (service, source, switcher, _) = Create(UpdatePolicy.FromValues(1, null, null, null));
+        switcher.Staged.Add(Newer);
+
+        await service.CheckAsync(userInitiated: false);
+
+        Assert.Equal((UpdateStage.Available, false), (service.Status.Stage, service.Status.CanDownload));
+        Assert.Equal(0, source.Downloads);
+    }
+
+    [Fact]
+    public async Task A_policy_set_after_the_download_stops_the_switch()
+    {
+        var policy = UpdatePolicy.Default;
+        string dir = TestEnvironment.NewScratchDir();
+        var switcher = new FakeSwitcher();
+        var service = new UpdateService(new FakeSource { StagesInto = switcher }, switcher, new UpdateLog(Path.Combine(dir, "update.log")),
+            Path.Combine(dir, "update-attempt.json"), () => policy);
+        await service.CheckAsync(userInitiated: false);
+        Assert.Equal(UpdateStage.Ready, service.Status.Stage);
+
+        policy = UpdatePolicy.FromValues(1, null, null, null);
+        string? problem = await service.SwitchAsync(idle: false);
+        Assert.Contains("organization", problem);
+        Assert.DoesNotContain("switch", switcher.Calls);
+        Assert.Equal(UpdateStage.Available, service.Status.Stage);
+
+        policy = UpdatePolicy.FromValues(0, null, null, null);
+        Assert.False(service.RefreshPolicyForSwitch());
+        Assert.Equal(UpdateStage.DisabledByPolicy, service.Status.Stage);
+    }
+
+    [Fact]
+    public async Task The_automatic_updates_policy_overrides_the_users_switch()
+    {
+        var (forcedOn, onSource, _, _) = Create(UpdatePolicy.FromValues(null, null, null, null, automaticUpdates: 1));
+        forcedOn.CheckAutomatically = false;
+        await forcedOn.CheckAsync(userInitiated: false);
+        Assert.Equal((UpdateStage.Ready, 1), (forcedOn.Status.Stage, onSource.Downloads));
+        Assert.True(forcedOn.InstallOnQuit);
+
+        var (forcedOff, offSource, _, _) = Create(UpdatePolicy.FromValues(null, null, null, null, automaticUpdates: 0));
+        await forcedOff.CheckAsync(userInitiated: false);
+        Assert.Equal((UpdateStage.UpToDate, 0), (forcedOff.Status.Stage, offSource.Downloads));
+        Assert.False(forcedOff.InstallOnQuit);
+        await forcedOff.CheckAsync(userInitiated: true);
+        Assert.Equal(UpdateStage.Ready, forcedOff.Status.Stage);
+    }
+
+    [Fact]
     public async Task A_failed_download_is_reported_and_a_check_can_try_again()
     {
         var (service, source, _, _) = Create();

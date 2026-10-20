@@ -79,9 +79,17 @@ public sealed partial class GeneralSettingsPage : Page
         _updatesLoading = true;
         var policy = Updates?.Policy ?? UpdatePolicy.Default;
         bool available = s.Stage is not (UpdateStage.Unavailable or UpdateStage.DisabledByPolicy);
+        // InAppUpdates = 0 (DisabledByPolicy) locks everything; the AutomaticUpdates and IdleInstall values lock their switch.
+        bool disabledByPolicy = s.Stage == UpdateStage.DisabledByPolicy;
+        bool automatic = policy.AutomaticUpdatesForced ?? !ViewModel.NoAutomaticUpdates;
+        AutomaticUpdatesToggle.IsOn = automatic;
+        AutomaticUpdatesToggle.IsEnabled = available && policy.AutomaticUpdatesForced == null;
+        AutomaticUpdatesNote.Text = disabledByPolicy || available && policy.AutomaticUpdatesForced != null ? "Set by your organization." : "";
+        AutomaticUpdatesNote.Visibility = AutomaticUpdatesNote.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
         IdleInstallToggle.IsOn = Updates?.IdleInstallAllowed(ViewModel.IdleInstall) ?? ViewModel.IdleInstall;
-        IdleInstallToggle.IsEnabled = available && policy.Mode == InAppUpdatesMode.Full && policy.IdleInstallForced == null;
-        IdleInstallNote.Text = available && (policy.Mode != InAppUpdatesMode.Full || policy.IdleInstallForced != null) ? "Set by your organization." : "";
+        IdleInstallToggle.IsEnabled = available && policy.Mode == InAppUpdatesMode.Full && policy.IdleInstallForced == null && automatic;
+        IdleInstallNote.Text = disabledByPolicy || available && (policy.Mode != InAppUpdatesMode.Full || policy.IdleInstallForced != null)
+            ? "Set by your organization." : "";
         IdleInstallNote.Visibility = IdleInstallNote.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
         KeepUpdatingPanel.Visibility = available && policy.OptInDespiteStorePolicyOffered ? Visibility.Visible : Visibility.Collapsed;
         KeepUpdatingToggle.IsOn = ViewModel.KeepUpdatingDespiteStorePolicy;
@@ -99,6 +107,17 @@ public sealed partial class GeneralSettingsPage : Page
     private async void CheckUpdates_Click(object sender, RoutedEventArgs e)
     {
         if (Application.Current is App app) await app.CheckForUpdatesAsync();
+    }
+
+    private void AutomaticUpdates_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (_updatesLoading) return;
+        ViewModel.NoAutomaticUpdates = !AutomaticUpdatesToggle.IsOn;
+        if (Updates is { } updates)
+        {
+            updates.CheckAutomatically = AutomaticUpdatesToggle.IsOn;
+            ShowUpdateStatus(updates.Status);   // idle install follows
+        }
     }
 
     private void IdleInstall_Toggled(object sender, RoutedEventArgs e)

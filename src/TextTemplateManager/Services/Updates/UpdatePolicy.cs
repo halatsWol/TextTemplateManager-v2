@@ -21,7 +21,8 @@ public sealed record UpdatePolicy(
     InAppUpdatesMode Mode,
     bool AllowDespiteStorePolicy,
     bool StoreBlocksAutomaticUpdates,
-    bool? IdleInstallForced)
+    bool? IdleInstallForced,
+    bool? AutomaticUpdatesForced = null)
 {
     public const string PolicyKey = @"SOFTWARE\Policies\Marflow Software\TextTemplateManager";
     public const string StorePolicyKey = @"SOFTWARE\Policies\Microsoft\WindowsStore";
@@ -33,14 +34,17 @@ public sealed record UpdatePolicy(
     public bool OptInDespiteStorePolicyOffered => Mode == InAppUpdatesMode.Full && StoreBlocksAutomaticUpdates && AllowDespiteStorePolicy;
 
     /// <summary>True when an administrator set any of TTM's own update keys.</summary>
-    public bool SetByOrganization => Mode != InAppUpdatesMode.Full || !AllowDespiteStorePolicy || IdleInstallForced != null;
+    public bool SetByOrganization => Mode != InAppUpdatesMode.Full || !AllowDespiteStorePolicy || IdleInstallForced != null
+        || AutomaticUpdatesForced != null;
 
     /// <summary>The policy from raw registry values; null = value not set.</summary>
-    public static UpdatePolicy FromValues(int? inAppUpdates, int? allowDespiteStorePolicy, int? idleInstall, int? storeAutoDownload) => new(
+    public static UpdatePolicy FromValues(int? inAppUpdates, int? allowDespiteStorePolicy, int? idleInstall, int? storeAutoDownload,
+        int? automaticUpdates = null) => new(
         inAppUpdates switch { 0 => InAppUpdatesMode.Off, 1 => InAppUpdatesMode.NoticeOnly, _ => InAppUpdatesMode.Full },
         allowDespiteStorePolicy != 0,
         storeAutoDownload == 4,
-        idleInstall switch { 0 => false, 1 => true, _ => null });
+        idleInstall switch { 0 => false, 1 => true, _ => null },
+        automaticUpdates switch { 0 => false, 1 => true, _ => null });
 
     /// <summary>Reads the policy from HKLM; anything unreadable counts as not set.</summary>
     public static UpdatePolicy Read()
@@ -51,7 +55,7 @@ public sealed record UpdatePolicy(
             using var ttm = hklm.OpenSubKey(PolicyKey);
             using var store = hklm.OpenSubKey(StorePolicyKey);
             return FromValues(Dword(ttm, "InAppUpdates"), Dword(ttm, "AllowUpdateDespiteStorePolicy"),
-                Dword(ttm, "IdleInstall"), Dword(store, "AutoDownload"));
+                Dword(ttm, "IdleInstall"), Dword(store, "AutoDownload"), Dword(ttm, "AutomaticUpdates"));
         }
         catch { return Default; }
     }

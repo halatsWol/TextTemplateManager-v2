@@ -32,6 +32,7 @@ package "Services.Platform" {
   }
   class TrayIconService {
     +ShowBalloon(title, message)
+    +SetUpdateReady(ready)
   }
   class UnexpectedErrorHandler {
     +HandleAsync(exception)
@@ -76,6 +77,70 @@ package "Services.Pasting" {
     -BuildFormatsForMode(html, text, mode)
     -RestoreClipboardAsync(snapshot)
   }
+}
+
+package "Services.Updates" {
+  class UpdateService {
+    +Status : UpdateStatus
+    +Policy : UpdatePolicy
+    +Changed (event)
+    +Start()
+    +EvaluateStartup() : StartupUpdateResult
+    +CheckAsync(userInitiated)
+    +DownloadAsync(window, userInitiated)
+    +SwitchAsync(idle, restart) : string?
+    +IdleInstallAllowed(userSetting)
+    +KeepUpdatingDespiteStorePolicy : bool
+  }
+  interface IUpdateSource {
+    +CheckAsync() : UpdateOffer?
+    +CanDownloadSilently : bool
+    +DownloadAsync(offer, progress)
+    +RequestDownloadAsync(offer, window, progress)
+    +DownloadDespitePolicyAsync(offer, progress)
+  }
+  class StoreUpdateSource
+  class FileUpdateSource
+  IUpdateSource <|.. StoreUpdateSource
+  IUpdateSource <|.. FileUpdateSource
+  note bottom of StoreUpdateSource
+    StoreContext; despite the Store
+    policy: winget (msstore).
+  end note
+  note bottom of FileUpdateSource
+    Test source for sideloaded builds:
+    .msix files in TTM_UPDATE_SOURCE.
+  end note
+  interface IPackageSwitcher {
+    +RunningVersion
+    +IsStaged(version)
+    +RegisterRestart(args) / UnregisterRestart()
+    +StartWatchdog(after)
+    +SwitchAsync() : string?
+  }
+  class PackageSwitcher
+  IPackageSwitcher <|.. PackageSwitcher
+  class UpdatePolicy <<record>> {
+    +Mode : InAppUpdatesMode
+    +AllowDespiteStorePolicy
+    +StoreBlocksAutomaticUpdates
+    +IdleInstallForced : bool?
+    +{static} Read()
+  }
+  class UpdateAttempt <<record>> {
+    +TargetVersion / Attempts
+    +Evaluate(running)
+  }
+  class UpdateLog
+  class IdleInstall <<static>> {
+    +ShouldInstall(IdleState)
+    +UserIdleTime()
+  }
+  UpdateService --> IUpdateSource
+  UpdateService --> IPackageSwitcher
+  UpdateService ..> UpdatePolicy
+  UpdateService ..> UpdateAttempt : update-attempt.json
+  UpdateService --> UpdateLog : update.log
 }
 
 package "Helpers" {

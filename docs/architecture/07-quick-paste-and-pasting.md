@@ -56,3 +56,7 @@ Rules worth knowing:
 Conversions: `PanelHtml` (callout panels per target), `HtmlToRtfHelper` (paragraphs, headings, lists, emphasis, code blocks; non-cp1252 characters as `\uN?`), `HtmlToMarkdown` (headings, emphasis, code, links, nested lists, GitHub tables, panels as labelled blockquotes), `HtmlUtils` (plain text, colours).
 
 `PasteService.CopyToClipboardAsync` (tree "Copy" / "Copy As") puts the same formats on the clipboard without pasting. `RenderForMode` returns the content as a string with a MIME type for the browser connector.
+
+---
+
+[← 6. Main window](06-main-window.md) · [Contents](README.md) · [8. Browser connector →](08-browser-connector.md)

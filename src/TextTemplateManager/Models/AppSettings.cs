@@ -52,4 +52,10 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty]
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public partial bool KeepUpdatingDespiteStorePolicy { get; set; } = false;
+
+    // Settings ▸ General ▸ Updates, "Check for and download updates automatically" switched off (stored inverted, so the
+    // default isn't written).
+    [ObservableProperty]
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public partial bool NoAutomaticUpdates { get; set; } = false;
 }

@@ -22,6 +22,8 @@ The Store catalog is available to winget as the `msstore` source:
 
 Run it in the context of the user who will use the app (the package is registered per user). It needs no Microsoft account on the device: on a managed Windows Enterprise PC without one, the Store's first licence request fails (`0x80070525` in its log), is retried and succeeds. `winget upgrade --id 9NMBSZLLLN6V --source msstore` installs an available update.
 
+With TextTemplateManager 1 still installed, winget takes it for the same app and stops with "No available upgrade found" (exit code `0x8A15002B`). Add `--force` to install version 2 anyway (it then offers to remove version 1 itself), or remove version 1 first.
+
 ### Microsoft Intune
 
 Add it as **Apps ▸ Windows ▸ Add ▸ Microsoft Store app (new)**, search for *TextTemplateManager*, and choose the install behavior (User or System). Intune installs and updates it through winget's `msstore` source, so keep that source enabled (see *Updates*).
@@ -52,18 +54,43 @@ The last version 1 release (1.10.0) points its users to the Store and removes it
 
 ## Updates
 
-The Microsoft Store updates TextTemplateManager like any other Store app. There is no built-in updater and no update policy of the app's own; version 1's `allowUpdate` registry value has no effect on version 2. Updates are controlled with the Windows and Store policies below.
+Updates come from the Microsoft Store. Windows' own Store updater can't switch the app while it runs (see below), so the app has its own updater on top: it checks the Store a few minutes after it starts and every 6 hours, downloads a new version in the background, and switches to it when the user clicks **Restart to update**, quits the app, or (optional) while the app isn't in use. Version 1's `allowUpdate` registry value has no effect on version 2; use the policy keys below.
+
+### The in-app updater
+
+- **Download**: the Store stages the new version while the app keeps running (`StoreContext`, download only). With automatic Store updates off (policy below, or the user's Store setting), nothing is downloaded on its own: the notice offers **Download**, which opens the Store's consent dialog. Under the policy, the user can also turn on **Keep updating when automatic Store updates are off** (unless `AllowUpdateDespiteStorePolicy` = 0): the app then runs `winget upgrade --id 9NMBSZLLLN6V --source msstore` on its own when it finds an update; that is a user-started Store install, which the policy doesn't block. If winget's own install step closes the app, Windows starts it again.
+- **Switch**: the app saves everything, asks Windows to register the staged version with "force target application shutdown", and registers itself for a restart. Windows closes the app, switches, and starts the new version, usually within seconds to a minute or two. If Windows didn't, a one-time task in the user's Task Scheduler (*TextTemplateManager update watchdog*, deleted after it ran) starts it from the Start menu after two minutes. If the switch fails twice for one version, the app stops trying and shows the manual steps below.
+- **Idle install** (Settings ▸ General ▸ Updates, off by default): the switch runs when the window and Quick Paste are closed, nothing is unsaved and the session has had no input for 10 minutes; the app then opens with what's new.
+- Every step goes to `update.log` in the app's data folder (`%LocalAppData%\Packages\MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny\LocalState`).
+
+### Update policy
+
+DWORD values under `HKLM\SOFTWARE\Policies\Marflow Software\TextTemplateManager`:
+
+| Value | Meaning |
+| --- | --- |
+| `InAppUpdates` | `0`: the app never checks for or offers updates (the Store and Intune still update it the usual way). `1`: it shows that an update is available, nothing else. `2` or not set: download, Restart to update and idle install as the user sets them. |
+| `AllowUpdateDespiteStorePolicy` | `0`: with "Turn off Automatic Download and Install of updates" (below) the app offers no **Download** either; the Store policy is final. `1` or not set: the user may download through the Store's consent dialog, and may turn on **Keep updating when automatic Store updates are off**, which **overrides the Store policy for this app**: the app then downloads its own updates through winget on its own and installs them as usual. |
+| `IdleInstall` | `1`: idle install on, `0`: off, for every user; the switch in Settings is locked. Not set: the user decides. |
+
+Settings set by a policy show "Set by your organization." For example, notice only and idle install off:
+
+    Windows Registry Editor Version 5.00
+
+    [HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Marflow Software\TextTemplateManager]
+    "InAppUpdates"=dword:00000001
+    "IdleInstall"=dword:00000000
 
 ### When an update installs
 
 An update is installed in two steps: the Store downloads and **stages** the new version next to the installed one, then Windows **registers** it, which switches the app over. Windows never switches a package while the app is running and doesn't close it for a Store update.
 
 - **Automatic updates** come from the Store's background check, which runs on Windows' own schedule (typically every few hours, not when a new version is published). It only gets through when TextTemplateManager isn't running at that moment.
-- TextTemplateManager **starts with Windows and runs in the system tray all day**, so that moment can be a long time coming: a machine can stay on an older version for days. Signing out or restarting doesn't reliably help, because the app starts again right at logon.
+- TextTemplateManager **starts with Windows and runs in the system tray all day**, so without the in-app updater that moment can be a long time coming: a machine could stay on an older version for days. With it, the update waits only until the user restarts or quits the app, or the idle install runs.
 - When the switch fails because the app is running (`0x80073D02` in the log), the new version stays staged and Windows marks it as waiting. The next time the app is **started from the Start menu while it isn't running**, Windows registers the waiting version first, and the new version starts. A start while the app is still running doesn't count (it only brings up the running window), and a version that is only staged, without a failed switch, isn't picked up at start.
 - **Opening the Store app** also checks for updates, and the Store then shows **Update**. It doesn't install by itself; clicking **Update** does.
 
-To bring a machine up to date on purpose:
+To bring a machine up to date by hand (in-app updates off by policy, or a switch that failed):
 
 1. Quit the app completely: tray icon ▸ **Exit App**, or **File ▸ Exit** (closing the window only hides it).
 2. Start TextTemplateManager again from the Start menu. If the update was already downloaded and a switch had failed, it's installed now.
@@ -74,7 +101,7 @@ With Intune, an assigned *Microsoft Store app (new)* is brought up to date by In
 ### Store restricted by policy
 
 - **"Turn off the Store application"** (Administrative Templates ▸ Windows Components ▸ Store) only blocks the Store app's window; according to Microsoft's documentation, Store apps keep updating automatically, and Intune and winget can still install them. Reports differ on whether this holds when the policy is set at computer level and on Windows 11 24H2 and later, so verify it on a pilot device in your configuration.
-- **"Turn off Automatic Download and Install of updates"** (registry: `HKLM\SOFTWARE\Policies\Microsoft\WindowsStore`, `AutoDownload` = 4; 2 = always on) stops automatic updates of all Store apps, TextTemplateManager included. The background check still finds the update but only parks it; nothing is downloaded. Update it then through Intune, `winget upgrade` or **Update** in the Store app, which this policy doesn't block.
+- **"Turn off Automatic Download and Install of updates"** (registry: `HKLM\SOFTWARE\Policies\Microsoft\WindowsStore`, `AutoDownload` = 4; 2 = always on) stops automatic updates of all Store apps, TextTemplateManager included. The background check still finds the update but only parks it; nothing is downloaded. Update it then through Intune, `winget upgrade` or **Update** in the Store app, which this policy doesn't block. The app's own updater then offers **Download** through the Store's consent dialog instead of downloading on its own, unless `AllowUpdateDespiteStorePolicy` = 0 (see *Update policy*).
 - **"Only display the private store within the Microsoft Store app"** / *Require private store only* is reported to block deliveries of public Store apps, including Intune's *Microsoft Store app (new)* deployments.
 - **Disabling winget's `msstore` source** (Desktop App Installer policy *Enable App Installer Microsoft Store Source*) also breaks Intune's *Microsoft Store app (new)* deployments and `winget upgrade`.
 - **Network:** the Store's download endpoints (and Delivery Optimization) must be reachable; SSL inspection of Microsoft endpoints commonly breaks Store downloads.
@@ -157,10 +184,11 @@ None of these remove the backups (`Documents\TextTemplateManager\Backups`) or sh
 
 | Path | Contents |
 | --- | --- |
-| `%LocalAppData%\Packages\MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny\LocalState` | User data: `data.ttmdata` (templates), `settings.ttmsettings`, `sync.ttmsettings`, `crash.log`, and any `*.broken-<date-time>` copy of a file that couldn't be read at startup. Removed by Reset and Uninstall. |
+| `%LocalAppData%\Packages\MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny\LocalState` | User data: `data.ttmdata` (templates), `settings.ttmsettings`, `sync.ttmsettings`, `crash.log`, `update.log` (the in-app updater's steps), `update-attempt.json` (a switch in progress), `update-watchdog.ps1` / `.xml` (the watchdog task's script and definition), and any `*.broken-<date-time>` copy of a file that couldn't be read at startup. Removed by Reset and Uninstall. |
 | `Documents\TextTemplateManager\Backups` | Automatic backups (follows a redirected Documents folder, e.g. OneDrive folder backup). Kept on Reset and Uninstall. |
 | Wherever the user puts them | Shared sync files (`.ttmdata`), typically in OneDrive or on a share. |
 | `%LocalAppData%\Marflow Software\TextTemplateManager` | Version 1's data, read only by version 2. |
+| `HKLM\SOFTWARE\Policies\Marflow Software\TextTemplateManager` | Update policy values (`InAppUpdates`, `AllowUpdateDespiteStorePolicy`, `IdleInstall`), see *Update policy*. Read only. |
 
 Backups are `.zip` files named `ttm-backup-<kind>-<yyyyMMdd-HHmmss>.zip`, each holding the templates, settings, sync settings, a copy of every shared sync file and a manifest with checksums:
 

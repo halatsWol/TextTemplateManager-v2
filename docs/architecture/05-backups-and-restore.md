@@ -47,3 +47,7 @@ What `RestoreService.RestoreAsync` puts back:
 The swap is all or nothing: new files are staged in `restore-work\new`, the current ones copied to `restore-work\old`, a journal is written and flushed, then each file is moved into place. A failure rolls back from the journal; a crash during the swap is rolled back by `RecoverInterrupted()` at the next start. A shared sync file that still exists is only overwritten when the user chose so.
 
 Because the running app holds the old state, `App.RestoreFromBackupAsync` first saves everything (and makes a recent backup, so the restore can be undone), stops the hotkey, the connector and the scheduler, suspends writes, and after a successful restore restarts the app (`AppInstance.Restart`). The first-start "Import from TextTemplateManager 1" (straight through `RestoreFlow`) and "Restore a backup" (Settings > Backups on the newest backup) use the same path.
+
+---
+
+[← 4. Sync](04-sync.md) · [Contents](README.md) · [6. Main window →](06-main-window.md)

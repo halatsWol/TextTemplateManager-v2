@@ -66,3 +66,7 @@ With **Autosave** on, the right pane edits the tree item itself, so every edit t
 ### Moving
 
 `CanMove` refuses pinned sync roots, anything read-only (a sync source with saving off), and moving a folder into itself. `MoveItemsAsync` moves several items together in their tree order, inserts after the pinned synced folders at the top level, and resolves shortcut clashes when the area changes (see [2](02-data-model-and-files.md)).
+
+---
+
+[← 2. Data model and files](02-data-model-and-files.md) · [Contents](README.md) · [4. Sync →](04-sync.md)

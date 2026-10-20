@@ -103,6 +103,20 @@
                 <Button x:Name="CheckUpdatesButton" Content="Check for updates" Margin="0,4,0,0" Click="CheckUpdates_Click"/>
             </StackPanel>
             <StackPanel Spacing="2">
+                <ToggleSwitch x:Name="AutomaticUpdatesToggle"
+                              Header="Check for and download updates automatically"
+                              Toggled="AutomaticUpdates_Toggled"/>
+                <TextBlock Text="Off: TextTemplateManager doesn't look for updates on its own; use Check for updates. A downloaded update is then installed only with Restart to update."
+                           TextWrapping="Wrap"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <TextBlock x:Name="AutomaticUpdatesNote"
+                           Visibility="Collapsed"
+                           TextWrapping="Wrap"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
+            <StackPanel Spacing="2">
                 <ToggleSwitch x:Name="IdleInstallToggle"
                               Header="Install updates while the app isn't in use"
                               Toggled="IdleInstall_Toggled"/>

@@ -52,6 +52,7 @@ All files are UTF-8 JSON without BOM (a BOM is accepted when reading), written i
 | `settings.ttmsettings` | `AppSettings` | Data folder |
 | `sync.ttmsettings` | `SyncSettings` | Data folder |
 | `crash.log` | Text, appended | Data folder |
+| `update.log`, `update-attempt.json`, `update-watchdog.ps1` / `.xml` | The updater's log, the switch in progress, the watchdog task (see [13](13-updates.md)) | Data folder |
 | sync file (`*.ttmdata`) | `Folder` root as written by `DataNode.BuildFileTree` | Anywhere (OneDrive, share) |
 | exported file (`*.ttmdata`) | `Folder`: a folder export has that folder as root, a full or multi-item export a plain root (multi-item: tree order, folder copies down from the shared level, `DataNode.ExportTree`); no `SyncId`s | Anywhere |
 | backup (`ttm-backup-*.zip`) | Zip with the files above and `manifest.json` | Backups folder (see [5](05-backups-and-restore.md)) |
@@ -100,6 +101,10 @@ A tree file looks like this (polymorphism through the `$type` discriminator, `Ti
 
 `DefaultPasteMode` is stored as a number: `Plaintext` 0, `Markdown` 1, `RTF` 2, `HTML` 3, `Auto` 4, `Jira` 5 (shown as "HTML/Jira").
 
-`AppSettings` fields are listed in the class diagram. Besides user choices it holds this installation's state: `LegacyRemovalOffered`, `TutorialOfferDone` and `LastRunVersion` (see [9](09-lifecycle.md)); a restore keeps the latter two from the current settings.
+`AppSettings` fields are listed in the class diagram. Besides user choices it holds this installation's state: `LegacyRemovalOffered`, `TutorialOfferDone` and `LastRunVersion` (see [9](09-lifecycle.md)); a restore keeps the latter two from the current settings. The update switches `IdleInstall` and `KeepUpdatingDespiteStorePolicy` are written only when on (`JsonIgnoreCondition.WhenWritingDefault`), so settings files without them keep their format.
 
 `SyncSettings` holds the sources in priority order (index 0 first) and the `Separator` (`-`, `.` or empty; anything else is migrated to `-` on load).
+
+---
+
+[← 1. Overview](01-overview.md) · [Contents](README.md) · [3. Storage and saving →](03-storage-and-saving.md)

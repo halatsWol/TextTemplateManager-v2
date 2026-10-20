@@ -26,6 +26,7 @@ pwsh -File tests/run-tests.ps1
 | Conversions | `HtmlToRtfTests`, `LegacyRtfTests` |
 | Connector | `BrowserConnectorTests` (routing, token, origins, busy, create) |
 | Platform and 1.x | `AppEnvironmentTests`, `LegacyAppTests`, `LegacyAutostartTests`, `AppInfoTests`, `UnexpectedErrorHandlerTests` |
+| Updates | `UpdateServiceTests` (check, background download, consent download under the Store policy, the opt-in to keep updating despite it, policy values, the switch and its attempt record, two failures, idle install conditions, the update log) over a stand-in Store and package switch |
 | Tour and startup | `TutorialTests` (sample store, card placement, tour offer and What's new, the shipped `release.md`) |
 | Smoke | `SmokeTests` |
 
@@ -33,4 +34,8 @@ Logic that needs no window lives outside the windows on purpose (`QuickPasteCont
 
 ## UI checks
 
-What needs a running window (XAML rendering, focus, real keyboard and mouse input, WebView2, the packaged app) is checked by driving the app with UI Automation from PowerShell scripts against throwaway data (`TTM_DATA_DIR`), and the packaged app on a test VM. Those scripts are developer tooling and aren't part of this repository.
+What needs a running window (XAML rendering, focus, real keyboard and mouse input, WebView2, the packaged app) is checked by driving the app with UI Automation from PowerShell scripts against throwaway data (`TTM_DATA_DIR`), and the packaged app on a test VM. Those scripts are developer tooling and aren't part of this repository. The update switch itself (staging, the forced register, the restart, the watchdog) is checked there with sideloaded test-signed packages and `TTM_UPDATE_SOURCE`.
+
+---
+
+[← 11. Platform, build and release](11-platform-build-release.md) · [Contents](README.md) · [13. In-app updates →](13-updates.md)

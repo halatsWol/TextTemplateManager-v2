@@ -77,6 +77,13 @@ public sealed class UpdateService : IDisposable
     /// <summary>The user's "Keep updating when automatic Store updates are off" (counts only where the policy offers it).</summary>
     public bool KeepUpdatingDespiteStorePolicy { get; set; }
 
+    /// <summary>The user's "Check for and download updates automatically". Off: no check or download on its own, no idle
+    /// install and no install on quit; Check for updates and Restart to update still work.</summary>
+    public bool CheckAutomatically { get; set; } = true;
+
+    /// <summary><see cref="CheckAutomatically"/> unless the AutomaticUpdates policy decides.</summary>
+    public bool ChecksAutomatically => Policy.AutomaticUpdatesForced ?? CheckAutomatically;
+
     private enum DownloadRoute { None, Silent, DespitePolicy, Consent }
 
     private DownloadRoute RouteFor(bool userInitiated, UpdateOffer offer) =>
@@ -92,9 +99,26 @@ public sealed class UpdateService : IDisposable
     /// <summary>The source's name for the log, or null without one.</summary>
     public string? SourceName => _source?.Name;
 
-    /// <summary>Whether idle install applies: the policy decides when it sets IdleInstall, else the user's setting.</summary>
+    /// <summary>Whether idle install applies: the policy decides when it sets IdleInstall, else the user's setting (and
+    /// only with automatic updates on).</summary>
     public bool IdleInstallAllowed(bool userSetting) =>
-        Policy.Mode == InAppUpdatesMode.Full && (Policy.IdleInstallForced ?? userSetting);
+        Policy.Mode == InAppUpdatesMode.Full && (Policy.IdleInstallForced ?? (userSetting && ChecksAutomatically));
+
+    /// <summary>Quitting with a downloaded update installs it (on the way out) only with automatic updates on.</summary>
+    public bool InstallOnQuit => Policy.Mode == InAppUpdatesMode.Full && ChecksAutomatically;
+
+    /// <summary>Reads the policy again (an administrator may have changed it since the last check) and says whether a
+    /// switch is still allowed; when it isn't, the status follows the policy: no Restart to update any more.</summary>
+    public bool RefreshPolicyForSwitch()
+    {
+        Policy = _readPolicy();
+        if (Policy.Mode == InAppUpdatesMode.Full) return true;
+        if (Policy.Mode == InAppUpdatesMode.Off) Set(new UpdateStatus(UpdateStage.DisabledByPolicy));
+        else if (Status.Stage is UpdateStage.Ready or UpdateStage.ManualStepsNeeded && Status.Version is { } v)
+            Set(AvailableStatus(new UpdateOffer(v)));
+        _log.Write($"switch refused: InAppUpdates policy is {Policy.Mode}");
+        return false;
+    }
 
     private void Set(UpdateStatus status)
     {
@@ -125,6 +149,7 @@ public sealed class UpdateService : IDisposable
     {
         if (_source == null || _switcher == null) return;
         Policy = _readPolicy();
+        if (!userInitiated && !ChecksAutomatically) return;
         if (Policy.Mode == InAppUpdatesMode.Off) { Set(new UpdateStatus(UpdateStage.DisabledByPolicy)); return; }
         if (!await _busy.WaitAsync(0)) return;   // a check, download or switch is running
         try
@@ -158,7 +183,8 @@ public sealed class UpdateService : IDisposable
                 Set(new UpdateStatus(UpdateStage.ManualStepsNeeded, offer.Version));
                 return;
             }
-            if (_switcher.IsStaged(offer.Version))
+            // Notice only (InAppUpdates = 1): an update Windows already staged is still only a notice, never Restart to update.
+            if (_switcher.IsStaged(offer.Version) && Policy.Mode == InAppUpdatesMode.Full)
             {
                 if (newOffer) _log.Write($"{offer.Version} is already staged");
                 Set(new UpdateStatus(UpdateStage.Ready, offer.Version));
@@ -241,6 +267,7 @@ public sealed class UpdateService : IDisposable
     public async Task<string?> SwitchAsync(bool idle, bool restart = true)
     {
         if (_switcher == null || Status.Stage != UpdateStage.Ready || Status.Version is not { } target) return "No update is ready.";
+        if (!RefreshPolicyForSwitch()) return "Updates on this PC are managed by your organization.";
         if (!await _busy.WaitAsync(0)) return "An update step is already running.";
         try
         {
@@ -284,7 +311,8 @@ public sealed class UpdateService : IDisposable
         if (!Version.TryParse(attempt.TargetVersion, out var target)) return;
         _offer = new UpdateOffer(target);
         if (attempt.Attempts >= UpdateAttempt.MaxAttempts) Set(new UpdateStatus(UpdateStage.ManualStepsNeeded, target));
-        else if (_switcher?.IsStaged(target) == true) Set(new UpdateStatus(UpdateStage.Ready, target, Message: "The last try to install it didn't work."));
+        else if (_switcher?.IsStaged(target) == true && Policy.Mode == InAppUpdatesMode.Full)
+            Set(new UpdateStatus(UpdateStage.Ready, target, Message: "The last try to install it didn't work."));
         else Set(AvailableStatus(_offer) with { Message = "The last try to install it didn't work." });
     }
 

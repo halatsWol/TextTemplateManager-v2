@@ -28,6 +28,7 @@ package "ttm2.exe (WinUI 3, .NET 8)" {
     [BrowserConnector\nAppConnectorData] as Connector
     [TrayIconService] as Tray
     [IAppEnvironment\nLegacyApp / LegacyAutostart] as Platform
+    [UpdateService\nStore source / PackageSwitcher] as Updates
   }
   package "Helpers" {
     [HtmlToRtf / HtmlToMarkdown\nPanelHtml / HtmlSanitizer\nVariableHelper] as Convert
@@ -38,6 +39,7 @@ package "ttm2.exe (WinUI 3, .NET 8)" {
 database "LocalState\n(data, settings,\nsync settings)" as Files
 database "Documents\\TextTemplateManager\\Backups" as Backups
 database "Shared .ttmdata\n(OneDrive, share)" as SyncFiles
+node "Microsoft Store\n(StoreContext, winget)" as StoreSvc
 
 User --> Main
 User --> QP : global hotkey
@@ -48,6 +50,9 @@ App --> Tray
 App --> Connector
 App --> Backup
 App --> Platform
+App --> Updates : Restart to update, idle install
+Main --> Updates : update notice
+Updates --> StoreSvc : check, download (stage)
 Main --> Store
 Main --> Settings
 Main --> Editor

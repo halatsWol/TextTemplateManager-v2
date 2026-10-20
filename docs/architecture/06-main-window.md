@@ -61,4 +61,10 @@ The WebView's context menu is trimmed to editing items; dev tools, the status ba
 
 ## Settings
 
-`SettingsView` is an in-window view (not a separate window) with four pages: General (hotkey, default paste mode, start with Windows, start hidden, Autosave, cross-area warnings), Integrations (browser connector, extension links, file association), Sync (sources, separator, missing files), Backups (list, export, restore, import from 1.x). Pages edit `DataNode.CurrentSettings` / `CurrentSyncSettings` directly; the store saves settings on its own, and pages call `App` for side effects (`UpdateGlobalHotkey`, `ApplyBrowserConnectorSettings`, `RestoreFromBackupAsync`). Settings covers the menu bar while it is open.
+`SettingsView` is an in-window view (not a separate window) with four pages: General (hotkey, default paste mode, start with Windows, start hidden, Autosave, updates: version, Check for updates, idle install, and where the Store policy allows it Keep updating when automatic Store updates are off; cross-area warnings), Integrations (browser connector, extension links, file association), Sync (sources, separator, missing files), Backups (list, export, restore, import from 1.x). Pages edit `DataNode.CurrentSettings` / `CurrentSyncSettings` directly; the store saves settings on its own, and pages call `App` for side effects (`UpdateGlobalHotkey`, `ApplyBrowserConnectorSettings`, `RestoreFromBackupAsync`). Settings covers the menu bar while it is open.
+
+The update notice (`UpdateBar`, `MainPage.Updates.cs`) sits between the menu bar and the panes; `App` sends it the updater's status (never to the tour's page). See [13](13-updates.md).
+
+---
+
+[← 5. Backups and restore](05-backups-and-restore.md) · [Contents](README.md) · [7. Quick Paste and pasting →](07-quick-paste-and-pasting.md)

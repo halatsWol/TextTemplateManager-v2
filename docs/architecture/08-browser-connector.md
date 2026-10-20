@@ -21,3 +21,7 @@ The connector lets the TTM-Connect browser extension list templates, fetch them 
 - Content is sanitized by `HtmlSanitizer` in both directions: a selection sent to `POST /template` before it becomes a template, and every template before it is served (an allow-list of formatting elements and attributes, then a deny-list pass: scripts, styles, frames, objects, images and media, forms, SVG/MathML, comments, event handlers, `javascript:`/`vbscript:`/`data:` links and active CSS removed; code blocks kept as text).
 - During the guided tour `Busy` is set and every authorized request is answered 503, so the extension can't see or change the sample data.
 - A created template is added on the UI thread to the local root with a unique title and the default paste mode, saved, and the tree refreshed (`NotifyTreeChanged`); the request waits at most 10 seconds for that.
+
+---
+
+[← 7. Quick Paste and pasting](07-quick-paste-and-pasting.md) · [Contents](README.md) · [9. Application lifecycle →](09-lifecycle.md)

@@ -16,6 +16,7 @@ node "Windows PC" {
     file "settings.ttmsettings"
     file "sync.ttmsettings"
     file "crash.log"
+    file "update.log, update-attempt.json"
     folder "restore-work (only during a restore)"
   }
   folder "Documents\\TextTemplateManager\\Backups" as Backups {
@@ -28,7 +29,8 @@ node "Windows PC" {
   node "Browser + TTM-Connect extension" as Ext
 }
 
-Store --> Pkg : installs, updates
+Store --> Pkg : installs; stages updates
+Exe --> Store : checks, downloads updates;\nregisters the staged one (Restart to update)
 Store --> WinAppSdk : framework dependency
 Exe --> WinAppSdk
 Exe --> WebView2

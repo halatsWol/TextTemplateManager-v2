@@ -11,6 +11,7 @@ participant "exit flushes\n(TemplateEditor.FlushAsync)" as Flush
 participant DataNode
 participant StorageService
 participant BackupScheduler
+participant UpdateService
 
 == Exit ==
 User -> App : ExitAsync()
@@ -33,6 +34,9 @@ alt still saving after 1 s
   loop every 15 s while not done
     App -> MainPage : AskKeepWaitingForSaveAsync()
   end
+end
+opt update downloaded and ready
+  App -> UpdateService : SwitchAsync(restart: false)\n(Windows closes the app and installs it)
 end
 App -> App : Shutdown(): tray icon off, instance key\nunregistered, Exit() (+5 s hard-exit watchdog)
 

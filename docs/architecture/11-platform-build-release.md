@@ -13,6 +13,7 @@
 | Opened file | File activation | First `.ttmdata` command-line argument |
 | Closing a running 1.x, removal offer | Yes | No (a dev run leaves an installed 1.x alone) |
 | Tour offer at startup | Yes | Only with `--offer-tour` (UI test scripts start on fresh data) |
+| In-app updates | From the Store (Store-signed package); a sideloaded test package from the `TTM_UPDATE_SOURCE` folder | None |
 
 `TTM_DATA_DIR` overrides the data folder in both (then backups and the 1.x folder are looked for inside it). The test suite sets it for every test, and UI checks run with it, so no test ever touches real data. The 1.x data folder (`%LocalAppData%\Marflow Software\TextTemplateManager`) is only ever read.
 
@@ -46,3 +47,7 @@ The project is unpackaged by default (`WindowsPackageType=None`); `StoreBuild=tr
 ([source](diagrams/act-release.puml))
 
 The git tag is the only version source. How to publish, the secrets and their renewal are in [`../PUBLISHING.md`](../PUBLISHING.md); `release.md` is the release-notes template (its "What's new" section is also the in-app What's new); `store.md` holds the Store texts, its "What's new" block is sent with the submission.
+
+---
+
+[← 10. Guided tour](10-guided-tour.md) · [Contents](README.md) · [12. Testing →](12-testing.md)
