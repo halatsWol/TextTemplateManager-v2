@@ -141,7 +141,7 @@ namespace TextTemplateManager
                 "File ▸ Export saves the selected items, or all of them, to a .ttmdata file; File ▸ Import adds such a file to your tree.",
                 () => _menuPicture, () => ShowMenuAsync(FileMenu), HideMenu),
             new("Settings ▸ General",
-                "File ▸ Settings: the global shortcut that opens Quick Paste, the paste mode for new templates, starting with Windows (hidden in the tray if you like) and Autosave.",
+                "File ▸ Settings: the global shortcut that opens Quick Paste, the paste mode for new templates, starting with Windows (hidden in the tray if you like), Autosave and updates.",
                 () => Settings.PageArea, () => OpenSettings(Controls.SettingsPage.General), Corner: TourCorner.TopRight),
             new("Settings ▸ Integrations",
                 "The browser connector lets the TTM-Connect browser extension paste your templates on web pages and save selected text as a new template. Opening a .ttmdata file (a double-click in Explorer) starts TextTemplateManager and adds the file as a synced folder; if another app took .ttmdata files over, set TextTemplateManager again in Default apps.",

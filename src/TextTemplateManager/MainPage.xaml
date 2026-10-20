@@ -70,6 +70,8 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <!-- MenuBar -->
+                <RowDefinition Height="Auto"/>
+                <!-- Update notice -->
                 <RowDefinition Height="*"/>
                 <!-- Main content -->
             </Grid.RowDefinitions>
@@ -128,8 +130,19 @@
                         ToolTipService.ToolTip="Quick Help" AutomationProperties.Name="Quick Help" Style="{StaticResource SubtleButtonStyle}"/>
             </StackPanel>
 
+            <!-- In-app updates: downloading, ready (Restart to update), blocked by policy, failed. See MainPage.Updates.cs. -->
+            <InfoBar x:Name="UpdateBar" Grid.Row="1" IsOpen="False" Margin="10,0,10,6"
+                     AutomationProperties.Name="Update" CloseButtonClick="UpdateBar_CloseButtonClick">
+                <InfoBar.ActionButton>
+                    <Button x:Name="UpdateBarAction" Click="UpdateBarAction_Click"/>
+                </InfoBar.ActionButton>
+                <InfoBar.Content>
+                    <ProgressBar x:Name="UpdateProgress" Visibility="Collapsed" Margin="0,0,0,8" Maximum="1"/>
+                </InfoBar.Content>
+            </InfoBar>
+
             <!-- Main Content Grid -->
-            <Grid Grid.Row="1">
+            <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <!-- Tree pane: opens at 300 (Width is hardcoded, so never persisted),
                          user-resizable via the splitter between 150 and 500. -->

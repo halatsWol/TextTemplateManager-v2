@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Navigation;
 using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
 using TextTemplateManager.Services.Platform;
+using TextTemplateManager.Services.Updates;
 using Windows.System;
 using Windows.UI.Core;
 
@@ -30,13 +31,80 @@ public sealed partial class GeneralSettingsPage : Page
         HotkeyTextBox.Text = FormatHotkey(ViewModel?.PasteWindowHotkey);
         HotkeyUnavailableInfo.IsOpen = Application.Current is App { HotkeyRegistered: false };
         InitStartupUi();
+        InitUpdatesUi();
         base.OnNavigatedTo(e);
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
         ApplyHotkey();   // safety: re-register the hotkey if the field never lost focus
+        if (Updates is { } updates) updates.Changed -= OnUpdateChanged;
         base.OnNavigatedFrom(e);
+    }
+
+    // ---- Updates ----
+    private static UpdateService? Updates => (Application.Current as App)?.Updates;
+    private bool _updatesLoading;
+
+    private void InitUpdatesUi()
+    {
+        UpdateVersionText.Text = $"Version {Common.AppInfo.Version}";
+        if (Updates is not { } updates) { ShowUpdateStatus(new UpdateStatus(UpdateStage.Unavailable)); return; }
+        updates.Changed += OnUpdateChanged;
+        ShowUpdateStatus(updates.Status);
+    }
+
+    private void OnUpdateChanged(UpdateStatus status) => DispatcherQueue.TryEnqueue(() => ShowUpdateStatus(status));
+
+    private void ShowUpdateStatus(UpdateStatus s)
+    {
+        string v = s.Version is { } version ? MainPage.Short(version) : "";
+        UpdateStatusText.Text = s.Stage switch
+        {
+            UpdateStage.Unavailable => "Updates come from the Microsoft Store. This copy isn't installed from the Store, so it doesn't update itself.",
+            UpdateStage.DisabledByPolicy => "Updates for this app are managed by your organization.",
+            UpdateStage.Checking => "Checking for updates…",
+            UpdateStage.Available when s.CanDownload => $"Version {v} is available. Download it from the notice in the main window.",
+            UpdateStage.Available => $"Version {v} is available. Updates on this PC are managed by your organization.",
+            UpdateStage.Downloading => $"Downloading version {v}… {(int)(s.Progress * 100)} %",
+            UpdateStage.Ready => $"Version {v} is downloaded. Restart to update installs it (notice in the main window, or the tray icon's menu).",
+            UpdateStage.Installing => $"Installing version {v}…",
+            UpdateStage.Failed => s.Message ?? "The last update step didn't work.",
+            UpdateStage.ManualStepsNeeded => $"Version {v} couldn't be installed automatically: quit the app, then start it again from the Start menu.",
+            _ => "Up to date." + (s.LastChecked is { } at ? $" Last checked {at:t}." : ""),
+        };
+        CheckUpdatesButton.IsEnabled = s.Stage is UpdateStage.UpToDate or UpdateStage.Available or UpdateStage.Failed
+            or UpdateStage.Ready or UpdateStage.ManualStepsNeeded;
+
+        _updatesLoading = true;
+        var policy = Updates?.Policy ?? UpdatePolicy.Default;
+        bool available = s.Stage is not (UpdateStage.Unavailable or UpdateStage.DisabledByPolicy);
+        IdleInstallToggle.IsOn = Updates?.IdleInstallAllowed(ViewModel.IdleInstall) ?? ViewModel.IdleInstall;
+        IdleInstallToggle.IsEnabled = available && policy.Mode == InAppUpdatesMode.Full && policy.IdleInstallForced == null;
+        IdleInstallNote.Text = available && (policy.Mode != InAppUpdatesMode.Full || policy.IdleInstallForced != null) ? "Set by your organization." : "";
+        IdleInstallNote.Visibility = IdleInstallNote.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        KeepUpdatingPanel.Visibility = available && policy.OptInDespiteStorePolicyOffered ? Visibility.Visible : Visibility.Collapsed;
+        KeepUpdatingToggle.IsOn = ViewModel.KeepUpdatingDespiteStorePolicy;
+        _updatesLoading = false;
+    }
+
+    private async void KeepUpdating_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (_updatesLoading) return;
+        ViewModel.KeepUpdatingDespiteStorePolicy = KeepUpdatingToggle.IsOn;
+        if (Updates is { } updates) updates.KeepUpdatingDespiteStorePolicy = KeepUpdatingToggle.IsOn;
+        if (KeepUpdatingToggle.IsOn && Application.Current is App app) await app.CheckForUpdatesAsync();
+    }
+
+    private async void CheckUpdates_Click(object sender, RoutedEventArgs e)
+    {
+        if (Application.Current is App app) await app.CheckForUpdatesAsync();
+    }
+
+    private void IdleInstall_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (_updatesLoading) return;
+        ViewModel.IdleInstall = IdleInstallToggle.IsOn;
     }
 
     // "None"/empty means no hotkey — show a blank field (the placeholder shows through).

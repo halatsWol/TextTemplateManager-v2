@@ -14,18 +14,23 @@ namespace TextTemplateManager.Services.Platform
         private readonly DispatcherQueue _dispatcher;
         private readonly Action _showMainWindow;
 
+        private readonly MenuFlyoutItem _updateItem;
+
         public IRelayCommand OpenCommand { get; }
         public IRelayCommand ExitCommand { get; }
+        public IRelayCommand UpdateCommand { get; }
 
 
         /// <param name="showMainWindow">Brings the main window back; the tray's Open and double-click.</param>
-        public TrayIconService(Action showMainWindow)
+        /// <param name="installUpdate">Restart to update, shown in the menu while an update is ready.</param>
+        public TrayIconService(Action showMainWindow, Func<System.Threading.Tasks.Task> installUpdate)
         {
             _showMainWindow = showMainWindow;
             _dispatcher = DispatcherQueue.GetForCurrentThread();
 
             OpenCommand = new RelayCommand(OpenWindow);
             ExitCommand = new RelayCommand(ExitApp);
+            UpdateCommand = new RelayCommand(() => _dispatcher.TryEnqueue(async () => await installUpdate()));
 
 
 
@@ -47,6 +52,14 @@ namespace TextTemplateManager.Services.Platform
                 Command = OpenCommand
             });
 
+            _updateItem = new MenuFlyoutItem
+            {
+                Text = "Restart to update",
+                Command = UpdateCommand,
+                Visibility = Visibility.Collapsed,
+            };
+            menu.Items.Add(_updateItem);
+
             menu.Items.Add(new MenuFlyoutItem
             {
                 Text = "Exit App",
@@ -66,6 +79,10 @@ namespace TextTemplateManager.Services.Platform
                 if (Application.Current is TextTemplateManager.App app) await app.ExitAsync();
             });
         }
+
+        /// <summary>Shows Restart to update in the menu while an update is downloaded and ready.</summary>
+        public void SetUpdateReady(bool ready) =>
+            _dispatcher.TryEnqueue(() => _updateItem.Visibility = ready ? Visibility.Visible : Visibility.Collapsed);
 
         /// <summary>Balloon notice through Shell_NotifyIcon; needs no notification registration.</summary>
         public void ShowBalloon(string title, string message)

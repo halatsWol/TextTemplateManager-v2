@@ -92,6 +92,42 @@
 
         <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
 
+        <StackPanel Spacing="8">
+            <TextBlock Text="Updates" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <StackPanel Spacing="4">
+                <TextBlock x:Name="UpdateVersionText"/>
+                <TextBlock x:Name="UpdateStatusText"
+                           TextWrapping="Wrap"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <Button x:Name="CheckUpdatesButton" Content="Check for updates" Margin="0,4,0,0" Click="CheckUpdates_Click"/>
+            </StackPanel>
+            <StackPanel Spacing="2">
+                <ToggleSwitch x:Name="IdleInstallToggle"
+                              Header="Install updates while the app isn't in use"
+                              Toggled="IdleInstall_Toggled"/>
+                <TextBlock Text="A downloaded update is installed when the window and Quick Paste are closed, nothing is unsaved and the PC has had no input for 10 minutes; the app then opens with what's new. When off, an update waits for Restart to update, or is installed when you quit the app."
+                           TextWrapping="Wrap"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <TextBlock x:Name="IdleInstallNote"
+                           Visibility="Collapsed"
+                           TextWrapping="Wrap"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
+            <StackPanel x:Name="KeepUpdatingPanel" Spacing="2" Visibility="Collapsed">
+                <ToggleSwitch x:Name="KeepUpdatingToggle"
+                              Header="Keep updating when automatic Store updates are off"
+                              Toggled="KeepUpdating_Toggled"/>
+                <TextBlock Text="Automatic updates of Store apps are turned off on this PC. On: TextTemplateManager still downloads its own updates (through winget) and installs them as above. This applies to this app only."
+                           TextWrapping="Wrap"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
+        </StackPanel>
+
+        <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
 
         <StackPanel Spacing="10">
             <TextBlock Text="Other" Style="{StaticResource BodyStrongTextBlockStyle}"/>

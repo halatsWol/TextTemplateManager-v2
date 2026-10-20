@@ -39,4 +39,17 @@ public partial class AppSettings : ObservableObject
 
     // The version that last ran (and showed its What's new): a newer one shows its What's new once.
     [ObservableProperty] public partial string LastRunVersion { get; set; } = "";
+
+    // A downloaded update is installed while the app sits unused (window and Quick Paste closed, nothing unsaved, no input
+    // for a while). Off: it waits for Restart to update. An InAppUpdates/IdleInstall policy overrides it. Written only when
+    // on, so settings files without it keep their format.
+    [ObservableProperty]
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public partial bool IdleInstall { get; set; } = false;
+
+    // Only offered when automatic Store updates are off by policy and the administrator allows it
+    // (AllowUpdateDespiteStorePolicy): TTM still downloads its own updates (winget) and installs them as usual.
+    [ObservableProperty]
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public partial bool KeepUpdatingDespiteStorePolicy { get; set; } = false;
 }

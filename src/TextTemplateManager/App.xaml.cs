@@ -12,6 +12,7 @@ using TextTemplateManager.Common;
 using TextTemplateManager.Data;
 using TextTemplateManager.Helpers;
 using TextTemplateManager.Services.Platform;
+using TextTemplateManager.Services.Updates;
 using WinRT.Interop;
 
 
@@ -30,10 +31,17 @@ namespace TextTemplateManager
         private BrowserConnector? _connector;
         private AppConnectorData? _connectorData;
         private BackupScheduler? _backupScheduler;
+        private UpdateService? _updates;
+        private DispatcherQueueTimer? _idleInstallTimer;
+        private Version? _readyNoticeShownFor;
+        private readonly DateTime _startedAt = DateTime.Now;
         private readonly DataNode _store;
         private readonly IAppEnvironment _environment = AppEnvironment.Detect();   // packaged or a dev run
 
         public IAppEnvironment HostEnvironment => _environment;
+
+        /// <summary>The in-app updater; null until the window is up.</summary>
+        public UpdateService? Updates => _updates;
 
         // Dev runs (and the UI test scripts) start on fresh data again and again: --offer-tour asks for the tour offer there.
         private static bool OfferTourInDevRun { get; } =
@@ -125,7 +133,7 @@ namespace TextTemplateManager
             WindowHelper.OnSessionEnd(hwnd, OnQueryEndSession, OnEndSession);
 
 
-            _trayService = new TrayIconService(ShowMainWindow);
+            _trayService = new TrayIconService(ShowMainWindow, () => InstallUpdateAsync(idle: false));
 
             ApplyBrowserConnectorSettings();   // start the loopback connector if enabled
 
@@ -197,6 +205,8 @@ namespace TextTemplateManager
                 if (startHidden) _onFirstShow = ShowWhatsNew;
                 else ShowWhatsNew();
             }
+
+            StartUpdates();
 
             // Prewarm the Quick Paste window while idle so the first hotkey open isn't cold (builds its
             // UI + tree and starts the WebView2 preview). It stays hidden until the hotkey is pressed.
@@ -480,7 +490,141 @@ namespace TextTemplateManager
                 }
                 await page.HideExitProgressAsync();
             }
+            // A downloaded update is installed on the way out (Windows closes the app for it); the next start is the new
+            // version. Not when the save above was given up on.
+            if (save.IsCompletedSuccessfully && _updates is { Status.IsReady: true } updates
+                && updates.Policy.Mode == InAppUpdatesMode.Full)
+            {
+                ReleaseForSwitch();
+                var exitSwitch = updates.SwitchAsync(idle: false, restart: false);
+                await Task.WhenAny(exitSwitch, Task.Delay(TimeSpan.FromSeconds(15)));
+            }
             Shutdown();
+        }
+
+        // ---- In-app updates (see Services/Updates) ----
+
+        // The Store package updates from the Store; a sideloaded test build from the TTM_UPDATE_SOURCE folder; a dev run
+        // not at all.
+        private UpdateService CreateUpdateService()
+        {
+            var log = new UpdateLog(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(_store.Storage.GetCrashLogPath())!, "update.log"));
+            string attemptPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(_store.Storage.GetCrashLogPath())!, "update-attempt.json");
+            if (!_environment.IsPackaged) return new UpdateService(null, null, log, attemptPath);
+            try
+            {
+                var package = Windows.ApplicationModel.Package.Current;
+                IUpdateSource? source = package.SignatureKind == Windows.ApplicationModel.PackageSignatureKind.Store
+                    ? new StoreUpdateSource()
+                    : FileUpdateSource.ConfiguredFolder() is { } folder ? new FileUpdateSource(folder, package.Id.Name) : null;
+                return new UpdateService(source, new PackageSwitcher(), log, attemptPath);
+            }
+            catch (Exception ex)
+            {
+                LogCrash("Updates", ex);
+                return new UpdateService(null, null, log, attemptPath);
+            }
+        }
+
+        private void StartUpdates()
+        {
+            _updates = CreateUpdateService();
+            _updates.KeepUpdatingDespiteStorePolicy = _store.CurrentSettings.KeepUpdatingDespiteStorePolicy;
+            _updates.Changed += status => _uiDispatcher.TryEnqueue(() => OnUpdateStatus(status));
+
+            var previous = _updates.EvaluateStartup();
+            if (previous.Outcome is AttemptOutcome.Failed or AttemptOutcome.GaveUp && previous.Attempt is { } attempt)
+                _updates.ReportFailedSwitch(attempt);
+
+            _updates.Start();
+            _idleInstallTimer = _uiDispatcher.CreateTimer();
+            _idleInstallTimer.Interval = IdleInstall.CheckEvery;
+            _idleInstallTimer.Tick += async (_, _) => await IdleInstallTickAsync();
+            _idleInstallTimer.Start();
+            OnUpdateStatus(_updates.Status);
+        }
+
+        private void OnUpdateStatus(UpdateStatus status)
+        {
+            (_pageBeforeTour ?? MainWindow.Content as MainPage)?.ShowUpdateStatus(status);
+            _trayService?.SetUpdateReady(status.IsReady);
+            if (status.IsReady && status.Version is { } v && v != _readyNoticeShownFor && !MainWindow.Visible
+                && !(_updates?.IdleInstallAllowed(_store.CurrentSettings.IdleInstall) ?? false))
+            {
+                _readyNoticeShownFor = v;
+                ShowTrayBalloon("Update ready", $"Version {MainPage.Short(v)} is downloaded. Choose Restart to update in the tray icon's menu.");
+            }
+        }
+
+        /// <summary>Settings ▸ Check for updates, and Try again on the update notice.</summary>
+        public Task CheckForUpdatesAsync() => _updates?.CheckAsync(userInitiated: true) ?? Task.CompletedTask;
+
+        /// <summary>Download on the update notice: through the Store's consent dialog when it can't download on its own.</summary>
+        public Task DownloadUpdateAsync() =>
+            _updates?.DownloadAsync(WindowNative.GetWindowHandle(MainWindow), userInitiated: true) ?? Task.CompletedTask;
+
+        /// <summary>Restart to update (<paramref name="idle"/>: the idle install): saves everything like a quit, then switches
+        /// to the downloaded version; Windows closes the app and starts the new one. Comes back only when the switch
+        /// didn't happen, with everything running again.</summary>
+        public async Task InstallUpdateAsync(bool idle)
+        {
+            if (_updates is not { Status.IsReady: true } updates) return;
+            if (!idle)
+            {
+                EndTutorial();
+                if (MainWindow.Content is MainPage editing)
+                {
+                    if (editing.ViewModel.HasUnsavedChanges) ShowMainWindow();
+                    if (!await editing.ResolveUnsavedEditsAsync()) return;
+                }
+            }
+            StopAcceptingWork();
+            await PersistPendingAsync();
+            // Windows restarts the app after the switch only once it has run for 60 s (RegisterApplicationRestart).
+            var uptime = DateTime.Now - System.Diagnostics.Process.GetCurrentProcess().StartTime;
+            if (uptime < TimeSpan.FromSeconds(65)) await Task.Delay(TimeSpan.FromSeconds(65) - uptime);
+            ReleaseForSwitch();
+            string? problem = await updates.SwitchAsync(idle);
+
+            // Still here: Windows didn't switch. Carry on with the old version.
+            _trayService = new TrayIconService(ShowMainWindow, () => InstallUpdateAsync(idle: false));
+            AppInstance.FindOrRegisterForKey(InstanceKey);   // the Activated handler stays subscribed
+            UpdateGlobalHotkey(_store.CurrentSettings.PasteWindowHotkey);
+            ApplyBrowserConnectorSettings();
+            if (!idle && problem != null && MainWindow.Content is MainPage page)
+            {
+                ShowMainWindow();
+                page.ReportUpdateProblem(problem);
+            }
+        }
+
+        // Windows ends the process without letting it clean up: no tray icon left behind, and the new version's start must
+        // not be redirected to this instance.
+        private void ReleaseForSwitch()
+        {
+            try { _trayService?.Dispose(); } catch { }
+            try { AppInstance.GetCurrent().UnregisterKey(); } catch { }
+        }
+
+        private bool _idleInstalling;
+
+        private async Task IdleInstallTickAsync()
+        {
+            if (_updates == null || _idleInstalling) return;
+            var page = _pageBeforeTour ?? MainWindow.Content as MainPage;
+            var state = new IdleState(
+                UpdateReady: _updates.Status.IsReady,
+                Allowed: _updates.IdleInstallAllowed(_store.CurrentSettings.IdleInstall),
+                WindowVisible: MainWindow.Visible,
+                QuickPasteVisible: _pasteWindow?.Visible == true,
+                UnsavedChanges: page?.ViewModel.HasUnsavedChanges ?? true,
+                Busy: _tour != null || page == null || page.IsDialogOpen,
+                UserIdle: IdleInstall.UserIdleTime(),
+                AppUptime: DateTime.Now - _startedAt);
+            if (!IdleInstall.ShouldInstall(state)) return;
+            _idleInstalling = true;
+            try { await InstallUpdateAsync(idle: true); }
+            finally { _idleInstalling = false; }
         }
 
         // ---- Guided tour: the main window shows a sample store while it runs ----
