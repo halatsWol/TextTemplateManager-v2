@@ -33,7 +33,9 @@ function Invoke-Api([string]$Method, [string]$Uri, $Body) {
     # The API refuses a POST without a JSON content type, even one without a body (commit).
     if ($Method -ne 'Get') {
         $call.ContentType = 'application/json; charset=utf-8'
-        $call.Body = if ($null -ne $Body) { [Text.Encoding]::UTF8.GetBytes(($Body | ConvertTo-Json -Depth 100)) } else { [byte[]]@() }
+        # Assigned in each branch: an if expression would unroll the byte array into separate numbers.
+        if ($null -ne $Body) { $call.Body = [Text.Encoding]::UTF8.GetBytes(($Body | ConvertTo-Json -Depth 100)) }
+        else { $call.Body = [byte[]]@() }
     }
     try { Invoke-RestMethod @call }
     catch {
