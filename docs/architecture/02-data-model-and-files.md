@@ -101,7 +101,7 @@ A tree file looks like this (polymorphism through the `$type` discriminator, `Ti
 
 `DefaultPasteMode` is stored as a number: `Plaintext` 0, `Markdown` 1, `RTF` 2, `HTML` 3, `Auto` 4, `Jira` 5 (shown as "HTML/Jira").
 
-`AppSettings` fields are listed in the class diagram. Besides user choices it holds this installation's state: `LegacyRemovalOffered`, `TutorialOfferDone` and `LastRunVersion` (see [9](09-lifecycle.md)); a restore keeps the latter two from the current settings. The update switches `IdleInstall` and `KeepUpdatingDespiteStorePolicy` are written only when on (`JsonIgnoreCondition.WhenWritingDefault`), so settings files without them keep their format.
+`AppSettings` fields are listed in the class diagram. Besides user choices it holds this installation's state: `LegacyRemovalOffered`, `TutorialOfferDone` and `LastRunVersion` (see [9](09-lifecycle.md)); a restore keeps the latter two from the current settings. The update switches `IdleInstall`, `KeepUpdatingDespiteStorePolicy` and `NoAutomaticUpdates` (automatic updates off, stored inverted) are written only when on (`JsonIgnoreCondition.WhenWritingDefault`), so settings files without them keep their format.
 
 `SyncSettings` holds the sources in priority order (index 0 first) and the `Separator` (`-`, `.` or empty; anything else is migrated to `-` on load).
 

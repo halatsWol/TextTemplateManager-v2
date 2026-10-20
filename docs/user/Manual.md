@@ -279,6 +279,7 @@ If TextTemplateManager 1 was set up on this PC, both switches take over its choi
 **Updates**
 
 - The version that runs, what the updater is doing (up to date, downloading, ready), and **Check for updates**. See *Updates*.
+- **Check for and download updates automatically** — on by default. Off: TextTemplateManager doesn't look for updates on its own; **Check for updates** still works, and an update it finds is installed only with **Restart to update** (not while the app isn't in use, and not when you quit). If your organization set it, the switch is locked and says so.
 - **Install updates while the app isn't in use** — off by default: a downloaded update waits for **Restart to update** or is installed when you quit the app. On: it's installed while nobody uses the app (window and Quick Paste closed, nothing unsaved, no input for 10 minutes), and the app then opens with what's new. If your organization set it, the switch is locked and says so.
 - **Keep updating when automatic Store updates are off** — only shown when your organization turned off automatic Store updates on this PC and allows this. On: updates are downloaded on their own again (through winget) and installed as with the other switches; it applies to TextTemplateManager only.
 
@@ -288,7 +289,7 @@ If TextTemplateManager 1 was set up on this PC, both switches take over its choi
 
 ![Settings ▸ General: the Quick Paste shortcut, the default paste mode for new templates, startup, Autosave and the start of Updates.](../../src/TextTemplateManager/Assets/ManualImages/TTM_GeneralSettings1.png)
 
-![Settings ▸ General, scrolled down: Updates with the version, what the updater is doing, Check for updates and the idle-install switch, then Other.](../../src/TextTemplateManager/Assets/ManualImages/TTM_GeneralSettings2.png)
+![Settings ▸ General, scrolled down: Updates with the version, what the updater is doing, Check for updates, the switches for automatic updates and idle install, then Other.](../../src/TextTemplateManager/Assets/ManualImages/TTM_GeneralSettings2.png)
 
 ### Integrations
 
@@ -454,7 +455,7 @@ When the download is done, a notice above the template list says **Update ready*
 
 ![The Update ready notice above the template list, with Restart to update.](../../src/TextTemplateManager/Assets/ManualImages/TTM_UpdateReady.png)
 
-**Settings ▸ General ▸ Updates** shows the version and has **Check for updates**. With **Install updates while the app isn't in use** on (off by default), a downloaded update is installed when the window and Quick Paste are closed, nothing is unsaved and the PC has had no input for 10 minutes; the app then opens with what's new.
+**Settings ▸ General ▸ Updates** shows the version and has **Check for updates**. To update only when you ask, turn off **Check for and download updates automatically**. With **Install updates while the app isn't in use** on (off by default), a downloaded update is installed when the window and Quick Paste are closed, nothing is unsaved and the PC has had no input for 10 minutes; the app then opens with what's new.
 
 If automatic Store updates are turned off on this PC, the notice says **Update available** with a **Download** button: the Store asks once, then the update downloads and is ready as above. Where your organization allows it, **Settings ▸ General ▸ Updates** also offers **Keep updating when automatic Store updates are off**: TextTemplateManager then downloads its own updates on its own again (through winget) and installs them as above. On a company PC your IT may manage updates; the notice and the settings then say so.
 

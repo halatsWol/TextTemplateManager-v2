@@ -35,7 +35,7 @@ What's new shows the "What's new in this release" section of `release.md`, which
 ([source](diagrams/seq-exit.puml))
 
 - **Exit** stops new work (hotkey, connector), then `PersistPendingAsync`: the registered exit flushes (the editor's last content), the store's pending saves, all writes in flight, and a recent backup of anything not backed up yet. After 1 second a "Saving changes…" dialog shows; every 15 seconds the user can choose to stop waiting. `Shutdown()` removes the tray icon, unregisters the instance key (so a new launch starts fresh instead of redirecting to the exiting process), and exits, with a 5-second hard-exit watchdog in case teardown hangs.
-- **Exit with an update ready**: after the save, the downloaded update is installed on the way out (`UpdateService.SwitchAsync` without a restart; Windows closes the app for it), so the next start is the new version. See [13](13-updates.md).
+- **Exit with an update ready** (and automatic updates on, `UpdateService.InstallOnQuit`): after the save, the downloaded update is installed on the way out (`UpdateService.SwitchAsync` without a restart; Windows closes the app for it), so the next start is the new version. See [13](13-updates.md).
 - **Windows sign-out or shutdown**: `WM_QUERYENDSESSION` starts saving at once (unsaved edits are saved, since nothing can be asked); `WM_ENDSESSION` then pumps messages for up to 4 seconds until the save is done (Windows ends the process as soon as the handler returns), and shuts down.
 
 ## Unexpected errors

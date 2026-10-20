@@ -48,6 +48,7 @@ class AppSettings <<ObservableObject>> {
   +LastRunVersion : string
   +IdleInstall : bool
   +KeepUpdatingDespiteStorePolicy : bool
+  +NoAutomaticUpdates : bool
 }
 
 class SyncSettings <<ObservableObject>> {

@@ -60,6 +60,7 @@ Updates come from the Microsoft Store. Windows' own Store updater can't switch t
 
 - **Download**: the Store stages the new version while the app keeps running (`StoreContext`, download only). With automatic Store updates off (policy below, or the user's Store setting), nothing is downloaded on its own: the notice offers **Download**, which opens the Store's consent dialog. Under the policy, the user can also turn on **Keep updating when automatic Store updates are off** (unless `AllowUpdateDespiteStorePolicy` = 0): the app then runs `winget upgrade --id 9NMBSZLLLN6V --source msstore` on its own when it finds an update; that is a user-started Store install, which the policy doesn't block. If winget's own install step closes the app, Windows starts it again.
 - **Switch**: the app saves everything, asks Windows to register the staged version with "force target application shutdown", and registers itself for a restart. Windows closes the app, switches, and starts the new version, usually within seconds to a minute or two. If Windows didn't, a one-time task in the user's Task Scheduler (*TextTemplateManager update watchdog*, deleted after it ran) starts it from the Start menu after two minutes. If the switch fails twice for one version, the app stops trying and shows the manual steps below.
+- **Users can turn automatic updates off** (Settings ▸ General ▸ Updates, *Check for and download updates automatically*): the app then only checks when they click **Check for updates**, and installs only with **Restart to update**. `AutomaticUpdates` below locks that switch on or off; to prevent in-app updates altogether, use `InAppUpdates`.
 - **Idle install** (Settings ▸ General ▸ Updates, off by default): the switch runs when the window and Quick Paste are closed, nothing is unsaved and the session has had no input for 10 minutes; the app then opens with what's new.
 - Every step goes to `update.log` in the app's data folder (`%LocalAppData%\Packages\MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny\LocalState`).
 
@@ -71,9 +72,10 @@ DWORD values under `HKLM\SOFTWARE\Policies\Marflow Software\TextTemplateManager`
 | --- | --- |
 | `InAppUpdates` | `0`: the app never checks for or offers updates (the Store and Intune still update it the usual way). `1`: it shows that an update is available, nothing else. `2` or not set: download, Restart to update and idle install as the user sets them. |
 | `AllowUpdateDespiteStorePolicy` | `0`: with "Turn off Automatic Download and Install of updates" (below) the app offers no **Download** either; the Store policy is final. `1` or not set: the user may download through the Store's consent dialog, and may turn on **Keep updating when automatic Store updates are off**, which **overrides the Store policy for this app**: the app then downloads its own updates through winget on its own and installs them as usual. |
+| `AutomaticUpdates` | `1`: the app checks for and downloads updates on its own for every user; `0`: only when the user clicks **Check for updates** (no idle install, no install on quit). The switch *Check for and download updates automatically* is locked. Not set: the user decides. |
 | `IdleInstall` | `1`: idle install on, `0`: off, for every user; the switch in Settings is locked. Not set: the user decides. |
 
-Settings set by a policy show "Set by your organization." For example, notice only and idle install off:
+Settings set by a policy show "Set by your organization." The app reads the policy again before every check and right before it switches to a new version, so a changed policy applies without restarting the app; with `InAppUpdates` = 1 an update is only ever announced, even one Windows has already downloaded. For example, notice only and idle install off:
 
     Windows Registry Editor Version 5.00
 

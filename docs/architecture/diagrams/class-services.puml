@@ -91,6 +91,10 @@ package "Services.Updates" {
     +SwitchAsync(idle, restart) : string?
     +IdleInstallAllowed(userSetting)
     +KeepUpdatingDespiteStorePolicy : bool
+    +CheckAutomatically : bool
+    +InstallOnQuit : bool
+    +ChecksAutomatically : bool
+    +RefreshPolicyForSwitch() : bool
   }
   interface IUpdateSource {
     +CheckAsync() : UpdateOffer?
@@ -125,6 +129,7 @@ package "Services.Updates" {
     +AllowDespiteStorePolicy
     +StoreBlocksAutomaticUpdates
     +IdleInstallForced : bool?
+    +AutomaticUpdatesForced : bool?
     +{static} Read()
   }
   class UpdateAttempt <<record>> {
