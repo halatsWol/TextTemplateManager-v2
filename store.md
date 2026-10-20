@@ -112,13 +112,12 @@ Copyright © 2026 Marflow Software
 This block is the Store's "What's new" (Microsoft asks for it on updates only; it stayed empty for 2.0.0). It lists only what changed since the previous release; keep it in step with `release.md`.
 
 ```text
-Selecting several items from the keyboard, exports that keep their folders, and much better support for screen readers.
+Updates install with one click, and the main window works better from the keyboard.
 
-- Select several items from the keyboard: in the tree, Shift + Up / Down extends the selection and Ctrl + A selects all visible rows, as in File Explorer.
-- Exporting several items keeps their folders: the file lists them in tree order, each with its folders down from the deepest folder they share. Local items and items of synced folders can't be mixed in one export; the export entries then say so.
-- The editor's toolbar menus work from the keyboard: Enter opens a menu, Tab moves into it (the colors included), Esc closes it; in the table menu the arrow keys choose the size and Enter inserts the table.
-- Screen readers: moving into the editor no longer reads out a long string of random characters, and the editor, its toolbar, Quick Paste and the controls of the main window and Settings now have proper names.
-- Fixed: Tab right after moving to another item now goes to that item's fields instead of the previous item's.
+- Updates inside the app: TextTemplateManager downloads a new version in the background while you work. When it's ready, click Restart to update (above the template list or in the tray menu): your work is saved and the app is back within seconds, showing what's new. Quitting the app installs it too.
+- Settings > General > Updates shows the version and has Check for updates, a switch to update only when you ask, and an optional switch to install updates while the app isn't in use.
+- For administrators: policy keys turn in-app updates off or to notices only and lock the switches; see the Administrator & Deployment Guide.
+- Keyboard: the toolbar above the tree and the editor toolbar are one Tab stop each, with the arrow keys moving along their buttons. In the template text, Tab only indents in lists, tables and code blocks; elsewhere it moves on to the shortcuts (Ctrl + Tab always moves on).
 ```
 
 ---
@@ -144,7 +143,7 @@ TextTemplateManager does not collect, transmit or share any personal information
 
 Your templates, settings and backups are stored only on your PC: the app's data folder, and backups in Documents\TextTemplateManager\Backups. Shared template files (.ttmdata) are read from and written to the folders you choose, for example a OneDrive folder or a network share; their syncing is done by that service, not by the app.
 
-The app sends no telemetry or usage data and makes no internet connections of its own. The optional browser connector listens only on this PC (localhost), is protected by a pairing token, and only answers the TTM-Connect browser extension you pair it with.
+The app sends no telemetry or usage data and makes no internet connections of its own, except asking the Microsoft Store, through Windows, for updates to TextTemplateManager itself (Settings > General > Updates; an organization can turn this off). The optional browser connector listens only on this PC (localhost), is protected by a pairing token, and only answers the TTM-Connect browser extension you pair it with.
 
 Links in the app (manual, website, browser extension stores) open in your browser.
 
