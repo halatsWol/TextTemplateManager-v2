@@ -4,10 +4,16 @@ title Release workflow (.github/workflows/release.yml)
 
 |package (windows-latest)|
 start
+if (workflow_dispatch with\n"Check Store access"?) then (yes)
+  |store-access|
+  :build/Store-Api.ps1 -Check\n(sign-in, read the app; no build);
+  stop
+endif
+|package (windows-latest)|
 :tag vX.Y.Z pushed\n(or workflow_dispatch with a version);
 :version = tag without "v"; must be X.Y.Z;
 if (tag?) then (yes)
-  :read the annotated tag message:\n"publish: none" -> no Store submission;
+  :read the annotated tag message:\n"publish: none" / "draft" / "store" (default);
 endif
 :setup .NET 8 + 10;
 :tests/run-tests.ps1;
@@ -17,13 +23,17 @@ endif
 if (tag?) then (yes)
   :gh release create --draft (PDFs only, no .exe;\npublished by hand);
   |microsoft-store (environment store-release)|
-  if (publish_store?) then (yes)
+  if (draft or store?) then (yes)
     :manual approval;
-    :check MSSTORE_* secrets;
+    :Store-Api.ps1 -Check\n(secrets, sign-in, access to the app);
     :msstore reconfigure;
-    :msstore publish -i .msixupload -id 9NMBSZLLLN6V --noCommit;
-    :submission get -> ReleaseNotes for every listing -> submission update;
-    :submission publish (certification follows);
+    :msstore publish <.msixupload> -id 9NMBSZLLLN6V --noCommit;
+    :Store-Api.ps1 -ReleaseNotesFile\n(What's new in every listing, REST);
+    if (store?) then (yes)
+      :Store-Api.ps1 -Commit\n(certification follows);
+    else (draft)
+      :left as a draft: submit in Partner Center;
+    endif
   endif
 endif
 stop

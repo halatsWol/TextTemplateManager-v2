@@ -4,11 +4,13 @@ name: Release
 #
 #   - Push an annotated tag like v2.0.1 -> build, create a draft GitHub release (manuals, notes from release.md), then
 #     submit the package to the Microsoft Store.
-#   - Run manually (workflow_dispatch) -> build and upload the files as artifacts ONLY (never publishes).
+#   - Run manually (workflow_dispatch) -> build and upload the files as artifacts ONLY (never publishes), or, with
+#     "Check Store access", only sign in to Partner Center and read the app (no build, nothing submitted).
 #
-# The Store submission is controlled by the annotated tag's message: a line "publish: none" skips it, "publish: store"
-# or no such line submits. The submission job waits for the "store-release" environment, so it goes out only after
-# a manual approval (Settings > Environments). It fails loudly if its secrets are missing. See docs/PUBLISHING.md.
+# The Store submission is controlled by the annotated tag's message: "publish: none" skips it, "publish: draft"
+# uploads the package and sets "What's new" but leaves the submission as a draft to submit in Partner Center,
+# "publish: store" or no such line submits. The submission job waits for the "store-release" environment, so it goes
+# out only after a manual approval (Settings > Environments). See docs/PUBLISHING.md.
 
 on:
   push:
@@ -18,15 +20,34 @@ on:
       version:
         description: "Version to build (X.Y.Z); nothing is published"
         default: "0.0.1"
+      check_store_access:
+        description: "Only check the Store access (sign-in and the app in Partner Center); no build"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
 
 jobs:
+  store-access:
+    if: github.event_name == 'workflow_dispatch' && inputs.check_store_access
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check access to the app in Partner Center
+        shell: pwsh
+        env:
+          MSSTORE_TENANT_ID: ${{ secrets.MSSTORE_TENANT_ID }}
+          MSSTORE_CLIENT_ID: ${{ secrets.MSSTORE_CLIENT_ID }}
+          MSSTORE_CLIENT_SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
+        run: ./build/Store-Api.ps1 -AppId 9NMBSZLLLN6V -Check
+
   package:
+    if: github.event_name != 'workflow_dispatch' || !inputs.check_store_access
     runs-on: windows-latest
     outputs:
-      publish_store: ${{ steps.targets.outputs.publish_store }}
+      store_mode: ${{ steps.targets.outputs.store_mode }}
     steps:
       - uses: actions/checkout@v5
 
@@ -54,9 +75,9 @@ jobs:
           $msg = if ($ref.object.type -eq 'tag') { gh api "repos/$env:GITHUB_REPOSITORY/git/tags/$($ref.object.sha)" --jq '.message' | Out-String } else { '' }
           $line = @($msg -split "\r?\n" | Where-Object { $_ -match '^\s*publish\s*:' }) | Select-Object -Last 1
           $target = if ($line) { ($line -replace '^\s*publish\s*:\s*', '').Trim().ToLowerInvariant() } else { 'store' }
-          $store = switch ($target) { { $_ -in 'store', 'all', '' } { 'true' } { $_ -in 'none', 'skip' } { 'false' } default { throw "Unknown 'publish: $target' in the tag message (store or none)." } }
-          "publish_store=$store" >> $env:GITHUB_OUTPUT
-          Write-Host "Store submission: $store"
+          $mode = switch ($target) { { $_ -in 'store', 'all', '' } { 'store' } 'draft' { 'draft' } { $_ -in 'none', 'skip' } { 'none' } default { throw "Unknown 'publish: $target' in the tag message (store, draft or none)." } }
+          "store_mode=$mode" >> $env:GITHUB_OUTPUT
+          Write-Host "Store submission: $mode"
 
       - uses: actions/setup-dotnet@v5
         with:
@@ -88,7 +109,7 @@ jobs:
           Write-Host '----- Store "What''s new" -----'; Get-Content dist/store-notes.txt
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: TextTemplateManager-${{ steps.ver.outputs.version }}
           path: |
@@ -97,7 +118,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload the Store submission files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: store-submission
           path: |
@@ -120,51 +141,29 @@ jobs:
 
   microsoft-store:
     needs: package
-    if: startsWith(github.ref, 'refs/tags/') && needs.package.outputs.publish_store == 'true'
+    if: startsWith(github.ref, 'refs/tags/') && needs.package.outputs.store_mode != 'none'
     runs-on: windows-latest
     environment: store-release
     env:
       STORE_PRODUCT_ID: 9NMBSZLLLN6V   # public (the Store link); not a secret
     steps:
+      - uses: actions/checkout@v5
+
       - uses: actions/download-artifact@v5
         with:
           name: store-submission
           path: store
 
-      - name: Check the Store secrets
-        shell: pwsh
-        env:
-          MSSTORE_TENANT_ID: ${{ secrets.MSSTORE_TENANT_ID }}
-          MSSTORE_SELLER_ID: ${{ secrets.MSSTORE_SELLER_ID }}
-          MSSTORE_CLIENT_ID: ${{ secrets.MSSTORE_CLIENT_ID }}
-          MSSTORE_CLIENT_SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
-        run: |
-          $missing = 'MSSTORE_TENANT_ID', 'MSSTORE_SELLER_ID', 'MSSTORE_CLIENT_ID', 'MSSTORE_CLIENT_SECRET' |
-            Where-Object { [string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($_)) }
-          if ($missing) { throw "Missing secrets: $($missing -join ', ') (see docs/PUBLISHING.md)." }
-
-      # msstore reports any failure to reach the app as "check the AppId"; this shows the real reason (sign-in, access).
+      # Fails with the real reason (sign-in, missing secret, the Entra app's role or access) before anything is uploaded.
       - name: Check access to the app in Partner Center
         shell: pwsh
         env:
           MSSTORE_TENANT_ID: ${{ secrets.MSSTORE_TENANT_ID }}
           MSSTORE_CLIENT_ID: ${{ secrets.MSSTORE_CLIENT_ID }}
           MSSTORE_CLIENT_SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
-        run: |
-          try {
-            $token = (Invoke-RestMethod -Method Post "https://login.microsoftonline.com/$env:MSSTORE_TENANT_ID/oauth2/token" -Body @{
-              grant_type = 'client_credentials'; client_id = $env:MSSTORE_CLIENT_ID; client_secret = $env:MSSTORE_CLIENT_SECRET
-              resource = 'https://manage.devcenter.microsoft.com' }).access_token
-          } catch { throw "Sign-in to Microsoft Entra failed (tenant ID, client ID or client secret): $($_.ErrorDetails.Message)" }
-          Write-Host "::add-mask::$token"
-          try {
-            $app = Invoke-RestMethod "https://manage.devcenter.microsoft.com/v1.0/my/applications/$env:STORE_PRODUCT_ID" -Headers @{ Authorization = "Bearer $token" }
-            Write-Host "Access OK: $($app.primaryName) ($($app.id))"
-          } catch {
-            throw "Partner Center refused the app $env:STORE_PRODUCT_ID with HTTP $([int]$_.Exception.Response.StatusCode): $($_.ErrorDetails.Message)"
-          }
+        run: ./build/Store-Api.ps1 -AppId $env:STORE_PRODUCT_ID -Check
 
-      # Pinned: the commands below follow this version's syntax (publish takes the package file, update takes --payload).
+      # Pinned: the command below follows this version's syntax (publish takes the package file).
       - name: Set up the Microsoft Store Developer CLI
         uses: microsoft/microsoft-store-apppublisher@v1.1
         with:
@@ -174,16 +173,18 @@ jobs:
         shell: pwsh
         env:
           MSSTORE_TENANT_ID: ${{ secrets.MSSTORE_TENANT_ID }}
-          MSSTORE_SELLER_ID: ${{ secrets.MSSTORE_SELLER_ID }}
           MSSTORE_CLIENT_ID: ${{ secrets.MSSTORE_CLIENT_ID }}
           MSSTORE_CLIENT_SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
+          MSSTORE_SELLER_ID: ${{ secrets.MSSTORE_SELLER_ID }}
         run: |
+          if ([string]::IsNullOrWhiteSpace($env:MSSTORE_SELLER_ID)) { throw 'Missing MSSTORE_SELLER_ID (see docs/PUBLISHING.md).' }
           msstore reconfigure --tenantId $env:MSSTORE_TENANT_ID --sellerId $env:MSSTORE_SELLER_ID `
             --clientId $env:MSSTORE_CLIENT_ID --clientSecret $env:MSSTORE_CLIENT_SECRET
           if ($LASTEXITCODE -ne 0) { throw 'msstore reconfigure failed' }
 
-      # publish recreates the draft from the last published submission, so it runs before the notes are set. A built
-      # package is published by passing the .msixupload itself; -i would be the folder of a project's packages.
+      # msstore uploads the package (to the blob store the submission names) into a pending submission, which it
+      # creates from the last published one; it doesn't commit. A built package is published by passing the
+      # .msixupload itself; -i would be the folder of a project's packages.
       - name: Upload the package to a draft submission
         shell: pwsh
         run: |
@@ -194,23 +195,26 @@ jobs:
 
       - name: Set "What's new"
         shell: pwsh
-        run: |
-          $notes = Get-Content store/store-notes.txt -Raw
-          $submission = msstore submission get $env:STORE_PRODUCT_ID | Out-String | ConvertFrom-Json
-          $listings = @($submission.Listings.PSObject.Properties)
-          if (-not $listings) { throw 'The submission has no listings.' }
-          foreach ($listing in $listings) { $listing.Value.BaseListing.ReleaseNotes = $notes }
-          # From a file: the whole submission inline can exceed the command-line length limit.
-          $payload = Join-Path $env:RUNNER_TEMP 'submission.json'
-          $submission | ConvertTo-Json -Depth 100 -Compress | Set-Content -Path $payload -Encoding utf8NoBOM
-          msstore submission update $env:STORE_PRODUCT_ID --payload $payload
-          if ($LASTEXITCODE -ne 0) { throw 'msstore submission update failed' }
-          Write-Host "What's new set for: $($listings.Name -join ', ')"
+        env:
+          MSSTORE_TENANT_ID: ${{ secrets.MSSTORE_TENANT_ID }}
+          MSSTORE_CLIENT_ID: ${{ secrets.MSSTORE_CLIENT_ID }}
+          MSSTORE_CLIENT_SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
+        run: ./build/Store-Api.ps1 -AppId $env:STORE_PRODUCT_ID -ReleaseNotesFile store/store-notes.txt
 
-      # Certification takes hours to days; the job ends once the submission is committed.
+      # Certification takes hours to days; the job ends once the commit has been accepted.
       - name: Commit the submission
+        if: needs.package.outputs.store_mode == 'store'
+        shell: pwsh
+        env:
+          MSSTORE_TENANT_ID: ${{ secrets.MSSTORE_TENANT_ID }}
+          MSSTORE_CLIENT_ID: ${{ secrets.MSSTORE_CLIENT_ID }}
+          MSSTORE_CLIENT_SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
+        run: ./build/Store-Api.ps1 -AppId $env:STORE_PRODUCT_ID -Commit
+
+      - name: Draft left for review
+        if: needs.package.outputs.store_mode == 'draft'
         shell: pwsh
         run: |
-          msstore submission publish $env:STORE_PRODUCT_ID
-          if ($LASTEXITCODE -ne 0) { throw 'msstore submission publish failed' }
-          msstore submission status $env:STORE_PRODUCT_ID
+          $text = "The submission is a draft (publish: draft): check it in Partner Center (Apps and games > TextTemplateManager) and submit it there."
+          Write-Host $text
+          "### Store submission left as a draft`n`n$text" >> $env:GITHUB_STEP_SUMMARY

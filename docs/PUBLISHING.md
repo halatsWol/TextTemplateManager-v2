@@ -14,7 +14,7 @@ How a release is published, and how to renew the Partner Center credentials the 
    git push origin v2.0.1
    ```
 4. [`.github/workflows/release.yml`](../.github/workflows/release.yml) runs the tests, builds the x64 Store package (`.msixupload`) and both manuals, and creates the GitHub release as a **draft** with the manuals attached (no installers, never an `.exe`). Read the notes under **Releases** and click **Publish release**; nothing is public before that.
-5. The `microsoft-store` job then waits for the **`store-release`** environment. Approve it under **Actions ▸ the run ▸ Review deployments**; it uploads the package to a new Store submission, sets "What's new" for every listing language, and commits the submission. Certification takes hours to days; the job doesn't wait for it.
+5. The `microsoft-store` job then waits for the **`store-release`** environment. Approve it under **Actions ▸ the run ▸ Review deployments**; it checks the access to the app, uploads the package to a new Store submission, sets "What's new" for every listing language, and commits the submission (with `publish: draft` it stops before the commit, see below). Certification takes hours to days; the job doesn't wait for it.
 
 Rules:
 
@@ -22,13 +22,32 @@ Rules:
 - Every release needs a **higher** version than the one live in the Store.
 - The Store's "What's new" comes from `store.md` as it is; a text over 1500 characters fails the build instead of being cut.
 
-### Skipping the Store submission
+### Store submission: store, draft or none
 
-A line `publish: none` in the tag message skips the `microsoft-store` job; the draft GitHub release is still created. `publish: store` or no such line submits.
+A line in the tag message decides what the `microsoft-store` job does; the draft GitHub release is created in every case.
+
+| Line | Store submission |
+| --- | --- |
+| `publish: store` or no such line | Package uploaded, "What's new" set, submission committed (certification starts) |
+| `publish: draft` | Package uploaded and "What's new" set, but not committed: check the draft in Partner Center (**Apps and games ▸ TextTemplateManager**) and submit it there |
+| `publish: none` | Skipped |
 
 ```bash
-git tag -a v2.0.0 -m 'v2.0.0' -m 'publish: none'
+git tag -a v2.2.0 -m 'v2.2.0' -m 'publish: draft'
 ```
+
+Use `publish: draft` whenever the automation hasn't been through a release yet, or after changing the `microsoft-store` job.
+
+### Checking the Store access
+
+**Actions ▸ Release ▸ Run workflow** with **Check Store access** ticked runs only `build/Store-Api.ps1 -Check`: it signs in with the secrets and reads the app in Partner Center, and prints the last published and the pending submission. Nothing is built or submitted, and no approval is needed. Run it after setting up or renewing the secrets.
+
+The same check runs first in every Store submission. Its errors name the cause:
+
+- **Sign-in to Microsoft Entra failed**: tenant ID, client ID or client secret wrong or expired.
+- **HTTP 401**: the token isn't accepted for Partner Center (wrong tenant).
+- **HTTP 403**: the Entra application signed in but may not use the app. In Partner Center ▸ Account settings ▸ User management ▸ Microsoft Entra applications, give it the **Manager** role, and if it has product-level permissions, include TextTemplateManager.
+- **HTTP 404**: the app isn't in this Partner Center account (wrong account, or a typo in the product ID).
 
 ### Building without publishing
 
@@ -80,6 +99,6 @@ If a submission failed because the secret had expired, renew it and re-run the f
 
 ## If the Store job fails halfway
 
-- **Before "Commit the submission"**: the package sits in a draft submission in Partner Center. Re-running the job replaces the draft. Or finish it by hand in Partner Center.
-- **After it**: the submission is in certification; check its status in Partner Center.
-- The workflow uses the Microsoft Store Developer CLI (`msstore`, installed by `microsoft/microsoft-store-apppublisher`), pinned to a version (`version:` in the `microsoft-store` job). The package is published by passing the `.msixupload` file itself to `msstore publish`; the submission JSON goes to `msstore submission update` as a file (`--payload`). Before raising the pinned version, check these commands against its release notes; the fix is in the `microsoft-store` job of `release.yml`.
+- **Before "Commit the submission"**: the package sits in a pending submission in Partner Center. Finish it there by hand (check "What's new", submit), or delete the pending submission there and re-run the job. Whether `msstore publish` reuses a pending submission left by a failed run hasn't been tried yet, so delete it first.
+- **After it**: the submission is in certification; check its status in Partner Center. A commit the Store rejects at once fails the job with the Store's reasons.
+- The package upload uses the Microsoft Store Developer CLI (`msstore`, installed by `microsoft/microsoft-store-apppublisher`), pinned to a version (`version:` in the `microsoft-store` job), with the `.msixupload` file itself passed to `msstore publish`. Before raising the pinned version, check that command against its release notes. The access check, "What's new" and the commit go straight to the Partner Center submission API (`build/Store-Api.ps1`), which doesn't depend on the CLI's output format.
