@@ -12,11 +12,12 @@ Coming from TextTemplateManager 1: your templates and settings are backed up at 
 
 ### What's new in this release
 
-A small fix.
+One switch for automatic updates.
 
-#### Fixed
+#### Improved
 
-- **Open Default apps** in **Settings ▸ Integrations ▸ File association** opens Windows Settings again. Before, clicking it did nothing.
+- **Automatic updates, one switch.** **Settings ▸ General ▸ Updates** no longer has a separate **Keep updating when automatic Store updates are off**. **Check for and download updates automatically** covers it: where automatic Store updates are turned off on the PC and the organization allows it, TextTemplateManager still downloads its own updates (through winget), and a note under the switch says so. With the switch off, the update notice offers **Download** as before.
+- **For administrators:** on PCs where "Turn off Automatic Download and Install of updates" is set, TextTemplateManager now keeps updating itself by default, because the switch is on by default. To keep the Store policy final for this app, set `AllowUpdateDespiteStorePolicy` = 0 under `HKLM\SOFTWARE\Policies\Marflow Software\TextTemplateManager`; `AutomaticUpdates` = 0 leaves only **Check for updates**. See the Administrator & Deployment Guide.
 
 {{CHANGELOG}}
 
