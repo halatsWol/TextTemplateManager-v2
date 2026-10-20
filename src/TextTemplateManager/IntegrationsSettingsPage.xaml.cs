@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using TextTemplateManager.Common;
+using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
 
 namespace TextTemplateManager;
@@ -38,6 +39,9 @@ public sealed partial class IntegrationsSettingsPage : Page
             ? "main" : "v" + v;
         return $"{blob}/{reference}/{path}";
     }
+
+    // NavigateUri did nothing for the ms-settings: link; the shell opens it.
+    private void OpenDefaultApps_Click(object sender, RoutedEventArgs e) => ExternalLinks.Open("ms-settings:defaultapps");
 
 
     // ---- Browser connector ----
