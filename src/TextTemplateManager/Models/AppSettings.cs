@@ -47,12 +47,6 @@ public partial class AppSettings : ObservableObject
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public partial bool IdleInstall { get; set; } = false;
 
-    // Only offered when automatic Store updates are off by policy and the administrator allows it
-    // (AllowUpdateDespiteStorePolicy): TTM still downloads its own updates (winget) and installs them as usual.
-    [ObservableProperty]
-    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
-    public partial bool KeepUpdatingDespiteStorePolicy { get; set; } = false;
-
     // Settings ▸ General ▸ Updates, "Check for and download updates automatically" switched off (stored inverted, so the
     // default isn't written).
     [ObservableProperty]

@@ -90,7 +90,6 @@ package "Services.Updates" {
     +DownloadAsync(window, userInitiated)
     +SwitchAsync(idle, restart) : string?
     +IdleInstallAllowed(userSetting)
-    +KeepUpdatingDespiteStorePolicy : bool
     +CheckAutomatically : bool
     +InstallOnQuit : bool
     +ChecksAutomatically : bool
@@ -130,6 +129,7 @@ package "Services.Updates" {
     +StoreBlocksAutomaticUpdates
     +IdleInstallForced : bool?
     +AutomaticUpdatesForced : bool?
+    +UpdatesDespiteStorePolicy
     +{static} Read()
   }
   class UpdateAttempt <<record>> {

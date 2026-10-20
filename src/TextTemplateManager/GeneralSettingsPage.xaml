@@ -110,6 +110,12 @@
                            TextWrapping="Wrap"
                            Style="{StaticResource CaptionTextBlockStyle}"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <TextBlock x:Name="StorePolicyNote"
+                           Visibility="Collapsed"
+                           Text="Automatic updates of Store apps are turned off on this PC. With this on, TextTemplateManager still downloads its own updates (through winget); this applies to this app only."
+                           TextWrapping="Wrap"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 <TextBlock x:Name="AutomaticUpdatesNote"
                            Visibility="Collapsed"
                            TextWrapping="Wrap"
@@ -126,15 +132,6 @@
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 <TextBlock x:Name="IdleInstallNote"
                            Visibility="Collapsed"
-                           TextWrapping="Wrap"
-                           Style="{StaticResource CaptionTextBlockStyle}"
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-            </StackPanel>
-            <StackPanel x:Name="KeepUpdatingPanel" Spacing="2" Visibility="Collapsed">
-                <ToggleSwitch x:Name="KeepUpdatingToggle"
-                              Header="Keep updating when automatic Store updates are off"
-                              Toggled="KeepUpdating_Toggled"/>
-                <TextBlock Text="Automatic updates of Store apps are turned off on this PC. On: TextTemplateManager still downloads its own updates (through winget) and installs them as above. This applies to this app only."
                            TextWrapping="Wrap"
                            Style="{StaticResource CaptionTextBlockStyle}"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>

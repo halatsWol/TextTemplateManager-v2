@@ -47,7 +47,6 @@ class AppSettings <<ObservableObject>> {
   +TutorialOfferDone : bool
   +LastRunVersion : string
   +IdleInstall : bool
-  +KeepUpdatingDespiteStorePolicy : bool
   +NoAutomaticUpdates : bool
 }
 

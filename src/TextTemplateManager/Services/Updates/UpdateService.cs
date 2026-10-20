@@ -74,11 +74,9 @@ public sealed class UpdateService : IDisposable
 
     public UpdatePolicy Policy { get; private set; }
 
-    /// <summary>The user's "Keep updating when automatic Store updates are off" (counts only where the policy offers it).</summary>
-    public bool KeepUpdatingDespiteStorePolicy { get; set; }
-
     /// <summary>The user's "Check for and download updates automatically". Off: no check or download on its own, no idle
-    /// install and no install on quit; Check for updates and Restart to update still work.</summary>
+    /// install and no install on quit; Check for updates and Restart to update still work. On while automatic Store
+    /// updates are off by policy: downloads around the Store policy (winget) where the administrator allows it.</summary>
     public bool CheckAutomatically { get; set; } = true;
 
     /// <summary><see cref="CheckAutomatically"/> unless the AutomaticUpdates policy decides.</summary>
@@ -89,7 +87,7 @@ public sealed class UpdateService : IDisposable
     private DownloadRoute RouteFor(bool userInitiated, UpdateOffer offer) =>
         Policy.Mode != InAppUpdatesMode.Full ? DownloadRoute.None
         : _source!.CanDownloadSilently && !Policy.StoreBlocksAutomaticUpdates ? DownloadRoute.Silent
-        : Policy.OptInDespiteStorePolicyOffered && KeepUpdatingDespiteStorePolicy ? DownloadRoute.DespitePolicy
+        : Policy.UpdatesDespiteStorePolicy && ChecksAutomatically ? DownloadRoute.DespitePolicy
         : userInitiated && AvailableStatus(offer).CanDownload ? DownloadRoute.Consent
         : DownloadRoute.None;
     public UpdateStatus Status { get; private set; }

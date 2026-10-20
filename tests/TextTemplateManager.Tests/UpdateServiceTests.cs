@@ -149,17 +149,18 @@ public class UpdateServiceTests
     }
 
     [Fact]
-    public async Task Store_policy_off_waits_for_the_user_and_downloads_through_the_consent_dialog()
+    public async Task Store_policy_off_with_automatic_updates_off_downloads_through_the_consent_dialog()
     {
         var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, null, null, 4));
         source.Silent = false;
+        service.CheckAutomatically = false;
 
-        await service.CheckAsync(userInitiated: false);
+        await service.CheckAsync(userInitiated: true);
         Assert.Equal((UpdateStage.Available, true, true), (service.Status.Stage, service.Status.CanDownload, service.Status.StoreBlocked));
         Assert.Equal(0, source.Downloads);
 
         await service.DownloadAsync(IntPtr.Zero, userInitiated: true);
-        Assert.Equal((0, 1), (source.Downloads, source.ConsentDownloads));
+        Assert.Equal((0, 1, 0), (source.Downloads, source.ConsentDownloads, source.DespiteDownloads));
         Assert.Equal(UpdateStage.Ready, service.Status.Stage);
     }
 
@@ -176,11 +177,10 @@ public class UpdateServiceTests
     }
 
     [Fact]
-    public async Task Store_policy_off_with_the_users_opt_in_downloads_on_its_own_and_arms_the_restart()
+    public async Task Store_policy_off_with_automatic_updates_on_downloads_on_its_own_and_arms_the_restart()
     {
         var (service, source, switcher, _) = Create(UpdatePolicy.FromValues(null, null, null, 4));
         source.Silent = false;
-        service.KeepUpdatingDespiteStorePolicy = true;
 
         await service.CheckAsync(userInitiated: false);
 
@@ -190,11 +190,10 @@ public class UpdateServiceTests
     }
 
     [Fact]
-    public async Task The_opt_in_counts_only_where_the_admin_allows_it()
+    public async Task Updating_despite_the_store_policy_needs_the_admins_permission()
     {
         var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, 0, null, 4));
-        service.KeepUpdatingDespiteStorePolicy = true;
-        Assert.False(service.Policy.OptInDespiteStorePolicyOffered);
+        Assert.False(service.Policy.UpdatesDespiteStorePolicy);
 
         await service.CheckAsync(userInitiated: false);
 
@@ -203,15 +202,38 @@ public class UpdateServiceTests
     }
 
     [Fact]
-    public async Task Without_the_store_policy_the_opt_in_changes_nothing()
+    public async Task Without_the_store_policy_automatic_updates_download_through_the_store()
     {
         var (service, source, _, _) = Create();
-        service.KeepUpdatingDespiteStorePolicy = true;
 
         await service.CheckAsync(userInitiated: false);
 
         Assert.Equal((1, 0), (source.Downloads, source.DespiteDownloads));
-        Assert.False(service.Policy.OptInDespiteStorePolicyOffered);
+        Assert.False(service.Policy.UpdatesDespiteStorePolicy);
+    }
+
+    [Fact]
+    public async Task Store_policy_off_with_automatic_updates_off_downloads_nothing_on_its_own()
+    {
+        var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, null, null, 4));
+        source.Silent = false;
+        service.CheckAutomatically = false;
+
+        await service.CheckAsync(userInitiated: false);
+
+        Assert.Equal(0, source.Downloads + source.ConsentDownloads + source.DespiteDownloads);
+    }
+
+    [Fact]
+    public async Task Forced_automatic_updates_go_around_the_store_policy_too()
+    {
+        var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, null, null, 4, automaticUpdates: 1));
+        source.Silent = false;
+        service.CheckAutomatically = false;
+
+        await service.CheckAsync(userInitiated: false);
+
+        Assert.Equal(1, source.DespiteDownloads);
     }
 
     [Fact]

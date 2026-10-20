@@ -17,9 +17,6 @@ namespace TextTemplateManager
         {
             string v = s.Version is { } version ? Short(version) : "";
             string extra = string.IsNullOrEmpty(s.Message) ? "" : " " + s.Message;
-            if (s.Stage == UpdateStage.Available && Application.Current is App { Updates: { } u }
-                && u.Policy.OptInDespiteStorePolicyOffered && !u.KeepUpdatingDespiteStorePolicy)
-                extra += " To keep it updating on its own, turn on Keep updating in Settings ▸ General ▸ Updates.";
             (InfoBarSeverity severity, string title, string message, UpdateAction action, bool closable) = s.Stage switch
             {
                 UpdateStage.Downloading => (InfoBarSeverity.Informational, "Downloading update",

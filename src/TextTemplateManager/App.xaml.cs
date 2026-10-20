@@ -529,7 +529,6 @@ namespace TextTemplateManager
         private void StartUpdates()
         {
             _updates = CreateUpdateService();
-            _updates.KeepUpdatingDespiteStorePolicy = _store.CurrentSettings.KeepUpdatingDespiteStorePolicy;
             _updates.CheckAutomatically = !_store.CurrentSettings.NoAutomaticUpdates;
             _updates.Changed += status => _uiDispatcher.TryEnqueue(() => OnUpdateStatus(status));
 

@@ -91,17 +91,8 @@ public sealed partial class GeneralSettingsPage : Page
         IdleInstallNote.Text = disabledByPolicy || available && (policy.Mode != InAppUpdatesMode.Full || policy.IdleInstallForced != null)
             ? "Set by your organization." : "";
         IdleInstallNote.Visibility = IdleInstallNote.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
-        KeepUpdatingPanel.Visibility = available && policy.OptInDespiteStorePolicyOffered ? Visibility.Visible : Visibility.Collapsed;
-        KeepUpdatingToggle.IsOn = ViewModel.KeepUpdatingDespiteStorePolicy;
+        StorePolicyNote.Visibility = available && policy.UpdatesDespiteStorePolicy ? Visibility.Visible : Visibility.Collapsed;
         _updatesLoading = false;
-    }
-
-    private async void KeepUpdating_Toggled(object sender, RoutedEventArgs e)
-    {
-        if (_updatesLoading) return;
-        ViewModel.KeepUpdatingDespiteStorePolicy = KeepUpdatingToggle.IsOn;
-        if (Updates is { } updates) updates.KeepUpdatingDespiteStorePolicy = KeepUpdatingToggle.IsOn;
-        if (KeepUpdatingToggle.IsOn && Application.Current is App app) await app.CheckForUpdatesAsync();
     }
 
     private async void CheckUpdates_Click(object sender, RoutedEventArgs e)

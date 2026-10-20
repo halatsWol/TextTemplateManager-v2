@@ -279,9 +279,8 @@ If TextTemplateManager 1 was set up on this PC, both switches take over its choi
 **Updates**
 
 - The version that runs, what the updater is doing (up to date, downloading, ready), and **Check for updates**. See *Updates*.
-- **Check for and download updates automatically** — on by default. Off: TextTemplateManager doesn't look for updates on its own; **Check for updates** still works, and an update it finds is installed only with **Restart to update** (not while the app isn't in use, and not when you quit). If your organization set it, the switch is locked and says so.
+- **Check for and download updates automatically** — on by default. Off: TextTemplateManager doesn't look for updates on its own; **Check for updates** still works, and an update it finds is installed only with **Restart to update** (not while the app isn't in use, and not when you quit). When your organization turned off automatic Store updates on this PC and allows it, the switch keeps TextTemplateManager updating anyway: it downloads its own updates through winget, for this app only, and a note under the switch says so. If your organization set it, the switch is locked and says so.
 - **Install updates while the app isn't in use** — off by default: a downloaded update waits for **Restart to update** or is installed when you quit the app. On: it's installed while nobody uses the app (window and Quick Paste closed, nothing unsaved, no input for 10 minutes), and the app then opens with what's new. If your organization set it, the switch is locked and says so.
-- **Keep updating when automatic Store updates are off** — only shown when your organization turned off automatic Store updates on this PC and allows this. On: updates are downloaded on their own again (through winget) and installed as with the other switches; it applies to TextTemplateManager only.
 
 **Other**
 
@@ -457,7 +456,7 @@ When the download is done, a notice above the template list says **Update ready*
 
 **Settings ▸ General ▸ Updates** shows the version and has **Check for updates**. To update only when you ask, turn off **Check for and download updates automatically**. With **Install updates while the app isn't in use** on (off by default), a downloaded update is installed when the window and Quick Paste are closed, nothing is unsaved and the PC has had no input for 10 minutes; the app then opens with what's new.
 
-If automatic Store updates are turned off on this PC, the notice says **Update available** with a **Download** button: the Store asks once, then the update downloads and is ready as above. Where your organization allows it, **Settings ▸ General ▸ Updates** also offers **Keep updating when automatic Store updates are off**: TextTemplateManager then downloads its own updates on its own again (through winget) and installs them as above. On a company PC your IT may manage updates; the notice and the settings then say so.
+If automatic Store updates are turned off on this PC, the notice says **Update available** with a **Download** button: the Store asks once, then the update downloads and is ready as above. Where your organization allows it, **Check for and download updates automatically** (**Settings ▸ General ▸ Updates**, on by default) still downloads TextTemplateManager's updates on its own (through winget) and installs them as above; the notice with **Download** then only appears with that switch off. On a company PC your IT may manage updates; the notice and the settings then say so.
 
 If an update can't be installed (the notice says so), or to update by hand:
 

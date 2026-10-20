@@ -207,6 +207,20 @@ public class StorageServiceTests
         Assert.True(File.Exists(path));
     }
 
+    [Fact]
+    public async Task Settings_with_the_removed_keep_updating_switch_still_load()
+    {
+        // 2.2.x had a separate "Keep updating when automatic Store updates are off".
+        await File.WriteAllTextAsync(_storage.GetSettingsPath(),
+            "{ \"KeepUpdatingDespiteStorePolicy\": true, \"NoAutomaticUpdates\": true, \"PasteWindowHotkey\": \"Ctrl+Alt+Q\" }");
+        _storage.TakeUnreadableFiles();
+
+        var settings = await _storage.LoadSettingsAsync();
+
+        Assert.Equal(("Ctrl+Alt+Q", true), (settings.PasteWindowHotkey, settings.NoAutomaticUpdates));
+        Assert.Empty(_storage.TakeUnreadableFiles());
+    }
+
     // ---- the anti-churn rule ----
 
     [Fact]
