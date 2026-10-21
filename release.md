@@ -12,16 +12,11 @@ Coming from TextTemplateManager 1: your templates and settings are backed up at 
 
 ### What's new in this release
 
-In-app updates find Store updates again, and one switch for automatic updates.
+In-app updates find Store updates again.
 
 #### Fixed
 
 - **In-app updates found no update from the Store.** **Check for updates** said "Up to date" although a newer version was out: the Store's answer was read the wrong way. TextTemplateManager now downloads it in the background and shows **Update ready** as intended; the notice then says "A new version", as the Store doesn't name it. This fix reaches you with this update, which still arrives the old way (the Microsoft Store, or quitting the app and starting it again); from then on updates come in the app.
-
-#### Improved
-
-- **Automatic updates, one switch.** **Settings ▸ General ▸ Updates** no longer has a separate **Keep updating when automatic Store updates are off**. **Check for and download updates automatically** covers it: where automatic Store updates are turned off on the PC and the organization allows it, TextTemplateManager still downloads its own updates (through winget), and a note under the switch says so. With the switch off, the update notice offers **Download** as before.
-- **For administrators:** on PCs where "Turn off Automatic Download and Install of updates" is set, TextTemplateManager now keeps updating itself by default, because the switch is on by default. To keep the Store policy final for this app, set `AllowUpdateDespiteStorePolicy` = 0 under `HKLM\SOFTWARE\Policies\Marflow Software\TextTemplateManager`; `AutomaticUpdates` = 0 leaves only **Check for updates**. See the Administrator & Deployment Guide.
 
 {{CHANGELOG}}
 
