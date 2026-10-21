@@ -97,6 +97,7 @@ package "Services.Updates" {
   }
   interface IUpdateSource {
     +CheckAsync() : UpdateOffer?
+    +IsDownloadedAsync(offer) : bool
     +CanDownloadSilently : bool
     +DownloadAsync(offer, progress)
     +RequestDownloadAsync(offer, window, progress)
@@ -107,7 +108,9 @@ package "Services.Updates" {
   IUpdateSource <|.. StoreUpdateSource
   IUpdateSource <|.. FileUpdateSource
   note bottom of StoreUpdateSource
-    StoreContext; despite the Store
+    StoreContext; offers without a version,
+    downloaded = queue item
+    PausedReadyToInstall; despite the Store
     policy: winget (msstore).
   end note
   note bottom of FileUpdateSource
@@ -116,7 +119,7 @@ package "Services.Updates" {
   end note
   interface IPackageSwitcher {
     +RunningVersion
-    +IsStaged(version)
+    +IsStaged(version) (offers with one)
     +RegisterRestart(args) / UnregisterRestart()
     +StartWatchdog(after)
     +SwitchAsync() : string?

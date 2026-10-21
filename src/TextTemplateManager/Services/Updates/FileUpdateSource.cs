@@ -64,6 +64,9 @@ public sealed class FileUpdateSource : IUpdateSource
         catch { return null; }
     }
 
+    // Its offers always carry a version, which the switcher checks.
+    public Task<bool> IsDownloadedAsync(UpdateOffer offer) => Task.FromResult(false);
+
     public async Task<DownloadResult> DownloadAsync(UpdateOffer offer, IProgress<double> progress, CancellationToken cancel)
     {
         if (_offerFile == null) return new DownloadResult(DownloadOutcome.Failed, "no package in the folder");

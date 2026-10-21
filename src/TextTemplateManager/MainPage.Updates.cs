@@ -15,25 +15,25 @@ namespace TextTemplateManager
 
         public void ShowUpdateStatus(UpdateStatus s)
         {
-            string v = s.Version is { } version ? Short(version) : "";
+            string v = VersionName(s.Version);
             string extra = string.IsNullOrEmpty(s.Message) ? "" : " " + s.Message;
             (InfoBarSeverity severity, string title, string message, UpdateAction action, bool closable) = s.Stage switch
             {
                 UpdateStage.Downloading => (InfoBarSeverity.Informational, "Downloading update",
-                    $"Version {v} is downloading. You can keep working.", UpdateAction.None, true),
+                    $"{v} is downloading. You can keep working.", UpdateAction.None, true),
                 UpdateStage.Ready => (InfoBarSeverity.Success, "Update ready",
-                    $"Version {v} is downloaded. Restart to update saves your work first and takes a few seconds.{extra}", UpdateAction.Install, true),
+                    $"{v} is downloaded. Restart to update saves your work first and takes a few seconds.{extra}", UpdateAction.Install, true),
                 UpdateStage.Installing => (InfoBarSeverity.Informational, "Installing update",
-                    $"TextTemplateManager restarts as version {v} in a moment.", UpdateAction.None, false),
+                    $"TextTemplateManager restarts as {(s.Version is { } target ? "version " + Short(target) : "the new version")} in a moment.", UpdateAction.None, false),
                 UpdateStage.Available when s.CanDownload => (InfoBarSeverity.Informational, "Update available",
-                    $"Version {v} is available." + (s.StoreBlocked ? " Automatic Store updates are turned off on this PC, so it isn't downloaded on its own." : "") + extra,
+                    $"{v} is available." + (s.StoreBlocked ? " Automatic Store updates are turned off on this PC, so it isn't downloaded on its own." : "") + extra,
                     UpdateAction.Download, true),
                 UpdateStage.Available => (InfoBarSeverity.Informational, "Update available",
-                    $"Version {v} is available. Updates on this PC are managed by your organization: ask your IT, or use Update in the Microsoft Store if you may.",
+                    $"{v} is available. Updates on this PC are managed by your organization: ask your IT, or use Update in the Microsoft Store if you may.",
                     UpdateAction.None, true),
                 UpdateStage.Failed => (InfoBarSeverity.Warning, "Update problem", s.Message ?? "The update didn't work.", UpdateAction.Retry, true),
                 UpdateStage.ManualStepsNeeded => (InfoBarSeverity.Warning, "Update couldn't be installed",
-                    $"Version {v} is downloaded, but switching to it didn't work. Quit the app (File ▸ Exit), then start it again from the Start menu. " +
+                    $"{v} is downloaded, but switching to it didn't work. Quit the app (File ▸ Exit), then start it again from the Start menu. " +
                     "If Help ▸ About still shows the old version, use Update in the Microsoft Store.", UpdateAction.None, true),
                 _ => (InfoBarSeverity.Informational, "", "", UpdateAction.None, true),
             };
@@ -61,6 +61,9 @@ namespace TextTemplateManager
 
         /// <summary>3-part version for people (the package's 4th part is always 0).</summary>
         internal static string Short(Version v) => v.Revision > 0 ? v.ToString() : v.ToString(3);
+
+        /// <summary>"Version 2.2.1", or "A new version" when the Store didn't name it.</summary>
+        internal static string VersionName(Version? v) => v is { } known ? "Version " + Short(known) : "A new version";
 
         private async void UpdateBarAction_Click(object sender, RoutedEventArgs e)
         {

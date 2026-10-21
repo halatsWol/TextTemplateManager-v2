@@ -112,11 +112,17 @@ public sealed class UpdateService : IDisposable
         Policy = _readPolicy();
         if (Policy.Mode == InAppUpdatesMode.Full) return true;
         if (Policy.Mode == InAppUpdatesMode.Off) Set(new UpdateStatus(UpdateStage.DisabledByPolicy));
-        else if (Status.Stage is UpdateStage.Ready or UpdateStage.ManualStepsNeeded && Status.Version is { } v)
-            Set(AvailableStatus(new UpdateOffer(v)));
+        else if (Status.Stage is UpdateStage.Ready or UpdateStage.ManualStepsNeeded)
+            Set(AvailableStatus(_offer ?? new UpdateOffer(Status.Version)));
         _log.Write($"switch refused: InAppUpdates policy is {Policy.Mode}");
         return false;
     }
+
+    /// <summary>For the log: the version, or that the source didn't name it.</summary>
+    private static string Describe(Version? version) => version?.ToString() ?? "a newer version";
+
+    private async Task<bool> IsStagedAsync(UpdateOffer offer) =>
+        offer.Version is { } version ? _switcher!.IsStaged(version) : await _source!.IsDownloadedAsync(offer);
 
     private void Set(UpdateStatus status)
     {
@@ -165,26 +171,26 @@ public sealed class UpdateService : IDisposable
                 return;
             }
             _lastChecked = DateTime.Now;
-            if (offer == null || offer.Version <= _switcher.RunningVersion)
+            if (offer == null || offer.Version is { } offered && offered <= _switcher.RunningVersion)
             {
                 _offer = null;
                 Set(new UpdateStatus(UpdateStage.UpToDate));
                 return;
             }
-            bool newOffer = _offer?.Version != offer.Version;
+            bool newOffer = _offer == null || _offer.Version != offer.Version;
             _offer = offer;
-            if (newOffer) _log.Write($"check ({_source.Name}): {offer.Version} available, running {_switcher.RunningVersion}");
+            if (newOffer) _log.Write($"check ({_source.Name}): {Describe(offer.Version)} available, running {_switcher.RunningVersion}");
 
             var gaveUp = UpdateAttempt.Load(_attemptPath);
-            if (gaveUp != null && gaveUp.TargetVersion == offer.Version.ToString() && gaveUp.Attempts >= UpdateAttempt.MaxAttempts)
+            if (gaveUp != null && gaveUp.IsFor(offer.Version, _switcher.RunningVersion) && gaveUp.Attempts >= UpdateAttempt.MaxAttempts)
             {
                 Set(new UpdateStatus(UpdateStage.ManualStepsNeeded, offer.Version));
                 return;
             }
             // Notice only (InAppUpdates = 1): an update Windows already staged is still only a notice, never Restart to update.
-            if (_switcher.IsStaged(offer.Version) && Policy.Mode == InAppUpdatesMode.Full)
+            if (Policy.Mode == InAppUpdatesMode.Full && await IsStagedAsync(offer))
             {
-                if (newOffer) _log.Write($"{offer.Version} is already staged");
+                if (newOffer) _log.Write($"{Describe(offer.Version)} is already staged");
                 Set(new UpdateStatus(UpdateStage.Ready, offer.Version));
                 return;
             }
@@ -217,7 +223,7 @@ public sealed class UpdateService : IDisposable
             _downloadCancel = new CancellationTokenSource();
             Set(new UpdateStatus(UpdateStage.Downloading, offer.Version));
             var progress = new Progress(p => Set(new UpdateStatus(UpdateStage.Downloading, offer.Version, Math.Clamp(p, 0, 1))));
-            _log.Write($"download {offer.Version} ({route switch { DownloadRoute.Silent => "silent", DownloadRoute.DespitePolicy => "despite the Store policy", _ => "with consent" }})");
+            _log.Write($"download {Describe(offer.Version)} ({route switch { DownloadRoute.Silent => "silent", DownloadRoute.DespitePolicy => "despite the Store policy", _ => "with consent" }})");
             DownloadResult result;
             try
             {
@@ -235,9 +241,9 @@ public sealed class UpdateService : IDisposable
             }
             catch (OperationCanceledException) { result = new DownloadResult(DownloadOutcome.Canceled); }
             catch (Exception ex) { result = new DownloadResult(DownloadOutcome.Failed, ex.Message); }
-            _log.Write($"download {offer.Version}: {result.Outcome} {result.Detail}");
+            _log.Write($"download {Describe(offer.Version)}: {result.Outcome} {result.Detail}");
 
-            if (result.Outcome == DownloadOutcome.Completed && _switcher.IsStaged(offer.Version))
+            if (result.Outcome == DownloadOutcome.Completed && await IsStagedAsync(offer))
                 Set(new UpdateStatus(UpdateStage.Ready, offer.Version));
             else if (result.Outcome == DownloadOutcome.Completed)
                 // The source says done but nothing is staged (the Store may still be finishing): look again at the next check.
@@ -264,22 +270,23 @@ public sealed class UpdateService : IDisposable
     /// with the next launch.</summary>
     public async Task<string?> SwitchAsync(bool idle, bool restart = true)
     {
-        if (_switcher == null || Status.Stage != UpdateStage.Ready || Status.Version is not { } target) return "No update is ready.";
+        if (_switcher == null || _source == null || Status.Stage != UpdateStage.Ready) return "No update is ready.";
+        Version? target = Status.Version;
         if (!RefreshPolicyForSwitch()) return "Updates on this PC are managed by your organization.";
         if (!await _busy.WaitAsync(0)) return "An update step is already running.";
         try
         {
-            if (!_switcher.IsStaged(target))
+            if (!await IsStagedAsync(_offer ?? new UpdateOffer(target)))
             {
-                _log.Write($"switch {target}: not staged any more");
+                _log.Write($"switch to {Describe(target)}: not staged any more");
                 _offer = null;
                 Set(new UpdateStatus(UpdateStage.UpToDate));
                 return "The downloaded update is gone (Windows may have removed it). It's downloaded again at the next check.";
             }
             var previous = UpdateAttempt.Load(_attemptPath);
-            int tries = previous?.TargetVersion == target.ToString() ? previous.Attempts + 1 : 1;
-            new UpdateAttempt(target.ToString(), _switcher.RunningVersion.ToString(), idle, DateTime.Now, tries).Save(_attemptPath);
-            _log.Write($"switch to {target} ({(!restart ? "on exit" : idle ? "idle" : "user")}, try {tries})");
+            int tries = previous?.IsFor(target, _switcher.RunningVersion) == true ? previous.Attempts + 1 : 1;
+            new UpdateAttempt(target?.ToString() ?? "", _switcher.RunningVersion.ToString(), idle, DateTime.Now, tries).Save(_attemptPath);
+            _log.Write($"switch to {Describe(target)} ({(!restart ? "on exit" : idle ? "idle" : "user")}, try {tries})");
             Set(new UpdateStatus(UpdateStage.Installing, target));
 
             if (restart)
@@ -293,7 +300,7 @@ public sealed class UpdateService : IDisposable
             string? problem = await _switcher.SwitchAsync();
 
             // Still running: Windows didn't switch.
-            _log.Write($"switch to {target} failed: {problem}");
+            _log.Write($"switch to {Describe(target)} failed: {problem}");
             if (tries >= UpdateAttempt.MaxAttempts)
                 Set(new UpdateStatus(UpdateStage.ManualStepsNeeded, target, Message: problem));
             else
@@ -306,10 +313,11 @@ public sealed class UpdateService : IDisposable
     /// <summary>A previous run's switch failed: show the update as ready again, or the manual steps after too many tries.</summary>
     public void ReportFailedSwitch(UpdateAttempt attempt)
     {
-        if (!Version.TryParse(attempt.TargetVersion, out var target)) return;
+        Version? target = Version.TryParse(attempt.TargetVersion, out var named) ? named : null;
         _offer = new UpdateOffer(target);
         if (attempt.Attempts >= UpdateAttempt.MaxAttempts) Set(new UpdateStatus(UpdateStage.ManualStepsNeeded, target));
-        else if (_switcher?.IsStaged(target) == true && Policy.Mode == InAppUpdatesMode.Full)
+        // Without a version the next check finds out whether it's still staged.
+        else if (target != null && _switcher?.IsStaged(target) == true && Policy.Mode == InAppUpdatesMode.Full)
             Set(new UpdateStatus(UpdateStage.Ready, target, Message: "The last try to install it didn't work."));
         else Set(AvailableStatus(_offer) with { Message = "The last try to install it didn't work." });
     }

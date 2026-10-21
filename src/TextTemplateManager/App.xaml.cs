@@ -33,7 +33,8 @@ namespace TextTemplateManager
         private BackupScheduler? _backupScheduler;
         private UpdateService? _updates;
         private DispatcherQueueTimer? _idleInstallTimer;
-        private Version? _readyNoticeShownFor;
+        // The tray notice comes once per run: the Store doesn't name the version, so "once per version" can't be told apart.
+        private bool _readyNoticeShown;
         private readonly DateTime _startedAt = DateTime.Now;
         private readonly DataNode _store;
         private readonly IAppEnvironment _environment = AppEnvironment.Detect();   // packaged or a dev run
@@ -548,11 +549,11 @@ namespace TextTemplateManager
         {
             (_pageBeforeTour ?? MainWindow.Content as MainPage)?.ShowUpdateStatus(status);
             _trayService?.SetUpdateReady(status.IsReady);
-            if (status.IsReady && status.Version is { } v && v != _readyNoticeShownFor && !MainWindow.Visible
+            if (status.IsReady && !_readyNoticeShown && !MainWindow.Visible
                 && !(_updates?.IdleInstallAllowed(_store.CurrentSettings.IdleInstall) ?? false))
             {
-                _readyNoticeShownFor = v;
-                ShowTrayBalloon("Update ready", $"Version {MainPage.Short(v)} is downloaded. Choose Restart to update in the tray icon's menu.");
+                _readyNoticeShown = true;
+                ShowTrayBalloon("Update ready", $"{MainPage.VersionName(status.Version)} is downloaded. Choose Restart to update in the tray icon's menu.");
             }
         }
 

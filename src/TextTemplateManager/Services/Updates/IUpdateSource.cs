@@ -4,8 +4,9 @@ using System.Threading.Tasks;
 
 namespace TextTemplateManager.Services.Updates;
 
-/// <summary>A newer version the source offers.</summary>
-public sealed record UpdateOffer(Version Version);
+/// <summary>A newer version the source offers. <see cref="Version"/> is null when the source only knows that there is
+/// one: the Store's update check describes the installed package, not the new one.</summary>
+public sealed record UpdateOffer(Version? Version);
 
 public enum DownloadOutcome { Completed, Canceled, Blocked, Failed }
 
@@ -25,6 +26,10 @@ public interface IUpdateSource
     /// <summary>The newest version offered above the running one, or null when up to date.</summary>
     Task<UpdateOffer?> CheckAsync(CancellationToken cancel);
 
+    /// <summary>Whether an offer without a version is downloaded and staged (offers with one are checked by
+    /// <see cref="IPackageSwitcher.IsStaged"/>).</summary>
+    Task<bool> IsDownloadedAsync(UpdateOffer offer);
+
     /// <summary>False when the source can't download without the user's consent (for the Store: automatic
     /// updates turned off by policy or by the user).</summary>
     bool CanDownloadSilently { get; }
@@ -37,7 +42,7 @@ public interface IUpdateSource
     Task<DownloadResult> RequestDownloadAsync(UpdateOffer offer, IntPtr ownerWindow, IProgress<double> progress, CancellationToken cancel);
 
     /// <summary>Downloads although the Store's "no automatic updates" policy is on: only when the administrator allows it
-    /// (AllowUpdateDespiteStorePolicy) and the user opted in. For the Store this runs winget, which may also try to
+    /// (AllowUpdateDespiteStorePolicy) and automatic updates are on. For the Store this runs winget, which may also try to
     /// install (the app is restarted then, see <see cref="IPackageSwitcher.RegisterRestart"/>).</summary>
     Task<DownloadResult> DownloadDespitePolicyAsync(UpdateOffer offer, IProgress<double> progress, CancellationToken cancel);
 }

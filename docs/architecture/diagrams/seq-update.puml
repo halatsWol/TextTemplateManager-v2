@@ -11,12 +11,14 @@ participant Windows as OS
 
 == Check and download (2 min after start, then every 6 h) ==
 UpdateService -> Source : CheckAsync()
-Source --> UpdateService : UpdateOffer(2.2.0)
-alt staged already (Windows' own updater)
-  UpdateService -> Switcher : IsStaged(2.2.0) = true
+note right of Source : reads the queue item first;\nthe Store doesn't name the version
+Source --> UpdateService : UpdateOffer(no version)
+alt staged already (queue item PausedReadyToInstall)
+  UpdateService -> Source : IsDownloadedAsync() = true
 else silent download allowed
-  UpdateService -> Source : DownloadAsync() (stage only, progress)
-else Store policy off + admin allows + user opted in
+  UpdateService -> Source : DownloadAsync() (stage only)
+  Source -> Source : wait for the queue item:\nPausedReadyToInstall (progress)
+else Store policy off + admin allows + automatic updates on
   UpdateService -> Switcher : RegisterRestart("--updated")
   UpdateService -> Source : DownloadDespitePolicyAsync()\n(winget upgrade, msstore)
 else automatic Store updates off
@@ -25,7 +27,7 @@ else automatic Store updates off
   App -> UpdateService : DownloadAsync(window)
   UpdateService -> Source : RequestDownloadAsync()\n(Store consent dialog)
 end
-UpdateService --> App : Changed(Ready 2.2.0)
+UpdateService --> App : Changed(Ready)
 App -> App : notice "Update ready", tray item
 
 == Restart to update (or idle install) ==
@@ -38,9 +40,9 @@ UpdateService -> Switcher : StartWatchdog(120 s)\n(one-time scheduled task,\nout
 UpdateService -> Switcher : SwitchAsync()
 Switcher -> OS : RegisterPackageByFamilyNameAsync(\nForceTargetApplicationShutdown)
 alt switch works
-  OS -> App : closes the app, registers 2.2.0
-  OS -> App : starts 2.2.0 with "--updated"
-  App -> UpdateService : EvaluateStartup(): Succeeded
+  OS -> App : closes the app, registers the new version
+  OS -> App : starts it with "--updated"
+  App -> UpdateService : EvaluateStartup(): Succeeded\n(newer than the version before)
   App -> User : window + What's new
 else switch fails
   OS --> Switcher : error

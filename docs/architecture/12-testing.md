@@ -26,7 +26,7 @@ pwsh -File tests/run-tests.ps1
 | Conversions | `HtmlToRtfTests`, `LegacyRtfTests` |
 | Connector | `BrowserConnectorTests` (routing, token, origins, busy, create) |
 | Platform and 1.x | `AppEnvironmentTests`, `LegacyAppTests`, `LegacyAutostartTests`, `AppInfoTests`, `UnexpectedErrorHandlerTests` |
-| Updates | `UpdateServiceTests` (check, background download, consent download under the Store policy, automatic updates around it where the administrator allows it, automatic updates off and the policy that locks them, notice only with an update already staged, a policy set before a switch, policy values, the switch and its attempt record, two failures, idle install conditions, the update log) over a stand-in Store and package switch |
+| Updates | `UpdateServiceTests` (check, background download, updates the source doesn't name (the Store's way: downloaded by the source's word, switch counted by a newer running version), consent download under the Store policy, automatic updates around it where the administrator allows it, automatic updates off and the policy that locks them, notice only with an update already staged, a policy set before a switch, policy values, the switch and its attempt record, two failures, idle install conditions, the update log) over a stand-in Store and package switch |
 | Tour and startup | `TutorialTests` (sample store, card placement, tour offer and What's new, the shipped `release.md`) |
 | Smoke | `SmokeTests` |
 

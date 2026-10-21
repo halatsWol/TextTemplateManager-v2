@@ -58,19 +58,19 @@ public sealed partial class GeneralSettingsPage : Page
 
     private void ShowUpdateStatus(UpdateStatus s)
     {
-        string v = s.Version is { } version ? MainPage.Short(version) : "";
+        string v = MainPage.VersionName(s.Version);
         UpdateStatusText.Text = s.Stage switch
         {
             UpdateStage.Unavailable => "Updates come from the Microsoft Store. This copy isn't installed from the Store, so it doesn't update itself.",
             UpdateStage.DisabledByPolicy => "Updates for this app are managed by your organization.",
             UpdateStage.Checking => "Checking for updates…",
-            UpdateStage.Available when s.CanDownload => $"Version {v} is available. Download it from the notice in the main window.",
-            UpdateStage.Available => $"Version {v} is available. Updates on this PC are managed by your organization.",
+            UpdateStage.Available when s.CanDownload => $"{v} is available. Download it from the notice in the main window.",
+            UpdateStage.Available => $"{v} is available. Updates on this PC are managed by your organization.",
             UpdateStage.Downloading => $"Downloading version {v}… {(int)(s.Progress * 100)} %",
-            UpdateStage.Ready => $"Version {v} is downloaded. Restart to update installs it (notice in the main window, or the tray icon's menu).",
+            UpdateStage.Ready => $"{v} is downloaded. Restart to update installs it (notice in the main window, or the tray icon's menu).",
             UpdateStage.Installing => $"Installing version {v}…",
             UpdateStage.Failed => s.Message ?? "The last update step didn't work.",
-            UpdateStage.ManualStepsNeeded => $"Version {v} couldn't be installed automatically: quit the app, then start it again from the Start menu.",
+            UpdateStage.ManualStepsNeeded => $"{v} couldn't be installed automatically: quit the app, then start it again from the Start menu.",
             _ => "Up to date." + (s.LastChecked is { } at ? $" Last checked {at:t}." : ""),
         };
         CheckUpdatesButton.IsEnabled = s.Stage is UpdateStage.UpToDate or UpdateStage.Available or UpdateStage.Failed

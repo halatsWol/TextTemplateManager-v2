@@ -12,6 +12,9 @@ public class UpdateServiceTests
     private sealed class FakeSource : IUpdateSource
     {
         public Version? Offer = Newer;
+        /// <summary>False: offers without a version, as the Store does; "downloaded" is then the source's own word.</summary>
+        public bool NamesVersion = true;
+        public bool DownloadedUnnamed, ConfirmsDownload = true;
         public bool Silent = true;
         public DownloadResult Result = DownloadResult.Done;
         public FakeSwitcher? StagesInto;
@@ -23,27 +26,36 @@ public class UpdateServiceTests
 
         public Task<UpdateOffer?> CheckAsync(CancellationToken cancel) =>
             CheckThrows != null ? Task.FromException<UpdateOffer?>(CheckThrows)
-            : Task.FromResult(Offer == null ? null : new UpdateOffer(Offer));
+            : Task.FromResult(Offer == null ? null : new UpdateOffer(NamesVersion ? Offer : null));
+
+        public Task<bool> IsDownloadedAsync(UpdateOffer offer) => Task.FromResult(DownloadedUnnamed);
+
+        private void Stage(UpdateOffer offer)
+        {
+            if (Result.Outcome != DownloadOutcome.Completed) return;
+            if (offer.Version is { } version) StagesInto?.Staged.Add(version);
+            else if (ConfirmsDownload) DownloadedUnnamed = true;
+        }
 
         public Task<DownloadResult> DownloadAsync(UpdateOffer offer, IProgress<double> progress, CancellationToken cancel)
         {
             Downloads++;
             progress.Report(0.5);
-            if (Result.Outcome == DownloadOutcome.Completed) StagesInto?.Staged.Add(offer.Version);
+            Stage(offer);
             return Task.FromResult(Result);
         }
 
         public Task<DownloadResult> RequestDownloadAsync(UpdateOffer offer, IntPtr ownerWindow, IProgress<double> progress, CancellationToken cancel)
         {
             ConsentDownloads++;
-            if (Result.Outcome == DownloadOutcome.Completed) StagesInto?.Staged.Add(offer.Version);
+            Stage(offer);
             return Task.FromResult(Result);
         }
 
         public Task<DownloadResult> DownloadDespitePolicyAsync(UpdateOffer offer, IProgress<double> progress, CancellationToken cancel)
         {
             DespiteDownloads++;
-            if (Result.Outcome == DownloadOutcome.Completed) StagesInto?.Staged.Add(offer.Version);
+            Stage(offer);
             return Task.FromResult(Result);
         }
     }
@@ -111,6 +123,86 @@ public class UpdateServiceTests
 
         Assert.Equal(UpdateStage.Ready, service.Status.Stage);
         Assert.Equal(0, source.Downloads);
+    }
+
+    [Fact]
+    public async Task An_update_the_source_doesnt_name_is_downloaded_and_ready()
+    {
+        var (service, source, _, _) = Create();
+        source.NamesVersion = false;
+
+        await service.CheckAsync(userInitiated: false);
+
+        Assert.Equal((1, UpdateStage.Ready), (source.Downloads, service.Status.Stage));
+        Assert.Null(service.Status.Version);
+    }
+
+    [Fact]
+    public async Task An_unnamed_update_already_downloaded_is_ready_without_a_download()
+    {
+        var (service, source, _, _) = Create();
+        source.NamesVersion = false;
+        source.DownloadedUnnamed = true;
+
+        await service.CheckAsync(userInitiated: false);
+
+        Assert.Equal((0, UpdateStage.Ready), (source.Downloads, service.Status.Stage));
+    }
+
+    [Fact]
+    public async Task An_unnamed_download_the_source_doesnt_confirm_stays_available()
+    {
+        var (service, source, _, _) = Create();
+        source.NamesVersion = false;
+        source.ConfirmsDownload = false;   // the Store said done, its queue doesn't say staged
+
+        await service.CheckAsync(userInitiated: false);
+
+        Assert.Equal(UpdateStage.Available, service.Status.Stage);
+        Assert.Contains("isn't ready yet", service.Status.Message);
+    }
+
+    [Fact]
+    public async Task A_switch_to_an_unnamed_version_counts_once_a_newer_version_runs()
+    {
+        var (service, source, switcher, dir) = Create();
+        source.NamesVersion = false;
+        await service.CheckAsync(userInitiated: false);
+
+        await service.SwitchAsync(idle: false);
+        var attempt = UpdateAttempt.Load(Path.Combine(dir, "update-attempt.json"))!;
+        Assert.Equal(("", Running.ToString()), (attempt.TargetVersion, attempt.FromVersion));
+
+        Assert.Equal(AttemptOutcome.Failed, attempt.Evaluate(Running));
+        Assert.Equal(AttemptOutcome.Succeeded, attempt.Evaluate(Newer));
+        Assert.Contains("switch", switcher.Calls);
+    }
+
+    [Fact]
+    public async Task Two_failed_switches_to_an_unnamed_version_leave_the_manual_steps()
+    {
+        var (service, source, _, _) = Create();
+        source.NamesVersion = false;
+        await service.CheckAsync(userInitiated: false);
+
+        await service.SwitchAsync(idle: false);
+        await service.SwitchAsync(idle: false);
+
+        Assert.Equal(UpdateStage.ManualStepsNeeded, service.Status.Stage);
+    }
+
+    [Fact]
+    public async Task An_unnamed_download_that_isnt_staged_isnt_switched_to()
+    {
+        var (service, source, switcher, _) = Create();
+        source.NamesVersion = false;
+        await service.CheckAsync(userInitiated: false);
+        source.DownloadedUnnamed = false;   // Windows removed it meanwhile
+
+        string? problem = await service.SwitchAsync(idle: false);
+
+        Assert.Contains("gone", problem);
+        Assert.DoesNotContain("switch", switcher.Calls);
     }
 
     [Fact]
