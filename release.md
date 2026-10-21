@@ -12,7 +12,11 @@ Coming from TextTemplateManager 1: your templates and settings are backed up at 
 
 ### What's new in this release
 
-A maintenance release without changes you'll notice. If you have version 2.3.1, it's the first update that TextTemplateManager downloads and installs itself: **Update ready ▸ Restart to update**.
+A maintenance release without changes you'll notice.
+
+#### Improved
+
+- **Updates inside the app.** If you have version 2.3.1, this is the first update that TextTemplateManager downloads and installs itself: **Update ready ▸ Restart to update**.
 
 {{CHANGELOG}}
 
