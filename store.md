@@ -112,9 +112,7 @@ Copyright © 2026 Marflow Software
 This block is the Store's "What's new" (Microsoft asks for it on updates only; it stayed empty for 2.0.0). It lists only what changed since the previous release; keep it in step with `release.md`.
 
 ```text
-In-app updates find Store updates again.
-
-- Fixed: Check for updates said Up to date although a newer version was out. TextTemplateManager now downloads updates in the background and shows Update ready as intended. This update itself still arrives the old way (the Store, or quitting the app and starting it again).
+A maintenance release without changes you'll notice. With version 2.3.1 it's the first update that TextTemplateManager downloads and installs itself: Update ready, then Restart to update.
 ```
 
 ---
