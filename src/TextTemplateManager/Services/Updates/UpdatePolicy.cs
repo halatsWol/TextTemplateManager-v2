@@ -29,8 +29,8 @@ public sealed record UpdatePolicy(
 
     public static UpdatePolicy Default { get; } = new(InAppUpdatesMode.Full, true, false, null);
 
-    /// <summary>The Store's automatic updates are off by policy, and the administrator lets TTM keep updating anyway
-    /// (with "Check for and download updates automatically" on).</summary>
+    /// <summary>The Store's automatic updates are off by policy, and the administrator lets the user download TTM's
+    /// updates anyway (Download, through the Store's consent dialog).</summary>
     public bool UpdatesDespiteStorePolicy => Mode == InAppUpdatesMode.Full && StoreBlocksAutomaticUpdates && AllowDespiteStorePolicy;
 
     /// <summary>True when an administrator set any of TTM's own update keys.</summary>

@@ -9,23 +9,29 @@ participant "IUpdateSource\n(StoreUpdateSource)" as Source
 participant "IPackageSwitcher\n(PackageSwitcher)" as Switcher
 participant Windows as OS
 
-== Check and download (2 min after start, then every 6 h) ==
-UpdateService -> Source : CheckAsync()
-note right of Source : reads the queue item first;\nthe Store doesn't name the version
-Source --> UpdateService : UpdateOffer(no version)
-alt staged already (queue item PausedReadyToInstall)
-  UpdateService -> Source : IsDownloadedAsync() = true
-else silent download allowed
-  UpdateService -> Source : DownloadAsync() (stage only)
-  Source -> Source : wait for the queue item:\nPausedReadyToInstall (progress)
-else Store policy off + admin allows + automatic updates on
-  UpdateService -> Switcher : RegisterRestart("--updated")
-  UpdateService -> Source : DownloadDespitePolicyAsync()\n(winget upgrade, msstore)
-else automatic Store updates off
-  UpdateService --> App : Available + Download
-  User -> App : Download
-  App -> UpdateService : DownloadAsync(window)
-  UpdateService -> Source : RequestDownloadAsync()\n(Store consent dialog)
+== Check and download (2 min after start, then every 6 h, or Check for updates) ==
+UpdateService -> Switcher : FindStaged()
+note right of Switcher : AppX deployment log + IsStaged;\nalso what Windows Update staged
+alt a newer version is staged already
+  Switcher --> UpdateService : version (Store not asked)
+else nothing staged
+  UpdateService -> Source : CheckAsync()
+  note right of Source : reads the queue item first;\nthe Store doesn't name the version
+  Source --> UpdateService : UpdateOffer(no version)
+  alt staged already (queue item PausedReadyToInstall)
+    UpdateService -> Source : IsDownloadedAsync() = true
+  else silent download allowed
+    UpdateService -> Source : DownloadAsync() (stage only)
+    Source -> Source : wait for the queue item:\nPausedReadyToInstall (progress)
+  else automatic Store updates off
+    UpdateService --> App : Available + Download\n(automatic check)
+    User -> App : Download (or Check for updates)
+    App -> UpdateService : DownloadAsync(window)
+    UpdateService -> Source : RequestDownloadAsync()\n(Store consent dialog)
+    opt failed or nothing staged
+      UpdateService --> App : Available + hint: Windows Update
+    end
+  end
 end
 UpdateService --> App : Changed(Ready)
 App -> App : notice "Update ready", tray item

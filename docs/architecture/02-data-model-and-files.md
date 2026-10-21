@@ -52,7 +52,7 @@ All files are UTF-8 JSON without BOM (a BOM is accepted when reading), written i
 | `settings.ttmsettings` | `AppSettings` | Data folder |
 | `sync.ttmsettings` | `SyncSettings` | Data folder |
 | `crash.log` | Text, appended | Data folder |
-| `update.log`, `update-attempt.json`, `update-watchdog.ps1` / `.xml` | The updater's log, the switch in progress, the watchdog task (see [13](13-updates.md)) | Data folder |
+| `update.log`, `update-checks.txt`, `update-attempt.json`, `update-watchdog.ps1` / `.xml` | The updater's log, its check times (Store limits), the switch in progress, the watchdog task (see [13](13-updates.md)) | Data folder |
 | sync file (`*.ttmdata`) | `Folder` root as written by `DataNode.BuildFileTree` | Anywhere (OneDrive, share) |
 | exported file (`*.ttmdata`) | `Folder`: a folder export has that folder as root, a full or multi-item export a plain root (multi-item: tree order, folder copies down from the shared level, `DataNode.ExportTree`); no `SyncId`s | Anywhere |
 | backup (`ttm-backup-*.zip`) | Zip with the files above and `manifest.json` | Backups folder (see [5](05-backups-and-restore.md)) |

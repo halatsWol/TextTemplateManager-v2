@@ -553,12 +553,14 @@ namespace TextTemplateManager
                 && !(_updates?.IdleInstallAllowed(_store.CurrentSettings.IdleInstall) ?? false))
             {
                 _readyNoticeShown = true;
-                ShowTrayBalloon("Update ready", $"{MainPage.VersionName(status.Version)} is downloaded. Choose Restart to update in the tray icon's menu.");
+                ShowTrayBalloon("Update ready", "The update is ready to install. Choose Restart to update in the tray icon's menu.");
             }
         }
 
-        /// <summary>Settings ▸ Check for updates, and Try again on the update notice.</summary>
-        public Task CheckForUpdatesAsync() => _updates?.CheckAsync(userInitiated: true) ?? Task.CompletedTask;
+        /// <summary>Settings ▸ Check for updates, and Try again on the update notice: an update it finds is downloaded
+        /// right away, through the Store's consent dialog when the Store can't download on its own.</summary>
+        public Task CheckForUpdatesAsync() =>
+            _updates?.CheckAsync(userInitiated: true, WindowNative.GetWindowHandle(MainWindow)) ?? Task.CompletedTask;
 
         /// <summary>Download on the update notice: through the Store's consent dialog when it can't download on its own.</summary>
         public Task DownloadUpdateAsync() =>
@@ -572,7 +574,7 @@ namespace TextTemplateManager
             if (_updates is not { Status.IsReady: true } updates) return;
             if (!updates.RefreshPolicyForSwitch())
             {
-                if (!idle && MainWindow.Content is MainPage refused) refused.ReportUpdateProblem("Updates on this PC are managed by your organization.");
+                if (!idle && MainWindow.Content is MainPage refused) refused.ReportUpdateProblem("Your organization manages updates on this PC.");
                 return;
             }
             if (!idle)

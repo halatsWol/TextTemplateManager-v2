@@ -64,6 +64,8 @@ public sealed class FileUpdateSource : IUpdateSource
         catch { return null; }
     }
 
+    public DateTime? RefusedUntil => null;
+
     // Its offers always carry a version, which the switcher checks.
     public Task<bool> IsDownloadedAsync(UpdateOffer offer) => Task.FromResult(false);
 
@@ -77,9 +79,10 @@ public sealed class FileUpdateSource : IUpdateSource
             : DownloadResult.Done;
     }
 
+    /// <summary>A test switch: a file "consent-fails" in the folder makes the consent download fail, as it may on a PC
+    /// without the Microsoft Store app.</summary>
     public Task<DownloadResult> RequestDownloadAsync(UpdateOffer offer, IntPtr ownerWindow, IProgress<double> progress, CancellationToken cancel) =>
-        DownloadAsync(offer, progress, cancel);
-
-    public Task<DownloadResult> DownloadDespitePolicyAsync(UpdateOffer offer, IProgress<double> progress, CancellationToken cancel) =>
-        DownloadAsync(offer, progress, cancel);
+        File.Exists(Path.Combine(_folder, "consent-fails"))
+            ? Task.FromResult(new DownloadResult(DownloadOutcome.Failed, "consent-fails (test)"))
+            : DownloadAsync(offer, progress, cancel);
 }

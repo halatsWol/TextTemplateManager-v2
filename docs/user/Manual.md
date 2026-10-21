@@ -279,7 +279,7 @@ If TextTemplateManager 1 was set up on this PC, both switches take over its choi
 **Updates**
 
 - The version that runs, what the updater is doing (up to date, downloading, ready), and **Check for updates**. See *Updates*.
-- **Check for and download updates automatically** — on by default. Off: TextTemplateManager doesn't look for updates on its own; **Check for updates** still works, and an update it finds is installed only with **Restart to update** (not while the app isn't in use, and not when you quit). When your organization turned off automatic Store updates on this PC and allows it, the switch keeps TextTemplateManager updating anyway: it downloads its own updates through winget, for this app only, and a note under the switch says so. If your organization set it, the switch is locked and says so.
+- **Check for and download updates automatically** — on by default. Off: TextTemplateManager doesn't look for updates on its own; **Check for updates** still works, and an update it finds is installed only with **Restart to update** (not while the app isn't in use, and not when you quit). When automatic Store updates are turned off on this PC, a note under the switch says how updates arrive then (see *Updates*). If your organization set it, the switch is locked and says so.
 - **Install updates while the app isn't in use** — off by default: a downloaded update waits for **Restart to update** or is installed when you quit the app. On: it's installed while nobody uses the app (window and Quick Paste closed, nothing unsaved, no input for 10 minutes), and the app then opens with what's new. If your organization set it, the switch is locked and says so.
 
 **Other**
@@ -448,7 +448,7 @@ The current state is backed up first, so a restore can itself be undone from the
 
 ## Updates
 
-TextTemplateManager updates itself from the Microsoft Store. It looks for a new version a few minutes after it starts and then every few hours, and downloads it in the background while you keep working.
+TextTemplateManager updates itself from the Microsoft Store. It looks for a new version every few hours, and downloads it in the background while you keep working. The Microsoft Store allows an app one check every 30 minutes and ten a day; if you click **Check for updates** sooner, it says when the next check is possible. A new version can take a few hours after its release to show up.
 
 When the download is done, a notice above the template list says **Update ready**. Click **Restart to update**: your work is saved first (unsaved changes are asked about, as when closing the window), the app closes, Windows installs the new version, and the app is back within a few seconds, showing what's new. The tray icon's menu has **Restart to update** too, and while the window is hidden a tray notice says when an update is ready. Not now? Quitting the app (**File ▸ Exit** or **Exit App**) also installs a downloaded update, so the next start is the new version.
 
@@ -456,7 +456,7 @@ When the download is done, a notice above the template list says **Update ready*
 
 **Settings ▸ General ▸ Updates** shows the version and has **Check for updates**. To update only when you ask, turn off **Check for and download updates automatically**. With **Install updates while the app isn't in use** on (off by default), a downloaded update is installed when the window and Quick Paste are closed, nothing is unsaved and the PC has had no input for 10 minutes; the app then opens with what's new.
 
-If automatic Store updates are turned off on this PC, the notice says **Update available** with a **Download** button: the Store asks once, then the update downloads and is ready as above. Where your organization allows it, **Check for and download updates automatically** (**Settings ▸ General ▸ Updates**, on by default) still downloads TextTemplateManager's updates on its own (through winget) and installs them as above; the notice with **Download** then only appears with that switch off. On a company PC your IT may manage updates; the notice and the settings then say so.
+If automatic Store updates are turned off on this PC, TextTemplateManager doesn't download on its own. The notice says **Update available** with a **Download** button, and **Check for updates** downloads right away: the Microsoft Store asks once, then the update downloads and is ready as above. Windows Update often brings the update on such PCs anyway; as soon as it's downloaded, TextTemplateManager offers **Restart to update** without asking the Store. If the Store can't download it on your PC (for example without the Microsoft Store app), the notice says so and points to Windows Update. On a company PC your IT may manage updates; the notice and the settings then say so.
 
 If an update can't be installed (the notice says so), or to update by hand:
 

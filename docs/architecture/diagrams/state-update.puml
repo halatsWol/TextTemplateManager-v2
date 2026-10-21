@@ -8,10 +8,11 @@ title Update stages (UpdateService.Status.Stage)
 
 UpToDate --> Checking : timer / Check for updates
 Checking --> UpToDate : nothing newer
-Checking --> Ready : newer, already staged
-Checking --> Downloading : newer, silent download allowed\n(or, under the Store policy where allowed,\nwith automatic updates on)
+Checking --> Ready : newer, already staged\n(by the Store or Windows Update)
+Checking --> Downloading : newer, silent download allowed,\nor Check for updates (Store consent dialog)
 Checking --> Available : newer, consent needed\nor notice only
 Available --> Downloading : Download\n(Store consent dialog)
+Downloading --> Available : consent download failed\n(hint: Windows Update)
 Downloading --> Ready : staged
 Downloading --> Failed : error
 Downloading --> Available : canceled

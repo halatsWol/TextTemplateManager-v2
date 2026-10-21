@@ -59,7 +59,7 @@ The app has three layers plus platform services. Dependencies point downward; th
 - The **backup scheduler** runs on a thread-pool timer (every 30 s).
 - The **browser connector** accepts and serves connections on the thread pool, reading an immutable snapshot; a create request is marshalled to the UI thread.
 - The **hotkey** arrives on a message-only window on the UI thread.
-- The **updater** checks on a thread-pool timer (2 minutes after the start, then every 6 hours); its `Changed` event is marshalled to the UI thread. The idle-install check is a one-minute dispatcher timer.
+- The **updater** checks on a thread-pool timer (every 6 hours from the last check, also of an earlier run, at the earliest 2 minutes after the start); its `Changed` event is marshalled to the UI thread. The idle-install check is a one-minute dispatcher timer.
 
 ## Deployment
 

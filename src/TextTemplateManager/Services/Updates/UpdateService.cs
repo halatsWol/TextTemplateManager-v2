@@ -56,6 +56,11 @@ public sealed class UpdateService : IDisposable
     private UpdateOffer? _offer;
     private CancellationTokenSource? _downloadCancel;
     private DateTime? _lastChecked;
+    private readonly UpdateCheckHistory _checks;
+    private DateTime? _refusedUntil;
+
+    /// <summary>The clock for the check history (UTC); tests set their own.</summary>
+    internal Func<DateTime> UtcNow { get; set; } = () => DateTime.UtcNow;
 
     /// <param name="source">Null when there is nothing to update from (dev run, sideloaded build).</param>
     public UpdateService(IUpdateSource? source, IPackageSwitcher? switcher, UpdateLog log, string attemptPath,
@@ -65,29 +70,34 @@ public sealed class UpdateService : IDisposable
         _switcher = switcher;
         _log = log;
         _attemptPath = attemptPath;
+        _checks = new UpdateCheckHistory(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(attemptPath) ?? "", "update-checks.txt"));
+        _lastChecked = _checks.Last?.ToLocalTime();
         _readPolicy = readPolicy ?? UpdatePolicy.Read;
         Policy = _readPolicy();
         Status = _source == null ? new UpdateStatus(UpdateStage.Unavailable)
             : Policy.Mode == InAppUpdatesMode.Off ? new UpdateStatus(UpdateStage.DisabledByPolicy)
-            : new UpdateStatus(UpdateStage.UpToDate);
+            : new UpdateStatus(UpdateStage.UpToDate, LastChecked: _lastChecked);
     }
 
     public UpdatePolicy Policy { get; private set; }
 
     /// <summary>The user's "Check for and download updates automatically". Off: no check or download on its own, no idle
-    /// install and no install on quit; Check for updates and Restart to update still work. On while automatic Store
-    /// updates are off by policy: downloads around the Store policy (winget) where the administrator allows it.</summary>
+    /// install and no install on quit; Check for updates and Restart to update still work. While automatic Store
+    /// updates are off, on means checking and finding what Windows Update staged; downloading then needs the user.</summary>
     public bool CheckAutomatically { get; set; } = true;
 
     /// <summary><see cref="CheckAutomatically"/> unless the AutomaticUpdates policy decides.</summary>
     public bool ChecksAutomatically => Policy.AutomaticUpdatesForced ?? CheckAutomatically;
 
-    private enum DownloadRoute { None, Silent, DespitePolicy, Consent }
+    /// <summary>Added when the Store can't or doesn't download on the user's request: on 2026-10-21 Windows Update staged
+    /// the update on a PC with automatic Store updates off and without the Store app.</summary>
+    public const string WindowsUpdateHint = "Windows Update usually brings it on its own; Restart to update appears as soon as it's downloaded.";
+
+    private enum DownloadRoute { None, Silent, Consent }
 
     private DownloadRoute RouteFor(bool userInitiated, UpdateOffer offer) =>
         Policy.Mode != InAppUpdatesMode.Full ? DownloadRoute.None
         : _source!.CanDownloadSilently && !Policy.StoreBlocksAutomaticUpdates ? DownloadRoute.Silent
-        : Policy.UpdatesDespiteStorePolicy && ChecksAutomatically ? DownloadRoute.DespitePolicy
         : userInitiated && AvailableStatus(offer).CanDownload ? DownloadRoute.Consent
         : DownloadRoute.None;
     public UpdateStatus Status { get; private set; }
@@ -118,6 +128,21 @@ public sealed class UpdateService : IDisposable
         return false;
     }
 
+    /// <summary>The earliest time (UTC) the Store answers a check: TTM's own check history, or a refusal the Store logged.</summary>
+    private DateTime? NextCheckAllowed(DateTime utcNow)
+    {
+        var next = _checks.NextAllowed(utcNow);
+        if (_refusedUntil is { } refused && refused > utcNow && (next == null || refused > next)) next = refused;
+        return next;
+    }
+
+    /// <summary>A time for people: the clock time today, with the date on another day.</summary>
+    private string At(DateTime utc)
+    {
+        var local = utc.ToLocalTime();
+        return local.Date == UtcNow().ToLocalTime().Date ? local.ToString("t") : local.ToString("g");
+    }
+
     /// <summary>For the log: the version, or that the source didn't name it.</summary>
     private static string Describe(Version? version) => version?.ToString() ?? "a newer version";
 
@@ -141,15 +166,25 @@ public sealed class UpdateService : IDisposable
         return new(outcome, attempt);
     }
 
-    /// <summary>Checks after <see cref="FirstCheckDelay"/> and then every <see cref="CheckInterval"/>.</summary>
+    /// <summary>Checks every <see cref="CheckInterval"/>, counted from the last check (also of an earlier run), at the
+    /// earliest <see cref="FirstCheckDelay"/> after the start: restarting the app doesn't use up the Store's checks.</summary>
     public void Start()
     {
         if (_source == null || Policy.Mode == InAppUpdatesMode.Off) return;
-        _timer = new Timer(_ => _ = CheckAsync(userInitiated: false), null, FirstCheckDelay, CheckInterval);
+        _timer = new Timer(_ => _ = CheckAsync(userInitiated: false), null, FirstCheckDue(), CheckInterval);
     }
 
-    /// <summary>Asks the source for a newer version; downloads it right away when allowed without asking.</summary>
-    public async Task CheckAsync(bool userInitiated)
+    internal TimeSpan FirstCheckDue()
+    {
+        if (_checks.Last is not { } last) return FirstCheckDelay;
+        var due = last + CheckInterval - UtcNow();
+        return due > FirstCheckDelay ? due : FirstCheckDelay;
+    }
+
+    /// <summary>Asks the source for a newer version and downloads it right away: on its own when the source allows it,
+    /// through the source's consent dialog over <paramref name="ownerWindow"/> when the user asked. A version Windows
+    /// already staged is found first, without asking the source.</summary>
+    public async Task CheckAsync(bool userInitiated, IntPtr ownerWindow = default)
     {
         if (_source == null || _switcher == null) return;
         Policy = _readPolicy();
@@ -160,6 +195,29 @@ public sealed class UpdateService : IDisposable
         {
             if (!userInitiated && Status.Stage is UpdateStage.Ready or UpdateStage.ManualStepsNeeded) return;
             var before = Status;
+            if (Policy.Mode == InAppUpdatesMode.Full && await Task.Run(_switcher.FindStaged) is { } staged)
+            {
+                bool known = _offer?.Version == staged && before.Stage == UpdateStage.Ready;
+                _offer = new UpdateOffer(staged);
+                if (!known) _log.Write($"{staged} is staged, running {_switcher.RunningVersion}");
+                var gaveUpOn = UpdateAttempt.Load(_attemptPath);
+                Set(gaveUpOn != null && gaveUpOn.IsFor(staged, _switcher.RunningVersion) && gaveUpOn.Attempts >= UpdateAttempt.MaxAttempts
+                    ? new UpdateStatus(UpdateStage.ManualStepsNeeded, staged)
+                    : new UpdateStatus(UpdateStage.Ready, staged));
+                return;
+            }
+            // Inside the Store's limits a check only repeats its last answer: skip it, and tell the user when it was theirs.
+            if (NextCheckAllowed(UtcNow()) is { } next)
+            {
+                if (userInitiated)
+                {
+                    string when = $"The Microsoft Store allows another check at {At(next)} or later.";
+                    Set(before.Stage is UpdateStage.UpToDate or UpdateStage.Checking or UpdateStage.Failed
+                        ? new UpdateStatus(UpdateStage.UpToDate, Message: $"Up to date (last checked at {_lastChecked:t}). {when}")
+                        : before with { Message = when });
+                }
+                return;
+            }
             if (userInitiated || before.Stage is UpdateStage.UpToDate or UpdateStage.Failed) Set(new UpdateStatus(UpdateStage.Checking));
             UpdateOffer? offer;
             try { offer = await _source.CheckAsync(CancellationToken.None); }
@@ -170,9 +228,21 @@ public sealed class UpdateService : IDisposable
                     : before.Stage == UpdateStage.Checking ? new UpdateStatus(UpdateStage.UpToDate) : before);
                 return;
             }
+            if (offer == null && _source.RefusedUntil is { } refusedUntil)
+            {
+                // The Store didn't check at all (its limits, counting every caller with the app's identity).
+                _refusedUntil = refusedUntil;
+                _log.Write($"check ({_source.Name}{(userInitiated ? ", asked" : "")}): refused by the Store's check limits, next from {refusedUntil.ToLocalTime():g}");
+                _offer = null;
+                Set(new UpdateStatus(UpdateStage.UpToDate, Message: "The Microsoft Store skipped this check because it limits how often an app may check. " +
+                    $"Try again at {At(refusedUntil)} or later."));
+                return;
+            }
+            _checks.Record(UtcNow());
             _lastChecked = DateTime.Now;
             if (offer == null || offer.Version is { } offered && offered <= _switcher.RunningVersion)
             {
+                _log.Write($"check ({_source.Name}{(userInitiated ? ", asked" : "")}): no update, running {_switcher.RunningVersion}");
                 _offer = null;
                 Set(new UpdateStatus(UpdateStage.UpToDate));
                 return;
@@ -198,8 +268,8 @@ public sealed class UpdateService : IDisposable
         }
         finally { _busy.Release(); }
 
-        if (Status.Stage == UpdateStage.Available && _offer is { } available && RouteFor(false, available) != DownloadRoute.None)
-            await DownloadAsync(IntPtr.Zero, userInitiated: false);
+        if (Status.Stage == UpdateStage.Available && _offer is { } available && RouteFor(userInitiated, available) != DownloadRoute.None)
+            await DownloadAsync(ownerWindow, userInitiated);
     }
 
     private UpdateStatus AvailableStatus(UpdateOffer offer)
@@ -223,21 +293,13 @@ public sealed class UpdateService : IDisposable
             _downloadCancel = new CancellationTokenSource();
             Set(new UpdateStatus(UpdateStage.Downloading, offer.Version));
             var progress = new Progress(p => Set(new UpdateStatus(UpdateStage.Downloading, offer.Version, Math.Clamp(p, 0, 1))));
-            _log.Write($"download {Describe(offer.Version)} ({route switch { DownloadRoute.Silent => "silent", DownloadRoute.DespitePolicy => "despite the Store policy", _ => "with consent" }})");
+            _log.Write($"download {Describe(offer.Version)} ({(route == DownloadRoute.Silent ? "silent" : "with consent")})");
             DownloadResult result;
             try
             {
-                if (route == DownloadRoute.DespitePolicy)
-                {
-                    // winget may go on to install, which closes the app: then Windows starts it again.
-                    try { _switcher.RegisterRestart(UpdatedArgument); } catch { }
-                }
-                result = route switch
-                {
-                    DownloadRoute.Silent => await _source.DownloadAsync(offer, progress, _downloadCancel.Token),
-                    DownloadRoute.DespitePolicy => await _source.DownloadDespitePolicyAsync(offer, progress, _downloadCancel.Token),
-                    _ => await _source.RequestDownloadAsync(offer, ownerWindow, progress, _downloadCancel.Token),
-                };
+                result = route == DownloadRoute.Silent
+                    ? await _source.DownloadAsync(offer, progress, _downloadCancel.Token)
+                    : await _source.RequestDownloadAsync(offer, ownerWindow, progress, _downloadCancel.Token);
             }
             catch (OperationCanceledException) { result = new DownloadResult(DownloadOutcome.Canceled); }
             catch (Exception ex) { result = new DownloadResult(DownloadOutcome.Failed, ex.Message); }
@@ -245,11 +307,21 @@ public sealed class UpdateService : IDisposable
 
             if (result.Outcome == DownloadOutcome.Completed && await IsStagedAsync(offer))
                 Set(new UpdateStatus(UpdateStage.Ready, offer.Version));
-            else if (result.Outcome == DownloadOutcome.Completed)
-                // The source says done but nothing is staged (the Store may still be finishing): look again at the next check.
-                Set(AvailableStatus(offer) with { Message = "The download finished, but the update isn't ready yet. It's checked again later." });
+            else if (result.Outcome == DownloadOutcome.Completed && await Task.Run(_switcher.FindStaged) is { } staged)
+            {
+                _offer = new UpdateOffer(staged);
+                _log.Write($"{staged} is staged");
+                Set(new UpdateStatus(UpdateStage.Ready, staged));
+            }
             else if (result.Outcome == DownloadOutcome.Canceled)
                 Set(AvailableStatus(offer));
+            else if (route == DownloadRoute.Consent && AvailableStatus(offer).StoreBlocked)
+                // Without the Store app or past the policy the consent route isn't proven: Windows Update is the fallback.
+                Set(AvailableStatus(offer) with { Message = (result.Outcome == DownloadOutcome.Completed
+                    ? "The Microsoft Store hasn't downloaded it yet. " : "The Microsoft Store couldn't download it here. ") + WindowsUpdateHint });
+            else if (result.Outcome == DownloadOutcome.Completed)
+                // The source says done but nothing is staged (the Store may still be finishing): look again at the next check.
+                Set(AvailableStatus(offer) with { Message = "The download finished, but Windows hasn't prepared the update yet. The app checks again later." });
             else if (result.Outcome == DownloadOutcome.Blocked)
                 Set(AvailableStatus(offer) with { StoreBlocked = true });
             else
@@ -272,7 +344,7 @@ public sealed class UpdateService : IDisposable
     {
         if (_switcher == null || _source == null || Status.Stage != UpdateStage.Ready) return "No update is ready.";
         Version? target = Status.Version;
-        if (!RefreshPolicyForSwitch()) return "Updates on this PC are managed by your organization.";
+        if (!RefreshPolicyForSwitch()) return "Your organization manages updates on this PC.";
         if (!await _busy.WaitAsync(0)) return "An update step is already running.";
         try
         {
@@ -281,7 +353,7 @@ public sealed class UpdateService : IDisposable
                 _log.Write($"switch to {Describe(target)}: not staged any more");
                 _offer = null;
                 Set(new UpdateStatus(UpdateStage.UpToDate));
-                return "The downloaded update is gone (Windows may have removed it). It's downloaded again at the next check.";
+                return "The downloaded update is no longer there (Windows may have removed it). The app downloads it again at the next check.";
             }
             var previous = UpdateAttempt.Load(_attemptPath);
             int tries = previous?.IsFor(target, _switcher.RunningVersion) == true ? previous.Attempts + 1 : 1;
@@ -304,7 +376,7 @@ public sealed class UpdateService : IDisposable
             if (tries >= UpdateAttempt.MaxAttempts)
                 Set(new UpdateStatus(UpdateStage.ManualStepsNeeded, target, Message: problem));
             else
-                Set(new UpdateStatus(UpdateStage.Ready, target, Message: "The last try to install it didn't work: " + problem));
+                Set(new UpdateStatus(UpdateStage.Ready, target, Message: "The last attempt to install it didn't work: " + problem));
             return problem ?? "Windows didn't switch to the new version.";
         }
         finally { _busy.Release(); }
@@ -318,8 +390,8 @@ public sealed class UpdateService : IDisposable
         if (attempt.Attempts >= UpdateAttempt.MaxAttempts) Set(new UpdateStatus(UpdateStage.ManualStepsNeeded, target));
         // Without a version the next check finds out whether it's still staged.
         else if (target != null && _switcher?.IsStaged(target) == true && Policy.Mode == InAppUpdatesMode.Full)
-            Set(new UpdateStatus(UpdateStage.Ready, target, Message: "The last try to install it didn't work."));
-        else Set(AvailableStatus(_offer) with { Message = "The last try to install it didn't work." });
+            Set(new UpdateStatus(UpdateStage.Ready, target, Message: "The last attempt to install it didn't work."));
+        else Set(AvailableStatus(_offer) with { Message = "The last attempt to install it didn't work." });
     }
 
     public void Dispose()

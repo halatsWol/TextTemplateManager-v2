@@ -61,17 +61,17 @@ public sealed partial class GeneralSettingsPage : Page
         string v = MainPage.VersionName(s.Version);
         UpdateStatusText.Text = s.Stage switch
         {
-            UpdateStage.Unavailable => "Updates come from the Microsoft Store. This copy isn't installed from the Store, so it doesn't update itself.",
-            UpdateStage.DisabledByPolicy => "Updates for this app are managed by your organization.",
+            UpdateStage.Unavailable => "This copy wasn't installed from the Microsoft Store, so it can't update itself.",
+            UpdateStage.DisabledByPolicy => "Your organization manages updates for this app.",
             UpdateStage.Checking => "Checking for updates…",
-            UpdateStage.Available when s.CanDownload => $"{v} is available. Download it from the notice in the main window.",
-            UpdateStage.Available => $"{v} is available. Updates on this PC are managed by your organization.",
-            UpdateStage.Downloading => $"Downloading version {v}… {(int)(s.Progress * 100)} %",
-            UpdateStage.Ready => $"{v} is downloaded. Restart to update installs it (notice in the main window, or the tray icon's menu).",
-            UpdateStage.Installing => $"Installing version {v}…",
+            UpdateStage.Available when s.CanDownload => $"{v} is available. " + (s.Message ?? "Choose Check for updates to download it."),
+            UpdateStage.Available => $"{v} is available. Your organization manages updates on this PC.",
+            UpdateStage.Downloading => $"Downloading the update… {(int)(s.Progress * 100)} %",
+            UpdateStage.Ready => $"{v} is ready to install. Choose Restart to update in the main window or in the tray icon's menu.",
+            UpdateStage.Installing => "Installing the update…",
             UpdateStage.Failed => s.Message ?? "The last update step didn't work.",
-            UpdateStage.ManualStepsNeeded => $"{v} couldn't be installed automatically: quit the app, then start it again from the Start menu.",
-            _ => "Up to date." + (s.LastChecked is { } at ? $" Last checked {at:t}." : ""),
+            UpdateStage.ManualStepsNeeded => $"{v} couldn't be installed automatically. To finish, quit the app and start it again from the Start menu.",
+            _ => s.Message ?? "Up to date" + (s.LastChecked is { } at ? $" (last checked at {at:t})." : "."),
         };
         CheckUpdatesButton.IsEnabled = s.Stage is UpdateStage.UpToDate or UpdateStage.Available or UpdateStage.Failed
             or UpdateStage.Ready or UpdateStage.ManualStepsNeeded;
@@ -91,7 +91,11 @@ public sealed partial class GeneralSettingsPage : Page
         IdleInstallNote.Text = disabledByPolicy || available && (policy.Mode != InAppUpdatesMode.Full || policy.IdleInstallForced != null)
             ? "Set by your organization." : "";
         IdleInstallNote.Visibility = IdleInstallNote.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
-        StorePolicyNote.Visibility = available && policy.UpdatesDespiteStorePolicy ? Visibility.Visible : Visibility.Collapsed;
+        StorePolicyNote.Text = "Automatic updates for Store apps are turned off on this PC. " + (policy.UpdatesDespiteStorePolicy
+            ? "Check for updates asks the Microsoft Store to download an update; one that Windows Update brings is offered with Restart to update."
+            : "An update that Windows Update brings is offered with Restart to update.");
+        StorePolicyNote.Visibility = available && policy.Mode == InAppUpdatesMode.Full && policy.StoreBlocksAutomaticUpdates
+            ? Visibility.Visible : Visibility.Collapsed;
         _updatesLoading = false;
     }
 

@@ -39,7 +39,7 @@ package "ttm2.exe (WinUI 3, .NET 8)" {
 database "LocalState\n(data, settings,\nsync settings)" as Files
 database "Documents\\TextTemplateManager\\Backups" as Backups
 database "Shared .ttmdata\n(OneDrive, share)" as SyncFiles
-node "Microsoft Store\n(StoreContext, winget)" as StoreSvc
+node "Microsoft Store\n(StoreContext)" as StoreSvc
 
 User --> Main
 User --> QP : global hotkey

@@ -35,6 +35,13 @@ public sealed class PackageSwitcher : IPackageSwitcher
         catch { return false; }
     }
 
+    public Version? FindStaged()
+    {
+        foreach (var version in AppxStageLog.FindStaged(_id.Name, _id.PublisherId, RunningVersion))
+            if (IsStaged(version)) return version;
+        return null;
+    }
+
     public void RegisterRestart(string arguments)
     {
         int hr = RegisterApplicationRestart(arguments, RESTART_NO_CRASH | RESTART_NO_HANG | RESTART_NO_REBOOT);

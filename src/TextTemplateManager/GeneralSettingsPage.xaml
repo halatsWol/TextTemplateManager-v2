@@ -106,13 +106,12 @@
                 <ToggleSwitch x:Name="AutomaticUpdatesToggle"
                               Header="Check for and download updates automatically"
                               Toggled="AutomaticUpdates_Toggled"/>
-                <TextBlock Text="Off: TextTemplateManager doesn't look for updates on its own; use Check for updates. A downloaded update is then installed only with Restart to update."
+                <TextBlock Text="On: the app regularly looks for new versions and downloads them in the background. Off: it looks only when you choose Check for updates, and installs a downloaded update only when you choose Restart to update."
                            TextWrapping="Wrap"
                            Style="{StaticResource CaptionTextBlockStyle}"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 <TextBlock x:Name="StorePolicyNote"
                            Visibility="Collapsed"
-                           Text="Automatic updates of Store apps are turned off on this PC. With this on, TextTemplateManager still downloads its own updates (through winget); this applies to this app only."
                            TextWrapping="Wrap"
                            Style="{StaticResource CaptionTextBlockStyle}"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
@@ -126,7 +125,7 @@
                 <ToggleSwitch x:Name="IdleInstallToggle"
                               Header="Install updates while the app isn't in use"
                               Toggled="IdleInstall_Toggled"/>
-                <TextBlock Text="A downloaded update is installed when the window and Quick Paste are closed, nothing is unsaved and the PC has had no input for 10 minutes; the app then opens with what's new. When off, an update waits for Restart to update, or is installed when you quit the app."
+                <TextBlock Text="On: a downloaded update is installed once you've been away from the PC for 10 minutes, with the app's windows closed and nothing unsaved. The app then opens and shows what's new. Off: the update is installed when you choose Restart to update or quit the app."
                            TextWrapping="Wrap"
                            Style="{StaticResource CaptionTextBlockStyle}"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>

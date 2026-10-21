@@ -18,7 +18,7 @@ public class UpdateServiceTests
         public bool Silent = true;
         public DownloadResult Result = DownloadResult.Done;
         public FakeSwitcher? StagesInto;
-        public int Downloads, ConsentDownloads, DespiteDownloads;
+        public int Downloads, ConsentDownloads;
         public Exception? CheckThrows;
 
         public string Name => "fake";
@@ -29,6 +29,8 @@ public class UpdateServiceTests
             : Task.FromResult(Offer == null ? null : new UpdateOffer(NamesVersion ? Offer : null));
 
         public Task<bool> IsDownloadedAsync(UpdateOffer offer) => Task.FromResult(DownloadedUnnamed);
+
+        public DateTime? RefusedUntil { get; set; }
 
         private void Stage(UpdateOffer offer)
         {
@@ -51,13 +53,6 @@ public class UpdateServiceTests
             Stage(offer);
             return Task.FromResult(Result);
         }
-
-        public Task<DownloadResult> DownloadDespitePolicyAsync(UpdateOffer offer, IProgress<double> progress, CancellationToken cancel)
-        {
-            DespiteDownloads++;
-            Stage(offer);
-            return Task.FromResult(Result);
-        }
     }
 
     private sealed class FakeSwitcher : IPackageSwitcher
@@ -68,6 +63,9 @@ public class UpdateServiceTests
 
         public Version RunningVersion { get; set; } = Running;
         public bool IsStaged(Version version) => Staged.Contains(version);
+        /// <summary>What the AppX log names, staged by someone else (Windows Update).</summary>
+        public Version? StagedElsewhere;
+        public Version? FindStaged() => StagedElsewhere;
         public void RegisterRestart(string arguments) => Calls.Add("restart " + arguments);
         public void UnregisterRestart() => Calls.Add("no restart");
         public void StartWatchdog(TimeSpan after, string logPath) => Calls.Add("watchdog");
@@ -82,6 +80,9 @@ public class UpdateServiceTests
         var source = new FakeSource { StagesInto = switcher };
         var service = new UpdateService(withSource ? source : null, switcher, new UpdateLog(Path.Combine(dir, "update.log")),
             Path.Combine(dir, "update-attempt.json"), () => policy ?? UpdatePolicy.Default);
+        // An hour per reading: tests that check more than once stay outside the Store's check limits.
+        var clock = new DateTime(2026, 10, 21, 0, 0, 0, DateTimeKind.Utc);
+        service.UtcNow = () => clock = clock.AddHours(1);
         return (service, source, switcher, dir);
     }
 
@@ -159,7 +160,7 @@ public class UpdateServiceTests
         await service.CheckAsync(userInitiated: false);
 
         Assert.Equal(UpdateStage.Available, service.Status.Stage);
-        Assert.Contains("isn't ready yet", service.Status.Message);
+        Assert.Contains("hasn't prepared the update yet", service.Status.Message);
     }
 
     [Fact]
@@ -201,8 +202,132 @@ public class UpdateServiceTests
 
         string? problem = await service.SwitchAsync(idle: false);
 
-        Assert.Contains("gone", problem);
+        Assert.Contains("no longer there", problem);
         Assert.DoesNotContain("switch", switcher.Calls);
+    }
+
+    [Fact]
+    public async Task A_check_within_30_minutes_of_the_last_isnt_sent_and_says_when_the_next_is_possible()
+    {
+        var (service, source, _, _) = Create();
+        source.Offer = Running;
+        var now = new DateTime(2026, 10, 21, 8, 0, 0, DateTimeKind.Utc);
+        service.UtcNow = () => now;
+        await service.CheckAsync(userInitiated: true);
+        source.Offer = Newer;
+        now = now.AddMinutes(10);
+
+        await service.CheckAsync(userInitiated: true);
+
+        Assert.Equal(UpdateStage.UpToDate, service.Status.Stage);
+        Assert.Contains("allows another check at", service.Status.Message);
+        Assert.Equal(0, source.Downloads);   // the newer version wasn't asked for
+
+        now = now.AddMinutes(25);
+        await service.CheckAsync(userInitiated: true);
+        Assert.Equal(UpdateStage.Ready, service.Status.Stage);
+    }
+
+    [Fact]
+    public async Task The_eleventh_check_in_24_hours_waits_until_the_oldest_ages_out()
+    {
+        var (service, source, _, _) = Create();
+        source.Offer = Running;
+        var now = new DateTime(2026, 10, 21, 0, 0, 0, DateTimeKind.Utc);
+        service.UtcNow = () => now;
+        for (int i = 0; i < 10; i++) { await service.CheckAsync(userInitiated: true); now = now.AddMinutes(31); }
+        source.Offer = Newer;
+
+        await service.CheckAsync(userInitiated: false);
+        Assert.Equal(0, source.Downloads);
+
+        now = new DateTime(2026, 10, 22, 0, 1, 0, DateTimeKind.Utc);
+        await service.CheckAsync(userInitiated: false);
+        Assert.Equal(1, source.Downloads);
+    }
+
+    [Fact]
+    public async Task Check_times_survive_a_restart_and_set_the_first_check()
+    {
+        var (service, source, switcher, dir) = Create();
+        source.Offer = Running;
+        var now = new DateTime(2026, 10, 21, 8, 0, 0, DateTimeKind.Utc);
+        service.UtcNow = () => now;
+        await service.CheckAsync(userInitiated: false);
+
+        var restarted = new UpdateService(source, switcher, new UpdateLog(Path.Combine(dir, "update.log")),
+            Path.Combine(dir, "update-attempt.json"), () => UpdatePolicy.Default) { UtcNow = () => now.AddHours(1) };
+
+        Assert.Equal(UpdateService.CheckInterval - TimeSpan.FromHours(1), restarted.FirstCheckDue());
+        Assert.Equal(now.ToLocalTime(), restarted.Status.LastChecked);
+    }
+
+    [Fact]
+    public async Task A_check_the_store_refused_says_so_and_when_it_checks_again()
+    {
+        var (service, source, _, dir) = Create();
+        var now = new DateTime(2026, 10, 21, 8, 0, 0, DateTimeKind.Utc);
+        service.UtcNow = () => now;
+        source.Offer = null;
+        source.RefusedUntil = now.AddHours(11);
+
+        await service.CheckAsync(userInitiated: true);
+
+        Assert.Equal(UpdateStage.UpToDate, service.Status.Stage);
+        Assert.Contains("skipped this check", service.Status.Message);
+        Assert.Null(service.Status.LastChecked);   // nothing was really checked
+        Assert.Contains("refused by the Store's check limits", await File.ReadAllTextAsync(Path.Combine(dir, "update.log")));
+
+        // Until then TTM doesn't ask again and says when it can.
+        source.RefusedUntil = null;
+        source.Offer = Newer;
+        now = now.AddHours(1);
+        await service.CheckAsync(userInitiated: true);
+        Assert.Equal(0, source.Downloads);
+        Assert.Contains("allows another check at", service.Status.Message);
+
+        now = now.AddHours(11);
+        await service.CheckAsync(userInitiated: true);
+        Assert.Equal(1, source.Downloads);
+    }
+
+    [Fact]
+    public void The_stores_logged_refusal_is_read_with_its_scan_times()
+    {
+        const string pfn = "MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny";
+        // As logged on the work PC on 2026-10-21 (11 scans in 24 hours).
+        string interval = "Scan not allowed inside interval for MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny. Current last scan time cache: " +
+            "2026-10-20T19:23:36+02:00;2026-10-20T21:42:19+02:00;2026-10-20T21:46:14+02:00;2026-10-20T21:53:56+02:00;2026-10-20T21:56:50+02:00;" +
+            "2026-10-20T22:02:35+02:00;2026-10-20T22:27:34+02:00;2026-10-20T22:30:03+02:00;2026-10-20T22:52:40+02:00;2026-10-21T04:30:02+02:00;" +
+            "2026-10-21T09:07:49+02:00 Error: Unknown HResult Error code: 0xefffffff Function: OnlineScanAllowedInInterval";
+        var scans = StoreScanLog.ParseRefusal(interval, pfn);
+        Assert.NotNull(scans);
+        Assert.Equal(11, scans!.Count);
+        Assert.Equal(new DateTime(2026, 10, 20, 17, 23, 36, DateTimeKind.Utc), scans[0]);
+
+        // At 18:49 local the ten newest scans in 24 hours block until the second oldest ages out (21:42 local).
+        var next = UpdateCheckHistory.NextAllowed(scans, new DateTime(2026, 10, 21, 16, 49, 0, DateTimeKind.Utc));
+        Assert.Equal(new DateTime(2026, 10, 21, 19, 42, 19, DateTimeKind.Utc), next);
+
+        // As logged on the home PC on 2026-10-20 (a check inside 30 minutes).
+        string cooldown = "Online scan not allowed due to cooldown period for MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny. Current last scan time cache: " +
+            "2026-10-20T19:09:24+02:00;2026-10-20T19:15:15+02:00;2026-10-20T21:26:40+02:00;2026-10-20T22:53:50+02:00 Error: Unknown HResult";
+        Assert.Equal(4, StoreScanLog.ParseRefusal(cooldown, pfn)!.Count);
+
+        Assert.Null(StoreScanLog.ParseRefusal(interval, "Other.App_123"));
+        Assert.Null(StoreScanLog.ParseRefusal("Scan allowed inside interval for " + pfn + ". Current last scan time cache: 2026-10-20T19:09:24+02:00", pfn));
+        Assert.Null(StoreScanLog.ParseRefusal("Some reworded message for " + pfn, pfn));
+    }
+
+    [Fact]
+    public async Task An_empty_answer_is_logged()
+    {
+        var (service, source, _, dir) = Create();
+        source.Offer = null;
+
+        await service.CheckAsync(userInitiated: true);
+
+        Assert.Contains("no update", await File.ReadAllTextAsync(Path.Combine(dir, "update.log")));
     }
 
     [Fact]
@@ -241,27 +366,66 @@ public class UpdateServiceTests
     }
 
     [Fact]
-    public async Task Store_policy_off_with_automatic_updates_off_downloads_through_the_consent_dialog()
+    public async Task Store_policy_off_check_for_updates_downloads_through_the_consent_dialog()
     {
         var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, null, null, 4));
         source.Silent = false;
-        service.CheckAutomatically = false;
 
         await service.CheckAsync(userInitiated: true);
+
+        Assert.Equal((0, 1), (source.Downloads, source.ConsentDownloads));
+        Assert.Equal(UpdateStage.Ready, service.Status.Stage);
+    }
+
+    [Fact]
+    public async Task Store_policy_off_download_on_the_notice_uses_the_consent_dialog()
+    {
+        var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, null, null, 4));
+        source.Silent = false;
+
+        await service.CheckAsync(userInitiated: false);
         Assert.Equal((UpdateStage.Available, true, true), (service.Status.Stage, service.Status.CanDownload, service.Status.StoreBlocked));
-        Assert.Equal(0, source.Downloads);
+        Assert.Equal(0, source.Downloads + source.ConsentDownloads);
 
         await service.DownloadAsync(IntPtr.Zero, userInitiated: true);
-        Assert.Equal((0, 1, 0), (source.Downloads, source.ConsentDownloads, source.DespiteDownloads));
+        Assert.Equal((0, 1), (source.Downloads, source.ConsentDownloads));
         Assert.Equal(UpdateStage.Ready, service.Status.Stage);
+    }
+
+    [Fact]
+    public async Task Store_policy_off_a_failed_consent_download_points_to_windows_update()
+    {
+        var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, null, null, 4));
+        source.Silent = false;
+        source.Result = new DownloadResult(DownloadOutcome.Failed, "no Store app");
+
+        await service.CheckAsync(userInitiated: true);
+
+        Assert.Equal((UpdateStage.Available, true), (service.Status.Stage, service.Status.CanDownload));
+        Assert.Contains(UpdateService.WindowsUpdateHint, service.Status.Message);
+    }
+
+    [Fact]
+    public async Task Store_policy_off_a_consent_download_that_stages_nothing_points_to_windows_update()
+    {
+        var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, null, null, 4));
+        source.Silent = false;
+        source.NamesVersion = false;
+        source.ConfirmsDownload = false;
+
+        await service.CheckAsync(userInitiated: true);
+
+        Assert.Equal(UpdateStage.Available, service.Status.Stage);
+        Assert.Contains(UpdateService.WindowsUpdateHint, service.Status.Message);
     }
 
     [Fact]
     public async Task Store_policy_off_without_the_admins_permission_offers_no_download()
     {
         var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, 0, null, 4));
+        Assert.False(service.Policy.UpdatesDespiteStorePolicy);
 
-        await service.CheckAsync(userInitiated: false);
+        await service.CheckAsync(userInitiated: true);
         await service.DownloadAsync(IntPtr.Zero, userInitiated: true);
 
         Assert.Equal((UpdateStage.Available, false), (service.Status.Stage, service.Status.CanDownload));
@@ -269,27 +433,14 @@ public class UpdateServiceTests
     }
 
     [Fact]
-    public async Task Store_policy_off_with_automatic_updates_on_downloads_on_its_own_and_arms_the_restart()
+    public async Task Store_policy_off_automatic_checks_download_nothing_on_their_own()
     {
-        var (service, source, switcher, _) = Create(UpdatePolicy.FromValues(null, null, null, 4));
+        var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, null, null, 4, automaticUpdates: 1));
         source.Silent = false;
 
         await service.CheckAsync(userInitiated: false);
 
-        Assert.Equal((0, 0, 1), (source.Downloads, source.ConsentDownloads, source.DespiteDownloads));
-        Assert.Equal(UpdateStage.Ready, service.Status.Stage);
-        Assert.Contains("restart " + UpdateService.UpdatedArgument, switcher.Calls);
-    }
-
-    [Fact]
-    public async Task Updating_despite_the_store_policy_needs_the_admins_permission()
-    {
-        var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, 0, null, 4));
-        Assert.False(service.Policy.UpdatesDespiteStorePolicy);
-
-        await service.CheckAsync(userInitiated: false);
-
-        Assert.Equal(0, source.Downloads + source.ConsentDownloads + source.DespiteDownloads);
+        Assert.Equal(0, source.Downloads + source.ConsentDownloads);
         Assert.Equal(UpdateStage.Available, service.Status.Stage);
     }
 
@@ -300,32 +451,62 @@ public class UpdateServiceTests
 
         await service.CheckAsync(userInitiated: false);
 
-        Assert.Equal((1, 0), (source.Downloads, source.DespiteDownloads));
+        Assert.Equal((1, 0), (source.Downloads, source.ConsentDownloads));
         Assert.False(service.Policy.UpdatesDespiteStorePolicy);
     }
 
     [Fact]
-    public async Task Store_policy_off_with_automatic_updates_off_downloads_nothing_on_its_own()
+    public async Task A_version_windows_update_staged_is_ready_without_asking_the_store()
     {
-        var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, null, null, 4));
+        var (service, source, switcher, dir) = Create(UpdatePolicy.FromValues(null, null, null, 4));
         source.Silent = false;
-        service.CheckAutomatically = false;
+        source.CheckThrows = new InvalidOperationException("the Store shouldn't be asked");
+        switcher.StagedElsewhere = Newer;
 
         await service.CheckAsync(userInitiated: false);
 
-        Assert.Equal(0, source.Downloads + source.ConsentDownloads + source.DespiteDownloads);
+        Assert.Equal((UpdateStage.Ready, Newer), (service.Status.Stage, service.Status.Version));
+        Assert.Equal(0, source.Downloads + source.ConsentDownloads);
+        Assert.Contains($"{Newer} is staged", await File.ReadAllTextAsync(Path.Combine(dir, "update.log")));
     }
 
     [Fact]
-    public async Task Forced_automatic_updates_go_around_the_store_policy_too()
+    public async Task A_staged_version_is_only_a_notice_under_the_notice_only_policy()
     {
-        var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, null, null, 4, automaticUpdates: 1));
+        var (service, _, switcher, _) = Create(UpdatePolicy.FromValues(1, null, null, null));
+        switcher.StagedElsewhere = Newer;
+
+        await service.CheckAsync(userInitiated: true);
+
+        Assert.Equal(UpdateStage.Available, service.Status.Stage);
+    }
+
+    [Fact]
+    public async Task A_version_staged_while_the_consent_download_ran_is_ready()
+    {
+        var (service, source, switcher, _) = Create(UpdatePolicy.FromValues(null, null, null, 4));
         source.Silent = false;
-        service.CheckAutomatically = false;
+        source.NamesVersion = false;
+        source.ConfirmsDownload = false;
+        service.Changed += s => { if (s.Stage == UpdateStage.Downloading) switcher.StagedElsewhere = Newer; };
 
-        await service.CheckAsync(userInitiated: false);
+        await service.CheckAsync(userInitiated: true);
 
-        Assert.Equal(1, source.DespiteDownloads);
+        Assert.Equal((UpdateStage.Ready, Newer), (service.Status.Stage, service.Status.Version));
+    }
+
+    [Theory]
+    [InlineData("Deployment Stage operation with target volume C: on Package MarflowSoftware.TextTemplateManager_2.3.2.0_x64__eb1r5ey0kd4ny from:  (370fa352ec3f09d456d2ce925e8de69925e90076)  finished successfully.", "2.3.2.0")]
+    [InlineData("Deployment Stage operation with target volume C: on Package MarflowSoftware.TextTemplateManager_2.3.2.0_neutral_~_eb1r5ey0kd4ny from:  (370fa352ec3f09d456d2ce925e8de69925e90076)  finished successfully.", null)]
+    [InlineData("Deployment Register operation with target volume C: on Package MarflowSoftware.TextTemplateManager_2.3.2.0_x64__eb1r5ey0kd4ny from:  (AppxBundleManifest.xml)  finished successfully.", null)]
+    [InlineData("Deployment DeStage operation with target volume C: on Package MarflowSoftware.TextTemplateManager_2.3.0.0_x64__eb1r5ey0kd4ny from:   finished successfully.", null)]
+    [InlineData("Deployment Stage operation with target volume C: on Package Other.App_9.0.0.0_x64__eb1r5ey0kd4ny from:  (abc)  finished successfully.", null)]
+    [InlineData("Deployment Stage operation on package MarflowSoftware.TextTemplateManager_2.3.2.0_x64__eb1r5ey0kd4ny has been de-queued and is running for user SID S-1-5-18.", null)]
+    public void Staged_versions_are_read_from_the_appx_log_text(string message, string? expected)
+    {
+        var version = AppxStageLog.ParseStaged(message, "MarflowSoftware.TextTemplateManager", "eb1r5ey0kd4ny");
+
+        Assert.Equal(expected == null ? null : Version.Parse(expected), version);
     }
 
     [Fact]
@@ -487,7 +668,7 @@ public class UpdateServiceTests
 
         string? problem = await service.SwitchAsync(idle: false);
 
-        Assert.Contains("gone", problem);
+        Assert.Contains("no longer there", problem);
         Assert.DoesNotContain("switch", switcher.Calls);
         Assert.Equal(UpdateStage.UpToDate, service.Status.Stage);
     }

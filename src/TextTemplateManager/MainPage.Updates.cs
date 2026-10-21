@@ -20,21 +20,22 @@ namespace TextTemplateManager
             (InfoBarSeverity severity, string title, string message, UpdateAction action, bool closable) = s.Stage switch
             {
                 UpdateStage.Downloading => (InfoBarSeverity.Informational, "Downloading update",
-                    $"{v} is downloading. You can keep working.", UpdateAction.None, true),
+                    "The update is downloading in the background. You can keep working.", UpdateAction.None, true),
                 UpdateStage.Ready => (InfoBarSeverity.Success, "Update ready",
-                    $"{v} is downloaded. Restart to update saves your work first and takes a few seconds.{extra}", UpdateAction.Install, true),
+                    $"The update is ready to install. Restart to update saves your work and opens the new version within a few seconds.{extra}", UpdateAction.Install, true),
                 UpdateStage.Installing => (InfoBarSeverity.Informational, "Installing update",
-                    $"TextTemplateManager restarts as {(s.Version is { } target ? "version " + Short(target) : "the new version")} in a moment.", UpdateAction.None, false),
+                    $"TextTemplateManager restarts with {(s.Version is { } target ? "version " + Short(target) : "the new version")} in a moment.", UpdateAction.None, false),
                 UpdateStage.Available when s.CanDownload => (InfoBarSeverity.Informational, "Update available",
-                    $"{v} is available." + (s.StoreBlocked ? " Automatic Store updates are turned off on this PC, so it isn't downloaded on its own." : "") + extra,
+                    $"{v} is available." + (extra.Length > 0 ? extra
+                        : s.StoreBlocked ? " Automatic updates for Store apps are turned off on this PC, so choose Download to get it." : ""),
                     UpdateAction.Download, true),
                 UpdateStage.Available => (InfoBarSeverity.Informational, "Update available",
-                    $"{v} is available. Updates on this PC are managed by your organization: ask your IT, or use Update in the Microsoft Store if you may.",
+                    $"{v} is available. Your organization manages updates on this PC: ask your IT department, or update the app in the Microsoft Store if you're allowed to.",
                     UpdateAction.None, true),
                 UpdateStage.Failed => (InfoBarSeverity.Warning, "Update problem", s.Message ?? "The update didn't work.", UpdateAction.Retry, true),
                 UpdateStage.ManualStepsNeeded => (InfoBarSeverity.Warning, "Update couldn't be installed",
-                    $"{v} is downloaded, but switching to it didn't work. Quit the app (File ▸ Exit), then start it again from the Start menu. " +
-                    "If Help ▸ About still shows the old version, use Update in the Microsoft Store.", UpdateAction.None, true),
+                    "The update is downloaded, but the app couldn't switch to it. Quit the app (File ▸ Exit) and start it again from the Start menu. " +
+                    "If Help ▸ About still shows the old version, update the app in the Microsoft Store.", UpdateAction.None, true),
                 _ => (InfoBarSeverity.Informational, "", "", UpdateAction.None, true),
             };
 

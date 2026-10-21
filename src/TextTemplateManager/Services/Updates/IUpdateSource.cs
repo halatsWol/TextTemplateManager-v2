@@ -26,6 +26,10 @@ public interface IUpdateSource
     /// <summary>The newest version offered above the running one, or null when up to date.</summary>
     Task<UpdateOffer?> CheckAsync(CancellationToken cancel);
 
+    /// <summary>Set by <see cref="CheckAsync"/> when it got nothing because the source refused to check (the Store's
+    /// check limits): the earliest time (UTC) it checks again. Null when it checked, or when that isn't known.</summary>
+    DateTime? RefusedUntil { get; }
+
     /// <summary>Whether an offer without a version is downloaded and staged (offers with one are checked by
     /// <see cref="IPackageSwitcher.IsStaged"/>).</summary>
     Task<bool> IsDownloadedAsync(UpdateOffer offer);
@@ -40,11 +44,6 @@ public interface IUpdateSource
     /// <summary>Downloads after the user agreed in the source's own dialog (the Store's consent dialog), shown over
     /// the window <paramref name="ownerWindow"/>; progress 0..1.</summary>
     Task<DownloadResult> RequestDownloadAsync(UpdateOffer offer, IntPtr ownerWindow, IProgress<double> progress, CancellationToken cancel);
-
-    /// <summary>Downloads although the Store's "no automatic updates" policy is on: only when the administrator allows it
-    /// (AllowUpdateDespiteStorePolicy) and automatic updates are on. For the Store this runs winget, which may also try to
-    /// install (the app is restarted then, see <see cref="IPackageSwitcher.RegisterRestart"/>).</summary>
-    Task<DownloadResult> DownloadDespitePolicyAsync(UpdateOffer offer, IProgress<double> progress, CancellationToken cancel);
 }
 
 /// <summary>Switches the installed app to a staged version.</summary>
@@ -56,6 +55,10 @@ public interface IPackageSwitcher
     /// <summary>True when <paramref name="version"/> of this app is staged on the machine (downloaded, not yet
     /// switched to).</summary>
     bool IsStaged(Version version);
+
+    /// <summary>The newest version above the running one that is staged on the machine, whoever staged it (the Store,
+    /// Windows Update); null when there is none.</summary>
+    Version? FindStaged();
 
     /// <summary>Asks Windows to restart the app with <paramref name="arguments"/> after it closes it for the switch.</summary>
     void RegisterRestart(string arguments);

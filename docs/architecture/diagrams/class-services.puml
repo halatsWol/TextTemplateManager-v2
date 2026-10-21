@@ -101,7 +101,6 @@ package "Services.Updates" {
     +CanDownloadSilently : bool
     +DownloadAsync(offer, progress)
     +RequestDownloadAsync(offer, window, progress)
-    +DownloadDespitePolicyAsync(offer, progress)
   }
   class StoreUpdateSource
   class FileUpdateSource
@@ -110,8 +109,8 @@ package "Services.Updates" {
   note bottom of StoreUpdateSource
     StoreContext; offers without a version,
     downloaded = queue item
-    PausedReadyToInstall; despite the Store
-    policy: winget (msstore).
+    PausedReadyToInstall; under the Store
+    policy: consent dialog only.
   end note
   note bottom of FileUpdateSource
     Test source for sideloaded builds:
@@ -120,12 +119,18 @@ package "Services.Updates" {
   interface IPackageSwitcher {
     +RunningVersion
     +IsStaged(version) (offers with one)
+    +FindStaged() : Version?
     +RegisterRestart(args) / UnregisterRestart()
     +StartWatchdog(after)
     +SwitchAsync() : string?
   }
   class PackageSwitcher
   IPackageSwitcher <|.. PackageSwitcher
+  class AppxStageLog <<static>> {
+    +ParseStaged(message)
+    +FindStaged(name, publisher, running)
+  }
+  PackageSwitcher ..> AppxStageLog : AppX deployment log
   class UpdatePolicy <<record>> {
     +Mode : InAppUpdatesMode
     +AllowDespiteStorePolicy
@@ -140,6 +145,11 @@ package "Services.Updates" {
     +Evaluate(running)
   }
   class UpdateLog
+  class UpdateCheckHistory {
+    +Last
+    +Record(now)
+    +NextAllowed(now) : 30 min, 10 / 24 h
+  }
   class IdleInstall <<static>> {
     +ShouldInstall(IdleState)
     +UserIdleTime()
@@ -149,6 +159,12 @@ package "Services.Updates" {
   UpdateService ..> UpdatePolicy
   UpdateService ..> UpdateAttempt : update-attempt.json
   UpdateService --> UpdateLog : update.log
+  UpdateService --> UpdateCheckHistory : update-checks.txt
+  class StoreScanLog <<static>> {
+    +ParseRefusal(message)
+    +FindRefusal(pfn, since)
+  }
+  StoreUpdateSource ..> StoreScanLog : Store event log
 }
 
 package "Helpers" {
