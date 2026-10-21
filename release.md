@@ -12,7 +12,11 @@ Coming from TextTemplateManager 1: your templates and settings are backed up at 
 
 ### What's new in this release
 
-One switch for automatic updates.
+In-app updates find Store updates again, and one switch for automatic updates.
+
+#### Fixed
+
+- **In-app updates found no update from the Store.** **Check for updates** said "Up to date" although a newer version was out: the Store's answer was read the wrong way. TextTemplateManager now downloads it in the background and shows **Update ready** as intended; the notice then says "A new version", as the Store doesn't name it. This fix reaches you with this update, which still arrives the old way (the Microsoft Store, or quitting the app and starting it again); from then on updates come in the app.
 
 #### Improved
 

@@ -112,8 +112,9 @@ Copyright © 2026 Marflow Software
 This block is the Store's "What's new" (Microsoft asks for it on updates only; it stayed empty for 2.0.0). It lists only what changed since the previous release; keep it in step with `release.md`.
 
 ```text
-One switch for automatic updates.
+In-app updates find Store updates again, and one switch for automatic updates.
 
+- Fixed: Check for updates said Up to date although a newer version was out. TextTemplateManager now downloads updates in the background and shows Update ready as intended. This update itself still arrives the old way (the Store, or quitting the app and starting it again).
 - Settings > General > Updates: Check for and download updates automatically now also covers PCs where automatic Store updates are turned off. Where the organization allows it, TextTemplateManager still downloads its own updates there, and a note under the switch says so. The separate Keep updating switch is gone.
 - For administrators: on PCs with automatic Store updates turned off, the app now keeps updating itself by default. To keep the Store policy final for this app, set the AllowUpdateDespiteStorePolicy policy to 0; see the Administrator & Deployment Guide.
 ```
