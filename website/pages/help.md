@@ -34,7 +34,7 @@ The app records every update step in `update.log`, which has the full error mess
 
 `%LocalAppData%\Packages\MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny\LocalState\update.log`
 
-Paste the path into File Explorer's address bar, and attach the file when you report an update problem.
+Paste the path into File Explorer's address bar, and attach the file when you report an update problem. The [log collector](#collecting-logs-for-a-problem-report) includes it, together with the Microsoft Store's and Windows' logs.
 
 ## Quick Paste and hotkeys
 
@@ -51,6 +51,23 @@ On the old PC, **Settings ▸ Backups ▸ Export backup…** saves everything (t
 ### Resetting or removing the app
 
 Windows **Settings ▸ Apps ▸ Installed apps ▸ TextTemplateManager ▸ …**: **Advanced options ▸ Reset** starts the app as on the first day, **Uninstall** removes it. Both delete the app's data folder but keep the backups in `Documents\TextTemplateManager\Backups`. Details in the manual under [Resetting or removing the app](manual.md#resetting-or-removing-the-app).
+
+## Collecting logs for a problem report
+
+For a problem with installing, updating or starting the app, the logs of the app, the Microsoft Store and Windows together tell the most. The log collector, a PowerShell script, gathers them into one `.zip` file that you attach to your e-mail or GitHub issue. It needs no administrator rights and changes nothing on your PC.
+
+1. Download [Collect-TTMLogs.ps1](downloads/Collect-TTMLogs.ps1){ download="Collect-TTMLogs.ps1" }. It goes to your **Downloads** folder.
+2. Open **Windows PowerShell** (Start menu, type `PowerShell`) and run:
+
+    ```powershell
+    powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\Downloads\Collect-TTMLogs.ps1"
+    ```
+
+    `-ExecutionPolicy Bypass` lets this one run start the downloaded script; it doesn't change your PC's settings. Reading the event logs can take a minute.
+
+3. File Explorer opens with `TTM-logs-<date>-<time>.zip` selected on your desktop. Attach it to your report.
+
+The `.zip` file contains the app's `update.log` and `crash.log`, the installed version, update policies, and the last 14 days of the Microsoft Store, app installation and app error events that concern TextTemplateManager. It doesn't contain your templates, settings or sync files. Your user name, computer name and account ID are replaced with placeholders, and every file in it is plain text, so you can read it before you send it. For a problem that started earlier, add `-Days 30` at the end of the command.
 
 ## Still stuck?
 
