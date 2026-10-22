@@ -537,6 +537,8 @@ namespace TextTemplateManager
             if (previous.Outcome is AttemptOutcome.Failed or AttemptOutcome.GaveUp && previous.Attempt is { } attempt)
                 _updates.ReportFailedSwitch(attempt);
 
+            var ownerWindow = WindowNative.GetWindowHandle(MainWindow);
+            _updates.OwnerWindow = () => ownerWindow;
             _updates.Start();
             _idleInstallTimer = _uiDispatcher.CreateTimer();
             _idleInstallTimer.Interval = IdleInstall.CheckEvery;
@@ -571,7 +573,12 @@ namespace TextTemplateManager
         /// didn't happen, with everything running again.</summary>
         public async Task InstallUpdateAsync(bool idle)
         {
-            if (_updates is not { Status.IsReady: true } updates) return;
+            if (_updates is not { Status.IsReady: true } updates)
+            {
+                // A stale menu item or notice: show the window, where the update status is.
+                if (!idle) ShowMainWindow();
+                return;
+            }
             if (!updates.RefreshPolicyForSwitch())
             {
                 if (!idle && MainWindow.Content is MainPage refused) refused.ReportUpdateProblem("Your organization manages updates on this PC.");

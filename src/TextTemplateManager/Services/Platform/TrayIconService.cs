@@ -14,7 +14,7 @@ namespace TextTemplateManager.Services.Platform
         private readonly DispatcherQueue _dispatcher;
         private readonly Action _showMainWindow;
 
-        private readonly MenuFlyoutItem _updateItem;
+        private bool _updateReady;
 
         public IRelayCommand OpenCommand { get; }
         public IRelayCommand ExitCommand { get; }
@@ -44,30 +44,19 @@ namespace TextTemplateManager.Services.Platform
             };
 
 
-            var menu = new MenuFlyout();
-
-            menu.Items.Add(new MenuFlyoutItem
-            {
-                Text = "Open",
-                Command = OpenCommand
-            });
-
-            _updateItem = new MenuFlyoutItem
-            {
-                Text = "Restart to update",
-                Command = UpdateCommand,
-                Visibility = Visibility.Collapsed,
-            };
-            menu.Items.Add(_updateItem);
-
-            menu.Items.Add(new MenuFlyoutItem
-            {
-                Text = "Exit App",
-                Command = ExitCommand
-            });
-
-            _trayIcon.ContextFlyout = menu;
+            _trayIcon.ContextFlyout = BuildMenu();
             _trayIcon.ForceCreate();
+        }
+
+        // The tray shows the flyout as a native popup menu, which ignores an item's Visibility (2.3.3 showed Restart
+        // to update with nothing ready), so the menu is rebuilt with or without the item.
+        private MenuFlyout BuildMenu()
+        {
+            var menu = new MenuFlyout();
+            menu.Items.Add(new MenuFlyoutItem { Text = "Open", Command = OpenCommand });
+            if (_updateReady) menu.Items.Add(new MenuFlyoutItem { Text = "Restart to update", Command = UpdateCommand });
+            menu.Items.Add(new MenuFlyoutItem { Text = "Exit App", Command = ExitCommand });
+            return menu;
         }
 
         private void OpenWindow() => _dispatcher.TryEnqueue(() => _showMainWindow());
@@ -82,7 +71,12 @@ namespace TextTemplateManager.Services.Platform
 
         /// <summary>Shows Restart to update in the menu while an update is downloaded and ready.</summary>
         public void SetUpdateReady(bool ready) =>
-            _dispatcher.TryEnqueue(() => _updateItem.Visibility = ready ? Visibility.Visible : Visibility.Collapsed);
+            _dispatcher.TryEnqueue(() =>
+            {
+                if (_updateReady == ready) return;
+                _updateReady = ready;
+                _trayIcon.ContextFlyout = BuildMenu();
+            });
 
         /// <summary>Balloon notice through Shell_NotifyIcon; needs no notification registration.</summary>
         public void ShowBalloon(string title, string message)

@@ -48,9 +48,12 @@ public class UpdateServiceTests
             return Task.FromResult(Result);
         }
 
+        public Action<IntPtr>? RequestedWindow;
+
         public Task<DownloadResult> RequestDownloadAsync(UpdateOffer offer, IntPtr ownerWindow, IProgress<double> progress, CancellationToken cancel)
         {
             ConsentDownloads++;
+            RequestedWindow?.Invoke(ownerWindow);
             Stage(offer);
             return Task.FromResult(Result);
         }
@@ -381,10 +384,13 @@ public class UpdateServiceTests
     [Fact]
     public async Task Store_policy_off_download_on_the_notice_uses_the_consent_dialog()
     {
-        var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, null, null, 4));
+        var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, null, null, 4, automaticUpdates: 1));
         source.Silent = false;
+        source.Result = new DownloadResult(DownloadOutcome.Canceled);
 
         await service.CheckAsync(userInitiated: false);
+        source.Result = DownloadResult.Done;
+        source.ConsentDownloads = 0;
         Assert.Equal((UpdateStage.Available, true, true), (service.Status.Stage, service.Status.CanDownload, service.Status.StoreBlocked));
         Assert.Equal(0, source.Downloads + source.ConsentDownloads);
 
@@ -394,16 +400,45 @@ public class UpdateServiceTests
     }
 
     [Fact]
-    public async Task Store_policy_off_a_failed_consent_download_points_to_windows_update()
+    public async Task Store_policy_off_a_failed_download_is_an_update_problem_and_try_again_downloads_without_a_new_check()
     {
         var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, null, null, 4));
         source.Silent = false;
-        source.Result = new DownloadResult(DownloadOutcome.Failed, "no Store app");
+        source.Result = new DownloadResult(DownloadOutcome.Failed, "queue item error 0x80244007", "0x80244007");
+        int checks = 0;
+        service.Changed += s => { if (s.Stage == UpdateStage.Checking) checks++; };
 
         await service.CheckAsync(userInitiated: true);
+        Assert.Equal(UpdateStage.Failed, service.Status.Stage);
+        Assert.Equal("The update couldn't be downloaded (Fake Store, error 0x80244007).", service.Status.Message);
 
-        Assert.Equal((UpdateStage.Available, true), (service.Status.Stage, service.Status.CanDownload));
-        Assert.Contains(UpdateService.WindowsUpdateHint, service.Status.Message);
+        // Try again on the notice, inside the Store's 30 minutes: no new check, straight to the download.
+        source.Result = DownloadResult.Done;
+        service.UtcNow = () => new DateTime(2026, 10, 21, 2, 5, 0, DateTimeKind.Utc);
+        await service.CheckAsync(userInitiated: true);
+
+        Assert.Equal(1, checks);
+        Assert.Equal(2, source.ConsentDownloads);
+        Assert.Equal(UpdateStage.Ready, service.Status.Stage);
+    }
+
+    [Fact]
+    public async Task Check_for_updates_downloads_a_known_update_without_checking_again()
+    {
+        var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, null, null, 4));
+        source.Silent = false;
+        source.Result = new DownloadResult(DownloadOutcome.Canceled);
+        await service.CheckAsync(userInitiated: false);
+        Assert.Equal(UpdateStage.Available, service.Status.Stage);
+
+        // Inside the Store's 30 minutes: Check for updates goes straight to the download.
+        source.Result = DownloadResult.Done;
+        source.CheckThrows = new InvalidOperationException("no new check needed");
+        service.UtcNow = () => new DateTime(2026, 10, 21, 2, 10, 0, DateTimeKind.Utc);
+        await service.CheckAsync(userInitiated: true);
+
+        Assert.Equal(UpdateStage.Ready, service.Status.Stage);
+        Assert.Equal(2, source.ConsentDownloads);
     }
 
     [Fact]
@@ -434,15 +469,32 @@ public class UpdateServiceTests
     }
 
     [Fact]
-    public async Task Store_policy_off_automatic_checks_download_nothing_on_their_own()
+    public async Task Store_policy_off_automatic_updates_download_through_the_request_route_on_their_own()
     {
-        var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, null, null, 4, automaticUpdates: 1));
+        var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, null, null, 4));
         source.Silent = false;
+        IntPtr window = 0;
+        service.OwnerWindow = () => 42;
+        source.RequestedWindow = w => window = w;
 
         await service.CheckAsync(userInitiated: false);
 
-        Assert.Equal(0, source.Downloads + source.ConsentDownloads);
-        Assert.Equal(UpdateStage.Available, service.Status.Stage);
+        Assert.Equal((0, 1), (source.Downloads, source.ConsentDownloads));
+        Assert.Equal(UpdateStage.Ready, service.Status.Stage);
+        Assert.Equal(42, window);
+    }
+
+    [Fact]
+    public async Task Store_policy_off_with_automatic_updates_off_downloads_only_when_asked()
+    {
+        var (service, source, _, _) = Create(UpdatePolicy.FromValues(null, null, null, 4, automaticUpdates: 0));
+        source.Silent = false;
+
+        await service.CheckAsync(userInitiated: false);
+        Assert.Equal(0, source.ConsentDownloads);
+
+        await service.CheckAsync(userInitiated: true);
+        Assert.Equal(1, source.ConsentDownloads);
     }
 
     [Fact]

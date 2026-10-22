@@ -64,14 +64,29 @@ public sealed partial class GeneralSettingsPage : Page
             UpdateStage.Unavailable => "This copy wasn't installed from the Microsoft Store, so it can't update itself.",
             UpdateStage.DisabledByPolicy => "Your organization manages updates for this app.",
             UpdateStage.Checking => "Checking for updates…",
-            UpdateStage.Available when s.CanDownload => $"{v} is available. " + (s.Message ?? "Choose Check for updates to download it."),
+            UpdateStage.Available when s.CanDownload => $"{v} is available. " + (s.Message ?? "Choose Download to get it."),
             UpdateStage.Available => $"{v} is available. Your organization manages updates on this PC.",
             UpdateStage.Downloading => $"Downloading the update… {(int)(s.Progress * 100)} %",
-            UpdateStage.Ready => $"{v} is ready to install. Choose Restart to update in the main window or in the tray icon's menu.",
+            UpdateStage.Ready => $"{v} is ready to install. Restart to update saves your work and opens the new version within a few seconds.",
             UpdateStage.Installing => "Installing the update…",
             UpdateStage.Failed => s.Message ?? "The last update step didn't work.",
             UpdateStage.ManualStepsNeeded => $"{v} couldn't be installed automatically. To finish, quit the app and start it again from the Start menu.",
             _ => s.Message ?? "Up to date" + (s.LastChecked is { } at ? $" (last checked at {at:t})." : "."),
+        };
+        // The same action as the notice in the main window, so nobody has to leave Settings for it.
+        _updateAction = s.Stage switch
+        {
+            UpdateStage.Ready => UpdateAction.Install,
+            UpdateStage.Available when s.CanDownload => UpdateAction.Download,
+            UpdateStage.Failed => UpdateAction.Retry,
+            _ => UpdateAction.Check,
+        };
+        CheckUpdatesButton.Content = _updateAction switch
+        {
+            UpdateAction.Install => "Restart to update",
+            UpdateAction.Download => "Download",
+            UpdateAction.Retry => "Try again",
+            _ => "Check for updates",
         };
         CheckUpdatesButton.IsEnabled = s.Stage is UpdateStage.UpToDate or UpdateStage.Available or UpdateStage.Failed
             or UpdateStage.Ready or UpdateStage.ManualStepsNeeded;
@@ -92,16 +107,25 @@ public sealed partial class GeneralSettingsPage : Page
             ? "Set by your organization." : "";
         IdleInstallNote.Visibility = IdleInstallNote.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
         StorePolicyNote.Text = "Automatic updates for Store apps are turned off on this PC. " + (policy.UpdatesDespiteStorePolicy
-            ? "Check for updates asks the Microsoft Store to download an update; one that Windows Update brings is offered with Restart to update."
+            ? "TextTemplateManager still asks the Microsoft Store for its own updates: on its own with this switch on, otherwise with Check for updates."
             : "An update that Windows Update brings is offered with Restart to update.");
         StorePolicyNote.Visibility = available && policy.Mode == InAppUpdatesMode.Full && policy.StoreBlocksAutomaticUpdates
             ? Visibility.Visible : Visibility.Collapsed;
         _updatesLoading = false;
     }
 
+    private enum UpdateAction { Check, Download, Retry, Install }
+    private UpdateAction _updateAction;
+
     private async void CheckUpdates_Click(object sender, RoutedEventArgs e)
     {
-        if (Application.Current is App app) await app.CheckForUpdatesAsync();
+        if (Application.Current is not App app) return;
+        switch (_updateAction)
+        {
+            case UpdateAction.Install: await app.InstallUpdateAsync(idle: false); break;
+            case UpdateAction.Download: await app.DownloadUpdateAsync(); break;
+            default: await app.CheckForUpdatesAsync(); break;
+        }
     }
 
     private void AutomaticUpdates_Toggled(object sender, RoutedEventArgs e)

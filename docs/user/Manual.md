@@ -278,7 +278,7 @@ If TextTemplateManager 1 was set up on this PC, both switches take over its choi
 
 **Updates**
 
-- The version that runs, what the updater is doing (up to date, downloading, ready), and **Check for updates**. See *Updates*.
+- The version that runs, what the updater is doing (up to date, downloading, ready), and a button for the next step: **Check for updates**, **Download**, **Try again** or **Restart to update**, the same as on the notice in the main window. See *Updates*.
 - **Check for and download updates automatically** — on by default. Off: TextTemplateManager doesn't look for updates on its own; **Check for updates** still works, and an update it finds is installed only with **Restart to update** (not while the app isn't in use, and not when you quit). When automatic Store updates are turned off on this PC, a note under the switch says how updates arrive then (see *Updates*). If your organization set it, the switch is locked and says so.
 - **Install updates while the app isn't in use** — off by default: a downloaded update waits for **Restart to update** or is installed when you quit the app. On: it's installed while nobody uses the app (window and Quick Paste closed, nothing unsaved, no input for 10 minutes), and the app then opens with what's new. If your organization set it, the switch is locked and says so.
 
@@ -454,9 +454,9 @@ When the download is done, a notice above the template list says **Update ready*
 
 ![The Update ready notice above the template list, with Restart to update.](../../src/TextTemplateManager/Assets/ManualImages/TTM_UpdateReady.png)
 
-**Settings ▸ General ▸ Updates** shows the version and has **Check for updates**. To update only when you ask, turn off **Check for and download updates automatically**. With **Install updates while the app isn't in use** on (off by default), a downloaded update is installed when the window and Quick Paste are closed, nothing is unsaved and the PC has had no input for 10 minutes; the app then opens with what's new.
+**Settings ▸ General ▸ Updates** shows the version and has **Check for updates**, which downloads a new version it finds right away; once one is ready, the button becomes **Restart to update**. To update only when you ask, turn off **Check for and download updates automatically**. With **Install updates while the app isn't in use** on (off by default), a downloaded update is installed when the window and Quick Paste are closed, nothing is unsaved and the PC has had no input for 10 minutes; the app then opens with what's new.
 
-If automatic Store updates are turned off on this PC, TextTemplateManager doesn't download on its own. The notice says **Update available** with a **Download** button, and **Check for updates** downloads right away: the Microsoft Store asks once, then the update downloads and is ready as above. Windows Update often brings the update on such PCs anyway; as soon as it's downloaded, TextTemplateManager offers **Restart to update** without asking the Store. If the Store can't download it on your PC (for example without the Microsoft Store app), the notice says so and points to Windows Update. On a company PC your IT may manage updates; the notice and the settings then say so.
+If automatic Store updates are turned off on this PC, TextTemplateManager still asks the Microsoft Store for its own updates: on its own with **Check for and download updates automatically** on, otherwise when you click **Check for updates** or **Download** on the notice. The Store may ask once; then the update downloads and is ready as above. If a download fails, the notice shows the error with **Try again**. Windows Update often brings the update on such PCs anyway; as soon as it's downloaded, TextTemplateManager offers **Restart to update** without asking the Store. On a company PC your IT may manage updates; the notice and the settings then say so.
 
 If an update can't be installed (the notice says so), or to update by hand:
 
