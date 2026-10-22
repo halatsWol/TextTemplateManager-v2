@@ -57,7 +57,7 @@ Report it by e-mail to [contact@kmarflow.com](mailto:contact@kmarflow.com) or as
 The more exactly you describe what happened, the faster it can be found and fixed:
 
 - **When it happened**: the date and time, as exactly as you know them, and whether it happens every time, sometimes or happened once. The logs are sorted by time, so this is how the right entries are found.
-- **What you did**, step by step, up to the problem: which window, menu, button or hotkey, which template, and the app you pasted into. For example: "In Outlook, opened Quick Paste with the hotkey, typed 'sig', pressed Enter: nothing was pasted."
+- **What you did**, step by step, up to the problem: which window, menu, button or hotkey, which template, and the app you pasted into. For example: "In Outlook, opened Quick Paste with the hotkey, held Alt and typed SIG, released Alt: nothing was pasted."
 - **What you expected** and **what happened instead**.
 - **Any message**, with its exact text or a screenshot (error codes such as `0x80244007` matter).
 - **The app version** (**Help ▸ About**), and whether it's a company PC that manages updates or the Microsoft Store.

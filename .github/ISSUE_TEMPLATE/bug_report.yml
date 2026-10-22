@@ -58,8 +58,8 @@ body:
       description: "Step by step, up to the problem: which window, menu, button or hotkey, which template, the app you pasted into."
       placeholder: |
         1. In Outlook, opened Quick Paste with the hotkey
-        2. Typed 'sig'
-        3. Pressed Enter
+        2. Held Alt and typed SIG
+        3. Released Alt
     validations:
       required: true
   - type: textarea
