@@ -158,6 +158,8 @@
 .ttm-hero__lead { margin: 0 auto 2rem; max-width: 36rem; font-size: 1.05rem; color: var(--ttm-sub); }
 .ttm-hero__actions { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: center; }
 .ttm-hero ms-store-badge { display: inline-block; min-height: 64px; }
+/* The large badge is a fixed 104 px high (381 px wide); scale it down on phones, keeping its 3.66:1 ratio. */
+.ttm-hero ms-store-badge::part(img) { height: min(104px, calc((100vw - 3rem) / 3.66)); }
 /* The hero sits outside .md-typeset, so its buttons are styled here. */
 .ttm-hero .md-button {
   display: inline-block;
