@@ -12,7 +12,7 @@ public sealed partial class AboutDialog : ContentDialog
 {
     private readonly string _email;
 
-    public AboutDialog(string gitHubUrl, string email)
+    public AboutDialog(string websiteUrl, string email)
     {
         InitializeComponent();
         _email = email;
@@ -20,7 +20,7 @@ public sealed partial class AboutDialog : ContentDialog
         ReleaseText.Text = AppInfo.ReleaseDate.Length > 0 ? $"Released {AppInfo.ReleaseDate}" : "Released: dev build";
         ProtocolText.Text = $"Connector API protocol {BrowserConnector.ProtocolVersion}";
         CopyrightText.Text = $"© {DateTime.Now.Year} Marflow Software";
-        GitHubLink.NavigateUri = new Uri(gitHubUrl);
+        WebsiteLink.NavigateUri = new Uri(websiteUrl);
         EmailLink.Content = email;
     }
 

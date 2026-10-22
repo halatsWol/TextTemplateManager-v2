@@ -140,7 +140,7 @@ Codes you may meet there:
 - **Network:** the app listens only when a user turns on the browser connector, and then only on the local loopback address, with pairing (see *Browser connector*).
 - **Source checks:** the public source code is scanned with GitHub CodeQL on every change and weekly, the test suite runs on every change, and Dependabot reports dependencies (NuGet, npm, GitHub Actions) with known vulnerabilities and proposes the fixes. Secret scanning keeps credentials out of the repository.
 - **Fixes** ship as a regular Store update (see *Updates*); a published security advisory names the fixed version. Only the current version gets fixes.
-- **Reporting a vulnerability:** privately through **Report a vulnerability** on the repository's **Security** tab ([github.com/halatsWol/TextTemplateManager-v2](https://github.com/halatsWol/TextTemplateManager-v2)), not as a public issue.
+- **Reporting a vulnerability:** privately, not as a public issue: by e-mail to [contact@kmarflow.com](mailto:contact@kmarflow.com), or with a GitHub account through **Report a vulnerability** on the repository's **Security** tab ([github.com/halatsWol/TextTemplateManager-v2](https://github.com/halatsWol/TextTemplateManager-v2)). See also [Reporting a security vulnerability](https://software.kmarflow.com/TextTemplateManager-v2/help/#reporting-a-security-vulnerability) on the website.
 
 ---
 

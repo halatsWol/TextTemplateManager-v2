@@ -153,7 +153,7 @@ namespace TextTemplateManager
                 "Backups are made on their own (after changes, every two hours and daily) in your Documents folder. Restore any of them, choosing what to take back, export a backup to move to another PC, or import from TextTemplateManager 1.",
                 () => Settings.PageArea, () => OpenSettings(Controls.SettingsPage.Backups), Corner: TourCorner.BottomRight),
             new("Help",
-                "The manual, and this tour again: Help ▸ Start tutorial.",
+                "The manual, this tour again (Help ▸ Start tutorial), and the website with online help and problem reports (Help ▸ Go to website).",
                 () => _menuPicture, () => ShowMenuAsync(HelpMenu), HideMenu),
         };
     }

@@ -96,7 +96,8 @@
                             <FontIcon Glyph="&#xE7BE;"/>
                         </MenuFlyoutItem.Icon>
                     </MenuFlyoutItem>
-                    <MenuFlyoutItem Text="Go to GitHub" Click="GoToGitHub_Click">
+                    <MenuFlyoutItem Text="Go to website" Click="GoToWebsite_Click"
+                                    ToolTipService.ToolTip="software.kmarflow.com: online help, troubleshooting and problem reports">
                         <MenuFlyoutItem.Icon>
                             <FontIcon Glyph="&#xE774;"/>
                         </MenuFlyoutItem.Icon>

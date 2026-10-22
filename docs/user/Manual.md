@@ -532,6 +532,6 @@ Neither touches the backups in `Documents\TextTemplateManager\Backups` or your s
 ## Support
 
 For questions, permission requests, or to report an issue, contact 
-`contact@kmarflow.com`, or visit the project on GitHub via **Help ▸ Go to GitHub**.
+[contact@kmarflow.com](mailto:contact@kmarflow.com), or open the website with **Help ▸ Go to website** ([software.kmarflow.com/TextTemplateManager-v2](https://software.kmarflow.com/TextTemplateManager-v2/)): its **Help & troubleshooting** page answers common questions and has forms for problem reports and feature requests, by e-mail or on GitHub.
 
-To report a security vulnerability, please don't open a public issue: on the project's GitHub page, open the **Security** tab and choose **Report a vulnerability**. Only the developer sees the report until a fix is out.
+To report a security vulnerability, please don't open a public issue: write to [contact@kmarflow.com](mailto:contact@kmarflow.com), or, with a GitHub account, open the **Security** tab on the project's GitHub page and choose **Report a vulnerability**. Only the developer sees the report until a fix is out.

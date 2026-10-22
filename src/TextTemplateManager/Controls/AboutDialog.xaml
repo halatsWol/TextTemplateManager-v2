@@ -16,7 +16,7 @@
         <TextBlock Text="Marflow Software" Margin="0,8,0,0"/>
         <TextBlock x:Name="CopyrightText" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
         <TextBlock Text="A hotkey-driven text-template paste tool." TextWrapping="Wrap" Margin="0,8,0,0"/>
-        <HyperlinkButton x:Name="GitHubLink" Content="Project on GitHub" Padding="0"/>
+        <HyperlinkButton x:Name="WebsiteLink" Content="Website and online help" Padding="0"/>
         <!-- Email: tries the mail app and always copies the address (a mailto: link does nothing when
              no mail app is registered); the hint is inline since no second dialog can open over this one. -->
         <HyperlinkButton x:Name="EmailLink" Padding="0" Click="EmailLink_Click"/>

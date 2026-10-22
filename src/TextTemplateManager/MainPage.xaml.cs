@@ -488,10 +488,10 @@ namespace TextTemplateManager
             OpenSyncSettings();
         }
 
-        private const string GitHubUrl = "https://github.com/halatsWol/TextTemplateManager-v2";
+        private const string WebsiteUrl = "https://software.kmarflow.com/TextTemplateManager-v2/";
         private const string ContactEmail = "contact@kmarflow.com";
 
-        private void GoToGitHub_Click(object sender, RoutedEventArgs e) => ExternalLinks.Open(GitHubUrl);
+        private void GoToWebsite_Click(object sender, RoutedEventArgs e) => ExternalLinks.Open(WebsiteUrl);
 
         private async void OpenManual_Click(object sender, RoutedEventArgs e)
         {
@@ -504,7 +504,7 @@ namespace TextTemplateManager
 
         private async void About_Click(object sender, RoutedEventArgs e)
         {
-            if (await ShowDialogAsync(new AboutDialog(GitHubUrl, ContactEmail)) == ContentDialogResult.Primary)
+            if (await ShowDialogAsync(new AboutDialog(WebsiteUrl, ContactEmail)) == ContentDialogResult.Primary)
                 await ShowLicenseAsync();
         }
         private async Task ShowLicenseAsync()
