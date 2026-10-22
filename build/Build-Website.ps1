@@ -44,6 +44,24 @@ foreach ($s in $sources) {
     Set-Content (Join-Path $docs $s.To) $text -Encoding utf8 -NoNewline
 }
 
+# The log collector also as a .cmd: a double-click runs it whatever opens .ps1 files (often Notepad), execution policies
+# don't apply to code passed with -Command, and the window stays open at the end. The batch part is a PowerShell
+# comment, and `<# :` is a label to cmd. No arguments: %* inside the quoted command splits paths with spaces, and
+# parameters are what the .ps1 is for.
+$collector = Get-Content (Join-Path $docs 'downloads/Collect-TTMLogs.ps1') -Raw
+$launcher = @'
+<# :
+@echo off
+set "TTM_COLLECTOR=%~f0"
+powershell.exe -NoProfile -Command "& ([scriptblock]::Create([IO.File]::ReadAllText($env:TTM_COLLECTOR)))"
+echo.
+pause
+exit /b
+#>
+'@
+[IO.File]::WriteAllText((Join-Path $docs 'downloads/Collect-TTMLogs.cmd'), (($launcher + "`n" + $collector) -replace "`r?`n", "`r`n"),
+    [Text.Encoding]::ASCII)
+
 Push-Location $stage
 try {
     & $MkDocs build --strict

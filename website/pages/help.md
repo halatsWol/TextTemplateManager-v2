@@ -28,13 +28,9 @@ More in the manual under [Updates](manual.md#updates).
 
 TextTemplateManager still asks the Microsoft Store for its own updates, unless your organization doesn't allow it: on its own with **Check for and download updates automatically** on, otherwise with **Check for updates**. Windows Update often brings the update on such PCs as well; as soon as it's downloaded, the app offers **Restart to update**. Administrators: see the [administrator guide](admin.md).
 
-### Sending the update log
+### Where is the update log?
 
-The app records every update step in `update.log`, which has the full error messages:
-
-`%LocalAppData%\Packages\MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny\LocalState\update.log`
-
-Paste the path into File Explorer's address bar, and attach the file when you report an update problem. The [log collector](#collecting-logs-for-a-problem-report) includes it, together with the Microsoft Store's and Windows' logs.
+The app records every update step, with the full error messages, in `%LocalAppData%\Packages\MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny\LocalState\update.log`. To report an update problem, use the [log collector](#collecting-the-logs): it includes this file together with the Microsoft Store's and Windows' logs. See [Reporting a problem](#reporting-a-problem).
 
 ## Quick Paste and hotkeys
 
@@ -52,26 +48,36 @@ On the old PC, **Settings ▸ Backups ▸ Export backup…** saves everything (t
 
 Windows **Settings ▸ Apps ▸ Installed apps ▸ TextTemplateManager ▸ …**: **Advanced options ▸ Reset** starts the app as on the first day, **Uninstall** removes it. Both delete the app's data folder but keep the backups in `Documents\TextTemplateManager\Backups`. Details in the manual under [Resetting or removing the app](manual.md#resetting-or-removing-the-app).
 
-## Collecting logs for a problem report
+## Reporting a problem
 
-For a problem with installing, updating or starting the app, the logs of the app, the Microsoft Store and Windows together tell the most. The log collector, a PowerShell script, gathers them into one `.zip` file that you attach to your e-mail or GitHub issue. It needs no administrator rights and changes nothing on your PC.
+Write to `contact@kmarflow.com`, or open an issue on [GitHub](https://github.com/halatsWol/TextTemplateManager-v2/issues). The more exactly you describe what happened, the faster it can be found and fixed:
 
-1. Download the log collector, `Collect-TTMLogs.ps1`. It goes to your **Downloads** folder.
+- **When it happened**: the date and time, as exactly as you know them, and whether it happens every time, sometimes or happened once. The logs are sorted by time, so this is how the right entries are found.
+- **What you did**, step by step, up to the problem: which window, menu, button or hotkey, which template, and the app you pasted into. For example: "In Outlook, opened Quick Paste with the hotkey, typed 'sig', pressed Enter: nothing was pasted."
+- **What you expected** and **what happened instead**.
+- **Any message**, with its exact text or a screenshot (error codes such as `0x80244007` matter).
+- **The app version** (**Help ▸ About**), and whether it's a company PC that manages updates or the Microsoft Store.
+- **The logs** for problems with installing, updating or starting the app, or when the app closes unexpectedly: see below.
 
-    [:material-download: Download log collector](downloads/Collect-TTMLogs.ps1){ .md-button .md-button--primary download="Collect-TTMLogs.ps1" }
+### Collecting the logs
 
-2. Open **Windows PowerShell** (Start menu, type `PowerShell`) and run:
+The logs of the app, the Microsoft Store and Windows together tell the most. The log collector gathers them into one `.zip` file that you attach to your e-mail or GitHub issue. It needs no administrator rights and changes nothing on your PC.
+
+1. Download the log collector, `Collect-TTMLogs.cmd`. It goes to your **Downloads** folder. If your browser asks whether to keep the file, choose **Keep**.
+
+    [:material-download: Download log collector](downloads/Collect-TTMLogs.cmd){ .md-button .md-button--primary download="Collect-TTMLogs.cmd" }
+
+2. Double-click `Collect-TTMLogs.cmd` in your **Downloads** folder. If Windows shows "Windows protected your PC", click **More info** and then **Run anyway**: the file comes from the internet and isn't signed. A window shows the progress; reading the event logs can take a minute.
+3. File Explorer opens with `TTM-logs-<date>-<time>.zip` selected on your desktop. Attach it to your report, then press any key to close the window.
+
+The `.zip` file contains the app's `update.log` and `crash.log`, the installed version, update policies, and the last 14 days of the Microsoft Store, app installation and app error events that concern TextTemplateManager. It doesn't contain your templates, settings or sync files. Your user name, computer name and account ID are replaced with placeholders, and every file in it is plain text, so you can read it before you send it.
+
+If the problem started more than 14 days ago, use the PowerShell version below with `-Days`.
+
+??? note "Running it from PowerShell, or for more than 14 days"
+
+    The same collector as a PowerShell script: [Collect-TTMLogs.ps1](downloads/Collect-TTMLogs.ps1){ download="Collect-TTMLogs.ps1" }. Run it from **Windows PowerShell**; `-ExecutionPolicy Bypass` lets this one run start the downloaded script and doesn't change your PC's settings. `-Days 30` reaches further back, `-OutputPath` saves the `.zip` somewhere other than the desktop.
 
     ```powershell
-    powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\Downloads\Collect-TTMLogs.ps1"
+    powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\Downloads\Collect-TTMLogs.ps1" -Days 30
     ```
-
-    `-ExecutionPolicy Bypass` lets this one run start the downloaded script; it doesn't change your PC's settings. Reading the event logs can take a minute.
-
-3. File Explorer opens with `TTM-logs-<date>-<time>.zip` selected on your desktop. Attach it to your report.
-
-The `.zip` file contains the app's `update.log` and `crash.log`, the installed version, update policies, and the last 14 days of the Microsoft Store, app installation and app error events that concern TextTemplateManager. It doesn't contain your templates, settings or sync files. Your user name, computer name and account ID are replaced with placeholders, and every file in it is plain text, so you can read it before you send it. For a problem that started earlier, add `-Days 30` at the end of the command.
-
-## Still stuck?
-
-Write to `contact@kmarflow.com`, or open an issue on [GitHub](https://github.com/halatsWol/TextTemplateManager-v2/issues).

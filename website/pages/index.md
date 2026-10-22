@@ -87,4 +87,4 @@ The manuals are also attached as PDFs to every [release on GitHub](https://githu
 
 ## Support
 
-Questions or problems: write to `contact@kmarflow.com`, or open an issue on [GitHub](https://github.com/halatsWol/TextTemplateManager-v2/issues). For update problems, the app's update log helps: see [Help & troubleshooting](help.md#sending-the-update-log). News and articles are on the [blog at kmarflow.com](https://www.kmarflow.com).
+Questions or problems: write to `contact@kmarflow.com`, or open an issue on [GitHub](https://github.com/halatsWol/TextTemplateManager-v2/issues). What to include, and the log collector for install and update problems: [Reporting a problem](help.md#reporting-a-problem). News and articles are on the [blog at kmarflow.com](https://www.kmarflow.com).

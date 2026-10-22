@@ -7,6 +7,7 @@
 # and account IDs are replaced with placeholders; every file in the .zip is plain text and can be read before sending.
 #
 # Usage: powershell -ExecutionPolicy Bypass -File Collect-TTMLogs.ps1 [-Days 14] [-OutputPath <folder>] [-NoOpen]
+# The website also offers it as Collect-TTMLogs.cmd for a double-click (built by build/Build-Website.ps1).
 param(
     [int]$Days = 14,
     [string]$OutputPath = [Environment]::GetFolderPath('Desktop'),
