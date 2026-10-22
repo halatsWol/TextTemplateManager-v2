@@ -143,7 +143,7 @@ jobs:
           Write-Host '----- Store "What''s new" -----'; Get-Content dist/store-notes.txt
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: TextTemplateManager-${{ steps.ver.outputs.version }}
           path: |
@@ -152,7 +152,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload the Store submission files
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: store-submission
           path: |
@@ -183,7 +183,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         with:
           name: store-submission
           path: store
@@ -199,7 +199,7 @@ jobs:
 
       # Pinned: the command below follows this version's syntax (publish takes the package file).
       - name: Set up the Microsoft Store Developer CLI
-        uses: microsoft/microsoft-store-apppublisher@v1.1
+        uses: microsoft/microsoft-store-apppublisher@v1.4
         with:
           version: v0.4.3
 
