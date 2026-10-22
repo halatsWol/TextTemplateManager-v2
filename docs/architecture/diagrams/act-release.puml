@@ -12,6 +12,8 @@ elseif (workflow_dispatch with\n"Commit the pending Store submission"?) then (ye
   |store-commit (environment store-release)|
   :manual approval;
   :Store-Api.ps1 -Check -Commit\n(certification follows);
+  |publish-when-live|
+  :start publish-when-live.yml\n(newest draft release);
   stop
 endif
 |package (windows-latest)|
@@ -26,7 +28,7 @@ endif
 :build/Release-Notes.ps1\n-> GitHub notes (release.md + generated changelog),\n   Store "What's new" (store.md, <= 1500 chars or fail);
 :upload artifacts;
 if (tag?) then (yes)
-  :gh release create --draft (PDFs only, no .exe;\npublished by hand);
+  :gh release create --draft (PDFs only, no .exe);
   |microsoft-store (environment store-release)|
   if (draft or store?) then (yes)
     :manual approval;
@@ -36,6 +38,9 @@ if (tag?) then (yes)
     :Store-Api.ps1 -ReleaseNotesFile\n(What's new in every listing, REST);
     if (store?) then (yes)
       :Store-Api.ps1 -Commit\n(certification follows);
+      |publish-when-live|
+      :start publish-when-live.yml;
+      :every 10 min: version live in the\nStore catalog? then publish the release\n(5.5 h per run, next run, up to 7 days);
     else (draft)
       :left uncommitted: commit with the manual run\n(Partner Center shows the package only after it);
     endif

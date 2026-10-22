@@ -13,8 +13,9 @@ How a release is published, and how to renew the Partner Center credentials the 
    git tag -a v2.0.1 -m 'v2.0.1'
    git push origin v2.0.1
    ```
-4. [`.github/workflows/release.yml`](../.github/workflows/release.yml) runs the tests, builds the x64 Store package (`.msixupload`) and both manuals, and creates the GitHub release as a **draft** with the manuals attached (no installers, never an `.exe`). Read the notes under **Releases** and click **Publish release**; nothing is public before that.
+4. [`.github/workflows/release.yml`](../.github/workflows/release.yml) runs the tests, builds the x64 Store package (`.msixupload`) and both manuals, and creates the GitHub release as a **draft** with the manuals attached (no installers, never an `.exe`). Read the notes under **Releases**; nothing is public before the version is live in the Store (step 6), and you can still fix them until then.
 5. The `microsoft-store` job then waits for the **`store-release`** environment. Approve it under **Actions ▸ the run ▸ Review deployments**; it checks the access to the app, uploads the package to a new Store submission, sets "What's new" for every listing language, and commits the submission (with `publish: draft` it stops before the commit, see below). Certification takes hours to days; the job doesn't wait for it.
+6. The `publish-when-live` job then starts [`publish-when-live.yml`](../.github/workflows/publish-when-live.yml): it checks the Store's public catalog every 10 minutes and publishes the draft GitHub release as soon as that version (or a newer one) is live there. A job may run 6 hours at most, so each run waits about 5.5 hours and then starts the next one, for up to 7 days; after that the release stays a draft with a warning in the run's summary. With `publish: draft` the manual commit run starts it instead. To publish earlier, click **Publish release** under **Releases**; the watcher then stops by itself.
 
 Rules:
 
@@ -39,6 +40,10 @@ git tag -a v2.2.0 -m 'v2.2.0' -m 'publish: draft'
 Use `publish: draft` after changing the `microsoft-store` job.
 
 Partner Center shows a package uploaded through the API only after the commit: until then the draft there still lists the previous package, and **Submit** in Partner Center would send that one again. So don't submit an API draft in Partner Center. **Actions ▸ Release ▸ Run workflow** with **Check Store access** lists the pending submission's packages (the new one as `PendingUpload`, the old one as `PendingDelete`); **Commit the pending Store submission** commits it after the `store-release` approval, and certification starts.
+
+### Publishing the GitHub release by hand
+
+**Actions ▸ Publish release when live ▸ Run workflow** starts the watcher again, for example after it gave up or was cancelled: **tag** names the draft release (empty: the newest draft), **give_up_at** the end (empty: 7 days from now). It needs no secrets and no approval; `build/Publish-WhenLive.ps1 -Tag vX.Y.Z -DryRun` shows locally what it would do.
 
 ### Checking the Store access
 

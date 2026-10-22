@@ -3,7 +3,7 @@ name: Release
 # Tests, then the x64 Store package and the manuals; on a version tag also the GitHub release and the Store submission.
 #
 #   - Push an annotated tag like v2.0.1 -> build, create a draft GitHub release (manuals, notes from release.md), then
-#     submit the package to the Microsoft Store.
+#     submit the package to the Microsoft Store; publish-when-live.yml publishes the release once the Store has it live.
 #   - Run manually (workflow_dispatch) -> build and upload the files as artifacts ONLY (never publishes), or, with
 #     "Check Store access", only sign in to Partner Center and read the app (no build, nothing submitted), or, with
 #     "Commit the pending Store submission", commit a submission left by "publish: draft".
@@ -64,6 +64,18 @@ jobs:
           MSSTORE_CLIENT_ID: ${{ secrets.MSSTORE_CLIENT_ID }}
           MSSTORE_CLIENT_SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
         run: ./build/Store-Api.ps1 -AppId 9NMBSZLLLN6V -Check -Commit
+
+  # After a committed submission: the watcher publishes the newest draft GitHub release once its version is live.
+  publish-when-live-after-commit:
+    needs: store-commit
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Start the watcher
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run publish-when-live.yml --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_REF_NAME"
 
   package:
     if: github.event_name != 'workflow_dispatch' || !(inputs.check_store_access || inputs.commit_store_submission)
@@ -148,8 +160,8 @@ jobs:
             dist/store-notes.txt
           if-no-files-found: error
 
-      # A draft, published by hand after reading the notes; 2.x is updated through the Store, nothing reads these
-      # releases for updates. Only the manuals are attached; no installers, never an .exe.
+      # A draft, published once the Store has the version live (publish-when-live.yml); 2.x is updated through the
+      # Store, nothing reads these releases for updates. Only the manuals are attached; no installers, never an .exe.
       - name: GitHub release
         if: startsWith(github.ref, 'refs/tags/')
         shell: pwsh
@@ -237,6 +249,19 @@ jobs:
         if: needs.package.outputs.store_mode == 'draft'
         shell: pwsh
         run: |
-          $text = "The submission is uploaded but not committed (publish: draft). Partner Center shows the new package only after the commit, so don't use Submit there: commit with Actions > Release > Run workflow > 'Commit the pending Store submission'."
+          $text = "The submission is uploaded but not committed (publish: draft). Partner Center shows the new package only after the commit, so don't use Submit there: commit with Actions > Release > Run workflow > 'Commit the pending Store submission'. That run also starts the watcher that publishes the GitHub release."
           Write-Host $text
           "### Store submission left as a draft`n`n$text" >> $env:GITHUB_STEP_SUMMARY
+
+  # The draft GitHub release goes public once the Store has the version live; the watcher waits for that (up to 7 days).
+  publish-when-live:
+    needs: [package, microsoft-store]
+    if: needs.package.outputs.store_mode == 'store'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Start the watcher
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run publish-when-live.yml --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_REF_NAME" -f tag="$GITHUB_REF_NAME"

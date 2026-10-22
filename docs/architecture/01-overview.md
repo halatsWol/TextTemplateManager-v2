@@ -36,7 +36,7 @@ TextTemplateManager stores reusable text templates (rich text as HTML) in a tree
 | `build/` | Release build and release-notes scripts |
 | `design/logo/` | The logo as SVG and the script that renders the icon and tile assets from it |
 | `design/store/` | Store listing images: Photoshop scripts and templates, window captures, the rendered PNGs |
-| `.github/workflows/release.yml` | Release workflow (see [11](11-platform-build-release.md)) |
+| `.github/workflows/release.yml`, `publish-when-live.yml` | Release workflow, and publishing the GitHub release once the Store has the version live (see [11](11-platform-build-release.md)) |
 | `.github/workflows/tests.yml`, `codeql.yml`, `.github/dependabot.yml` | Tests on pushes and pull requests, code scanning, dependency updates (see [11](11-platform-build-release.md)) |
 
 ## Layers

@@ -1,0 +1,64 @@
+name: Publish release when live
+
+# Publishes the draft GitHub release once its version is live in the Microsoft Store (the Store's public catalog, no
+# secrets). Started by the Release workflow after the Store submission is committed; can also be run by hand.
+# A job may run 6 hours at most and certification often takes longer, so each run checks every 10 minutes for about
+# 5.5 hours, then starts the next run, until the version is live or 7 days after the first run. See docs/PUBLISHING.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Draft release to publish (vX.Y.Z); empty: the newest draft release"
+        default: ""
+      give_up_at:
+        description: "Stop watching at this time (UTC, ISO 8601); empty: 7 days from now"
+        default: ""
+
+permissions:
+  contents: write   # publish the release
+  actions: write    # start the next run
+
+concurrency:
+  group: publish-when-live-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Wait for the version in the Store, then publish
+        id: watch
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_TAG: ${{ inputs.tag }}
+          INPUT_GIVE_UP_AT: ${{ inputs.give_up_at }}
+        run: |
+          $giveUp = if ($env:INPUT_GIVE_UP_AT) { [datetime]::Parse($env:INPUT_GIVE_UP_AT, [cultureinfo]::InvariantCulture, 'AdjustToUniversal') }
+                    else { [datetime]::UtcNow.AddDays(7) }
+          "give_up_at=$($giveUp.ToString('o'))" >> $env:GITHUB_OUTPUT
+          $until = [datetime]::UtcNow.AddMinutes(330)
+          if ($giveUp -lt $until) { $until = $giveUp }
+          ./build/Publish-WhenLive.ps1 -Tag $env:INPUT_TAG -Until $until
+
+      - name: Start the next run
+        if: steps.watch.outputs.result == 'waiting'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.watch.outputs.tag }}
+          GIVE_UP_AT: ${{ steps.watch.outputs.give_up_at }}
+        run: |
+          if ([datetime]::UtcNow -ge [datetime]::Parse($env:GIVE_UP_AT, [cultureinfo]::InvariantCulture, 'AdjustToUniversal')) {
+            $text = "$env:TAG isn't live in the Microsoft Store after 7 days; the release stays a draft. Publish it by hand, or run this workflow again."
+            Write-Host "::warning::$text"
+            "### Gave up waiting`n`n$text" >> $env:GITHUB_STEP_SUMMARY
+            exit 0
+          }
+          gh workflow run publish-when-live.yml --ref $env:GITHUB_REF_NAME -f tag=$env:TAG -f give_up_at=$env:GIVE_UP_AT
+          if ($LASTEXITCODE -ne 0) { throw 'starting the next run failed' }
+          "Still waiting for $env:TAG; the next run continues (until $env:GIVE_UP_AT)." >> $env:GITHUB_STEP_SUMMARY
