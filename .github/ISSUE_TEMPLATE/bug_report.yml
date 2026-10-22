@@ -1,0 +1,85 @@
+name: Problem report
+description: Something doesn't work as it should.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. The more exactly you describe what happened, the faster it can be found and fixed.
+        Issues are public: don't post templates, passwords or other private text.
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Help ▸ About in the app.
+      placeholder: "2.3.5"
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      description: Windows Settings ▸ System ▸ About, for example "Windows 11 24H2".
+    validations:
+      required: true
+  - type: dropdown
+    id: managed
+    attributes:
+      label: Company PC
+      description: Does your organization manage updates or the Microsoft Store on this PC?
+      options:
+        - "No"
+        - "Yes"
+        - I don't know
+    validations:
+      required: true
+  - type: input
+    id: when
+    attributes:
+      label: When did it happen?
+      description: Date and time, as exactly as you know them, with your time zone. The logs are sorted by time.
+      placeholder: "2026-10-22 around 14:30 CEST"
+    validations:
+      required: true
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: How often?
+      options:
+        - Every time
+        - Sometimes
+        - Once
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: What did you do right before?
+      description: "Step by step, up to the problem: which window, menu, button or hotkey, which template, the app you pasted into."
+      placeholder: |
+        1. In Outlook, opened Quick Paste with the hotkey
+        2. Typed 'sig'
+        3. Pressed Enter
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead?
+      description: Include the exact text of any message and error codes such as 0x80244007. Screenshots help; drag them in here.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: >
+        For problems with installing, updating or starting the app, or when it closes unexpectedly: drag the .zip from the
+        log collector in here (https://software.kmarflow.com/TextTemplateManager-v2/help/#collecting-the-logs). It replaces
+        your user name and computer name, but it's public here; have a look at it first.

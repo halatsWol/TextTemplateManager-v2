@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Help & troubleshooting
+    url: https://software.kmarflow.com/TextTemplateManager-v2/help/
+    about: Answers to common questions, and the log collector for install and update problems.
+  - name: Report by e-mail
+    url: https://software.kmarflow.com/TextTemplateManager-v2/help/#reporting-a-problem
+    about: Prefer not to post publicly? Write to contact@kmarflow.com.

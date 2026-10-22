@@ -50,7 +50,11 @@ Windows **Settings ▸ Apps ▸ Installed apps ▸ TextTemplateManager ▸ …**
 
 ## Reporting a problem
 
-Write to `contact@kmarflow.com`, or open an issue on [GitHub](https://github.com/halatsWol/TextTemplateManager-v2/issues). The more exactly you describe what happened, the faster it can be found and fixed:
+Report it by e-mail to [contact@kmarflow.com](mailto:contact@kmarflow.com) or as an issue on GitHub. Both buttons open a form with the questions below; GitHub issues are public, so don't post private text there.
+
+[:material-email-outline: Report by e-mail][mail-problem]{ .md-button .md-button--primary } [:fontawesome-brands-github: Report on GitHub](https://github.com/halatsWol/TextTemplateManager-v2/issues/new?template=bug_report.yml){ .md-button }
+
+The more exactly you describe what happened, the faster it can be found and fixed:
 
 - **When it happened**: the date and time, as exactly as you know them, and whether it happens every time, sometimes or happened once. The logs are sorted by time, so this is how the right entries are found.
 - **What you did**, step by step, up to the problem: which window, menu, button or hotkey, which template, and the app you pasted into. For example: "In Outlook, opened Quick Paste with the hotkey, typed 'sig', pressed Enter: nothing was pasted."
@@ -81,3 +85,12 @@ If the problem started more than 14 days ago, use the PowerShell version below w
     ```powershell
     powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\Downloads\Collect-TTMLogs.ps1" -Days 30
     ```
+
+## Suggesting a feature
+
+Ideas are welcome, by e-mail or on GitHub. Both buttons open a form that asks what you'd like to get done, how you do it today, and how it could work.
+
+[:material-email-outline: Suggest by e-mail][mail-feature]{ .md-button .md-button--primary } [:fontawesome-brands-github: Suggest on GitHub](https://github.com/halatsWol/TextTemplateManager-v2/issues/new?template=feature_request.yml){ .md-button }
+
+[mail-problem]: mailto:contact@kmarflow.com?subject=TextTemplateManager%3A%20problem%20report&body=App%20version%20%28Help%20%3E%20About%29%3A%0D%0AWindows%20version%3A%0D%0ACompany%20PC%20that%20manages%20updates%20or%20the%20Microsoft%20Store%20%28yes%20%2F%20no%20%2F%20don%27t%20know%29%3A%0D%0A%0D%0AWhen%20did%20it%20happen%20%28date%2C%20time%2C%20time%20zone%29%3F%0D%0A%0D%0AHow%20often%20%28every%20time%20%2F%20sometimes%20%2F%20once%29%3F%0D%0A%0D%0AWhat%20did%20you%20do%20right%20before%2C%20step%20by%20step%3F%0D%0A1.%0D%0A2.%0D%0A3.%0D%0A%0D%0AWhat%20did%20you%20expect%3F%0D%0A%0D%0AWhat%20happened%20instead%20%28exact%20message%20text%2C%20error%20code%29%3F%0D%0A%0D%0APlease%20attach%20screenshots%20and%2C%20for%20install%2C%20update%20or%20start%20problems%2C%20the%20.zip%20from%20the%20log%20collector%3A%0D%0Ahttps%3A%2F%2Fsoftware.kmarflow.com%2FTextTemplateManager-v2%2Fhelp%2F%23collecting-the-logs%0D%0A
+[mail-feature]: mailto:contact@kmarflow.com?subject=TextTemplateManager%3A%20feature%20request&body=What%20would%20you%20like%20to%20do%20that%20the%20app%20doesn%27t%20support%20today%2C%20or%20makes%20hard%3F%0D%0A%0D%0AHow%20do%20you%20do%20it%20today%20%28workaround%29%3F%0D%0A%0D%0AHow%20could%20it%20work%20%28idea%2C%20example%2C%20how%20another%20app%20does%20it%29%3F%0D%0A%0D%0AHow%20often%20would%20you%20use%20it%20%28several%20times%20a%20day%20%2F%20daily%20%2F%20weekly%20%2F%20rarely%29%3F%0D%0A%0D%0AApp%20version%20%28Help%20%3E%20About%29%3A%0D%0A
