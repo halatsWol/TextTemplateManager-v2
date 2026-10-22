@@ -12,11 +12,18 @@ Coming from TextTemplateManager 1: your templates and settings are backed up at 
 
 ### What's new in this release
 
-Update errors that say where they came from.
+Updates that download on their own, also where automatic Store updates are turned off.
+
+#### Fixed
+
+- **Check for updates didn't download an update it had already found** when you clicked it within 30 minutes of the last check; it now downloads it right away.
+- **The tray menu showed Restart to update without an update ready**, and clicking it did nothing. It now appears only with an update ready.
+- **A download that failed once said the Store couldn't download the update at all** and pointed to Windows Update. It now shows the error with **Try again**, which downloads again straight away.
 
 #### Improved
 
-- **Update errors show their code and source** (for example *Microsoft Store, error 0x80244007*) instead of a technical message; `update.log` keeps the full error message.
+- **Settings ▸ General ▸ Updates has the update's next step itself**: its button becomes **Download**, **Try again** or **Restart to update**, so you don't need to go back to the main window.
+- **Automatic updates also download where automatic Store updates are turned off**, with **Check for and download updates automatically** on (unless your organization doesn't allow it). Until now you had to click **Download**.
 
 {{CHANGELOG}}
 

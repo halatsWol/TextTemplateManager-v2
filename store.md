@@ -112,9 +112,12 @@ Copyright © 2026 Marflow Software
 This block is the Store's "What's new" (Microsoft asks for it on updates only; it stayed empty for 2.0.0). It lists only what changed since the previous release; keep it in step with `release.md`.
 
 ```text
-Update errors that say where they came from.
+Updates that download on their own, also where automatic Store updates are turned off.
 
-- Improved: update errors show their code and source (for example Microsoft Store, error 0x80244007); the update log keeps the full message.
+- Fixed: Check for updates now downloads an update it already found, also within 30 minutes of the last check.
+- Fixed: a download that failed once now shows the error with Try again.
+- Improved: automatic updates also download where automatic Store updates are turned off.
+- Improved: Settings > General > Updates offers Download, Try again and Restart to update itself.
 ```
 
 ---
