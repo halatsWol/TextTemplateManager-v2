@@ -36,8 +36,8 @@ public static class SupportLinks
 
         What happened instead (exact message text, error code)?
 
-        Please attach screenshots and, for install, update or start problems, the .zip from the log collector:
-        {LogCollectorUrl}
+        Please attach screenshots and, for install, update or start problems, the logs: Settings > Support > Export logs
+        (if the app doesn't start: {LogCollectorUrl}).
         """);
 
     public static string FeatureMail(string appVersion) => Mail("feature request",

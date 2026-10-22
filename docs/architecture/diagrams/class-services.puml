@@ -66,6 +66,20 @@ package "Services.Platform" {
   }
   IConnectorDataSource <|.. AppConnectorData
   BrowserConnector --> IConnectorDataSource
+  class LogExport <<static>> {
+    +Export(zipPath, dataDirectory, events, redactor, now)
+    +SelectAppEvents(events)  (app + same ActivityId)
+  }
+  interface IEventLogSource {
+    +Read(log, since, providers)
+  }
+  class WindowsEventLogSource
+  class Redactor {
+    +Apply(text)  (profile, SIDs, user, computer)
+  }
+  IEventLogSource <|.. WindowsEventLogSource
+  LogExport ..> IEventLogSource : Store, AppX, Application
+  LogExport ..> Redactor
 }
 
 package "Services.Pasting" {

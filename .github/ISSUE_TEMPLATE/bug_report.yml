@@ -80,6 +80,7 @@ body:
     attributes:
       label: Logs
       description: >
-        For problems with installing, updating or starting the app, or when it closes unexpectedly: drag the .zip from the
-        log collector in here (https://software.kmarflow.com/TextTemplateManager-v2/help/#collecting-the-logs). It replaces
-        your user name and computer name, but it's public here; have a look at it first.
+        For problems with installing, updating or starting the app, or when it closes unexpectedly: drag the .zip from
+        Settings ▸ Support ▸ Export logs in here, or, if the app doesn't start, the one from the log collector
+        (https://software.kmarflow.com/TextTemplateManager-v2/help/#collecting-the-logs). It replaces your user name and
+        computer name, but it's public here; have a look at it first.

@@ -14,6 +14,24 @@
             <HyperlinkButton x:Name="HelpLink" Content="Help &amp; troubleshooting" Padding="0"/>
         </StackPanel>
 
+        <StackPanel Spacing="8">
+            <TextBlock Text="Logs" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       Text="For problems with installing, updating or starting the app, attach the logs to your report: the app's update and crash logs, the installed version and update policies, and the last 14 days of Microsoft Store, app installation and app error events about TextTemplateManager. Your templates, settings and sync files aren't included; your user name, computer name and account ID are replaced. Every file in the .zip is plain text, so you can read it before you send it."/>
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Button x:Name="ExportLogsButton" Content="Export logs…" Click="ExportLogs_Click"/>
+                <ProgressRing x:Name="ExportLogsProgress" IsActive="False" Width="20" Height="20"/>
+                <TextBlock x:Name="ExportLogsStatus" VerticalAlignment="Center" Visibility="Collapsed"
+                           Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                           Text="Reading the event logs; this can take a minute."/>
+            </StackPanel>
+            <InfoBar x:Name="ExportLogsInfo" IsOpen="False" IsClosable="True">
+                <InfoBar.ActionButton>
+                    <Button x:Name="ShowLogsButton" Content="Show in folder" Click="ShowLogs_Click"/>
+                </InfoBar.ActionButton>
+            </InfoBar>
+        </StackPanel>
+
         <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
 
         <StackPanel Spacing="8">

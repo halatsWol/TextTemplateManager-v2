@@ -392,7 +392,11 @@ is already running.)
 
 ### Support
 
-**Help & troubleshooting** opens the website's answers to common questions. The other sections show how to reach the developer: **Report a problem**, **Suggest a feature** and **Report a security vulnerability**, each by e-mail or on GitHub. The e-mail buttons open your mail app with the questions already in the message, and the app and Windows version filled in; they also copy the address to the clipboard, in case no mail app opens. GitHub needs a GitHub account, and issues there are public; security vulnerabilities are always reported privately (see *Support*).
+**Help & troubleshooting** opens the website's answers to common questions.
+
+**Export logs…** saves the logs for a problem report as one `.zip` file wherever you choose: the app's update and crash logs, the installed version and update policies, and the last 14 days of Microsoft Store, app installation and app error events about TextTemplateManager. Reading the event logs can take a minute. Your templates, settings and sync files aren't included, and your user name, computer name and account ID are replaced; every file in it is plain text, so you can read it before you send it. Attach it when you report a problem with installing, updating or starting the app. If the app doesn't start at all, the log collector on the website's **Help & troubleshooting** page collects the same.
+
+The other sections show how to reach the developer: **Report a problem**, **Suggest a feature** and **Report a security vulnerability**, each by e-mail or on GitHub. The e-mail buttons open your mail app with the questions already in the message, and the app and Windows version filled in; they also copy the address to the clipboard, in case no mail app opens. GitHub needs a GitHub account, and issues there are public; security vulnerabilities are always reported privately (see *Support*).
 
 ---
 
@@ -536,6 +540,6 @@ Neither touches the backups in `Documents\TextTemplateManager\Backups` or your s
 ## Support
 
 For questions, permission requests, or to report an issue, contact 
-[contact@kmarflow.com](mailto:contact@kmarflow.com), or open the website with **Help ▸ Go to website** ([software.kmarflow.com/TextTemplateManager-v2](https://software.kmarflow.com/TextTemplateManager-v2/)): its **Help & troubleshooting** page answers common questions and has forms for problem reports and feature requests, by e-mail or on GitHub. **Settings ▸ Support** has the same buttons in the app, with the app and Windows version already filled in.
+[contact@kmarflow.com](mailto:contact@kmarflow.com), or open the website with **Help ▸ Go to website** ([software.kmarflow.com/TextTemplateManager-v2](https://software.kmarflow.com/TextTemplateManager-v2/)): its **Help & troubleshooting** page answers common questions and has forms for problem reports and feature requests, by e-mail or on GitHub. **Settings ▸ Support** has the same buttons in the app, with the app and Windows version already filled in, and **Export logs…** for the logs to attach.
 
 To report a security vulnerability, please don't open a public issue: write to [contact@kmarflow.com](mailto:contact@kmarflow.com), or, with a GitHub account, open the **Security** tab on the project's GitHub page and choose **Report a vulnerability**. Only the developer sees the report until a fix is out.

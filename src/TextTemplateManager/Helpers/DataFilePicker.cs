@@ -42,4 +42,14 @@ public static class DataFilePicker
         picker.SuggestedFileName = suggestedName;
         return (await picker.PickSaveFileAsync())?.Path;
     }
+
+    public static async Task<string?> PickLogsToSaveAsync(IntPtr owner, string suggestedName)
+    {
+        var picker = new FileSavePicker();
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, owner);
+        picker.SuggestedStartLocation = PickerLocationId.Desktop;
+        picker.FileTypeChoices.Add("Logs for a problem report", new List<string> { ".zip" });
+        picker.SuggestedFileName = suggestedName;
+        return (await picker.PickSaveFileAsync())?.Path;
+    }
 }

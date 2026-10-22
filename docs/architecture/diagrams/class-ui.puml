@@ -144,4 +144,6 @@ class DataNode <<Data>>
 MainViewModel --> DataNode
 PasteWindow --> DataNode
 SettingsView --> DataNode
+class LogExport <<Services.Platform>>
+SupportSettingsPage ..> LogExport : Export logs
 @enduml

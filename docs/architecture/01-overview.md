@@ -24,7 +24,7 @@ TextTemplateManager stores reusable text templates (rich text as HTML) in a tree
 | `  ViewModels/` | `MainViewModel`, `TreeNode`, `ItemDraft`, `MultiSelection`, `ConflictReport`, `QuickPasteController`, `ShortcutRow` |
 | `  Models/` | Items, settings, sync settings, `SyncEngine`, `ShortcutValidator`, `TemplateSearch`, tree helpers |
 | `  Data/` | `DataNode` (the store), `StorageService` (file IO), backups and restore |
-| `  Services/Platform/` | Environment (packaged or dev), hotkey, tray, browser connector, TextTemplateManager 1 handling, error handler |
+| `  Services/Platform/` | Environment (packaged or dev), hotkey, tray, browser connector, TextTemplateManager 1 handling, error handler, log export |
 | `  Services/Pasting/` | `PasteService` (clipboard and `Ctrl+V`) |
 | `  Services/Updates/` | The in-app updater: `UpdateService`, Store and test sources, package switch, update policy (see [13](13-updates.md)) |
 | `  Helpers/` | HTML conversions (RTF, Markdown, panels, sanitizer), template variables, Win32 window helpers, converters |

@@ -75,7 +75,7 @@ public sealed partial class SettingsView : UserControl
                     new BackupsSettingsPage.Parameters(new BackupService(store.Storage), parameter as BackupsSettingsPage.Request));
                 break;
             case SettingsPage.Support:
-                PageFrame.Navigate(typeof(SupportSettingsPage));
+                PageFrame.Navigate(typeof(SupportSettingsPage), store.Storage.DataDirectory);
                 break;
         }
     }

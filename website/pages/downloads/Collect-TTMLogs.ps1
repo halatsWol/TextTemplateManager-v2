@@ -39,7 +39,7 @@ function Save-Text([string]$FileName, $Content) {
 }
 
 function Format-Event($Record) {
-    $message = if ($Record.Message) { ($Record.Message -replace '\s*\r?\n\s*', ' | ').Trim() } else { "(no message, provider $($Record.ProviderName))" }
+    $message = if ($Record.Message) { $Record.Message.Trim() -replace '\s*\r?\n\s*', ' | ' } else { "(no message, provider $($Record.ProviderName))" }
     '{0:yyyy-MM-dd HH:mm:ss.fff}  {1,-11} {2,5}  {3}' -f $Record.TimeCreated, $Record.LevelDisplayName, $Record.Id, $message
 }
 
