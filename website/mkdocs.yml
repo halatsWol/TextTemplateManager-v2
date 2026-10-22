@@ -19,7 +19,7 @@ validation:
     anchors: warn
 
 nav:
-  - Home: index.md
+  - Overview: index.md
   - User manual: manual.md
   - Administrator guide: admin.md
   - Help & troubleshooting: help.md

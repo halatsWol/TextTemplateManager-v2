@@ -67,6 +67,17 @@
 .md-tabs__link--active, .md-tabs__item--active .md-tabs__link { color: #ffffff; }
 .md-tabs__item--active .md-tabs__link { box-shadow: inset 0 -3px 0 var(--ttm-orange); }
 .md-header__button.md-logo img { height: 1.6rem; border-radius: 6px; }
+/* "Marflow Software ›" before the title: the way back to the landing page (overrides/partials/header.html). */
+.md-header .ttm-crumb {
+  flex: none;
+  margin-left: 0.6rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.72);
+  white-space: nowrap;
+}
+.md-header .ttm-crumb:hover, .md-header .ttm-crumb:focus { color: var(--ttm-orange); }
+.md-header .ttm-crumb__sep { flex: none; margin: 0 0 0 0.4rem; font-size: 0.9rem; color: rgba(255, 255, 255, 0.5); }
+.md-header .ttm-crumb__sep + .md-header__title { margin-left: 0.4rem; }
 .md-search__form { background-color: rgba(255, 255, 255, 0.12); border-radius: 6px; }
 
 /* Headings: the Store art's orange underline under page titles. */
@@ -246,5 +257,6 @@
 @media screen and (max-width: 44.9375em) {
   .ttm-hero__title { font-size: 1.8rem; }
   .ttm-hero__lead { font-size: 0.95rem; }
+  .md-header .ttm-crumb__long { display: none; }
   .ttm-features, .ttm-gallery, .ttm-docs { grid-template-columns: 1fr; }
 }
