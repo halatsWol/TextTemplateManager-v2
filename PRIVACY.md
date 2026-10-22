@@ -6,6 +6,8 @@ Your templates, settings and backups are stored only on your PC: the app's data 
 
 The app sends no telemetry or usage data and makes no internet connections of its own, except asking the Microsoft Store, through Windows, for updates to TextTemplateManager itself (Settings > General > Updates; an organization can turn this off). The optional browser connector listens only on this PC (localhost), is protected by a pairing token, and only answers the TTM-Connect browser extension you pair it with.
 
-Links in the app (manual, website, browser extension stores) open in your browser.
+Settings > Support > Export logs saves the app's logs and the Windows events about it as a `.zip` file where you choose, for you to attach to a problem report; the app doesn't send it anywhere. Your user name and computer name are replaced in it.
 
-Questions: Marflow Software, [GitHub issues](https://github.com/halatsWol/TextTemplateManager-v2/issues)
+Links in the app (manual, website, browser extension stores, e-mail) open in your browser or mail app.
+
+Questions: Marflow Software, [contact@kmarflow.com](mailto:contact@kmarflow.com), [software.kmarflow.com/TextTemplateManager-v2](https://software.kmarflow.com/TextTemplateManager-v2/)

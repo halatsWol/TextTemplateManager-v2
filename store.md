@@ -112,12 +112,11 @@ Copyright © 2026 Marflow Software
 This block is the Store's "What's new" (Microsoft asks for it on updates only; it stayed empty for 2.0.0). It lists only what changed since the previous release; keep it in step with `release.md`.
 
 ```text
-Updates that download on their own, also where automatic Store updates are turned off.
+Help and problem reports in the app, and a website for TextTemplateManager.
 
-- Fixed: Check for updates now downloads an update it already found, also within 30 minutes of the last check.
-- Fixed: a download that failed once now shows the error with Try again.
-- Improved: automatic updates also download where automatic Store updates are turned off.
-- Improved: Settings > General > Updates offers Download, Try again and Restart to update itself.
+- New: Settings > Support: help from the website, and how to report a problem, suggest a feature or report a security vulnerability, by e-mail (questions and versions already filled in) or on GitHub.
+- New: Export logs (Settings > Support) saves the logs for a problem report as one .zip file. Your templates and settings aren't included; your user and computer name are replaced.
+- Improved: Help > Go to website and Help > About open the new website, software.kmarflow.com/TextTemplateManager-v2, with the manuals and help & troubleshooting.
 ```
 
 ---
@@ -130,10 +129,10 @@ Updates that download on their own, also where automatic Store updates are turne
 
 ### Privacy policy
 
-Partner Center requires a URL, because the package declares restricted capabilities (`runFullTrust`). The policy is [`PRIVACY.md`](PRIVACY.md) in this repository; keep it and the text below in step.
+Partner Center requires a URL, because the package declares restricted capabilities (`runFullTrust`). The policy is [`PRIVACY.md`](PRIVACY.md) in this repository, published on the website (its Privacy page); keep it and the text below in step.
 
 ```text
-https://github.com/halatsWol/TextTemplateManager-v2/blob/main/PRIVACY.md
+https://software.kmarflow.com/TextTemplateManager-v2/privacy/
 ```
 
 The policy text:
@@ -145,15 +144,17 @@ Your templates, settings and backups are stored only on your PC: the app's data 
 
 The app sends no telemetry or usage data and makes no internet connections of its own, except asking the Microsoft Store, through Windows, for updates to TextTemplateManager itself (Settings > General > Updates; an organization can turn this off). The optional browser connector listens only on this PC (localhost), is protected by a pairing token, and only answers the TTM-Connect browser extension you pair it with.
 
-Links in the app (manual, website, browser extension stores) open in your browser.
+Settings > Support > Export logs saves the app's logs and the Windows events about it as a .zip file where you choose, for you to attach to a problem report; the app doesn't send it anywhere. Your user name and computer name are replaced in it.
 
-Questions: Marflow Software, https://github.com/halatsWol/TextTemplateManager-v2/issues
+Links in the app (manual, website, browser extension stores, e-mail) open in your browser or mail app.
+
+Questions: Marflow Software, contact@kmarflow.com, https://software.kmarflow.com/TextTemplateManager-v2/
 ```
 
 ### Support info
 
-- **Website:** https://github.com/halatsWol/TextTemplateManager-v2
-- **Support contact info:** https://github.com/halatsWol/TextTemplateManager-v2/issues
+- **Website:** https://software.kmarflow.com/TextTemplateManager-v2/
+- **Support contact info:** contact@kmarflow.com
 
 ---
 
@@ -172,7 +173,7 @@ Suggested answers; the decisions are yours.
 Update the date with each submission.
 
 ```text
-Notes from 2026-10-17. Thank you for testing TextTemplateManager.
+Notes from 2026-10-22. Thank you for testing TextTemplateManager.
 
 No account, sign-in, service or internet connection is needed; everything runs and is stored locally.
 
@@ -188,7 +189,8 @@ Quick Paste (the main feature)
 Things that may not be obvious
 - Closing the main window keeps the app running in the system tray (notification area), so the hotkey keeps working. Quit with File > Exit or the tray icon's menu.
 - The app registers a startup task: it starts with Windows, hidden in the tray. Windows Settings > Apps > Startup turns it off.
-- Settings: File > Settings (General, Integrations, Sync, Backups).
+- Settings: File > Settings (General, Integrations, Sync, Backups, Support).
+- Settings > Support > Export logs reads the app's own log files and the Microsoft Store, app installation and application error event logs (no admin rights needed) and saves them as a .zip where the user chooses; nothing is sent. The e-mail buttons there open the default mail app with a prefilled message; the GitHub buttons open the browser.
 - Sharing templates: Settings > Sync > Create makes a shared .ttmdata file in a folder of your choice; it appears as a pinned folder in the tree.
 - Backups are written to Documents\TextTemplateManager\Backups; Settings > Backups restores them.
 - The browser connector (Settings > Integrations) is off by default. It listens only on localhost and is used by our separate TTM-Connect browser extension; it is not needed to test the app.

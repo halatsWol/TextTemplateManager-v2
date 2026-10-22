@@ -124,6 +124,8 @@ The Store and Windows log every step of an install or update under **Event Viewe
     Get-WinEvent -LogName $log -MaxEvents 500 |
         Where-Object Message -match 'TextTemplateManager'
 
+For a problem report, **Settings ▸ Support ▸ Export logs** in the app saves these events (the last 14 days, with the other events of the same operations), the application error events, the app's `update.log` and `crash.log`, and the update policies as one `.zip`, without admin rights; user name, computer name and SIDs are replaced. When the app doesn't start, the log collector on the website's [Help & troubleshooting](https://software.kmarflow.com/TextTemplateManager-v2/help/#collecting-the-logs) page (`Collect-TTMLogs.cmd`, or `.ps1` with `-Days`) collects the same.
+
 Codes you may meet there:
 
 | Code | Meaning |

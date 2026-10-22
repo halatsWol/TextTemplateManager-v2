@@ -12,18 +12,16 @@ Coming from TextTemplateManager 1: your templates and settings are backed up at 
 
 ### What's new in this release
 
-Updates that download on their own, also where automatic Store updates are turned off.
+Help and problem reports in the app, and a website for TextTemplateManager.
 
-#### Fixed
+#### New
 
-- **Check for updates didn't download an update it had already found** when you clicked it within 30 minutes of the last check; it now downloads it right away.
-- **The tray menu showed Restart to update without an update ready**, and clicking it did nothing. It now appears only with an update ready.
-- **A download that failed once said the Store couldn't download the update at all** and pointed to Windows Update. It now shows the error with **Try again**, which downloads again straight away.
+- **Settings ▸ Support**: help from the website, and how to report a problem, suggest a feature or report a security vulnerability, by e-mail or on GitHub. The e-mail opens in your mail app with the questions already in it and the app and Windows version filled in; GitHub needs a GitHub account.
+- **Export logs** (Settings ▸ Support) saves the logs for a problem report as one .zip file: the app's update and crash logs, the installed version and update policies, and the last 14 days of Microsoft Store, app installation and app error events about the app. Your templates and settings aren't included, and your user name and computer name are replaced.
 
 #### Improved
 
-- **Settings ▸ General ▸ Updates has the update's next step itself**: its button becomes **Download**, **Try again** or **Restart to update**, so you don't need to go back to the main window.
-- **Automatic updates also download where automatic Store updates are turned off**, with **Check for and download updates automatically** on (unless your organization doesn't allow it). Until now you had to click **Download**.
+- **Help ▸ Go to website** (was Go to GitHub) and **Help ▸ About** open the new website, [software.kmarflow.com/TextTemplateManager-v2](https://software.kmarflow.com/TextTemplateManager-v2/), with the manuals, help & troubleshooting, and a log collector for when the app doesn't start.
 
 {{CHANGELOG}}
 
@@ -46,4 +44,4 @@ Pair TextTemplateManager with the companion **TTM-Connect** extension to list an
 ---
 
 Full documentation is available in the app under **Help ▸ Open Manual**, or download **`TextTemplateManager-Manual.pdf`** from the assets below; deployment, updates under company policies and removal are in **`TextTemplateManager-AdminManual.pdf`**.
-Source: https://github.com/halatsWol/TextTemplateManager-v2
+Website, help and problem reports: https://software.kmarflow.com/TextTemplateManager-v2/ · Source: https://github.com/halatsWol/TextTemplateManager-v2
