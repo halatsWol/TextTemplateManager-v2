@@ -50,7 +50,7 @@ Windows **Settings ▸ Apps ▸ Installed apps ▸ TextTemplateManager ▸ …**
 
 ## Reporting a problem
 
-Report it by e-mail to [contact@kmarflow.com](mailto:contact@kmarflow.com) or as an issue on GitHub. Both buttons open a form with the questions below; GitHub issues are public, so don't post private text there.
+Report it by e-mail to [contact@kmarflow.com](mailto:contact@kmarflow.com), or as an issue on GitHub if you have a GitHub account. Both buttons open a form with the questions below; GitHub issues are public, so don't post private text there. For a security vulnerability, see [Reporting a security vulnerability](#reporting-a-security-vulnerability) instead.
 
 [:material-email-outline: Report by e-mail][mail-problem]{ .md-button .md-button--primary } [:fontawesome-brands-github: Report on GitHub](https://github.com/halatsWol/TextTemplateManager-v2/issues/new?template=bug_report.yml){ .md-button }
 
@@ -88,9 +88,16 @@ If the problem started more than 14 days ago, use the PowerShell version below w
 
 ## Suggesting a feature
 
-Ideas are welcome, by e-mail or on GitHub. Both buttons open a form that asks what you'd like to get done, how you do it today, and how it could work.
+Ideas are welcome, by e-mail or, with a GitHub account, on GitHub. Both buttons open a form that asks what you'd like to get done, how you do it today, and how it could work.
 
 [:material-email-outline: Suggest by e-mail][mail-feature]{ .md-button .md-button--primary } [:fontawesome-brands-github: Suggest on GitHub](https://github.com/halatsWol/TextTemplateManager-v2/issues/new?template=feature_request.yml){ .md-button }
 
+## Reporting a security vulnerability
+
+Report a vulnerability privately, never as a public issue: by e-mail (no account needed), or on GitHub with a GitHub account through the repository's private vulnerability reporting. Include the app version, what is affected and how to reproduce it. A fix ships as a Microsoft Store update; details are in the [security policy](https://github.com/halatsWol/TextTemplateManager-v2/security/policy).
+
+[:material-email-outline: Report by e-mail][mail-security]{ .md-button .md-button--primary } [:fontawesome-brands-github: Report on GitHub](https://github.com/halatsWol/TextTemplateManager-v2/security/advisories/new){ .md-button }
+
 [mail-problem]: mailto:contact@kmarflow.com?subject=TextTemplateManager%3A%20problem%20report&body=App%20version%20%28Help%20%3E%20About%29%3A%0D%0AWindows%20version%3A%0D%0ACompany%20PC%20that%20manages%20updates%20or%20the%20Microsoft%20Store%20%28yes%20%2F%20no%20%2F%20don%27t%20know%29%3A%0D%0A%0D%0AWhen%20did%20it%20happen%20%28date%2C%20time%2C%20time%20zone%29%3F%0D%0A%0D%0AHow%20often%20%28every%20time%20%2F%20sometimes%20%2F%20once%29%3F%0D%0A%0D%0AWhat%20did%20you%20do%20right%20before%2C%20step%20by%20step%3F%0D%0A1.%0D%0A2.%0D%0A3.%0D%0A%0D%0AWhat%20did%20you%20expect%3F%0D%0A%0D%0AWhat%20happened%20instead%20%28exact%20message%20text%2C%20error%20code%29%3F%0D%0A%0D%0APlease%20attach%20screenshots%20and%2C%20for%20install%2C%20update%20or%20start%20problems%2C%20the%20.zip%20from%20the%20log%20collector%3A%0D%0Ahttps%3A%2F%2Fsoftware.kmarflow.com%2FTextTemplateManager-v2%2Fhelp%2F%23collecting-the-logs%0D%0A
 [mail-feature]: mailto:contact@kmarflow.com?subject=TextTemplateManager%3A%20feature%20request&body=What%20would%20you%20like%20to%20do%20that%20the%20app%20doesn%27t%20support%20today%2C%20or%20makes%20hard%3F%0D%0A%0D%0AHow%20do%20you%20do%20it%20today%20%28workaround%29%3F%0D%0A%0D%0AHow%20could%20it%20work%20%28idea%2C%20example%2C%20how%20another%20app%20does%20it%29%3F%0D%0A%0D%0AHow%20often%20would%20you%20use%20it%20%28several%20times%20a%20day%20%2F%20daily%20%2F%20weekly%20%2F%20rarely%29%3F%0D%0A%0D%0AApp%20version%20%28Help%20%3E%20About%29%3A%0D%0A
+[mail-security]: mailto:contact@kmarflow.com?subject=TextTemplateManager%3A%20security%20vulnerability&body=App%20version%20%28Help%20%3E%20About%29%3A%0D%0AWindows%20version%3A%0D%0A%0D%0AWhat%20is%20affected%3F%0D%0A%0D%0AHow%20to%20reproduce%20it%2C%20step%20by%20step%3A%0D%0A1.%0D%0A2.%0D%0A3.%0D%0A%0D%0AWhat%20can%20an%20attacker%20do%20with%20it%3F%0D%0A
