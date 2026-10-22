@@ -9,7 +9,12 @@
       <p class="ttm-hero__lead">Keep replies, snippets, signatures and code in one place, and paste them into any Windows app, formatted to fit.</p>
       <div class="ttm-hero__actions">
         <ms-store-badge productid="9nmbszllln6v" productname="TextTemplateManager" window-mode="direct" theme="dark"
-          size="large" language="en-us" animation="on"></ms-store-badge>
+          size="large" language="en-us" animation="on">
+          <!-- HTML-only badge from microsoft/app-store-badge, shown only when the badge script doesn't run -->
+          <a href="https://apps.microsoft.com/detail/9nmbszllln6v?mode=direct">
+            <img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200" alt="Get it from Microsoft">
+          </a>
+        </ms-store-badge>
         <a class="md-button ttm-ghost" href="{{ 'manual/' | url }}">Read the manual</a>
       </div>
     </div>
