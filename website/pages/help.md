@@ -56,7 +56,10 @@ Windows **Settings ▸ Apps ▸ Installed apps ▸ TextTemplateManager ▸ …**
 
 For a problem with installing, updating or starting the app, the logs of the app, the Microsoft Store and Windows together tell the most. The log collector, a PowerShell script, gathers them into one `.zip` file that you attach to your e-mail or GitHub issue. It needs no administrator rights and changes nothing on your PC.
 
-1. Download [Collect-TTMLogs.ps1](downloads/Collect-TTMLogs.ps1){ download="Collect-TTMLogs.ps1" }. It goes to your **Downloads** folder.
+1. Download the log collector, `Collect-TTMLogs.ps1`. It goes to your **Downloads** folder.
+
+    [:material-download: Download log collector](downloads/Collect-TTMLogs.ps1){ .md-button .md-button--primary download="Collect-TTMLogs.ps1" }
+
 2. Open **Windows PowerShell** (Start menu, type `PowerShell`) and run:
 
     ```powershell
