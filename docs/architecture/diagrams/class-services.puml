@@ -96,6 +96,7 @@ package "Services.Updates" {
     +RefreshPolicyForSwitch() : bool
   }
   interface IUpdateSource {
+    +Name / DisplayName
     +CheckAsync() : UpdateOffer?
     +IsDownloadedAsync(offer) : bool
     +CanDownloadSilently : bool
@@ -122,7 +123,7 @@ package "Services.Updates" {
     +FindStaged() : Version?
     +RegisterRestart(args) / UnregisterRestart()
     +StartWatchdog(after)
-    +SwitchAsync() : string?
+    +SwitchAsync() : SwitchFailure?
   }
   class PackageSwitcher
   IPackageSwitcher <|.. PackageSwitcher

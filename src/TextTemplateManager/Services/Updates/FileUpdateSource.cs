@@ -34,6 +34,8 @@ public sealed class FileUpdateSource : IUpdateSource
 
     public string Name => "folder " + _folder;
 
+    public string DisplayName => "test folder";
+
     /// <summary>A test switch: a file "consent-only" in the folder makes the source behave like a Store under the
     /// "no automatic updates" policy.</summary>
     public bool CanDownloadSilently => !File.Exists(Path.Combine(_folder, "consent-only"));
@@ -75,7 +77,7 @@ public sealed class FileUpdateSource : IUpdateSource
         var operation = new PackageManager().StagePackageAsync(new Uri(_offerFile), null);
         var result = await operation.AsTask(cancel, new Progress<DeploymentProgress>(p => progress.Report(p.percentage / 100.0)));
         return result.ExtendedErrorCode is { } error && error.HResult != 0
-            ? new DownloadResult(DownloadOutcome.Failed, $"{result.ErrorText} (0x{error.HResult:X8})")
+            ? new DownloadResult(DownloadOutcome.Failed, $"{UpdateError.Hex(error.HResult)} {result.ErrorText?.Trim()}", UpdateError.Hex(error.HResult))
             : DownloadResult.Done;
     }
 

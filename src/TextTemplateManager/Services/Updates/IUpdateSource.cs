@@ -10,9 +10,24 @@ public sealed record UpdateOffer(Version? Version);
 
 public enum DownloadOutcome { Completed, Canceled, Blocked, Failed }
 
-public sealed record DownloadResult(DownloadOutcome Outcome, string? Detail = null)
+/// <param name="Detail">For the update log: what happened, with the original error message.</param>
+/// <param name="Code">For the user: the error code (HRESULT or the source's error state). Without one the app shows
+/// <paramref name="Detail"/>, which then is a plain reason (low battery, Wi-Fi).</param>
+public sealed record DownloadResult(DownloadOutcome Outcome, string? Detail = null, string? Code = null)
 {
     public static DownloadResult Done { get; } = new(DownloadOutcome.Completed);
+
+    public static DownloadResult From(Exception ex) => new(DownloadOutcome.Failed, UpdateError.Describe(ex), UpdateError.Code(ex));
+}
+
+/// <summary>A switch Windows didn't do: <see cref="Code"/> for the user, <see cref="Detail"/> (Windows' own text) for the log.</summary>
+public sealed record SwitchFailure(string? Code, string Detail);
+
+public static class UpdateError
+{
+    public static string Code(Exception ex) => Hex(ex.HResult);
+    public static string Hex(int hresult) => $"0x{hresult:X8}";
+    public static string Describe(Exception ex) => $"{Code(ex)} {ex.GetType().Name}: {ex.Message.Trim()}";
 }
 
 /// <summary>Where updates come from: the Microsoft Store, or for tests a folder of packages
@@ -22,6 +37,9 @@ public interface IUpdateSource
 {
     /// <summary>A short name for the update log.</summary>
     string Name { get; }
+
+    /// <summary>The name the user sees with an error ("Microsoft Store").</summary>
+    string DisplayName { get; }
 
     /// <summary>The newest version offered above the running one, or null when up to date.</summary>
     Task<UpdateOffer?> CheckAsync(CancellationToken cancel);
@@ -73,5 +91,5 @@ public interface IPackageSwitcher
 
     /// <summary>Registers the staged version; Windows closes the app for it. Returns only when the switch didn't
     /// happen (with the reason), as a running app is ended by a successful one.</summary>
-    Task<string?> SwitchAsync();
+    Task<SwitchFailure?> SwitchAsync();
 }

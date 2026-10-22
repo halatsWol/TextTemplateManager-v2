@@ -24,6 +24,8 @@ public sealed class StoreUpdateSource : IUpdateSource
 
     public string Name => "Store";
 
+    public string DisplayName => "Microsoft Store";
+
     public bool CanDownloadSilently
     {
         get
@@ -108,7 +110,9 @@ public sealed class StoreUpdateSource : IUpdateSource
                 case StoreQueueItemExtendedState.Canceled:
                     return new DownloadResult(DownloadOutcome.Canceled);
                 case StoreQueueItemExtendedState.Error:
-                    return new DownloadResult(DownloadOutcome.Failed, $"Store: 0x{status!.ExtendedError?.HResult ?? 0:X8}");
+                    return status!.ExtendedError is { } error
+                        ? new DownloadResult(DownloadOutcome.Failed, "queue item error " + UpdateError.Describe(error), UpdateError.Code(error))
+                        : new DownloadResult(DownloadOutcome.Failed, "queue item error without details", "Error");
                 case StoreQueueItemExtendedState.PausedLowBattery:
                     return new DownloadResult(DownloadOutcome.Failed, "battery too low");
                 case StoreQueueItemExtendedState.PausedWiFiRequired or StoreQueueItemExtendedState.PausedWiFiRecommended:
@@ -132,6 +136,6 @@ public sealed class StoreUpdateSource : IUpdateSource
         StorePackageUpdateState.ErrorWiFiRequired or StorePackageUpdateState.ErrorWiFiRecommended =>
             new DownloadResult(DownloadOutcome.Failed, "waiting for a Wi-Fi or unmetered connection"),
         StorePackageUpdateState.ErrorLowBattery => new DownloadResult(DownloadOutcome.Failed, "battery too low"),
-        _ => new DownloadResult(DownloadOutcome.Failed, $"Store: {result.OverallState}"),
+        _ => new DownloadResult(DownloadOutcome.Failed, $"download call ended in state {result.OverallState}", result.OverallState.ToString()),
     };
 }

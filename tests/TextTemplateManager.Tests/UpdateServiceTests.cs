@@ -22,6 +22,7 @@ public class UpdateServiceTests
         public Exception? CheckThrows;
 
         public string Name => "fake";
+        public string DisplayName => "Fake Store";
         public bool CanDownloadSilently => Silent;
 
         public Task<UpdateOffer?> CheckAsync(CancellationToken cancel) =>
@@ -59,7 +60,7 @@ public class UpdateServiceTests
     {
         public readonly HashSet<Version> Staged = [];
         public readonly List<string> Calls = [];
-        public string? SwitchProblem = "0x80073D02";
+        public SwitchFailure? SwitchProblem = new("0x80073D02", "0x80073D02 error 0x80073D02: Unable to install because the following apps need to be closed");
 
         public Version RunningVersion { get; set; } = Running;
         public bool IsStaged(Version version) => Staged.Contains(version);
@@ -69,7 +70,7 @@ public class UpdateServiceTests
         public void RegisterRestart(string arguments) => Calls.Add("restart " + arguments);
         public void UnregisterRestart() => Calls.Add("no restart");
         public void StartWatchdog(TimeSpan after, string logPath) => Calls.Add("watchdog");
-        public Task<string?> SwitchAsync() { Calls.Add("switch"); return Task.FromResult(SwitchProblem); }
+        public Task<SwitchFailure?> SwitchAsync() { Calls.Add("switch"); return Task.FromResult(SwitchProblem); }
     }
 
     private static (UpdateService Service, FakeSource Source, FakeSwitcher Switcher, string Dir) Create(
@@ -603,6 +604,46 @@ public class UpdateServiceTests
         source.Result = DownloadResult.Done;
         await service.CheckAsync(userInitiated: true);
         Assert.Equal(UpdateStage.Ready, service.Status.Stage);
+    }
+
+    [Fact]
+    public async Task A_download_error_shows_its_code_and_source_and_logs_the_original_message()
+    {
+        var (service, source, _, dir) = Create();
+        var error = new System.Runtime.InteropServices.COMException("The server returned a fault.", unchecked((int)0x80244007));
+        source.Result = DownloadResult.From(error);
+
+        await service.CheckAsync(userInitiated: true);
+
+        Assert.Equal(UpdateStage.Failed, service.Status.Stage);
+        Assert.Equal("The update couldn't be downloaded (Fake Store, error 0x80244007).", service.Status.Message);
+        string log = await File.ReadAllTextAsync(Path.Combine(dir, "update.log"));
+        Assert.Contains("Failed 0x80244007 COMException: The server returned a fault.", log);
+    }
+
+    [Fact]
+    public async Task A_check_error_shows_its_code_and_source_and_logs_the_original_message()
+    {
+        var (service, source, _, dir) = Create();
+        source.CheckThrows = new System.Runtime.InteropServices.COMException("The RPC server is unavailable.", unchecked((int)0x800706BA));
+
+        await service.CheckAsync(userInitiated: true);
+
+        Assert.Equal("Couldn't check for updates (Fake Store, error 0x800706BA).", service.Status.Message);
+        Assert.Contains("failed: 0x800706BA COMException: The RPC server is unavailable.", await File.ReadAllTextAsync(Path.Combine(dir, "update.log")));
+    }
+
+    [Fact]
+    public async Task A_failed_switch_shows_the_code_and_logs_windows_text()
+    {
+        var (service, _, _, dir) = Create();
+        await service.CheckAsync(userInitiated: false);
+
+        string? problem = await service.SwitchAsync(idle: false);
+
+        Assert.Equal("Windows didn't switch to the new version (error 0x80073D02).", problem);
+        Assert.Contains("didn't work. Windows didn't switch", service.Status.Message);
+        Assert.Contains("Unable to install because the following apps need to be closed", await File.ReadAllTextAsync(Path.Combine(dir, "update.log")));
     }
 
     [Fact]

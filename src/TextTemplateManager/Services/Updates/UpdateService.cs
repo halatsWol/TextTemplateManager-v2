@@ -223,8 +223,8 @@ public sealed class UpdateService : IDisposable
             try { offer = await _source.CheckAsync(CancellationToken.None); }
             catch (Exception ex)
             {
-                _log.Write($"check ({_source.Name}) failed: {ex.Message}");
-                Set(userInitiated ? new UpdateStatus(UpdateStage.Failed, Message: "Couldn't check for updates: " + ex.Message)
+                _log.Write($"check ({_source.Name}) failed: {UpdateError.Describe(ex)}");
+                Set(userInitiated ? new UpdateStatus(UpdateStage.Failed, Message: $"Couldn't check for updates ({_source.DisplayName}, error {UpdateError.Code(ex)}).")
                     : before.Stage == UpdateStage.Checking ? new UpdateStatus(UpdateStage.UpToDate) : before);
                 return;
             }
@@ -302,8 +302,8 @@ public sealed class UpdateService : IDisposable
                     : await _source.RequestDownloadAsync(offer, ownerWindow, progress, _downloadCancel.Token);
             }
             catch (OperationCanceledException) { result = new DownloadResult(DownloadOutcome.Canceled); }
-            catch (Exception ex) { result = new DownloadResult(DownloadOutcome.Failed, ex.Message); }
-            _log.Write($"download {Describe(offer.Version)}: {result.Outcome} {result.Detail}");
+            catch (Exception ex) { result = DownloadResult.From(ex); }
+            _log.Write($"download {Describe(offer.Version)}: {result.Outcome}{(result.Detail is { } detail ? " " + detail : "")}");
 
             if (result.Outcome == DownloadOutcome.Completed && await IsStagedAsync(offer))
                 Set(new UpdateStatus(UpdateStage.Ready, offer.Version));
@@ -325,7 +325,9 @@ public sealed class UpdateService : IDisposable
             else if (result.Outcome == DownloadOutcome.Blocked)
                 Set(AvailableStatus(offer) with { StoreBlocked = true });
             else
-                Set(new UpdateStatus(UpdateStage.Failed, offer.Version, Message: "The update couldn't be downloaded: " + (result.Detail ?? "unknown error")));
+                Set(new UpdateStatus(UpdateStage.Failed, offer.Version, Message: result.Code is { } code
+                    ? $"The update couldn't be downloaded ({_source.DisplayName}, error {code})."
+                    : $"The update couldn't be downloaded: {result.Detail ?? "unknown error"}."));
         }
         finally
         {
@@ -369,15 +371,18 @@ public sealed class UpdateService : IDisposable
                 catch (Exception ex) { _log.Write($"watchdog not set: {ex.Message}"); }
             }
             else _switcher.UnregisterRestart();
-            string? problem = await _switcher.SwitchAsync();
+            var failure = await _switcher.SwitchAsync();
 
             // Still running: Windows didn't switch.
-            _log.Write($"switch to {Describe(target)} failed: {problem}");
+            _log.Write($"switch to {Describe(target)} failed: {failure?.Detail ?? "no reason"}");
+            string problem = failure?.Code is { } code
+                ? $"Windows didn't switch to the new version (error {code})."
+                : "Windows didn't switch to the new version.";
             if (tries >= UpdateAttempt.MaxAttempts)
                 Set(new UpdateStatus(UpdateStage.ManualStepsNeeded, target, Message: problem));
             else
-                Set(new UpdateStatus(UpdateStage.Ready, target, Message: "The last attempt to install it didn't work: " + problem));
-            return problem ?? "Windows didn't switch to the new version.";
+                Set(new UpdateStatus(UpdateStage.Ready, target, Message: "The last attempt to install it didn't work. " + problem));
+            return problem;
         }
         finally { _busy.Release(); }
     }

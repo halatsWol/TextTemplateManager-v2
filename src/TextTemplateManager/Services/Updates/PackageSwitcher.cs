@@ -89,7 +89,7 @@ public sealed class PackageSwitcher : IPackageSwitcher
             throw new InvalidOperationException($"schtasks: {error.Trim()} ({(process.HasExited ? process.ExitCode : -1)})");
     }
 
-    public async Task<string?> SwitchAsync()
+    public async Task<SwitchFailure?> SwitchAsync()
     {
         try
         {
@@ -97,10 +97,10 @@ public sealed class PackageSwitcher : IPackageSwitcher
                 _id.FamilyName, null, DeploymentOptions.ForceTargetApplicationShutdown, null, null);
             // Reached only when Windows didn't close the app.
             return result.ExtendedErrorCode is { } error && error.HResult != 0
-                ? $"{result.ErrorText} (0x{error.HResult:X8})"
-                : "Windows didn't switch to the new version.";
+                ? new SwitchFailure(UpdateError.Hex(error.HResult), $"{UpdateError.Hex(error.HResult)} {result.ErrorText?.Trim()}")
+                : new SwitchFailure(null, "the register call returned without closing the app");
         }
-        catch (Exception ex) { return $"{ex.Message} (0x{ex.HResult:X8})"; }
+        catch (Exception ex) { return new SwitchFailure(UpdateError.Code(ex), UpdateError.Describe(ex)); }
     }
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
