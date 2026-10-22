@@ -86,6 +86,7 @@ class GeneralSettingsPage
 class IntegrationsSettingsPage
 class SyncSettingsPage
 class BackupsSettingsPage
+class SupportSettingsPage
 class RestoreFlow {
   +RunAsync(backup, parts, description, confirm) : Outcome
 }
@@ -130,6 +131,7 @@ SettingsView o-- GeneralSettingsPage
 SettingsView o-- IntegrationsSettingsPage
 SettingsView o-- SyncSettingsPage
 SettingsView o-- BackupsSettingsPage
+SettingsView o-- SupportSettingsPage
 BackupsSettingsPage ..> RestoreFlow
 MainPage ..> RestoreFlow : 1.x import
 PasteWindow *-- QuickPasteController

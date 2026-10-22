@@ -256,7 +256,7 @@ cross-area shortcut warnings** in **Settings ▸ General**.
 
 ## Settings
 
-Open settings from **File ▸ Settings**. It has a **General**, an **Integrations**, a **Sync** and a **Backups** tab (for backups, see *Automatic backups* and *Restoring a backup*).
+Open settings from **File ▸ Settings**. It has a **General**, an **Integrations**, a **Sync**, a **Backups** and a **Support** tab (for backups, see *Automatic backups* and *Restoring a backup*).
 
 ### General
 
@@ -389,6 +389,10 @@ You can also add a source by **opening a `.ttmdata` file** — double-click it i
 source; if the file is already linked it is simply shown here, and the app's own data file is never
 added. (TextTemplateManager runs as a single instance, so opening a file always uses the window that
 is already running.)
+
+### Support
+
+**Help & troubleshooting** opens the website's answers to common questions. The other sections show how to reach the developer: **Report a problem**, **Suggest a feature** and **Report a security vulnerability**, each by e-mail or on GitHub. The e-mail buttons open your mail app with the questions already in the message, and the app and Windows version filled in; they also copy the address to the clipboard, in case no mail app opens. GitHub needs a GitHub account, and issues there are public; security vulnerabilities are always reported privately (see *Support*).
 
 ---
 
@@ -532,6 +536,6 @@ Neither touches the backups in `Documents\TextTemplateManager\Backups` or your s
 ## Support
 
 For questions, permission requests, or to report an issue, contact 
-[contact@kmarflow.com](mailto:contact@kmarflow.com), or open the website with **Help ▸ Go to website** ([software.kmarflow.com/TextTemplateManager-v2](https://software.kmarflow.com/TextTemplateManager-v2/)): its **Help & troubleshooting** page answers common questions and has forms for problem reports and feature requests, by e-mail or on GitHub.
+[contact@kmarflow.com](mailto:contact@kmarflow.com), or open the website with **Help ▸ Go to website** ([software.kmarflow.com/TextTemplateManager-v2](https://software.kmarflow.com/TextTemplateManager-v2/)): its **Help & troubleshooting** page answers common questions and has forms for problem reports and feature requests, by e-mail or on GitHub. **Settings ▸ Support** has the same buttons in the app, with the app and Windows version already filled in.
 
 To report a security vulnerability, please don't open a public issue: write to [contact@kmarflow.com](mailto:contact@kmarflow.com), or, with a GitHub account, open the **Security** tab on the project's GitHub page and choose **Report a vulnerability**. Only the developer sees the report until a fix is out.
