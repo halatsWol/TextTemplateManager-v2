@@ -1,0 +1,21 @@
+{% extends "main.html" %}
+
+{% block tabs %}
+  {{ super() }}
+  <section class="ttm-hero" style="background-image: url('{{ 'images/store/super-hero-art-slate.png' | url }}')">
+    <div class="ttm-hero__inner">
+      <img class="ttm-hero__logo" src="{{ 'images/logo.svg' | url }}" alt="" width="72" height="72">
+      <h1 class="ttm-hero__title">Your text templates,<br><span class="ttm-mark">one keystroke</span> away</h1>
+      <p class="ttm-hero__lead">Keep replies, snippets, signatures and code in one place, and paste them into any Windows app, formatted to fit.</p>
+      <div class="ttm-hero__actions">
+        <ms-store-badge productid="9nmbszllln6v" productname="TextTemplateManager" window-mode="direct" theme="dark"
+          size="large" language="en-us" animation="on"></ms-store-badge>
+        <a class="md-button ttm-ghost" href="{{ 'manual/' | url }}">Read the manual</a>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block content %}
+  {{ page.content }}
+{% endblock %}

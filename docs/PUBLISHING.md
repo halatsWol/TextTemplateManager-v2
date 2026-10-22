@@ -62,6 +62,14 @@ The same check runs first in every Store submission. Its errors name the cause:
 
 ---
 
+## Documentation website
+
+The manuals, a help page and the privacy policy are published at <https://software.kmarflow.com/TextTemplateManager-v2/> by [`.github/workflows/pages.yml`](../.github/workflows/pages.yml), on every push to `main` that changes them (merging `develop` before a tag does that), or by hand under **Actions ▸ Website ▸ Run workflow**. Nothing else is needed for a release.
+
+- **Sources:** the site's own pages are in `website/pages` (home, help & troubleshooting), its settings in `website/mkdocs.yml`. The manuals (`docs/user`), `PRIVACY.md` and the manual's screenshots are taken as they are, so the site, the PDFs and the in-app manual can't drift apart.
+- **Local build:** `pip install "mkdocs==1.6.1" "mkdocs-material==9.7.7"`, then `pwsh -File build/Build-Website.ps1`; the site is in `out/website/site`. The build fails on a broken page or section link.
+- **Domain:** the account's Pages site (repository `halatsWol.github.io`) has the custom domain `software.kmarflow.com` (DNS: `CNAME software → halatswol.github.io`). Every project site of the account appears under it at `/<repository>/`, so this repository has no domain of its own. **Settings ▸ Pages** of this repository: source **GitHub Actions**.
+
 ## First release (v2.0.0)
 
 The Store API can only update an app that already has a published submission, so the first one goes in by hand:

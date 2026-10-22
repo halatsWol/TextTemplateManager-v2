@@ -56,3 +56,6 @@ ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 .DS_Store
+
+# ---- Website build (build/Build-Website.ps1) ----
+out/

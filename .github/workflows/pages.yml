@@ -1,0 +1,63 @@
+name: Website
+
+# The documentation site on GitHub Pages: https://software.kmarflow.com/TextTemplateManager-v2/ (the account's Pages
+# domain; this repository has no domain of its own). Built from website/ and the manuals in docs/user by
+# build/Build-Website.ps1 on every push to main that touches them, or by hand. See docs/PUBLISHING.md.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "website/**"
+      - "docs/user/**"
+      - "PRIVACY.md"
+      - "src/TextTemplateManager/Assets/ManualImages/**"
+      - "design/logo/logo.svg"
+      - "design/store/slate/**"
+      - "build/Build-Website.ps1"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      # Pinned: MkDocs 2.0 drops the plugin and theme system Material for MkDocs builds on.
+      - name: Install MkDocs
+        run: pip install "mkdocs==1.6.1" "mkdocs-material==9.7.7"
+
+      - name: Build the site
+        shell: pwsh
+        run: ./build/Build-Website.ps1 -OutDir out/website
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: out/website/site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

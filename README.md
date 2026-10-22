@@ -55,6 +55,7 @@ Get **TextTemplateManager** from the [Microsoft Store](https://apps.microsoft.co
 
 ## Documentation
 
+- **Website:** <https://software.kmarflow.com/TextTemplateManager-v2/> (manuals, help & troubleshooting, privacy)
 - [User manual](docs/user/Manual.md) (also in the app under **Help ▸ Open Manual**)
 - [Administrator & Deployment Guide](docs/user/AdminManual.md)
 - [Browser connector API](docs/user/BrowserConnectorApi.md)

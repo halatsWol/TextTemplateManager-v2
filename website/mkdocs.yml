@@ -1,0 +1,95 @@
+# The documentation site at https://software.kmarflow.com/TextTemplateManager-v2/ (GitHub Pages). Built by
+# build/Build-Website.ps1, which puts the manuals from docs/user and PRIVACY.md next to the pages in website/pages,
+# so the site and the PDFs come from the same text. Colors: website/pages/stylesheets/ttm.css (the slate Store art).
+# See docs/architecture/11-platform-build-release.md.
+site_name: TextTemplateManager
+site_description: Reusable text, one keystroke away. Documentation for TextTemplateManager 2 for Windows.
+site_url: https://software.kmarflow.com/TextTemplateManager-v2/
+repo_url: https://github.com/halatsWol/TextTemplateManager-v2
+repo_name: TextTemplateManager-v2
+edit_uri: ""
+copyright: Copyright &copy; 2026 Marflow Software
+
+docs_dir: docs
+site_dir: site
+
+# With --strict a broken page or section link fails the build.
+validation:
+  links:
+    anchors: warn
+
+nav:
+  - Home: index.md
+  - User manual: manual.md
+  - Administrator guide: admin.md
+  - Help & troubleshooting: help.md
+  - Privacy: privacy.md
+  - Blog: https://www.kmarflow.com
+
+theme:
+  name: material
+  custom_dir: overrides
+  language: en
+  logo: images/logo.svg
+  favicon: images/logo.svg
+  font: false   # Segoe UI like the app (ttm.css), no Google Fonts
+  features:
+    - navigation.instant
+    - navigation.tabs
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - search.highlight
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Light mode
+
+extra_css:
+  - stylesheets/ttm.css
+
+# Microsoft's Store badge (<ms-store-badge> on the home page); loaded on every page, so instant navigation finds it.
+extra_javascript:
+  - path: https://get.microsoft.com/badge/ms-store-badge.bundled.js
+    type: module
+
+extra:
+  generator: false
+  social:
+    - icon: material/post-outline
+      link: https://www.kmarflow.com
+      name: Blog (kmarflow.com)
+    - icon: material/microsoft
+      link: https://apps.microsoft.com/detail/9NMBSZLLLN6V
+      name: TextTemplateManager in the Microsoft Store
+    - icon: fontawesome/brands/github
+      link: https://github.com/halatsWol/TextTemplateManager-v2
+      name: TextTemplateManager on GitHub
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - search

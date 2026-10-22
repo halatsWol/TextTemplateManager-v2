@@ -1,0 +1,248 @@
+/* TextTemplateManager's colors: the slate Store art (design/store/Make-StoreArt.ps1) and the logo. */
+:root {
+  --ttm-ink: #232848;
+  --ttm-ink-deep: #1c2140;
+  --ttm-slate: #545d7e;
+  --ttm-card: #46507a;
+  --ttm-key: #3b4366;
+  --ttm-line: #7a84b0;
+  --ttm-sub: #d3d7ee;
+  --ttm-lilac: #d0ccdd;
+  --ttm-orange: #ff8c42;
+  --ttm-orange-deep: #e0702a;
+
+  --md-text-font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --md-code-font-family: "Cascadia Code", Consolas, ui-monospace, monospace;
+}
+
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: var(--ttm-ink);
+  --md-primary-fg-color--light: var(--ttm-slate);
+  --md-primary-fg-color--dark: var(--ttm-ink-deep);
+  --md-primary-bg-color: #ffffff;
+  --md-accent-fg-color: var(--ttm-orange-deep);
+  --md-accent-fg-color--transparent: rgba(255, 140, 66, 0.12);
+  --md-default-bg-color: #fbfbfd;
+  --md-default-fg-color--light: #5b6280;
+  --md-typeset-color: #262b44;
+  --md-typeset-a-color: #3a4470;
+  --md-code-bg-color: #eef0f8;
+  --md-code-fg-color: #2b3157;
+  --ttm-surface: #ffffff;
+  --ttm-surface-line: #e3e5f0;
+  --ttm-heading: var(--ttm-ink);
+}
+
+[data-md-color-scheme="slate"] {
+  --md-hue: 232;
+  --md-primary-fg-color: var(--ttm-ink);
+  --md-primary-fg-color--light: var(--ttm-slate);
+  --md-primary-fg-color--dark: var(--ttm-ink-deep);
+  --md-primary-bg-color: #ffffff;
+  --md-accent-fg-color: var(--ttm-orange);
+  --md-accent-fg-color--transparent: rgba(255, 140, 66, 0.16);
+  --md-default-bg-color: #191d33;
+  --md-default-fg-color: #e6e8f4;
+  --md-default-fg-color--light: #b3b8d4;
+  --md-default-fg-color--lighter: #7f86a8;
+  --md-default-fg-color--lightest: #3b4366;
+  --md-typeset-color: #dfe2f1;
+  --md-typeset-a-color: #ffa56b;
+  --md-code-bg-color: #232848;
+  --md-code-fg-color: #d3d7ee;
+  --md-footer-bg-color: #12152a;
+  --md-footer-bg-color--dark: #0d1020;
+  --ttm-surface: #232848;
+  --ttm-surface-line: #343b63;
+  --ttm-heading: #ffffff;
+}
+
+/* Header and tabs: the slate gradient of the Store art. */
+.md-header,
+.md-tabs {
+  background: linear-gradient(100deg, var(--ttm-ink) 0%, var(--ttm-key) 60%, var(--ttm-slate) 100%);
+}
+.md-header { box-shadow: none; }
+.md-tabs { border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+.md-tabs__link--active, .md-tabs__item--active .md-tabs__link { color: #ffffff; }
+.md-tabs__item--active .md-tabs__link { box-shadow: inset 0 -3px 0 var(--ttm-orange); }
+.md-header__button.md-logo img { height: 1.6rem; border-radius: 6px; }
+.md-search__form { background-color: rgba(255, 255, 255, 0.12); border-radius: 6px; }
+
+/* Headings: the Store art's orange underline under page titles. */
+.md-typeset h1 {
+  color: var(--ttm-heading);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.md-typeset h1::after {
+  content: "";
+  display: block;
+  width: 3rem;
+  height: 4px;
+  margin-top: 0.6rem;
+  border-radius: 2px;
+  background: var(--ttm-orange);
+}
+.md-typeset h2 { color: var(--ttm-heading); font-weight: 650; }
+.md-typeset h3 { font-weight: 650; }
+.md-typeset a:hover { color: var(--md-accent-fg-color); }
+
+/* Buttons. */
+.md-typeset .md-button {
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 0.6em 1.4em;
+}
+.md-typeset .md-button--primary {
+  background: var(--ttm-orange);
+  border-color: var(--ttm-orange);
+  color: #1c2140;
+}
+.md-typeset .md-button--primary:hover,
+.md-typeset .md-button--primary:focus {
+  background: #ffa25f;
+  border-color: #ffa25f;
+  color: #1c2140;
+}
+
+/* Tables and screenshots. */
+.md-typeset table:not([class]) { border-radius: 8px; border: 1px solid var(--ttm-surface-line); overflow: hidden; }
+.md-typeset table:not([class]) th { background: var(--ttm-ink); color: #ffffff; }
+.md-typeset img { border-radius: 8px; }
+.md-typeset p > img { box-shadow: 0 6px 24px rgba(28, 33, 64, 0.18); }
+
+/* Admonitions in the app's colors. */
+.md-typeset .admonition.note, .md-typeset details.note { border-color: var(--ttm-line); }
+.md-typeset .note > .admonition-title, .md-typeset .note > summary { background-color: rgba(122, 132, 176, 0.14); }
+
+/* ---- Home page ---- */
+/* The art is 16:9 with the icon in its upper 62 %: shown at full width from the top, the text starts below the icon,
+   and the gradient continues the art's colors underneath. */
+.ttm-hero {
+  position: relative;
+  color: #ffffff;
+  background-color: var(--ttm-ink);
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  background-position: center top;
+  padding: clamp(11rem, 34vw, 34rem) 1rem 4.5rem;
+  text-align: center;
+}
+.ttm-hero::before {
+  content: "";
+  position: absolute;
+  inset: calc(56.25vw - 2px) 0 0 0;
+  background: linear-gradient(110deg, #343a5e 0%, #4f5779 100%);
+}
+.ttm-hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 5px;
+  background: var(--ttm-orange);
+}
+.ttm-hero__inner { position: relative; max-width: 46rem; margin: 0 auto; }
+.ttm-hero__logo { display: none; }
+.ttm-hero__title {
+  margin: 0 0 1rem;
+  font-size: 2.6rem;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+.ttm-mark { box-shadow: inset 0 -0.18em 0 var(--ttm-orange); }
+.ttm-hero__lead { margin: 0 auto 2rem; max-width: 36rem; font-size: 1.05rem; color: var(--ttm-sub); }
+.ttm-hero__actions { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: center; }
+.ttm-hero ms-store-badge { display: inline-block; min-height: 64px; }
+/* The hero sits outside .md-typeset, so its buttons are styled here. */
+.ttm-hero .md-button {
+  display: inline-block;
+  margin: 0;
+  padding: 0.75em 1.6em;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  font-size: 0.85rem;
+  font-weight: 650;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+.ttm-hero .md-button--primary { background: var(--ttm-orange); border-color: var(--ttm-orange); color: #1c2140; box-shadow: 0 6px 20px rgba(255, 140, 66, 0.35); }
+.ttm-hero .md-button--primary:hover { background: #ffa25f; border-color: #ffa25f; color: #1c2140; transform: translateY(-1px); }
+.ttm-hero .ttm-ghost { color: #ffffff; border-color: rgba(255, 255, 255, 0.6); }
+.ttm-hero .ttm-ghost:hover { background: rgba(255, 255, 255, 0.12); color: #ffffff; border-color: #ffffff; }
+
+.ttm-features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1rem 0 2.5rem;
+}
+.ttm-feature {
+  background: var(--ttm-surface);
+  border: 1px solid var(--ttm-surface-line);
+  border-radius: 12px;
+  padding: 1.1rem 1.2rem 0.4rem;
+  border-top: 4px solid var(--ttm-orange);
+}
+.md-typeset .ttm-feature h3 { margin: 0.4rem 0 0.3rem; font-size: 1rem; }
+.md-typeset .ttm-feature .headerlink { display: none; }
+.md-typeset .ttm-feature p { margin: 0 0 0.8rem; font-size: 0.78rem; color: var(--md-default-fg-color--light); }
+.md-typeset .ttm-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--ttm-ink) 0%, var(--ttm-card) 100%);
+  color: var(--ttm-orange);
+}
+.md-typeset .ttm-icon svg { width: 1.5rem; height: 1.5rem; max-height: none; fill: currentColor; }
+
+.ttm-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.2rem;
+  margin-bottom: 2.5rem;
+}
+.md-typeset .ttm-gallery p { margin: 0; display: contents; }
+.md-typeset .ttm-gallery img { display: block; width: 100%; border-radius: 10px; box-shadow: 0 8px 28px rgba(28, 33, 64, 0.28); transition: transform 0.15s ease; }
+.md-typeset .ttm-gallery a:hover img { transform: translateY(-3px); }
+
+.ttm-docs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.md-typeset .ttm-docs p { margin: 0; display: contents; }
+.md-typeset .ttm-docs a {
+  display: block;
+  padding: 1rem 1.1rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--ttm-ink) 0%, var(--ttm-card) 100%);
+  color: #ffffff;
+  border: 1px solid transparent;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.md-typeset .ttm-docs a:hover { border-color: var(--ttm-orange); transform: translateY(-2px); color: #ffffff; }
+.md-typeset .ttm-docs a .twemoji { color: var(--ttm-orange); margin-right: 0.4rem; vertical-align: -0.3em; }
+.md-typeset .ttm-docs a .twemoji svg { width: 1.3rem; height: 1.3rem; max-height: none; }
+.md-typeset .ttm-docs a strong { font-size: 0.95rem; }
+.md-typeset .ttm-docs a span { display: block; margin-top: 0.35rem; font-size: 0.75rem; color: var(--ttm-sub); }
+
+/* Footer in the slate tones instead of Material's black. */
+.md-footer { background: linear-gradient(100deg, var(--ttm-ink-deep) 0%, var(--ttm-key) 100%); }
+.md-footer-meta { background: rgba(10, 12, 26, 0.35); }
+
+@media screen and (max-width: 76.1875em) {
+  .ttm-features { grid-template-columns: repeat(2, 1fr); }
+}
+@media screen and (max-width: 44.9375em) {
+  .ttm-hero__title { font-size: 1.8rem; }
+  .ttm-hero__lead { font-size: 0.95rem; }
+  .ttm-features, .ttm-gallery, .ttm-docs { grid-template-columns: 1fr; }
+}
