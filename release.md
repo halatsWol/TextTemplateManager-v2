@@ -12,18 +12,11 @@ Coming from TextTemplateManager 1: your templates and settings are backed up at 
 
 ### What's new in this release
 
-In-app updates that arrive reliably, also on PCs where automatic Store updates are turned off.
-
-#### Fixed
-
-- **Check for updates could say "Up to date" although a new version was out.** The Microsoft Store answers an app only one update check every 30 minutes and ten a day, and otherwise repeats its last answer. TextTemplateManager now keeps to these limits, also across restarts, and when you check sooner, **Settings ▸ General ▸ Updates** says when the next check is possible. Checks by others (the Microsoft Store app, winget) count too: when the Store refuses a check for that reason, TextTemplateManager now says so instead of "Up to date".
-- **On PCs with automatic Store updates turned off, a new version didn't show up as ready.** Windows Update often downloads it there anyway, but TextTemplateManager didn't notice and tried winget instead, which can't update it, and then said the download had finished. It now finds a version Windows has downloaded and offers **Restart to update**; winget is no longer used.
-- **While downloading, Settings showed "Downloading version Version ...".** It now says "Downloading the update".
+Update errors that say where they came from.
 
 #### Improved
 
-- **Check for updates downloads a new version right away.** Where automatic Store updates are turned off, the Microsoft Store asks once first; if it can't download on your PC, TextTemplateManager says so and the update comes through Windows Update.
-- **Clearer update texts** in **Settings ▸ General ▸ Updates**, in the update notice in the main window and in the tray notice.
+- **Update errors show their code and source** (for example *Microsoft Store, error 0x80244007*) instead of a technical message; `update.log` keeps the full error message.
 
 {{CHANGELOG}}
 

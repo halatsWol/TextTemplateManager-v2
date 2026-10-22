@@ -112,11 +112,9 @@ Copyright © 2026 Marflow Software
 This block is the Store's "What's new" (Microsoft asks for it on updates only; it stayed empty for 2.0.0). It lists only what changed since the previous release; keep it in step with `release.md`.
 
 ```text
-In-app updates that arrive reliably, also with automatic Store updates turned off.
+Update errors that say where they came from.
 
-- Fixed: Check for updates could say Up to date although a new version was out. The Microsoft Store answers an app only one update check every 30 minutes and ten a day; TextTemplateManager now keeps to these limits, and when you check sooner, or the Store refuses a check, Settings > General > Updates says when the next check is possible.
-- Fixed: with automatic Store updates turned off, a new version that Windows Update downloaded wasn't offered. It now is, with Restart to update.
-- Improved: Check for updates downloads a new version right away, and clearer update texts in Settings and in the update notice.
+- Improved: update errors show their code and source (for example Microsoft Store, error 0x80244007); the update log keeps the full message.
 ```
 
 ---
