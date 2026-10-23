@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="About"
     PrimaryButtonText="View License"
+    SecondaryButtonText="Third-party notices"
     CloseButtonText="Close"
     DefaultButton="Close">
 

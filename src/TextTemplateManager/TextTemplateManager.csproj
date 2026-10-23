@@ -102,6 +102,7 @@
     <Content Include="Assets\Manual.pdf" Link="Manual.pdf" CopyToOutputDirectory="PreserveNewest" />
     <!-- Help ▸ About displays the LICENSE. -->
     <Content Include="..\..\LICENSE" Link="LICENSE" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\THIRD-PARTY-NOTICES.txt" Link="THIRD-PARTY-NOTICES.txt" CopyToOutputDirectory="PreserveNewest" />
     <!-- What's new after an update shows the release notes' "What's new" section. -->
     <Content Include="..\..\release.md" Link="release.md" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

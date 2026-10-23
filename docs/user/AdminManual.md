@@ -139,7 +139,7 @@ Codes you may meet there:
 ## Security
 
 - **Package:** the Microsoft Store certifies every release and signs the package; Windows installs it per user in its own package folder, without administrator rights. The app collects and sends no data (see the privacy policy, `PRIVACY.md` in the repository).
-- **Network:** the app listens only when a user turns on the browser connector, and then only on the local loopback address, with pairing (see *Browser connector*).
+- **Network:** the app listens only when a user turns on the browser connector, and then only on the local loopback address, with pairing (see *Browser connector*). It connects out only to the Microsoft Store (updates, through Windows) and, from **Settings ▸ Translation**, to Mozilla's servers for the translation languages (see *Translation*).
 - **Source checks:** the public source code is scanned with GitHub CodeQL on every change and weekly, the test suite runs on every change, and Dependabot reports dependencies (NuGet, npm, GitHub Actions) with known vulnerabilities and proposes the fixes. Secret scanning keeps credentials out of the repository.
 - **Fixes** ship as a regular Store update (see *Updates*); a published security advisory names the fixed version. Only the current version gets fixes.
 - **Reporting a vulnerability:** privately, not as a public issue: by e-mail to [contact@kmarflow.com](mailto:contact@kmarflow.com), or with a GitHub account through **Report a vulnerability** on the repository's **Security** tab ([github.com/halatsWol/TextTemplateManager-v2](https://github.com/halatsWol/TextTemplateManager-v2)). See also [Reporting a security vulnerability](https://software.kmarflow.com/TextTemplateManager-v2/help/#reporting-a-security-vulnerability) on the website.
@@ -163,6 +163,19 @@ The package registers the `.ttmdata` file type; Windows adds and removes the ass
 ## Browser connector
 
 The connector for the TTM-Connect browser extension is **off** by default. When a user turns it on (**Settings ▸ Integrations**), the app listens on `127.0.0.1` only (loopback, never on a network interface; no firewall rule is needed), port `47615` by default, and every request must carry the pairing token shown in the settings. If the port is taken or reserved, the app reports it at startup and the user can choose another port. The API is described in `BrowserConnectorApi.md` in the repository.
+
+---
+
+## Translation
+
+The editor's **Translate** button translates templates on the PC with the Firefox Translations engine (Bergamot), which is part of the package. The language models aren't: users download them in **Settings ▸ Translation**, about 25 to 50 MB per direction, into `%LocalAppData%\Packages\MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny\LocalCache\TranslationModels` (not backed up; removed by Reset and Uninstall). The text being translated never leaves the PC.
+
+The page and the downloads use two Mozilla servers over HTTPS, which a proxy or firewall has to allow:
+
+- `firefox.settings.services.mozilla.com`: the list of languages (Firefox's Remote Settings), loaded each time the page opens.
+- `firefox-settings-attachments.cdn.mozilla.net`: the model files. Each is checked against the SHA-256 checksums in the list before and after unpacking, and only a complete language is put in place.
+
+Without access to them, install the languages from a file: on a PC that has them, **Settings ▸ Translation ▸ Export installed languages…** saves a `.zip`, and **Import languages…** installs it; every file is checked against the checksums stored with it. The models are licensed under the Mozilla Public License 2.0 (see **Help ▸ About ▸ Third-party notices**).
 
 ---
 
@@ -191,6 +204,7 @@ None of these remove the backups (`Documents\TextTemplateManager\Backups`) or sh
 | Path | Contents |
 | --- | --- |
 | `%LocalAppData%\Packages\MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny\LocalState` | User data: `data.ttmdata` (templates), `settings.ttmsettings`, `sync.ttmsettings`, `crash.log`, `update.log` (the in-app updater's steps), `update-checks.txt` (when the app last checked the Store, for its check limits), `update-attempt.json` (a switch in progress), `update-watchdog.ps1` / `.xml` (the watchdog task's script and definition), and any `*.broken-<date-time>` copy of a file that couldn't be read at startup. Removed by Reset and Uninstall. |
+| `%LocalAppData%\Packages\MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny\LocalCache\TranslationModels` | Downloaded translation languages, one folder per direction (`en-de`) with the model files and a `model.json` (file names and checksums). Not backed up; removed by Reset and Uninstall. |
 | `Documents\TextTemplateManager\Backups` | Automatic backups (follows a redirected Documents folder, e.g. OneDrive folder backup). Kept on Reset and Uninstall. |
 | Wherever the user puts them | Shared sync files (`.ttmdata`), typically in OneDrive or on a share. |
 | `%LocalAppData%\Marflow Software\TextTemplateManager` | Version 1's data, read only by version 2. |

@@ -16,6 +16,9 @@ public sealed partial class SettingsView : UserControl
     /// <summary>The store the pages edit. Set once by the page hosting this view.</summary>
     public DataNode? Store { get; set; }
 
+    /// <summary>The pages don't go online (the guided tour): Translation lists only what is installed.</summary>
+    public bool Offline { get; set; }
+
     public bool IsOpen => Visibility == Visibility.Visible;
 
     /// <summary>Where the selected page shows (the guided tour highlights it).</summary>
@@ -75,7 +78,8 @@ public sealed partial class SettingsView : UserControl
                     new BackupsSettingsPage.Parameters(new BackupService(store.Storage), parameter as BackupsSettingsPage.Request));
                 break;
             case SettingsPage.Translation:
-                PageFrame.Navigate(typeof(TranslationSettingsPage), store.Storage.TranslationModelDirectory);
+                PageFrame.Navigate(typeof(TranslationSettingsPage),
+                    new TranslationSettingsPage.Parameters(store.Storage.TranslationModelDirectory, LoadCatalog: !Offline));
                 break;
             case SettingsPage.Support:
                 PageFrame.Navigate(typeof(SupportSettingsPage), store.Storage.DataDirectory);

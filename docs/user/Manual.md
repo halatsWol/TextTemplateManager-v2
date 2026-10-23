@@ -91,7 +91,7 @@ Selecting a template opens it in the editor, which supports bold, italic, underl
 strikethrough, text and highlight colors, headings, bulleted and numbered lists, links, tables, 
 callout panels, and code blocks with syntax highlighting.
 
-The toolbar works from the keyboard too. It is one stop of the main window's **Tab** order: the arrow keys (**←** / **→**, **Home**, **End**) move along its buttons, **Enter** opens a button's menu (text and highlight colors, table, alignment, symbols) and **Tab** moves into it, **Esc** closes the menu again. **Tab** from the toolbar goes into the text, with the cursor at the end. In the text, **Tab** nests a list item (**Shift + Tab** moves it back out), moves to the next table cell and indents a line in a code block (**Shift + Tab** takes the indent off again); anywhere else **Tab** moves on to the template's shortcuts and **Shift + Tab** goes back to the toolbar. **Ctrl + Tab** always moves on. In the table menu, the arrow keys choose the number of rows and columns and **Enter** inserts the table.
+The toolbar works from the keyboard too. It is one stop of the main window's **Tab** order: the arrow keys (**←** / **→**, **Home**, **End**) move along its buttons, **Enter** opens a button's menu (text and highlight colors, table, alignment, symbols, translation) and **Tab** moves into it, **Esc** closes the menu again. **Tab** from the toolbar goes into the text, with the cursor at the end. In the text, **Tab** nests a list item (**Shift + Tab** moves it back out), moves to the next table cell and indents a line in a code block (**Shift + Tab** takes the indent off again); anywhere else **Tab** moves on to the template's shortcuts and **Shift + Tab** goes back to the toolbar. **Ctrl + Tab** always moves on. In the table menu, the arrow keys choose the number of rows and columns and **Enter** inserts the table.
 
 Changes to a template or folder (its title, text, tags, shortcuts and default paste mode) wait for you to save them: a **Save** button appears in the top-right corner, next to the help button, and **Ctrl+S** saves too, also while typing in the editor. If you select another item, close the window or exit while changes aren't saved, you're asked whether to **Save** them, **Don't save** them (the item goes back to how it was last saved), or **Cancel** (you stay on the item, changes kept, and the window stays open). A brief **Saved** indicator appears each time your data is written. To save as you type instead, switch on **Autosave** in **Settings ▸ General**. Adding, deleting, moving and importing items are always saved at once.
 
@@ -131,6 +131,22 @@ out) — the same way code blocks behave.
 
 Panels adapt to whichever paste mode you use (see *Paste modes*): they become native panels in 
 Atlassian Jira, colored boxes in email and word processors, and a labeled quote in Markdown.
+
+### Translating a template
+
+The **Translate** button at the right end of the editor toolbar translates a template on this PC; the text isn't sent anywhere. It needs at least one language from **Settings ▸ Translation** (see *Translation* under *Settings*); until one is installed, its menu only offers **Download languages…**. Translation is experimental.
+
+In the menu, choose the language the template is written in under **From** and the language to translate it to under **To**. **Detect** guesses the language from the text and shows its guess, for example *Detect (English)*; for a short text it can't tell, and the menu asks you to choose. Both choices are remembered.
+
+- **Replace template** replaces the template's text with the translation. **Ctrl+Z** brings the original back.
+- **Create new template** leaves this template as it is and adds a translated copy next to it, which is then selected. The copy's title gets the language in brackets (*Not reachable* becomes *Not reachable (DE)*) and its Multi Key shortcut gets the language code (*NOTREACH* becomes *NOTREACHDE*); its tags and default paste mode are copied, and its Single Key shortcut is left empty. Translating such a copy again replaces the language instead of adding a second one (*Not reachable (DE)* to English becomes *Not reachable (EN)*).
+- **Replace selection**, shown when text is selected, translates only the selection.
+
+With German under **To**, **Formal (Sie)** asks for the polite form: lines that came out addressing the reader with *du* are translated again to use *Sie*. It catches most of them, not all.
+
+Formatting, links and date and time placeholders such as `$[DATE]` are kept. Each language translates to and from English; between two other languages, for example German and French, the text goes through English, so both need to be installed.
+
+Machine translation makes mistakes: it can change the meaning, leave out words, or put a link or formatting on the wrong words. Read every translation before you use it.
 
 ### Template properties
 
@@ -256,7 +272,7 @@ cross-area shortcut warnings** in **Settings ▸ General**.
 
 ## Settings
 
-Open settings from **File ▸ Settings**. It has a **General**, an **Integrations**, a **Sync**, a **Backups** and a **Support** tab (for backups, see *Automatic backups* and *Restoring a backup*).
+Open settings from **File ▸ Settings**. It has a **General**, an **Integrations**, a **Sync**, a **Backups**, a **Translation** and a **Support** tab (for backups, see *Automatic backups* and *Restoring a backup*).
 
 ### General
 
@@ -390,6 +406,16 @@ source; if the file is already linked it is simply shown here, and the app's own
 added. (TextTemplateManager runs as a single instance, so opening a file always uses the window that
 is already running.)
 
+### Translation
+
+Here you download the languages for the editor's **Translate** button (see *Translating a template*). They are the Firefox Translations language models from Mozilla, downloaded from Mozilla's servers; the translation itself runs on this PC, and translating works without an internet connection once a language is installed. The page is marked experimental, with a reminder to check every translation.
+
+Each row is a language with its download size and the space it takes on disk, or **Installed** and the space it uses. **Download** installs it, in both directions (to and from English) where Mozilla offers both; a few languages exist in one direction only, which the row says. While it downloads, **Cancel** stops it, and the download keeps running if you leave Settings. **Update** appears when Mozilla has published a newer version, and **Remove** deletes a language. **Search languages** filters the list. Every downloaded file is checked against Mozilla's checksums before it's used.
+
+For a PC without internet access, **Export installed languages…** on a PC that has them saves them as a `.zip` file, and **Import languages…** installs them from it; every file is checked before it's installed.
+
+The list of languages comes from Mozilla's servers each time the page opens. If they can't be reached, the page says so and offers **Try again**; installed languages are still listed, can be removed and exported, and translating keeps working.
+
 ### Support
 
 **Help & troubleshooting** opens the website's answers to common questions.
@@ -520,7 +546,7 @@ Application data is stored per user in the app's own package folder:
 
 `%LocalAppData%\Packages\MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny\LocalState`
 
-This folder contains your template data, application settings, and synchronization configuration. Windows removes it when you uninstall the app or reset it in **Settings ▸ Apps**. Shared synchronization files are stored wherever you place them, and are not kept in this folder. The automatic backups are in `Documents\TextTemplateManager\Backups`, outside this folder, so they stay when the app is reset or removed.
+This folder contains your template data, application settings, and synchronization configuration. Windows removes it when you uninstall the app or reset it in **Settings ▸ Apps**. Shared synchronization files are stored wherever you place them, and are not kept in this folder. The automatic backups are in `Documents\TextTemplateManager\Backups`, outside this folder, so they stay when the app is reset or removed. Downloaded translation languages are in the package's `LocalCache\TranslationModels` folder next to it; they aren't part of backups, since they can be downloaded again, and Reset and Uninstall remove them too.
 
 Exiting from **File ▸ Exit** or the tray icon, and signing out of or shutting down Windows, first save anything still pending; if a synced file is slow to respond, a "Saving changes…" message appears until it is done. Changes to a template or folder that you haven't saved (with **Autosave** off) are asked about first, as when closing the window; when Windows signs out or shuts down, they are saved.
 

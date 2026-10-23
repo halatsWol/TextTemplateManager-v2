@@ -96,6 +96,7 @@ namespace TextTemplateManager
             if (!tour) (Application.Current as App)?.AddExitFlush(Editor.FlushAsync);
 
             Settings.Store = store;
+            Settings.Offline = tour;
             Editor.TranslationModelDirectory = store.Storage.TranslationModelDirectory;
             Editor.Settings = store.CurrentSettings;
             Editor.TranslationSettingsRequested += (_, _) => Settings.Open(SettingsPage.Translation);
@@ -505,14 +506,17 @@ namespace TextTemplateManager
 
         private async void About_Click(object sender, RoutedEventArgs e)
         {
-            if (await ShowDialogAsync(new AboutDialog(SupportLinks.WebsiteUrl, SupportLinks.Email)) == ContentDialogResult.Primary)
-                await ShowLicenseAsync();
+            var result = await ShowDialogAsync(new AboutDialog(SupportLinks.WebsiteUrl, SupportLinks.Email));
+            if (result == ContentDialogResult.Primary) await ShowTextFileAsync("LICENSE", "License");
+            else if (result == ContentDialogResult.Secondary) await ShowTextFileAsync("THIRD-PARTY-NOTICES.txt", "Third-party notices");
         }
-        private async Task ShowLicenseAsync()
+
+        // A text file shipped next to the app (license, third-party notices) in a dialog.
+        private async Task ShowTextFileAsync(string fileName, string title)
         {
             string text;
-            try { text = System.IO.File.ReadAllText(System.IO.Path.Combine(AppContext.BaseDirectory, "LICENSE")); }
-            catch { text = "License file not found."; }
+            try { text = System.IO.File.ReadAllText(System.IO.Path.Combine(AppContext.BaseDirectory, fileName)); }
+            catch { text = $"{title}: file not found."; }
 
             var scroll = new ScrollViewer
             {
@@ -527,7 +531,7 @@ namespace TextTemplateManager
             };
             await ShowDialogAsync(new ContentDialog
             {
-                Title = "License",
+                Title = title,
                 Content = scroll,
                 CloseButtonText = "Close",
             });

@@ -7,7 +7,8 @@ using Windows.ApplicationModel.DataTransfer;
 
 namespace TextTemplateManager.Controls;
 
-/// <summary>Help ▸ About. The primary button ("View License") is answered by the caller.</summary>
+/// <summary>Help ▸ About. The primary button ("View License") and the secondary one ("Third-party notices") are
+/// answered by the caller.</summary>
 public sealed partial class AboutDialog : ContentDialog
 {
     private readonly string _email;

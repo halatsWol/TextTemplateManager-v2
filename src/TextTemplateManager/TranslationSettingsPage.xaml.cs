@@ -78,9 +78,12 @@ public sealed partial class TranslationLanguageRow : ObservableObject
 }
 
 /// <summary>Settings ▸ Translation: the languages from Mozilla's catalog, download, update and remove, and export and
-/// import for PCs without internet access. The navigation parameter is the translation model folder.</summary>
+/// import for PCs without internet access.</summary>
 public sealed partial class TranslationSettingsPage : Page
 {
+    /// <summary>The translation model folder, and whether to load Mozilla's list of languages (not in the tour).</summary>
+    public sealed record Parameters(string ModelDirectory, bool LoadCatalog);
+
     private static readonly HttpClient Http = CreateHttpClient();
 
     // Downloads outlive the page (leaving Settings doesn't stop them); a page opened meanwhile shows the same rows.
@@ -107,9 +110,10 @@ public sealed partial class TranslationSettingsPage : Page
     protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        _store = new ModelStore(e.Parameter as string ?? "");
+        var parameters = e.Parameter as Parameters;
+        _store = new ModelStore(parameters?.ModelDirectory ?? "");
         BuildRows();
-        if (_catalog == null) await LoadCatalogAsync();
+        if (_catalog == null && parameters?.LoadCatalog == true) await LoadCatalogAsync();
     }
 
     private async Task LoadCatalogAsync()
