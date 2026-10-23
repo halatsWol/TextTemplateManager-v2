@@ -23,6 +23,11 @@
                         <FontIcon Glyph="&#xE81C;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem Content="Translation" Tag="Translation">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xF2B7;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem Content="Support" Tag="Support" Icon="Help"/>
             </NavigationView.MenuItems>
             <Frame x:Name="PageFrame" Padding="20"/>

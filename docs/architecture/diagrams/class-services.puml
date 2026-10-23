@@ -184,6 +184,37 @@ package "Services.Updates" {
   StoreUpdateSource ..> StoreScanLog : Store event log
 }
 
+package "Services.Translation" {
+  class ModelCatalog <<static>> {
+    +LoadAsync(http) : ModelPair[]
+    +Parse(json) : ModelPair[]
+    +Languages(pairs) : TranslationLanguage[]
+  }
+  class ModelPair <<record>> {
+    +From / To / Version / Architecture
+    +Files : ModelFile[]
+  }
+  class TranslationLanguage <<record>> {
+    +Code / Name
+    +ToEnglish / FromEnglish : ModelPair?
+  }
+  class ModelStore {
+    +Directory : string
+    +Installed() : InstalledPair[]
+    +InstallAsync(http, pair, progress, cancel)
+    +Remove(from, to)
+    +Export(pairs, zip) / Import(zip)
+  }
+  ModelCatalog ..> ModelPair
+  ModelCatalog ..> TranslationLanguage
+  ModelStore ..> ModelPair : downloads, checks hashes
+  note bottom of ModelStore
+    One folder per direction ("en-de") with the
+    unpacked files and model.json, which the
+    editor's translator reads.
+  end note
+}
+
 package "Helpers" {
   class WindowHelper <<static>> {
     +CaptureTargetContext()
