@@ -66,6 +66,8 @@ public sealed class FileUpdateSource : IUpdateSource
         catch { return null; }
     }
 
+    public bool HasUpdate => _offerFile != null;
+
     public DateTime? RefusedUntil => null;
 
     // Its offers always carry a version, which the switcher checks.

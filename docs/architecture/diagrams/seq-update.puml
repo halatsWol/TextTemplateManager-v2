@@ -18,7 +18,7 @@ else nothing staged
   UpdateService -> Source : CheckAsync()
   note right of Source : reads the queue item first;\nthe Store doesn't name the version
   Source --> UpdateService : UpdateOffer(no version)
-  alt staged already (queue item PausedReadyToInstall)
+  alt staged already (queue item PausedReadyToInstall\nand FindStaged() names a newer version)
     UpdateService -> Source : IsDownloadedAsync() = true
   else silent download allowed
     UpdateService -> Source : DownloadAsync() (stage only)

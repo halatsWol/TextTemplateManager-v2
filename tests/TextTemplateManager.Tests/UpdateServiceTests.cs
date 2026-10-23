@@ -18,16 +18,21 @@ public class UpdateServiceTests
         public bool Silent = true;
         public DownloadResult Result = DownloadResult.Done;
         public FakeSwitcher? StagesInto;
-        public int Downloads, ConsentDownloads;
+        public int Checks, Downloads, ConsentDownloads;
         public Exception? CheckThrows;
 
         public string Name => "fake";
         public string DisplayName => "Fake Store";
         public bool CanDownloadSilently => Silent;
+        public bool HasUpdate { get; private set; }
 
-        public Task<UpdateOffer?> CheckAsync(CancellationToken cancel) =>
-            CheckThrows != null ? Task.FromException<UpdateOffer?>(CheckThrows)
-            : Task.FromResult(Offer == null ? null : new UpdateOffer(NamesVersion ? Offer : null));
+        public Task<UpdateOffer?> CheckAsync(CancellationToken cancel)
+        {
+            Checks++;
+            if (CheckThrows != null) return Task.FromException<UpdateOffer?>(CheckThrows);
+            HasUpdate = Offer != null;
+            return Task.FromResult(Offer == null ? null : new UpdateOffer(NamesVersion ? Offer : null));
+        }
 
         public Task<bool> IsDownloadedAsync(UpdateOffer offer) => Task.FromResult(DownloadedUnnamed);
 
@@ -799,6 +804,41 @@ public class UpdateServiceTests
 
         Assert.Equal(AttemptOutcome.Failed, result.Outcome);
         Assert.Equal(UpdateStage.Ready, after.Status.Stage);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task After_a_failed_switch_to_an_unnamed_version_the_restart_checks_again_before_downloading(bool viaCheck)
+    {
+        var (service, source, switcher, dir) = Create();
+        source.NamesVersion = false;
+        await service.CheckAsync(userInitiated: false);
+        await service.SwitchAsync(idle: false);
+
+        // The restarted process: its source hasn't checked, so it has nothing to download yet.
+        var fresh = new FakeSource { NamesVersion = false, StagesInto = switcher };
+        var after = new UpdateService(fresh, switcher, new UpdateLog(Path.Combine(dir, "update.log")),
+            Path.Combine(dir, "update-attempt.json"), () => UpdatePolicy.Default)
+        { UtcNow = () => new DateTime(2026, 10, 22, 0, 0, 0, DateTimeKind.Utc) };
+        after.ReportFailedSwitch(after.EvaluateStartup().Attempt!);
+        Assert.Equal(UpdateStage.Available, after.Status.Stage);
+
+        if (viaCheck) await after.CheckAsync(userInitiated: true);
+        else await after.DownloadAsync(IntPtr.Zero, userInitiated: true);
+
+        Assert.Equal((1, 1), (fresh.Checks, fresh.Downloads));
+        Assert.Equal(UpdateStage.Ready, after.Status.Stage);
+    }
+
+    [Fact]
+    public void The_stores_ready_to_install_counts_only_with_a_newer_staged_package()
+    {
+        // Left from a version TTM already switched to (2.3.5, 2026-10-23): nothing newer is staged.
+        Assert.False(StoreUpdateSource.IsReadyToInstall(Windows.Services.Store.StoreQueueItemExtendedState.PausedReadyToInstall, () => null));
+        Assert.True(StoreUpdateSource.IsReadyToInstall(Windows.Services.Store.StoreQueueItemExtendedState.PausedReadyToInstall, () => Newer));
+        Assert.False(StoreUpdateSource.IsReadyToInstall(Windows.Services.Store.StoreQueueItemExtendedState.Paused, () => Newer));
+        Assert.False(StoreUpdateSource.IsReadyToInstall(null, () => Newer));
     }
 
     [Theory]

@@ -44,6 +44,10 @@ public interface IUpdateSource
     /// <summary>The newest version offered above the running one, or null when up to date.</summary>
     Task<UpdateOffer?> CheckAsync(CancellationToken cancel);
 
+    /// <summary>Whether this instance still holds the update its last check found, which a download needs. False in a
+    /// new process (the restart after a failed switch) until it checked again.</summary>
+    bool HasUpdate { get; }
+
     /// <summary>Set by <see cref="CheckAsync"/> when it got nothing because the source refused to check (the Store's
     /// check limits): the earliest time (UTC) it checks again. Null when it checked, or when that isn't known.</summary>
     DateTime? RefusedUntil { get; }

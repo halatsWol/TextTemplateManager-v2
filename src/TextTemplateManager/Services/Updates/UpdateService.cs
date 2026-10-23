@@ -201,7 +201,7 @@ public sealed class UpdateService : IDisposable
         bool download;
         try { download = await CheckCoreAsync(userInitiated); }
         finally { _busy.Release(); }
-        if (download) await DownloadAsync(ownerWindow, userInitiated);
+        if (download) await DownloadCoreAsync(ownerWindow, userInitiated);
     }
 
     /// <summary>The check itself; true when the update it found (or already knew) should be downloaded now.</summary>
@@ -223,7 +223,7 @@ public sealed class UpdateService : IDisposable
             return false;
         }
         // An update found earlier (its download not started, refused or failed) needs no new check to be downloaded.
-        if (userInitiated && _offer is { } found && before.Stage is UpdateStage.Available or UpdateStage.Failed
+        if (userInitiated && _offer is { } found && source.HasUpdate && before.Stage is UpdateStage.Available or UpdateStage.Failed
             && RouteFor(true, found) != DownloadRoute.None)
             return true;
         // Inside the Store's limits a check only repeats its last answer: skip it, and tell the user when it was theirs.
@@ -296,8 +296,15 @@ public sealed class UpdateService : IDisposable
     }
 
     /// <summary>Downloads the offered version. Silently when the source allows it; otherwise through the source's request
-    /// route (the Store's consent dialog, if it shows one) over <paramref name="ownerWindow"/>.</summary>
+    /// route (the Store's consent dialog, if it shows one) over <paramref name="ownerWindow"/>. An offer this process
+    /// didn't find itself (the failed switch before the restart) is checked first: the source has nothing to download yet.</summary>
     public async Task DownloadAsync(IntPtr ownerWindow, bool userInitiated)
+    {
+        if (_source is { HasUpdate: false } && _offer != null) await CheckAsync(userInitiated, ownerWindow);
+        else await DownloadCoreAsync(ownerWindow, userInitiated);
+    }
+
+    private async Task DownloadCoreAsync(IntPtr ownerWindow, bool userInitiated)
     {
         if (_source == null || _switcher == null || _offer is not { } offer) return;
         if (Policy.Mode != InAppUpdatesMode.Full) return;

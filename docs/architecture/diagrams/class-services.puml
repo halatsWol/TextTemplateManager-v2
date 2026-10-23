@@ -112,6 +112,7 @@ package "Services.Updates" {
   interface IUpdateSource {
     +Name / DisplayName
     +CheckAsync() : UpdateOffer?
+    +HasUpdate : bool
     +IsDownloadedAsync(offer) : bool
     +CanDownloadSilently : bool
     +DownloadAsync(offer, progress)
@@ -124,7 +125,8 @@ package "Services.Updates" {
   note bottom of StoreUpdateSource
     StoreContext; offers without a version,
     downloaded = queue item
-    PausedReadyToInstall; under the Store
+    PausedReadyToInstall and a newer
+    version staged; under the Store
     policy: consent dialog only.
   end note
   note bottom of FileUpdateSource

@@ -515,10 +515,11 @@ namespace TextTemplateManager
             try
             {
                 var package = Windows.ApplicationModel.Package.Current;
+                var switcher = new PackageSwitcher();
                 IUpdateSource? source = package.SignatureKind == Windows.ApplicationModel.PackageSignatureKind.Store
-                    ? new StoreUpdateSource()
+                    ? new StoreUpdateSource(switcher.FindStaged)
                     : FileUpdateSource.ConfiguredFolder() is { } folder ? new FileUpdateSource(folder, package.Id.Name) : null;
-                return new UpdateService(source, new PackageSwitcher(), log, attemptPath);
+                return new UpdateService(source, switcher, log, attemptPath);
             }
             catch (Exception ex)
             {

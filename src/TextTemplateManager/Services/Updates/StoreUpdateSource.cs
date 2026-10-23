@@ -19,10 +19,22 @@ public sealed class StoreUpdateSource : IUpdateSource
     private static readonly TimeSpan PausedTimeout = TimeSpan.FromMinutes(2);
 
     private readonly StoreContext _store = StoreContext.GetDefault();
+    private readonly Func<Version?> _findStaged;
     private IReadOnlyList<StorePackageUpdate> _updates = [];
     private bool _downloaded;
 
+    /// <param name="findStaged">The newest staged version above the running one (<see cref="IPackageSwitcher.FindStaged"/>).</param>
+    public StoreUpdateSource(Func<Version?> findStaged) => _findStaged = findStaged;
+
+    /// <summary>The queue item stays PausedReadyToInstall after TTM switched to the staged version itself (2.3.5,
+    /// 2026-10-23), so the next update looked downloaded and the switch only registered the running version again.
+    /// Only a newer staged package makes the queue's word count.</summary>
+    public static bool IsReadyToInstall(StoreQueueItemExtendedState? state, Func<Version?> findStaged) =>
+        state == StoreQueueItemExtendedState.PausedReadyToInstall && findStaged() != null;
+
     public string Name => "Store";
+
+    public bool HasUpdate => _updates.Count > 0;
 
     public string DisplayName => "Microsoft Store";
 
@@ -40,7 +52,7 @@ public sealed class StoreUpdateSource : IUpdateSource
     public async Task<UpdateOffer?> CheckAsync(CancellationToken cancel)
     {
         // Read the queue first: the update check puts the queue item back to Paused, though the package stays staged.
-        if (await QueueStateAsync() == StoreQueueItemExtendedState.PausedReadyToInstall) _downloaded = true;
+        if (IsReadyToInstall(await QueueStateAsync(), _findStaged)) _downloaded = true;
         // The Store logs a refusal at the start of the check; a little slack for the clock.
         var started = DateTime.UtcNow.AddSeconds(-5);
         _updates = await _store.GetAppAndOptionalStorePackageUpdatesAsync().AsTask(cancel);
@@ -54,7 +66,7 @@ public sealed class StoreUpdateSource : IUpdateSource
     }
 
     public async Task<bool> IsDownloadedAsync(UpdateOffer offer) =>
-        _downloaded || await QueueStateAsync() == StoreQueueItemExtendedState.PausedReadyToInstall;
+        (_downloaded && _findStaged() != null) || IsReadyToInstall(await QueueStateAsync(), _findStaged);
 
     public async Task<DownloadResult> DownloadAsync(UpdateOffer offer, IProgress<double> progress, CancellationToken cancel)
     {
