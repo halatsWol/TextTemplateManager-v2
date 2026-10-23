@@ -9,6 +9,7 @@ TextTemplateManager stores reusable text templates (rich text as HTML) in a tree
 | UI | WinUI 3 (Windows App SDK 1.8), XAML with code-behind and view models (CommunityToolkit.Mvvm, partial `[ObservableProperty]` properties) |
 | Runtime | .NET 8, C# 14 (built with the .NET 10 SDK), x64 only |
 | Rich-text editor | TipTap in a WebView2 (`src/editor`, bundled by esbuild into single HTML pages under `Assets/editor`) |
+| Translation | Bergamot (Firefox Translations, wasm) in a worker of the editor's WebView2; language models in the package's LocalCache |
 | Persistence | JSON files via `System.Text.Json` source generation (`StorageJsonContext`) |
 | Packaging | MSIX through the Microsoft Store; the Windows App SDK is a Store framework package, .NET is self-contained |
 | Win32 | P/Invoke for the global hotkey, clipboard, `SendInput`, low-level keyboard hook, window subclassing, session-end messages |
@@ -30,7 +31,7 @@ TextTemplateManager stores reusable text templates (rich text as HTML) in a tree
 | `  Helpers/` | HTML conversions (RTF, Markdown, panels, sanitizer), template variables, Win32 window helpers, converters |
 | `  Controls/` | User controls: editor, settings view, conflict panel, search options, tutorial overlay, About |
 | `  Tutorial/` | Tour steps and sample data, startup greeting, What's new parser |
-| `src/editor/` | TipTap editor and preview sources |
+| `src/editor/` | TipTap editor and preview sources, the translator worker, their JavaScript tests |
 | `tests/TextTemplateManager.Tests/` | xUnit tests |
 | `tools/ManualGen/` | Renders the Markdown manuals to PDF (QuestPDF) |
 | `build/` | Release build, release-notes and website scripts |
@@ -68,7 +69,7 @@ The app has three layers plus platform services. Dependencies point downward; th
 
 ([source](diagrams/deployment.puml))
 
-The installed app lives in the read-only package folder. All user data is in the package's `LocalState` folder (removed by Windows on Reset and Uninstall); automatic backups go to `Documents\TextTemplateManager\Backups` so they survive both. Sync files live wherever the user put them. The environment variable `TTM_DATA_DIR` redirects the data folder, the backups and the 1.x folder for tests and dev runs (see [11](11-platform-build-release.md)).
+The installed app lives in the read-only package folder. All user data is in the package's `LocalState` folder (removed by Windows on Reset and Uninstall); automatic backups go to `Documents\TextTemplateManager\Backups` so they survive both. Translation models, which can be downloaded again, are in the package's `LocalCache`. Sync files live wherever the user put them. The environment variable `TTM_DATA_DIR` redirects the data folder, the backups and the 1.x folder for tests and dev runs (see [11](11-platform-build-release.md)).
 
 ---
 

@@ -30,6 +30,14 @@ pwsh -File tests/run-tests.ps1
 | Tour and startup | `TutorialTests` (sample store, card placement, tour offer and What's new, the shipped `release.md`) |
 | Smoke | `SmokeTests` |
 
+The editor's JavaScript has its own tests (`src/editor/test`, Node's test runner), run from `src/editor`:
+
+```bash
+npm test
+```
+
+They cover the placeholder masking and the language routing. `engine.test.mjs` also runs the real engine from `Assets/translator` on English-German models when `TTM_TEST_MODELS` points to a folder laid out like `TranslationModels` with `en-de` and `de-en`; without it, that test is skipped.
+
 Logic that needs no window lives outside the windows on purpose (`QuickPasteController`, `ItemDraft`, `MultiSelection`, `ConflictReport`, `StartupGreeting`, `WhatsNew`, `TutorialOverlay.Beside`), so it can be tested here.
 
 ## UI checks

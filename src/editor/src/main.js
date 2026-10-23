@@ -18,6 +18,7 @@ import { lowlight, LANGUAGES, DEFAULT_LANGUAGE } from './languages.js'
 import { Fragment, Slice } from '@tiptap/pm/model'
 import { TextSelection, EditorState, Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
+import { translateHtml } from './translator/client.js'
 
 // Allow any block (incl. headings) inside a list item so heading + list can coexist.
 const RichListItem = ListItem.extend({ content: 'block+' })
@@ -652,6 +653,7 @@ window.editorApi = {
         // setEditable doesn't reach them — disable them here (and new blocks read isEditable in sync).
         document.querySelectorAll('.code-lang').forEach(s => { s.disabled = !on })
     },
+    translateHtml,
 }
 
 // ---- Toolbar ------------------------------------------------------------------

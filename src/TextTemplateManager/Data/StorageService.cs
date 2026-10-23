@@ -39,13 +39,16 @@ public sealed class StorageService
 
     /// <summary>Storage rooted at <paramref name="baseDirectory"/>, backups in <paramref name="backupDirectory"/>
     /// (default: a Backups folder inside it), the 1.x data read from <paramref name="legacyDirectory"/> (default: a
-    /// TTM1 folder inside it). Touches no files; the folder must exist before the first write
+    /// TTM1 folder inside it), translation models in <paramref name="translationModelDirectory"/> (default: a
+    /// TranslationModels folder inside it). Touches no files; the folder must exist before the first write
     /// (see <see cref="CreateDefault"/>).</summary>
-    public StorageService(string baseDirectory, string? backupDirectory = null, string? legacyDirectory = null)
+    public StorageService(string baseDirectory, string? backupDirectory = null, string? legacyDirectory = null,
+        string? translationModelDirectory = null)
     {
         _baseDirectory = baseDirectory;
         BackupDirectory = backupDirectory ?? Path.Combine(baseDirectory, "Backups");
         LegacyDirectory = legacyDirectory ?? Path.Combine(baseDirectory, "TTM1");
+        TranslationModelDirectory = translationModelDirectory ?? Path.Combine(baseDirectory, "TranslationModels");
     }
 
     /// <summary>The app's storage: the environment's data folder, or the one <see cref="DataDirOverrideVariable"/>
@@ -56,8 +59,12 @@ public sealed class StorageService
         bool redirected = !string.IsNullOrWhiteSpace(overridden);
         string baseDirectory = redirected ? Path.GetFullPath(overridden!) : environment.DataDirectory;
         Directory.CreateDirectory(baseDirectory);
-        return redirected ? new StorageService(baseDirectory)
-            : new StorageService(baseDirectory, environment.BackupDirectory, AppEnvironment.LegacyDataDirectory);
+        if (redirected) return new StorageService(baseDirectory);
+        // Models can be downloaded again, so the installed app keeps them in LocalCache (not backed up or roamed).
+        string? models = environment.IsPackaged
+            ? Path.Combine(Windows.Storage.ApplicationData.Current.LocalCacheFolder.Path, "TranslationModels")
+            : null;
+        return new StorageService(baseDirectory, environment.BackupDirectory, AppEnvironment.LegacyDataDirectory, models);
     }
 
     /// <summary>Where automatic backups are written. Created on the first backup.</summary>
@@ -65,6 +72,10 @@ public sealed class StorageService
 
     /// <summary>The 1.x data folder. Only ever read.</summary>
     public string LegacyDirectory { get; }
+
+    /// <summary>The installed translation models, one folder per language pair. Created by the editor on first
+    /// start.</summary>
+    public string TranslationModelDirectory { get; }
 
     /// <summary>True when <paramref name="content"/> loads as a file of the given kind with the app's own
     /// loaders (backups only keep files that do).</summary>

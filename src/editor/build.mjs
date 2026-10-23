@@ -34,4 +34,10 @@ function page(shell, bundleFile, js) {
 page('editor.html', 'editor.bundle.js', await bundle('main.js'))
 // The read-only preview highlights code blocks with the same grammars (highlight.js core).
 page('preview.html', 'preview.bundle.js', await bundle('preview.js'))
+
+// The translator's worker, next to the Bergamot engine (bergamot-translator.js and .wasm,
+// Firefox Translations v0.6.0, MPL-2.0), which is checked in there as published by Mozilla.
+const translatorDir = resolve(here, '..', 'TextTemplateManager', 'Assets', 'translator')
+mkdirSync(translatorDir, { recursive: true })
+writeFileSync(resolve(translatorDir, 'translator-worker.js'), await bundle('translator/worker.js'))
 console.log('Editor pages written to', outDir)

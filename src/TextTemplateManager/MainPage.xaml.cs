@@ -96,6 +96,7 @@ namespace TextTemplateManager
             if (!tour) (Application.Current as App)?.AddExitFlush(Editor.FlushAsync);
 
             Settings.Store = store;
+            Editor.TranslationModelDirectory = store.Storage.TranslationModelDirectory;
             SearchOptions.Settings = store.CurrentSettings;
             Settings.Closed += Settings_Closed;
             Editor.FocusSearchRequested += (_, _) => FocusSearchBox();

@@ -33,6 +33,9 @@ public sealed partial class TemplateEditor : UserControl
     /// from the stored text without any edit).</summary>
     public event Action<Template, string>? ContentLoaded;
 
+    /// <summary>The installed translation models, served to the editor's translator. Set before the editor loads.</summary>
+    public string? TranslationModelDirectory { get; set; }
+
     public TemplateEditor() => InitializeComponent();
 
     /// <summary>Shows <paramref name="template"/> (null: an empty editor), read-only unless
@@ -109,12 +112,33 @@ public sealed partial class TemplateEditor : UserControl
             core.Settings.IsStatusBarEnabled = false;
             core.Settings.AreBrowserAcceleratorKeysEnabled = false;
             core.ContextMenuRequested += Editor_ContextMenuRequested;
+            MapTranslatorHosts(core);
 
             EditorWebView.NavigateToString(EditorPages.Editor);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[Editor] init failed: {ex.Message}");
+        }
+    }
+
+    // The translator's worker and engine (Assets\translator) and the models it reads. The editor page is an
+    // opaque origin, so both hosts must allow cross-origin reads.
+    private void MapTranslatorHosts(CoreWebView2 core)
+    {
+        try
+        {
+            core.SetVirtualHostNameToFolderMapping("ttm-translator.example",
+                System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "translator"), CoreWebView2HostResourceAccessKind.Allow);
+            if (TranslationModelDirectory is { } models)
+            {
+                System.IO.Directory.CreateDirectory(models);
+                core.SetVirtualHostNameToFolderMapping("ttm-models.example", models, CoreWebView2HostResourceAccessKind.Allow);
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Editor] translator hosts failed: {ex.Message}");
         }
     }
 

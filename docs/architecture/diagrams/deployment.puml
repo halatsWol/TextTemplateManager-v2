@@ -7,6 +7,7 @@ node "Windows PC" {
   node "MSIX package MarflowSoftware.TextTemplateManager\n(C:\\Program Files\\WindowsApps, read-only)" as Pkg {
     artifact "ttm2.exe\n(.NET 8 self-contained)" as Exe
     artifact "Assets\\editor\\*.html\n(TipTap bundles)" as EditorAssets
+    artifact "Assets\\translator\n(Bergamot engine, worker)" as TranslatorAssets
     artifact "Manual.pdf, release.md, LICENSE" as Docs
   }
   node "Framework package\nMicrosoft.WindowsAppRuntime.1.8" as WinAppSdk
@@ -18,6 +19,9 @@ node "Windows PC" {
     file "crash.log"
     file "update.log, update-attempt.json"
     folder "restore-work (only during a restore)"
+  }
+  folder "%LocalAppData%\\Packages\\MarflowSoftware.TextTemplateManager_eb1r5ey0kd4ny\\LocalCache" as LocalCache {
+    folder "TranslationModels\\<from>-<to>"
   }
   folder "Documents\\TextTemplateManager\\Backups" as Backups {
     file "ttm-backup-<kind>-<time>.zip"
@@ -35,6 +39,7 @@ Store --> WinAppSdk : framework dependency
 Exe --> WinAppSdk
 Exe --> WebView2
 Exe --> LocalState : read/write
+WebView2 --> LocalCache : reads models
 Exe --> Backups : write, read for restore
 Exe --> V1 : read once (v1 backup, import)
 Exe <--> Shared : sync (merge, write back)

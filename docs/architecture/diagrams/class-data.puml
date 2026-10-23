@@ -33,6 +33,7 @@ class DataNode {
 
 class StorageService {
   +DataDirectory / BackupDirectory / LegacyDirectory
+  +TranslationModelDirectory
   +{static} CreateDefault(environment)
   +SaveAsync(path, root)
   +SaveSharedAsync(path, root)
