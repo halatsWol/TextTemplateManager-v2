@@ -38,7 +38,7 @@ end
 opt update downloaded and ready
   App -> UpdateService : SwitchAsync(restart: false)\n(Windows closes the app and installs it)
 end
-App -> App : Shutdown(): tray icon off, instance key\nunregistered, Exit() (+5 s hard-exit watchdog)
+App -> App : Shutdown(): update timers stopped, tray icon off,\ninstance key unregistered, Exit() (+5 s hard-exit watchdog)
 
 == Sign-out / shutdown ==
 participant Windows as OS

@@ -366,7 +366,11 @@ namespace TextTemplateManager
 
         private async Task<bool> AskQuitAfterErrorAsync(bool saved)
         {
-            if (MainWindow?.Content is not MainPage page) return false;
+            if (_isClosingFromTray) return false;
+            MainPage? page;
+            try { page = MainWindow?.Content as MainPage; }
+            catch (System.Runtime.InteropServices.COMException) { return false; }   // the window is closed already
+            if (page == null) return false;
             ShowMainWindow();
             return await page.AskQuitAfterErrorAsync(saved, _store.Storage.GetCrashLogPath());
         }
@@ -550,6 +554,7 @@ namespace TextTemplateManager
 
         private void OnUpdateStatus(UpdateStatus status)
         {
+            if (_isClosingFromTray) return;
             (_pageBeforeTour ?? MainWindow.Content as MainPage)?.ShowUpdateStatus(status);
             _trayService?.SetUpdateReady(status.IsReady);
             if (status.IsReady && !_readyNoticeShown && !MainWindow.Visible
@@ -626,8 +631,10 @@ namespace TextTemplateManager
 
         private async Task IdleInstallTickAsync()
         {
-            if (_updates == null || _idleInstalling) return;
-            var page = _pageBeforeTour ?? MainWindow.Content as MainPage;
+            if (_updates == null || _idleInstalling || _isClosingFromTray) return;
+            MainPage? page;
+            try { page = _pageBeforeTour ?? MainWindow.Content as MainPage; }
+            catch (System.Runtime.InteropServices.COMException) { _idleInstallTimer?.Stop(); return; }   // the window is closed already
             var state = new IdleState(
                 UpdateReady: _updates.Status.IsReady,
                 Allowed: _updates.IdleInstallAllowed(_store.CurrentSettings.IdleInstall),
@@ -740,6 +747,9 @@ namespace TextTemplateManager
         public void Shutdown()
         {
             _isClosingFromTray = true;
+            // A tick after the window closed crashed on MainWindow.Content (0x800710DD, 2026-10-21).
+            _idleInstallTimer?.Stop();
+            try { _updates?.Dispose(); } catch { }
             try { _connector?.Stop(); } catch { }
             try { _backupScheduler?.Dispose(); } catch { }
             // From here a new launch starts fresh instead of redirecting to this exiting instance.

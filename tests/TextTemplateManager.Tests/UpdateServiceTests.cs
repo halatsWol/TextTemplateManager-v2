@@ -829,6 +829,11 @@ public class UpdateServiceTests
 
         Assert.Equal((1, 1), (fresh.Checks, fresh.Downloads));
         Assert.Equal(UpdateStage.Ready, after.Status.Stage);
+        // The same unnamed update found again and the way back to Ready are both in the log.
+        var lines = (await File.ReadAllLinesAsync(Path.Combine(dir, "update.log")))
+            .SkipWhile(l => !l.Contains("start ")).ToList();
+        Assert.Contains(lines, l => l.Contains("check (fake, asked): a newer version available"));
+        Assert.Contains(lines, l => l.EndsWith("ready: a newer version"));
     }
 
     [Fact]

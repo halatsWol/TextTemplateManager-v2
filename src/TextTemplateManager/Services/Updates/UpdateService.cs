@@ -157,6 +157,7 @@ public sealed class UpdateService : IDisposable
 
     private void Set(UpdateStatus status)
     {
+        if (status.Stage == UpdateStage.Ready && Status.Stage != UpdateStage.Ready) _log.Write($"ready: {Describe(status.Version)}");
         Status = status with { LastChecked = _lastChecked };
         Changed?.Invoke(Status);
     }
@@ -269,7 +270,8 @@ public sealed class UpdateService : IDisposable
         }
         bool newOffer = _offer == null || _offer.Version != offer.Version;
         _offer = offer;
-        if (newOffer) _log.Write($"check ({source.Name}): {Describe(offer.Version)} available, running {switcher.RunningVersion}");
+        // Every check, also one that finds the same update again: an unnamed offer is never "new" (2026-10-23).
+        _log.Write($"check ({source.Name}{(userInitiated ? ", asked" : "")}): {Describe(offer.Version)} available, running {switcher.RunningVersion}");
 
         var gaveUp = UpdateAttempt.Load(_attemptPath);
         if (gaveUp != null && gaveUp.IsFor(offer.Version, switcher.RunningVersion) && gaveUp.Attempts >= UpdateAttempt.MaxAttempts)
