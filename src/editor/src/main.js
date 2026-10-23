@@ -1251,6 +1251,7 @@ popupButton(ICONS.dateTime, 'Insert date / time', (pop, close) => {
         const ready = !!from && !!to && from !== to
         menuSep()
         item('Replace template', () => translate(false), ready)
+        item('Create new template', () => translate(false, true), ready)
         if (selectionRange()) item('Replace selection', () => translate(true), ready)
         menuSep()
         item('Manage languages…', manage)
@@ -1286,7 +1287,8 @@ popupButton(ICONS.dateTime, 'Insert date / time', (pop, close) => {
         return { inline, html: inline ? `<p>${box.innerHTML}</p>` : box.innerHTML }
     }
 
-    async function translate(selectionOnly) {
+    // asCopy: the whole template, given to the app as a new template; this one stays as it is.
+    async function translate(selectionOnly, asCopy = false) {
         const from = resolvedFrom()
         const to = resolvedTo()
         if (!from || !to || from === to || busy) return
@@ -1304,7 +1306,9 @@ popupButton(ICONS.dateTime, 'Insert date / time', (pop, close) => {
             const result = await translateHtml(part.html, from, to, state.formal && FORMAL_LANGUAGES.has(to))
             let html = result.html
             editor.setEditable(wasEditable)
-            if (range) {
+            if (asCopy) {
+                post({ type: 'translationCreate', html, from, to })
+            } else if (range) {
                 if (part.inline) {
                     html = html.replace(/^\s*<p>/, '').replace(/<\/p>\s*$/, '')
                     if (/^\s/.test(text) && !/^\s/.test(html)) html = ' ' + html

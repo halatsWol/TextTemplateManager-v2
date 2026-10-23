@@ -99,6 +99,7 @@ namespace TextTemplateManager
             Editor.TranslationModelDirectory = store.Storage.TranslationModelDirectory;
             Editor.Settings = store.CurrentSettings;
             Editor.TranslationSettingsRequested += (_, _) => Settings.Open(SettingsPage.Translation);
+            Editor.TranslatedCopyRequested += async (html, from, to) => await ViewModel.CreateTranslatedCopyAsync(html, from, to);
             SearchOptions.Settings = store.CurrentSettings;
             Settings.Closed += Settings_Closed;
             Editor.FocusSearchRequested += (_, _) => FocusSearchBox();

@@ -38,6 +38,9 @@ public sealed partial class TemplateEditor : UserControl
     /// <summary>The Translate menu's "Manage languages…" was chosen.</summary>
     public event EventHandler? TranslationSettingsRequested;
 
+    /// <summary>The Translate menu's "Create new template": the translated HTML, the source and the target language.</summary>
+    public event Action<string, string, string>? TranslatedCopyRequested;
+
     /// <summary>The installed translation models, served to the editor's translator. Set before the editor loads.</summary>
     public string? TranslationModelDirectory { get; set; }
 
@@ -240,6 +243,14 @@ public sealed partial class TemplateEditor : UserControl
             else if (type == "translationSettings")
             {
                 TranslationSettingsRequested?.Invoke(this, EventArgs.Empty);
+            }
+            else if (type == "translationCreate")
+            {
+                var root = doc.RootElement;
+                if (root.TryGetProperty("html", out var h) && h.GetString() is { Length: > 0 } html
+                    && root.TryGetProperty("from", out var f) && f.GetString() is { Length: > 0 } from
+                    && root.TryGetProperty("to", out var t) && t.GetString() is { Length: > 0 } to)
+                    TranslatedCopyRequested?.Invoke(html, from, to);
             }
         }
         catch (Exception ex)

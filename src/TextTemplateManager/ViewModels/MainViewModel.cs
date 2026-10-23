@@ -11,6 +11,7 @@ using TextTemplateManager.Common;
 using TextTemplateManager.Data;
 using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
+using TextTemplateManager.Services.Translation;
 
 
 namespace TextTemplateManager.ViewModels;
@@ -480,6 +481,31 @@ public partial class MainViewModel : ObservableObject
         ApplyFilter();
         SelectedItem = clone;
         ValidateAllShortcuts();   // a clone repeats the original's shortcuts
+    }
+
+    /// <summary>The Translate menu's "Create new template": a copy of the selected template with the translated
+    /// content, placed like a duplicate, tagged with the target language (<see cref="TranslatedCopy"/>), without the
+    /// single-key shortcut. Selects the copy.</summary>
+    public async Task CreateTranslatedCopyAsync(string html, string from, string to)
+    {
+        if (SelectedItem is not Template original) return;
+
+        Folder? parent = _dataNode.IsItemReadOnly(original) ? null : AllItems.ParentOf(original) as Folder;
+        var siblings = parent?.Children ?? AllItems;
+        var copy = new Template
+        {
+            Title = ItemTitles.Unique(TranslatedCopy.Title(original.Title, from, to), siblings),
+            Content = html,
+            TagsCsv = original.TagsCsv,
+            DefaultPasteMode = original.DefaultPasteMode,
+            MultiKeyShortcut = TranslatedCopy.MultiKey(original.MultiKeyShortcut, original.Title, from, to),
+        };
+
+        await _dataNode.AddItemAsync(copy, parent);
+
+        ApplyFilter();
+        SelectedItem = copy;
+        ValidateAllShortcuts();
     }
 
     /// <summary>The selected items that may be deleted: not a pinned sync folder (managed in Settings › Sync) and
