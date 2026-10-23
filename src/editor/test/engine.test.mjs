@@ -51,6 +51,9 @@ test('translates HTML and keeps markup and placeholders', { skip }, async () => 
     assert.ok(out.html.includes('$[DATE]') && out.html.includes('$[TIME(HH:mm)]'), out.html)
     assert.equal(out.missing, 0)
 
+    const link = engine.translate('<p>You can also find the contact information for your location <a href="https://example.com/contacts">here</a>.</p>', 'en', 'de')
+    assert.equal(link.html.match(/<a /g)?.length, 1, link.html)
+
     const back = engine.translate('<p>Bitte senden Sie die Unterlagen bis spätestens $[DATE(DD.MM.YYYY)].</p>', 'de', 'en')
     assert.ok(back.html.includes('$[DATE(DD.MM.YYYY)]'), back.html)
     assert.match(back.html, /documents/)

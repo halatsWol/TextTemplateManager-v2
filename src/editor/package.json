@@ -25,6 +25,7 @@
     "@tiptap/extension-text-style": "^2.6.6",
     "@tiptap/extension-underline": "^2.6.6",
     "@tiptap/starter-kit": "^2.6.6",
+    "franc": "^6.2.0",
     "highlight.js": "^11.12.0",
     "lowlight": "^3.3.0"
   },

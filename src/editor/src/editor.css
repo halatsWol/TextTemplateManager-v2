@@ -276,6 +276,59 @@ body {
     gap: 2px;
 }
 
+/* Pushed to the right end of its toolbar row. */
+.tb-btn.tb-end {
+    margin-left: auto;
+}
+
+/* ---- Translate popup ---- */
+.translate-popup {
+    width: 260px;
+}
+
+.translate-field {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.translate-field .link-input {
+    width: 100%;
+}
+
+.translate-label {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.translate-check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 6px 50px;
+    font-size: 13px;
+    color: var(--fg);
+}
+
+.translate-popup .menu-item:disabled {
+    opacity: .45;
+    cursor: default;
+    background: transparent;
+}
+
+.translate-note {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: normal;
+    padding: 0 6px;
+}
+
+.translate-note:empty {
+    display: none;
+}
+
 /* ---- Symbol picker ---- */
 .symbol-grid {
     display: grid;

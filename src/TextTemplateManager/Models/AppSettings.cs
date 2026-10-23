@@ -52,4 +52,14 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty]
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public partial bool NoAutomaticUpdates { get; set; } = false;
+
+    // The editor's Translate menu: the last chosen languages ("detect" or a code for From, a code for To). Null until
+    // chosen, which isn't written, so settings files without them keep their format.
+    [ObservableProperty] public partial string? TranslateFrom { get; set; }
+    [ObservableProperty] public partial string? TranslateTo { get; set; }
+
+    // The Translate menu's "Formal (Sie)": polite German. Written only when on.
+    [ObservableProperty]
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public partial bool TranslateFormal { get; set; } = false;
 }

@@ -3,9 +3,11 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
+using TextTemplateManager.Services.Translation;
 
 namespace TextTemplateManager.Controls;
 
@@ -33,8 +35,14 @@ public sealed partial class TemplateEditor : UserControl
     /// from the stored text without any edit).</summary>
     public event Action<Template, string>? ContentLoaded;
 
+    /// <summary>The Translate menu's "Manage languages…" was chosen.</summary>
+    public event EventHandler? TranslationSettingsRequested;
+
     /// <summary>The installed translation models, served to the editor's translator. Set before the editor loads.</summary>
     public string? TranslationModelDirectory { get; set; }
+
+    /// <summary>The app settings, where the Translate menu's last languages are kept.</summary>
+    public AppSettings? Settings { get; set; }
 
     public TemplateEditor() => InitializeComponent();
 
@@ -218,6 +226,21 @@ public sealed partial class TemplateEditor : UserControl
             {
                 TabOut?.Invoke(doc.RootElement.TryGetProperty("back", out var b) && b.GetBoolean());
             }
+            else if (type == "translationRefresh")
+            {
+                PushTranslationChoices();
+            }
+            else if (type == "translationChoice" && Settings is { } settings)
+            {
+                if (doc.RootElement.TryGetProperty("from", out var f) && f.GetString() is { Length: > 0 } from) settings.TranslateFrom = from;
+                if (doc.RootElement.TryGetProperty("to", out var t) && t.GetString() is { Length: > 0 } to) settings.TranslateTo = to;
+                if (doc.RootElement.TryGetProperty("formal", out var fo) && fo.ValueKind is System.Text.Json.JsonValueKind.True or System.Text.Json.JsonValueKind.False)
+                    settings.TranslateFormal = fo.GetBoolean();
+            }
+            else if (type == "translationSettings")
+            {
+                TranslationSettingsRequested?.Invoke(this, EventArgs.Empty);
+            }
         }
         catch (Exception ex)
         {
@@ -281,6 +304,22 @@ public sealed partial class TemplateEditor : UserControl
 
         // The store saves the change (debounced); nothing else to schedule here.
         if (t.Content != html) t.Content = html;
+    }
+
+    // The Translate menu asks each time it opens, so languages installed meanwhile in Settings show up.
+    private void PushTranslationChoices()
+    {
+        if (EditorWebView?.CoreWebView2 == null) return;
+        var choices = TranslationChoices.From(TranslationModelDirectory is { } dir ? new ModelStore(dir).Installed() : []);
+        string json = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            sources = choices.Sources.Select(c => new { code = c.Code, name = c.Name }),
+            targets = choices.Targets.Select(c => new { code = c.Code, name = c.Name }),
+            from = choices.FromOrDefault(Settings?.TranslateFrom),
+            to = choices.ToOrDefault(Settings?.TranslateTo),
+            formal = Settings?.TranslateFormal ?? false,
+        });
+        _ = EditorWebView.CoreWebView2.ExecuteScriptAsync($"window.editorApi && window.editorApi.setTranslation({json})");
     }
 
     private void ApplyTheme()

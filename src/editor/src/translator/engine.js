@@ -1,6 +1,8 @@
 // Thin wrapper around the Bergamot wasm module (Firefox Translations). Settings follow Firefox's
 // translations-engine.worker.js, which these models are built and tested with.
 import { maskPlaceholders, unmaskPlaceholders } from './mask.js'
+import { repairInline } from './inline.js'
+import { FORMAL_LANGUAGES, translateFormal } from './formal.js'
 
 const ALIGNMENT = { model: 256, lex: 64, vocab: 64, srcvocab: 64, trgvocab: 64 }
 
@@ -62,8 +64,9 @@ export class Engine {
         this.models.set(`${from}-${to}`, model)
     }
 
-    // Translates editor HTML from one language to another; the needed models must be loaded.
-    translate(html, from, to) {
+    // Translates editor HTML from one language to another; the needed models must be loaded. `formal` asks for the
+    // polite form where the target language has one the models can be steered to (see formal.js).
+    translate(html, from, to, { formal = false } = {}) {
         const steps = route(from, to)
         if (steps.length === 0) return { html, missing: 0 }
         const models = steps.map(([f, t]) => {
@@ -73,17 +76,29 @@ export class Engine {
         })
 
         const masked = maskPlaceholders(html)
+        let out
+        if (formal && FORMAL_LANGUAGES.has(to)) {
+            // Through English first, so the last step can translate paragraphs again on their own.
+            const english = models.length === 2 ? this.run(masked.html, [models[0]]) : masked.html
+            out = translateFormal(english, (s) => this.run(s, [models.at(-1)]))
+        } else {
+            out = this.run(masked.html, models)
+        }
+        return unmaskPlaceholders(repairInline(masked.html, out), masked)
+    }
+
+    run(html, models) {
         const b = this.bergamot
         const messages = new b.VectorString()
         const options = new b.VectorResponseOptions()
         let responses
         try {
-            messages.push_back(masked.html)
+            messages.push_back(html)
             options.push_back({ qualityScores: false, alignment: true, html: true })
             responses = models.length === 1
                 ? this.service.translate(models[0], messages, options)
                 : this.service.translateViaPivoting(models[0], models[1], messages, options)
-            return unmaskPlaceholders(responses.get(0).getTranslatedText(), masked)
+            return responses.get(0).getTranslatedText()
         } finally {
             messages.delete()
             options.delete()

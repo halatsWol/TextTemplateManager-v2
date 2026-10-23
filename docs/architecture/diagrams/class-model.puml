@@ -48,6 +48,8 @@ class AppSettings <<ObservableObject>> {
   +LastRunVersion : string
   +IdleInstall : bool
   +NoAutomaticUpdates : bool
+  +TranslateFrom / TranslateTo : string?
+  +TranslateFormal : bool
 }
 
 class SyncSettings <<ObservableObject>> {

@@ -40,13 +40,26 @@ function scheduleStop() {
 }
 
 // Resolves to { html, missing } (missing = placeholders the model dropped, appended at the end). Rejects
-// with error.missingPair set ("en-de") when a needed language pair isn't installed.
-export function translateHtml(html, from, to) {
+// with error.missingPair set ("en-de") when a needed language pair isn't installed. `formal` asks for the polite
+// form (German only).
+export function translateHtml(html, from, to, formal = false) {
+    return request({ html, from, to, formal })
+}
+
+export { FORMAL_LANGUAGES } from './formal.js'
+
+// Resolves to the code among `candidates` the text is written in, or null. The detector lives in the worker so
+// its language data (some 300 KB) doesn't load with every template.
+export async function detectLanguage(text, candidates) {
+    return (await request({ detect: text, candidates })).code ?? null
+}
+
+function request(message) {
     if (!worker) start()
     const id = nextId++
     return new Promise((resolve, reject) => {
         pending.set(id, { resolve, reject })
-        worker.postMessage({ id, html, from, to })
+        worker.postMessage({ id, ...message })
         scheduleStop()
     })
 }

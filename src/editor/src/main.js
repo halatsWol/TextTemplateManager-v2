@@ -15,10 +15,10 @@ import Subscript from '@tiptap/extension-subscript'
 import Superscript from '@tiptap/extension-superscript'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import { lowlight, LANGUAGES, DEFAULT_LANGUAGE } from './languages.js'
-import { Fragment, Slice } from '@tiptap/pm/model'
+import { DOMParser as PMDOMParser, DOMSerializer, Fragment, Slice } from '@tiptap/pm/model'
 import { TextSelection, EditorState, Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
-import { translateHtml } from './translator/client.js'
+import { detectLanguage, FORMAL_LANGUAGES, translateHtml } from './translator/client.js'
 
 // Allow any block (incl. headings) inside a list item so heading + list can coexist.
 const RichListItem = ListItem.extend({ content: 'block+' })
@@ -682,6 +682,8 @@ const ICONS = {
     alignJustify: svg('<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>'),
     codeBlock: svg('<rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="8 10 6 12 8 14"/><polyline points="16 10 18 12 16 14"/><line x1="13" y1="9" x2="11" y2="15"/>'),
     symbol: svg('<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>'),
+    // Phosphor "translate" (regular weight, MIT); filled, on its own 256 grid.
+    translate: `<svg viewBox="0 0 256 256" width="18" height="18" fill="currentColor"><path d="M247.15,212.42l-56-112a8,8,0,0,0-14.31,0l-21.71,43.43A88,88,0,0,1,108,126.93,103.65,103.65,0,0,0,135.69,64H160a8,8,0,0,0,0-16H104V32a8,8,0,0,0-16,0V48H32a8,8,0,0,0,0,16h87.63A87.76,87.76,0,0,1,96,116.35a87.74,87.74,0,0,1-19-31,8,8,0,1,0-15.08,5.34A103.63,103.63,0,0,0,84,127a87.55,87.55,0,0,1-52,17,8,8,0,0,0,0,16,103.46,103.46,0,0,0,64-22.08,104.18,104.18,0,0,0,51.44,21.31l-26.6,53.19a8,8,0,0,0,14.31,7.16L148.94,192h70.11l13.79,27.58A8,8,0,0,0,240,224a8,8,0,0,0,7.15-11.58ZM156.94,176,184,121.89,211.05,176Z"/></svg>`,
     dateTime: svg('<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="12 13 12 16 14 16"/>'),
     // Filled quote glyph (Material "format_quote"), vertically centered in the 24x24 box.
     quote: '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg>',
@@ -1135,6 +1137,226 @@ popupButton(ICONS.dateTime, 'Insert date / time', (pop, close) => {
     item('Date & time', '$[DATE(YYYY-MM-DD)] $[TIME(HH:mm)]')
     item('Year', '$[YEAR]')
 })
+
+// Translate: From (Detect or an installed language) and To, then translate the template or the selection in place,
+// as one undo step. The languages come from the host each time the menu opens, so ones installed meanwhile in
+// Settings show up; the choice is remembered there. The text can't be edited while a translation runs. It sits at
+// the right end of the toolbar, apart from the formatting buttons.
+;(function addTranslateControl() {
+    const b = button(ICONS.translate + '<span class="caret">▾</span>', 'Translate', () => {})
+    b.classList.add('tb-end')
+    b.dataset.pop = '1'
+    b.setAttribute('aria-haspopup', 'true')
+    b.setAttribute('aria-expanded', 'false')
+    const pop = document.createElement('div')
+    pop.className = 'popup hidden translate-popup'
+
+    let state = { sources: [], targets: [], from: 'detect', to: null, formal: false }
+    let busy = false
+    let message = ''
+
+    const el = (tag, cls, text) => {
+        const e = document.createElement(tag)
+        if (cls) e.className = cls
+        if (text != null) e.textContent = text
+        return e
+    }
+    const selectionRange = () => {
+        const { from, to, empty } = editor.state.selection
+        return empty ? null : { from, to }
+    }
+    const nameOf = (code) => [...state.sources, ...state.targets].find(l => l.code === code)?.name ?? code
+    // Detect's guess: the selection's language, or the template's when the selection is too short to tell. Undefined
+    // while the worker works it out, null when it can't tell.
+    let detected
+    let detectRun = 0
+    async function runDetect() {
+        if (state.from !== 'detect' || state.sources.length === 0) return
+        const run = ++detectRun
+        detected = undefined
+        const doc = editor.state.doc
+        const codes = state.sources.map(s => s.code)
+        const r = selectionRange()
+        let code = null
+        try {
+            code = (r && await detectLanguage(doc.textBetween(r.from, r.to, ' '), codes))
+                || await detectLanguage(doc.textBetween(0, doc.content.size, ' '), codes)
+        } catch { code = null }
+        if (run !== detectRun) return
+        detected = code
+        if (openPopup === pop && !busy) render()
+    }
+    const resolvedFrom = () => state.from === 'detect' ? (detected ?? null) : state.from
+    // Without a remembered To: English, unless the text is English, then the first other language.
+    const resolvedTo = () => {
+        if (state.to) return state.to
+        const from = resolvedFrom()
+        return (state.targets.find(t => t.code === 'en' && from !== 'en') ?? state.targets.find(t => t.code !== from) ?? state.targets[0])?.code ?? null
+    }
+
+    function select(label, options, value, onChange) {
+        const wrap = el('label', 'translate-field')
+        wrap.appendChild(el('span', 'translate-label', label))
+        const s = el('select', 'link-input')
+        for (const o of options) {
+            const opt = el('option', null, o.name)
+            opt.value = o.code
+            s.appendChild(opt)
+        }
+        s.value = value ?? ''
+        s.disabled = busy
+        s.onchange = () => onChange(s.value)
+        wrap.appendChild(s)
+        pop.appendChild(wrap)
+    }
+    function item(label, onClick, enabled = true) {
+        const i = el('button', 'menu-item', label)
+        i.disabled = busy || !enabled
+        i.onclick = (e) => { e.preventDefault(); onClick() }
+        pop.appendChild(i)
+    }
+    const menuSep = () => pop.appendChild(el('div', 'menu-sep'))
+    const manage = () => { closePopup(); post({ type: 'translationSettings' }) }
+    // The menu is rebuilt on every change, so a click's target is gone by the time the document's click handler
+    // asks whether it was inside the popup: keep clicks inside from reaching it.
+    pop.addEventListener('click', (e) => e.stopPropagation())
+
+    function render() {
+        pop.replaceChildren()
+        if (state.sources.length === 0 || state.targets.length === 0) {
+            pop.appendChild(el('div', 'translate-note', 'No languages installed.'))
+            item('Download languages…', manage)
+            return
+        }
+        const detecting = state.from === 'detect' && detected === undefined
+        const detectName = state.from !== 'detect' ? 'Detect'
+            : detecting ? 'Detect (…)'
+            : detected ? `Detect (${nameOf(detected)})` : 'Detect (unsure)'
+        select('From', [{ code: 'detect', name: detectName }, ...state.sources], state.from, (v) => choose({ from: v }))
+        const to = resolvedTo()
+        select('To', state.targets, to, (v) => choose({ to: v }))
+        if (FORMAL_LANGUAGES.has(to)) {
+            const wrap = el('label', 'translate-check')
+            const box = el('input')
+            box.type = 'checkbox'
+            box.checked = state.formal
+            box.disabled = busy
+            box.onchange = () => choose({ formal: box.checked })
+            wrap.appendChild(box)
+            wrap.appendChild(el('span', null, 'Formal (Sie)'))
+            pop.appendChild(wrap)
+        }
+
+        const from = resolvedFrom()
+        const ready = !!from && !!to && from !== to
+        menuSep()
+        item('Replace template', () => translate(false), ready)
+        if (selectionRange()) item('Replace selection', () => translate(true), ready)
+        menuSep()
+        item('Manage languages…', manage)
+
+        const note = busy ? 'Translating…'
+            : message ? message
+            : detecting ? ''
+            : !from ? 'The language couldn\'t be told. Choose it under From.'
+            : from === to ? 'From and To are the same language.'
+            : ''
+        const status = el('div', 'translate-note', note)
+        status.setAttribute('role', 'status')
+        status.setAttribute('aria-live', 'polite')
+        pop.appendChild(status)
+    }
+
+    function choose(change) {
+        state = { ...state, to: resolvedTo(), ...change }
+        message = ''
+        post({ type: 'translationChoice', from: state.from, to: state.to, formal: state.formal })
+        render()
+        if (change.from === 'detect') runDetect()
+    }
+
+    // Text selected inside one paragraph goes as a paragraph of its own and comes back inline, keeping the spaces
+    // around it; a selection across blocks goes as the blocks it covers.
+    function selectionHtml(range) {
+        const doc = editor.state.doc
+        const $from = doc.resolve(range.from), $to = doc.resolve(range.to)
+        const inline = $from.sameParent($to) && $from.parent.isTextblock
+        const box = document.createElement('div')
+        box.appendChild(DOMSerializer.fromSchema(editor.schema).serializeFragment(doc.slice(range.from, range.to).content))
+        return { inline, html: inline ? `<p>${box.innerHTML}</p>` : box.innerHTML }
+    }
+
+    async function translate(selectionOnly) {
+        const from = resolvedFrom()
+        const to = resolvedTo()
+        if (!from || !to || from === to || busy) return
+        const range = selectionOnly ? selectionRange() : null
+        if (selectionOnly && !range) return
+        const part = range ? selectionHtml(range) : { inline: false, html: getCleanHtml() }
+        const text = range ? editor.state.doc.textBetween(range.from, range.to, ' ') : ''
+
+        const wasEditable = editor.isEditable
+        busy = true
+        message = ''
+        editor.setEditable(false)
+        render()
+        try {
+            const result = await translateHtml(part.html, from, to, state.formal && FORMAL_LANGUAGES.has(to))
+            let html = result.html
+            editor.setEditable(wasEditable)
+            if (range) {
+                if (part.inline) {
+                    html = html.replace(/^\s*<p>/, '').replace(/<\/p>\s*$/, '')
+                    if (/^\s/.test(text) && !/^\s/.test(html)) html = ' ' + html
+                    if (/\s$/.test(text) && !/\s$/.test(html)) html = html + ' '
+                }
+                // Parsed as an open slice and fitted in like a paste, so the first and last paragraph join the text
+                // around the selection instead of splitting it.
+                const box = document.createElement('div')
+                box.innerHTML = html
+                const slice = PMDOMParser.fromSchema(editor.schema).parseSlice(box)
+                editor.view.dispatch(editor.state.tr.replaceRange(range.from, range.to, slice).scrollIntoView())
+                editor.commands.focus()
+            } else {
+                editor.chain().focus().setContent(normalizeBreaks(html), true).run()
+            }
+            const n = result.missing
+            message = n ? `${n === 1 ? 'A placeholder' : `${n} placeholders`} couldn't be placed and ${n === 1 ? 'was' : 'were'} added at the end.` : ''
+            if (!message) closePopup()
+        } catch (err) {
+            editor.setEditable(wasEditable)
+            message = err.missingPair
+                ? `${err.missingPair.split(/-(?=[a-z]{2}(?:-|$))/).map(nameOf).join(' to ')} isn't installed. Download it under Manage languages.`
+                : `The translation failed: ${err.message}`
+        } finally {
+            busy = false
+            if (openPopup === pop) render()
+        }
+    }
+
+    window.editorApi.setTranslation = (s) => {
+        state = { sources: s.sources || [], targets: s.targets || [], from: s.from || 'detect', to: s.to || null, formal: !!s.formal }
+        if (openPopup === pop && !busy) render()
+        runDetect()
+    }
+
+    b.onclick = (e) => {
+        e.preventDefault()
+        const wasOpen = openPopup === pop
+        closePopup()
+        if (wasOpen) return
+        message = ''
+        render()
+        placePopup(pop, b)
+        openPopup = pop
+        pop._button = b
+        b.setAttribute('aria-expanded', 'true')
+        runDetect()
+        post({ type: 'translationRefresh' })
+    }
+    toolbar.appendChild(b)
+    toolbar.appendChild(pop)
+})()
 
 // ---- Keyboard: the main window's Tab cycle runs through the toolbar and the text ----------
 // The toolbar is one Tab stop (roving tabindex): Left/Right/Home/End move between its buttons, Tab goes to the end
