@@ -30,6 +30,7 @@ public sealed class TranslationUpdater : IDisposable
     private readonly Action<string, string>? _notify;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private CancellationTokenSource? _loop;
+    private PeriodicTimer? _timer;
 
     public TranslationUpdater(AppSettings settings, ModelStore store, HttpClient http, Action<string, string>? notify = null)
         : this(settings, store, ct => ModelCatalog.LoadAsync(http, ct), (pair, ct) => store.InstallAsync(http, pair, null, ct),
@@ -59,14 +60,17 @@ public sealed class TranslationUpdater : IDisposable
         var ct = _loop.Token;
         _ = Task.Run(async () =>
         {
+            // Exit ends the waits without an exception (a debugger can stop on a caught one and hold the exit).
+            await Task.Delay(FirstTick, ct).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
+            var timer = _timer = new PeriodicTimer(TickInterval);
+            if (ct.IsCancellationRequested) { timer.Dispose(); return; }
             try
             {
-                await Task.Delay(FirstTick, ct);
-                using var timer = new PeriodicTimer(TickInterval);
-                do { await TickAsync(ct); } while (await timer.WaitForNextTickAsync(ct));
+                do { await TickAsync(ct); } while (!ct.IsCancellationRequested && await timer.WaitForNextTickAsync());
             }
             catch (OperationCanceledException) { }
-        }, ct);
+            finally { timer.Dispose(); }
+        });
     }
 
     /// <summary>Checks when the option is on and a check is due.</summary>
@@ -116,6 +120,7 @@ public sealed class TranslationUpdater : IDisposable
     public void Dispose()
     {
         _loop?.Cancel();
+        _timer?.Dispose();
         _loop?.Dispose();
         _gate.Dispose();
     }

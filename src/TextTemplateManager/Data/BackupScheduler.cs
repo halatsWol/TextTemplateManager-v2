@@ -30,6 +30,7 @@ public sealed class BackupScheduler : IDisposable
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly Dictionary<BackupTier, DateTime> _lastDone = new();
     private CancellationTokenSource? _loop;
+    private PeriodicTimer? _timer;
 
     private bool _started;
     private long _seenWrites;
@@ -50,30 +51,37 @@ public sealed class BackupScheduler : IDisposable
     {
         _loop = new CancellationTokenSource();
         var ct = _loop.Token;
+        var timer = _timer = new PeriodicTimer(TickInterval);
         _ = Task.Run(async () =>
         {
-            using var timer = new PeriodicTimer(TickInterval);
-            try
+            // Stopping disposes the timer, which ends the wait without an exception (a debugger can stop on a caught
+            // one and hold the exit).
+            using (timer)
             {
                 do
                 {
                     try { await TickAsync(); }
                     catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[Backup] {ex.Message}"); }
                 }
-                while (await timer.WaitForNextTickAsync(ct));
+                while (!ct.IsCancellationRequested && await timer.WaitForNextTickAsync());
             }
-            catch (OperationCanceledException) { }
         });
     }
 
-    public void Dispose() => _loop?.Cancel();
+    public void Dispose() => StopLoop();
+
+    private void StopLoop()
+    {
+        _loop?.Cancel();
+        _timer?.Dispose();
+    }
 
     private bool _stopped;
 
     /// <summary>Waits for a running backup, then makes no more (before a restore swaps the files).</summary>
     public async Task StopAsync()
     {
-        _loop?.Cancel();
+        StopLoop();
         await _gate.WaitAsync();
         _stopped = true;
         _gate.Release();
