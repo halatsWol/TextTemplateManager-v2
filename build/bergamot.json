@@ -1,0 +1,9 @@
+{
+  "comment": "The Bergamot engine in src/TextTemplateManager/Assets/translator, for build/Check-Bergamot.ps1. Update it together with the files.",
+  "release": "v0.6.0",
+  "wasmRecordVersion": "4.0",
+  "wasmRevision": "1de4a085d3a7afb625c51a60aabb5ad298e4059f",
+  "wasmSha256": "f38ef807636a7c994afedaab7ff8ffe0d590d21897f05139f747b80fd7bbe926",
+  "loaderRevision": "eea6e5a80aa4ddd86d9cc35ce9a65b79aa3ab96d",
+  "modelMajorVersion": 3
+}

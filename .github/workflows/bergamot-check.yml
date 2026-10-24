@@ -1,0 +1,26 @@
+name: Bergamot check
+
+# Once a week: does Mozilla ship a newer Bergamot translation engine, or a new model format? Dependabot can't watch
+# it (Firefox loads it from Remote Settings, it is no package). Opens an issue, or updates the open one; see
+# build/Check-Bergamot.ps1. Can also be run by hand.
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Compare with Mozilla
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./build/Check-Bergamot.ps1
