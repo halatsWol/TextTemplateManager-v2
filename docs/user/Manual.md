@@ -142,6 +142,10 @@ In the menu, choose the language the template is written in under **From** and t
 - **Create new template** leaves this template as it is and adds a translated copy next to it, which is then selected. The copy's title gets the language in brackets (*Not reachable* becomes *Not reachable (DE)*) and its Multi Key shortcut gets the language code (*NOTREACH* becomes *NOTREACHDE*); its tags and default paste mode are copied, and its Single Key shortcut is left empty. Translating such a copy again replaces the language instead of adding a second one (*Not reachable (DE)* to English becomes *Not reachable (EN)*).
 - **Replace selection**, shown when text is selected, translates only the selection.
 
+![The Translate menu at the right end of the editor toolbar: Detect has recognized English, To is German with Formal (Sie) on.](../../src/TextTemplateManager/Assets/ManualImages/TTM_TranslateMenu.png)
+
+![Create new template made Thanks for your message (DE) next to the original: formal German text with the formatting kept, Multi Key THXDE, no Single Key.](../../src/TextTemplateManager/Assets/ManualImages/TTM_TranslatedCopy.png)
+
 With German under **To**, **Formal (Sie)** asks for the polite form: lines that came out addressing the reader with *du* are translated again to use *Sie*. It catches most of them, not all.
 
 Formatting, links and date and time placeholders such as `$[DATE]` are kept. Each language translates to and from English; between two other languages, for example German and French, the text goes through English, so both need to be installed.
@@ -409,6 +413,8 @@ is already running.)
 ### Translation
 
 Here you download the languages for the editor's **Translate** button (see *Translating a template*). They are the Firefox Translations language models from Mozilla, downloaded from Mozilla's servers; the translation itself runs on this PC, and translating works without an internet connection once a language is installed. The page is marked experimental, with a reminder to check every translation.
+
+![Settings ▸ Translation with German installed and the other languages from Mozilla's list.](../../src/TextTemplateManager/Assets/ManualImages/TTM_Settings_Translation.png)
 
 Each row is a language with its download size and the space it takes on disk, or **Installed** and the space it uses. **Download** installs it, in both directions (to and from English) where Mozilla offers both; a few languages exist in one direction only, which the row says. While it downloads, **Cancel** stops it, and the download keeps running if you leave Settings. **Update** appears when Mozilla has published a newer version, and **Remove** deletes a language. **Search languages** filters the list. Every downloaded file is checked against Mozilla's checksums before it's used.
 
