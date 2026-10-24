@@ -36,8 +36,11 @@ Write with headings, lists, tables, colors, code blocks with syntax highlighting
 Find and organize
 Folders with drag and drop, several items at once, collapse and expand all. Search the tree as you type, fuzzy or strict with wildcards, by title, tags or the template text.
 
+Translate, offline (experimental)
+Translate a template or a selection into over 50 languages, in place or as a translated copy, with formal or informal German. Download a language once in Settings; the translation then runs on your PC, and your text never leaves it.
+
 Safe with your data
-Changes are saved when you click Save, or as you type with Autosave. Automatic backups are made after your changes, every two hours and daily, in your Documents folder; restore all or part of one, or export a backup to move to another PC. Everything stays on your PC and in the shared files you choose; nothing is sent anywhere.
+Changes are saved when you click Save, or as you type with Autosave. Automatic backups are made after your changes, every two hours and daily, in your Documents folder; restore all or part of one, or export a backup to move to another PC. Everything stays on your PC and in the shared files you choose; nothing is sent anywhere. Only the language downloads for translation come from Mozilla's servers.
 
 More
 - Starts with Windows, hidden in the system tray, if you like.
@@ -61,6 +64,7 @@ Share templates with your team through a synced file on OneDrive or a network sh
 Read-only shared folders and shortcut prefixes per shared file
 Folders, drag and drop, and several items at once
 Fuzzy or strict search by title, tags or template text
+Offline translation in over 50 languages (experimental)
 Save when you're ready, or Autosave as you type
 Automatic backups with restore and export
 Import and export of .ttmdata files
@@ -113,11 +117,12 @@ Copyright © 2026 Marflow Software
 This block is the Store's "What's new" (Microsoft asks for it on updates only; it stayed empty for 2.0.0). It lists only what changed since the previous release; keep it in step with `release.md`.
 
 ```text
-Help and problem reports in the app, and a website for TextTemplateManager.
+Translate templates on your PC, offline, in over 50 languages (experimental).
 
-- New: Settings > Support: help from the website, and how to report a problem, suggest a feature or report a security vulnerability, by e-mail (questions and versions already filled in) or on GitHub.
-- New: Export logs (Settings > Support) saves the logs for a problem report as one .zip file. Your templates and settings aren't included; your user and computer name are replaced.
-- Improved: Help > Go to website and Help > About open the new website, software.kmarflow.com/TextTemplateManager-v2, with the manuals and help & troubleshooting.
+- New: Translate, at the right end of the editor toolbar: translate a template or the selected text, in place or as a translated copy with the language on its title and shortcut. Formal (Sie) or informal (du) German.
+- New: Settings > Translation: download a language once from Mozilla's servers; then translating runs offline and your text never leaves your PC. Update, remove, export and import languages; optional daily update check.
+- Improved: toolbar menus open below their own button when the toolbar wraps.
+- Fixed: a crash after closing the window while an update waited for idle time; an update that showed as ready when it wasn't.
 ```
 
 ---

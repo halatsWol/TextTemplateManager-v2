@@ -12,16 +12,22 @@ Coming from TextTemplateManager 1: your templates and settings are backed up at 
 
 ### What's new in this release
 
-Help and problem reports in the app, and a website for TextTemplateManager.
+Translate templates on your PC, offline, in over 50 languages (experimental).
 
 #### New
 
-- **Settings ▸ Support**: help from the website, and how to report a problem, suggest a feature or report a security vulnerability, by e-mail or on GitHub. The e-mail opens in your mail app with the questions already in it and the app and Windows version filled in; GitHub needs a GitHub account.
-- **Export logs** (Settings ▸ Support) saves the logs for a problem report as one .zip file: the app's update and crash logs, the installed version and update policies, and the last 14 days of Microsoft Store, app installation and app error events about the app. Your templates and settings aren't included, and your user name and computer name are replaced.
+- **Translate** (the button at the right end of the editor toolbar): translate a template or the selected text. **From** detects the language or takes the one you pick, **To** is remembered. **Replace template** and **Replace selection** translate in place; **Create new template** makes a translated copy in the same folder, with the language on the title and the multi-key shortcut (`ANDMSG` becomes `ANDMSGDE`) and no single key. For German, **Formal** picks Sie or du (du is best effort). Placeholders and formatting stay as they were. Machine translation makes mistakes: check every translation.
+- **Settings ▸ Translation** (experimental): download a language once from Mozilla's servers (the Firefox Translations models); from then on translating runs offline, and the text you translate never leaves your PC. Languages can be updated, removed, and exported and imported for a PC without internet access. Optionally the app checks once a day for newer versions of the installed languages and downloads them on its own; otherwise **Update** on a language or **Download all updates** gets them.
 
 #### Improved
 
-- **Help ▸ Go to website** (was Go to GitHub) and **Help ▸ About** open the new website, [software.kmarflow.com/TextTemplateManager-v2](https://software.kmarflow.com/TextTemplateManager-v2/), with the manuals, help & troubleshooting, and a log collector for when the app doesn't start.
+- The editor's toolbar menus open right below their own button, also when the toolbar wraps onto a second line.
+- **Help ▸ About ▸ Third-party notices** lists all bundled components.
+
+#### Fixed
+
+- The app could crash right after its window was closed while it was waiting to install an update in idle time.
+- After a version switch, an update could show as ready when it wasn't, and **Restart to update** then installed the version already running; **Download** and **Check for updates** now ask the Store again.
 
 {{CHANGELOG}}
 

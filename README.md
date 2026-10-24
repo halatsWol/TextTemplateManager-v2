@@ -31,6 +31,7 @@ Version 1 shipped as a per-user installer from GitHub with its own updater. Vers
 - **Area-aware shortcuts**: the same shortcut can be reused in the local tree and in synced folders; local wins, then the synced folders in order, and Quick Paste lists every match.
 - **Paste modes**: Auto, HTML/Jira, HTML, RTF, Markdown, Plaintext. Callout panels adapt to each mode: native panels in Jira, colored boxes in HTML/RTF, a labeled quote in Markdown. Pastes are kept out of the clipboard history.
 - **Search**: fuzzy by default, or **strict** (exactly as typed, with `*` and `.` as wildcards); optionally also in the template text.
+- **Translation** (experimental): translate a template or a selection on the PC, offline, with Mozilla's [Bergamot](https://github.com/mozilla/translations) engine; languages are downloaded once in Settings from Mozilla's servers (Firefox Translations models), and a translated copy gets the language on its title and multi-key shortcut.
 - **Automatic backups**: after changes, every two hours and daily; restore all or part of a backup, or export one to move to another PC.
 - **Import and export** of `.ttmdata` files.
 - **Guided tour** on sample templates, and an in-app **manual** (PDF).
@@ -116,7 +117,7 @@ Found a vulnerability? Please report it privately as described in [SECURITY.md](
 | [`build/`](build/) | Release build and release-notes scripts used by the workflow |
 | [`design/logo/`](design/logo/) | The logo as SVG and the script that renders the app's icon and tile images |
 | [`design/store/`](design/store/) | The Store listing images and the scripts that make them |
-| [`.github/`](.github/) | Release, test and CodeQL workflows; Dependabot configuration |
+| [`.github/`](.github/) | Release, test, CodeQL and Bergamot check workflows; Dependabot configuration |
 | [`docs/user/`](docs/user/) | User manual, admin guide, browser connector API |
 | [`docs/architecture/`](docs/architecture/) | Technical documentation |
 
@@ -126,6 +127,7 @@ Found a vulnerability? Please report it privately as described in [SECURITY.md](
 
 - **UI**: WinUI 3 / Windows App SDK 1.8, MVVM (CommunityToolkit.Mvvm)
 - **Editor**: TipTap / ProseMirror, bundled with esbuild, hosted in WebView2
+- **Translation**: Bergamot (WebAssembly, in a worker in the editor), Firefox Translations models, ZstdSharp
 - **Storage**: `System.Text.Json` (`.ttmdata` files), zip backups with checksums
 - **Manual**: Markdig + QuestPDF (`tools/ManualGen`)
 - **Packaging**: MSIX through the Microsoft Store
