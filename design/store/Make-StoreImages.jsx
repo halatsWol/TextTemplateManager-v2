@@ -16,7 +16,8 @@ var IMAGES = [
     { name: '05-search', shot: 'store-search', caption: 'Find any template as you type', sub: 'By title, tags or the text itself, fuzzy or strict' },
     { name: '06-sync', shot: 'store-sync', caption: 'Share templates with your team', sub: 'A synced file on OneDrive or a network share' },
     { name: '07-backups', shot: 'store-backups', caption: 'Automatic backups you can restore', sub: 'After your changes, every two hours and daily' },
-    { name: '08-tour', shot: 'store-tour', caption: 'A guided tour gets you started', sub: 'On sample templates; yours stay untouched' }
+    { name: '08-tour', shot: 'store-tour', caption: 'A guided tour gets you started', sub: 'On sample templates; yours stay untouched' },
+    { name: '09-translate', shot: 'store-translate', caption: 'Translate templates on your PC', sub: 'Offline in over 50 languages, formal German included (experimental)' }
 ];
 
 function cid(id) { return charIDToTypeID(id); }

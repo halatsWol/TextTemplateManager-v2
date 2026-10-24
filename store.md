@@ -97,6 +97,7 @@ From `design/store`: one colour scheme, `amber/` or `slate/` (2560x1440 PNG), up
 06  Share templates with your team through a synced file on OneDrive or a network share.
 07  Automatic backups you can restore: after your changes, every two hours and daily.
 08  A guided tour gets you started, on sample templates; yours stay untouched.
+09  Translate templates on your PC, offline in over 50 languages, formal German included (experimental).
 ```
 
 ### Copyright and trademark info

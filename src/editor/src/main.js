@@ -749,9 +749,11 @@ window.addEventListener('keydown', (e) => {
 }, true)
 
 // Show `pop` under `btn`, clamped to the viewport so a right-edge button (e.g. the symbol
-// picker) doesn't push the popup off-screen.
+// picker) doesn't push the popup off-screen. Under the button's own row: on a wrapped toolbar a fixed top would
+// put the popup over its button.
 function placePopup(pop, btn) {
     pop.classList.remove('hidden')
+    pop.style.top = (btn.offsetTop + btn.offsetHeight + 4) + 'px'
     const rect = btn.getBoundingClientRect()
     const left = Math.max(6, Math.min(rect.left, window.innerWidth - pop.offsetWidth - 6))
     pop.style.left = left + 'px'
