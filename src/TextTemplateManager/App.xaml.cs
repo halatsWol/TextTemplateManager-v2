@@ -485,6 +485,11 @@ namespace TextTemplateManager
             {
                 if (editing.ViewModel.HasUnsavedChanges) ShowMainWindow();   // the question needs the window
                 if (!await editing.ResolveUnsavedEditsAsync()) return;
+                if (Services.Translation.ModelStore.Busy)
+                {
+                    ShowMainWindow();
+                    if (!await editing.ResolveTranslationDownloadsAsync()) return;
+                }
             }
             StopAcceptingWork();
             var save = PersistPendingAsync();

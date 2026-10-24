@@ -17,14 +17,16 @@ public class ModelStoreTests
     {
         public Dictionary<string, byte[]> Files { get; } = new();
         public List<string> Requests { get; } = new();
+        public TaskCompletionSource? Hold { get; set; }
 
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             string url = request.RequestUri!.ToString();
             Requests.Add(url);
-            return Task.FromResult(Files.TryGetValue(url, out var body)
+            if (Hold != null) await Hold.Task;
+            return Files.TryGetValue(url, out var body)
                 ? new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(body) }
-                : new HttpResponseMessage(HttpStatusCode.NotFound));
+                : new HttpResponseMessage(HttpStatusCode.NotFound);
         }
     }
 
@@ -127,6 +129,37 @@ public class ModelStoreTests
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => store.InstallAsync(http, Publish(server, "en", "de"), cancel: cancel.Token));
 
         Assert.Empty(Directory.GetFileSystemEntries(store.Directory));
+    }
+
+    // Exit asks while a download runs (only this class installs, and its tests run one after the other).
+    [Fact]
+    public async Task The_app_knows_while_a_download_runs()
+    {
+        var (store, server, http) = Setup();
+        server.Hold = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var install = store.InstallAsync(http, Publish(server, "en", "de"));
+
+        Assert.True(ModelStore.Busy);
+        Assert.False(ModelStore.WhenIdle.IsCompleted);
+        Assert.Equal(0, ModelStore.Progress);
+        server.Hold.SetResult();
+        await install;
+        await ModelStore.WhenIdle.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.False(ModelStore.Busy);
+        Assert.Equal(1, ModelStore.Progress);
+    }
+
+    [Fact]
+    public async Task A_failed_download_still_lets_the_progress_reach_the_end()
+    {
+        var (store, server, http) = Setup();
+        var pair = Publish(server, "en", "de");
+        server.Files.Remove(Base + pair.Files[2].Location);
+
+        await Assert.ThrowsAsync<HttpRequestException>(() => store.InstallAsync(http, pair));
+
+        Assert.Equal(1, ModelStore.Progress);
     }
 
     [Fact]

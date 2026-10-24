@@ -44,6 +44,41 @@ public sealed class ModelStore
     // One install at a time in the app: the Settings page and the daily update can ask for the same language.
     private static readonly SemaphoreSlim InstallGate = new(1, 1);
 
+    // Installs running or waiting in the app, so exit can wait for them or stop them.
+    private static readonly object ActiveLock = new();
+    private static int _active;
+    private static long _bytesQueued, _bytesDone;
+    private static TaskCompletionSource _idle = Idle();
+    private static readonly CancellationTokenSource StopForExit = new();
+
+    private static TaskCompletionSource Idle()
+    {
+        var idle = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        idle.SetResult();
+        return idle;
+    }
+
+    /// <summary>An install is running or waiting somewhere in the app.</summary>
+    public static bool Busy { get { lock (ActiveLock) return _active > 0; } }
+
+    /// <summary>How far the running and waiting installs are, 0 to 1, by downloaded bytes.</summary>
+    public static double Progress
+    {
+        get
+        {
+            lock (ActiveLock)
+                return _bytesQueued == 0 ? 0 : Math.Min(1, (double)Interlocked.Read(ref _bytesDone) / _bytesQueued);
+        }
+    }
+
+    /// <summary>Completes when no install runs any more.</summary>
+    public static Task WhenIdle { get { lock (ActiveLock) return _idle.Task; } }
+
+    /// <summary>Exit: stops every install; each leaves the installed version as it was.</summary>
+    public static void StopAll() => StopForExit.Cancel();
+
+    public static bool Stopped => StopForExit.IsCancellationRequested;
+
     /// <summary>The app's one client for Mozilla's servers.</summary>
     public static HttpClient Http { get; } = CreateHttpClient();
 
@@ -91,12 +126,44 @@ public sealed class ModelStore
     public async Task InstallAsync(HttpClient http, ModelPair pair, IProgress<long>? downloaded = null, CancellationToken cancel = default)
     {
         System.IO.Directory.CreateDirectory(Directory);
-        await InstallGate.WaitAsync(cancel);
-        try { await InstallUnguardedAsync(http, pair, downloaded, cancel); }
-        finally { InstallGate.Release(); }
+        lock (ActiveLock)
+        {
+            if (_active++ == 0)
+            {
+                _idle = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+                _bytesQueued = 0;
+                Interlocked.Exchange(ref _bytesDone, 0);
+            }
+            _bytesQueued += pair.DownloadSize;
+        }
+        long counted = 0;
+        void Count(long n)
+        {
+            counted += n;
+            Interlocked.Add(ref _bytesDone, n);
+        }
+        try
+        {
+            using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancel, StopForExit.Token);
+            var token = linked.Token;
+            await InstallGate.WaitAsync(token);
+            // Off the UI thread: reading, hashing and unpacking ran there between awaits and froze the window.
+            try { await Task.Run(() => InstallUnguardedAsync(http, pair, downloaded, Count, token), token); }
+            finally { InstallGate.Release(); }
+        }
+        finally
+        {
+            lock (ActiveLock)
+            {
+                // A failed or stopped install counts as done, so the others' progress still reaches 100 %.
+                Interlocked.Add(ref _bytesDone, pair.DownloadSize - counted);
+                if (--_active == 0) _idle.TrySetResult();
+            }
+        }
     }
 
-    private async Task InstallUnguardedAsync(HttpClient http, ModelPair pair, IProgress<long>? downloaded, CancellationToken cancel)
+    private async Task InstallUnguardedAsync(HttpClient http, ModelPair pair, IProgress<long>? downloaded, Action<long> count,
+        CancellationToken cancel)
     {
         string partial = Path.Combine(Directory, PartialPrefix + FolderName(pair.From, pair.To));
         DeleteQuietly(partial);
@@ -104,10 +171,21 @@ public sealed class ModelStore
         try
         {
             long total = 0;
+            // Every report is posted to the UI thread; one per chunk from a fast server starves its input.
+            var sinceReport = System.Diagnostics.Stopwatch.StartNew();
+            void Read(long n)
+            {
+                total += n;
+                count(n);
+                if (sinceReport.ElapsedMilliseconds < 100) return;
+                sinceReport.Restart();
+                downloaded?.Report(total);
+            }
             foreach (var file in pair.Files)
             {
                 string packed = Path.Combine(partial, file.Name + ".zst");
-                await DownloadAsync(http, file, packed, n => downloaded?.Report(total += n), cancel);
+                await DownloadAsync(http, file, packed, Read, cancel);
+                downloaded?.Report(total);
                 await UnpackAsync(file, packed, Path.Combine(partial, file.Name), cancel);
                 File.Delete(packed);
             }

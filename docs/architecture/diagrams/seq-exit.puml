@@ -20,6 +20,12 @@ App -> MainPage : ResolveUnsavedEditsAsync()\nSave / Don't save / Cancel
 alt Cancel
   App --> User : stays open
 end
+opt a translation language downloads (ModelStore.Busy)
+  App -> MainPage : ResolveTranslationDownloadsAsync()\nWait, then exit / Stop and exit / Cancel
+  alt Cancel
+    App --> User : stays open, the download goes on
+  end
+end
 App -> HotkeyListener : Register("None")
 App -> BrowserConnector : Stop()
 App -> App : PersistPendingAsync()

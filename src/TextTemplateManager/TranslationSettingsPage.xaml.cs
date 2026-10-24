@@ -106,6 +106,9 @@ public sealed partial class TranslationSettingsPage : Page
     {
         InitializeComponent();
         LanguageList.ItemsSource = _shown;
+        // Closing Settings unloads the page without navigating away from it.
+        Loaded += (_, _) => DownloadEnded += OnDownloadEnded;
+        Unloaded += (_, _) => DownloadEnded -= OnDownloadEnded;
     }
 
     protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -232,7 +235,7 @@ public sealed partial class TranslationSettingsPage : Page
                 done += pair.DownloadSize;
             }
         }
-        catch (OperationCanceledException) when (row.Cancel.IsCancellationRequested) { }
+        catch (OperationCanceledException) when (row.Cancel.IsCancellationRequested || ModelStore.Stopped) { }
         catch (Exception ex) when (ex is HttpRequestException or IOException or InvalidDataException
             or UnauthorizedAccessException or TaskCanceledException)
         {
@@ -245,9 +248,19 @@ public sealed partial class TranslationSettingsPage : Page
             Running.Remove(row.Code);
         }
 
+        // The page may have been left and opened again meanwhile: the open one shows the result, from disk.
+        row.Installed = store.Installed().Where(p => p.From == row.Code || p.To == row.Code).ToList();
+        row.Refresh();
+        DownloadEnded?.Invoke(row, problem);
+    }
+
+    // A download ended, started by this page or an earlier one.
+    private static event Action<TranslationLanguageRow, string?>? DownloadEnded;
+
+    private void OnDownloadEnded(TranslationLanguageRow row, string? problem)
+    {
         if (problem != null) ShowInfo(InfoBarSeverity.Error, $"{row.Name} couldn't be downloaded: {problem}");
-        if (IsLoaded) BuildRows();
-        else row.Refresh();
+        BuildRows();
     }
 
     // Shown while newer versions aren't downloaded on their own; clickable when there is one to download.

@@ -865,6 +865,67 @@ namespace TextTemplateManager
             return await ShowDialogAsync(dialog) != ContentDialogResult.Secondary;
         }
 
+        /// <summary>Exit while a translation language downloads: wait for it, or stop it. False when the user
+        /// cancels, so the app keeps running and the download goes on.</summary>
+        public async Task<bool> ResolveTranslationDownloadsAsync()
+        {
+            var ask = new ContentDialog
+            {
+                Title = "A language is still downloading",
+                Content = "A translation language is still downloading. Wait for it to finish and then exit, or stop it " +
+                          "and exit now; you can download it again later in Settings ▸ Translation.",
+                PrimaryButtonText = "Wait, then exit",
+                SecondaryButtonText = "Stop and exit",
+                CloseButtonText = "Cancel",
+                DefaultButton = ContentDialogButton.Primary,
+            };
+            switch (await ShowDialogAsync(ask))
+            {
+                case ContentDialogResult.Primary:
+                    var bar = new ProgressBar { Maximum = 100, MinWidth = 280 };
+                    var percent = new TextBlock();
+                    Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(bar, "Download progress");
+                    var waiting = new ContentDialog
+                    {
+                        Title = "Finishing the download…",
+                        Content = new StackPanel { Spacing = 8, Children = { bar, percent } },
+                        PrimaryButtonText = "Stop and exit",
+                        CloseButtonText = "Cancel",
+                    };
+                    // A language's second direction joins the total only when it starts, so the share can drop; the bar doesn't.
+                    void ShowProgress()
+                    {
+                        bar.Value = Math.Max(bar.Value, Math.Round(Services.Translation.ModelStore.Progress * 100));
+                        percent.Text = $"{bar.Value:0} %";
+                    }
+                    ShowProgress();
+                    var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
+                    timer.Tick += (_, _) => ShowProgress();
+                    timer.Start();
+                    var shown = ShowDialogAsync(waiting);
+                    try
+                    {
+                        if (await Task.WhenAny(Services.Translation.ModelStore.WhenIdle, shown) != shown)
+                        {
+                            waiting.Hide();
+                            await shown;
+                            return true;
+                        }
+                        if (await shown != ContentDialogResult.Primary) return false;
+                    }
+                    finally { timer.Stop(); }
+                    break;
+                case ContentDialogResult.Secondary:
+                    break;
+                default:
+                    return false;
+            }
+            Services.Translation.ModelStore.StopAll();
+            // Lets the stopped downloads clean up their unfinished folders.
+            await Task.WhenAny(Services.Translation.ModelStore.WhenIdle, Task.Delay(TimeSpan.FromSeconds(5)));
+            return true;
+        }
+
         #endregion
 
         #region TreeView Logic
