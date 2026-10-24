@@ -53,7 +53,7 @@ async function ensureModel(e, from, to) {
 let queue = Promise.resolve()
 
 self.onmessage = ({ data }) => {
-    const { id, html, from, to, formal } = data
+    const { id, html, from, to, address } = data
     // Detection needs no engine and doesn't wait for translations.
     if (data.detect != null) {
         self.postMessage({ id, code: detectLanguage(data.detect, data.candidates) })
@@ -63,7 +63,7 @@ self.onmessage = ({ data }) => {
         try {
             const e = await engine()
             for (const [f, t] of route(from, to)) await ensureModel(e, f, t)
-            self.postMessage({ id, ...e.translate(html, from, to, { formal }) })
+            self.postMessage({ id, ...e.translate(html, from, to, { address }) })
         } catch (err) {
             self.postMessage({ id, error: String(err?.message ?? err), missingPair: err?.pair ?? null })
         }

@@ -2,7 +2,7 @@
 // translations-engine.worker.js, which these models are built and tested with.
 import { maskPlaceholders, unmaskPlaceholders } from './mask.js'
 import { repairInline } from './inline.js'
-import { FORMAL_LANGUAGES, translateFormal } from './formal.js'
+import { FORMAL, FORMAL_LANGUAGES, INFORMAL, translateAddressing } from './formal.js'
 
 const ALIGNMENT = { model: 256, lex: 64, vocab: 64, srcvocab: 64, trgvocab: 64 }
 
@@ -64,9 +64,9 @@ export class Engine {
         this.models.set(`${from}-${to}`, model)
     }
 
-    // Translates editor HTML from one language to another; the needed models must be loaded. `formal` asks for the
-    // polite form where the target language has one the models can be steered to (see formal.js).
-    translate(html, from, to, { formal = false } = {}) {
+    // Translates editor HTML from one language to another; the needed models must be loaded. `address` ('formal' or
+    // 'informal') asks for that form where the target language has one the models can be steered to (see formal.js).
+    translate(html, from, to, { address = null } = {}) {
         const steps = route(from, to)
         if (steps.length === 0) return { html, missing: 0 }
         const models = steps.map(([f, t]) => {
@@ -77,10 +77,11 @@ export class Engine {
 
         const masked = maskPlaceholders(html)
         let out
-        if (formal && FORMAL_LANGUAGES.has(to)) {
-            // Through English first, so the last step can translate paragraphs again on their own.
+        const form = { formal: FORMAL, informal: INFORMAL }[address]
+        if (form && FORMAL_LANGUAGES.has(to)) {
+            // Through English first, so the last step can translate lines again on their own.
             const english = models.length === 2 ? this.run(masked.html, [models[0]]) : masked.html
-            out = translateFormal(english, (s) => this.run(s, [models.at(-1)]))
+            out = translateAddressing(english, (s) => this.run(s, [models.at(-1)]), form)
         } else {
             out = this.run(masked.html, models)
         }

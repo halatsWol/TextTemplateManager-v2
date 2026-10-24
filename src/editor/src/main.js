@@ -1247,6 +1247,7 @@ popupButton(ICONS.dateTime, 'Insert date / time', (pop, close) => {
             wrap.appendChild(box)
             wrap.appendChild(el('span', null, 'Formal (Sie)'))
             pop.appendChild(wrap)
+            if (!state.formal) pop.appendChild(el('div', 'translate-note translate-hint', 'Off: informal (du), best effort. About half the sentences can stay with Sie, so the text may mix both.'))
         }
 
         const from = resolvedFrom()
@@ -1305,7 +1306,7 @@ popupButton(ICONS.dateTime, 'Insert date / time', (pop, close) => {
         editor.setEditable(false)
         render()
         try {
-            const result = await translateHtml(part.html, from, to, state.formal && FORMAL_LANGUAGES.has(to))
+            const result = await translateHtml(part.html, from, to, FORMAL_LANGUAGES.has(to) ? (state.formal ? 'formal' : 'informal') : null)
             let html = result.html
             editor.setEditable(wasEditable)
             if (asCopy) {

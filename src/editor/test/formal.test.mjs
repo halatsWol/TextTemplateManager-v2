@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { addGreetings, removeGreetings, translateFormal } from '../src/translator/formal.js'
+import { addGreetings, INFORMAL, removeGreetings, translateAddressing, translateFormal } from '../src/translator/formal.js'
 
 test('every sentence gets the greeting, in text only', () => {
     const r = addGreetings('Thanks for your <strong>quick</strong> reply. Can you call me? I will wait.')
@@ -69,4 +69,31 @@ test('lines that split a tag go as one paragraph', () => {
     const translate = (h) => { seen.push(h); return fakeTranslate(h) }
     translateFormal('<p><strong>Hello<br>Thank you.</strong></p>', translate)
     assert.equal(seen[1], '<p><strong>Dear Sir or Madam, hello<br>Dear Sir or Madam, thank you.</strong></p>')
+})
+
+test('informal: the greeting goes around every sentence, before its punctuation or at the line end', () => {
+    assert.deepEqual(addGreetings('Can you call me? Thanks.<br>See <strong>you</strong> soon', INFORMAL),
+        { html: 'Hey Tom, can you call me, Tom? Hey Tom, thanks, Tom.<br>Hey Tom, see <strong>you</strong> soon, Tom', count: 3 })
+})
+
+test('informal: the greeting comes off at both ends', () => {
+    assert.deepEqual(removeGreetings('Hey Tom, kannst du mich anrufen, Tom? Hallo Tom, danke, Tom.', INFORMAL),
+        { html: 'Kannst du mich anrufen? Danke.', removed: 2 })
+    assert.equal(removeGreetings('Hey Tom, danke Tom und Anna, Tom.', INFORMAL).html, 'Danke Tom und Anna.')
+})
+
+// A stand-in engine: "you" becomes "Sie" unless the sentence carries the informal greeting.
+function fakeInformal(html) {
+    return html.replace(/(Hey Tom, )?([^.?!<>]*?)\byou\b([^.?!<>]*?)(, Tom)?([.?!])/g, (m, pre, before, after, post, stop) =>
+        pre && post ? `Hey Tom, ${before}du${after}, Tom${stop}` : `${before}Sie${after}${stop}`)
+}
+
+test('informal: lines that came out with Sie are translated again', () => {
+    const out = translateAddressing('<p>Hello team.<br>Can you call me?</p>', fakeInformal, INFORMAL)
+    assert.equal(out, '<p>Hello team.<br>Can du call me?</p>')
+})
+
+test('informal: a line the model keeps with Sie stays as it was', () => {
+    const translate = (h) => h.includes('Hey Tom') ? '<p>Hey Tom, können Sie mich anrufen, Tom?</p>' : '<p>Können Sie mich anrufen?</p>'
+    assert.equal(translateAddressing('<p>Can you call me?</p>', translate, INFORMAL), '<p>Können Sie mich anrufen?</p>')
 })

@@ -40,10 +40,10 @@ function scheduleStop() {
 }
 
 // Resolves to { html, missing } (missing = placeholders the model dropped, appended at the end). Rejects
-// with error.missingPair set ("en-de") when a needed language pair isn't installed. `formal` asks for the polite
-// form (German only).
-export function translateHtml(html, from, to, formal = false) {
-    return request({ html, from, to, formal })
+// with error.missingPair set ("en-de") when a needed language pair isn't installed. `address` ('formal' or
+// 'informal') asks for that form of address (German only).
+export function translateHtml(html, from, to, address = null) {
+    return request({ html, from, to, address })
 }
 
 export { FORMAL_LANGUAGES } from './formal.js'

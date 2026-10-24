@@ -325,6 +325,11 @@ body {
     padding: 0 6px;
 }
 
+.translate-hint {
+    margin: -2px 0 6px 50px;
+    padding: 0;
+}
+
 .translate-note:empty {
     display: none;
 }

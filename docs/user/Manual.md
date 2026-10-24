@@ -146,7 +146,7 @@ In the menu, choose the language the template is written in under **From** and t
 
 ![Create new template made Thanks for your message (DE) next to the original: formal German text with the formatting kept, Multi Key THXDE, no Single Key.](../../src/TextTemplateManager/Assets/ManualImages/TTM_TranslatedCopy.png)
 
-With German under **To**, **Formal (Sie)** asks for the polite form: lines that came out addressing the reader with *du* are translated again to use *Sie*. It catches most of them, not all.
+With German under **To**, **Formal (Sie)** chooses how the reader is addressed. On, lines that came out with *du* are translated again to use *Sie*; this catches nearly all of them. Off, lines that came out with *Sie* are translated again to use the informal *du*; this is best effort and works for only about half of the sentences, since the language models strongly prefer *Sie*, so an informal translation can mix *du* and *Sie*. The menu says so while Formal is off.
 
 Formatting, links and date and time placeholders such as `$[DATE]` are kept. Each language translates to and from English; between two other languages, for example German and French, the text goes through English, so both need to be installed.
 

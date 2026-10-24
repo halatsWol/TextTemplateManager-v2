@@ -21,7 +21,7 @@
 
         <StackPanel Grid.Row="1" Spacing="8">
             <InfoBar IsOpen="True" IsClosable="False" Severity="Warning" Title="Check every translation"
-                     Message="Machine translation makes mistakes: it can change the meaning, drop words or put formatting on the wrong words. German can mix the formal (Sie) and informal (du) form, even with Formal on."/>
+                     Message="Machine translation makes mistakes: it can change the meaning, drop words or put formatting on the wrong words. German can mix the formal (Sie) and informal (du) form: rarely with Formal on, often with it off (informal is best effort)."/>
             <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                        Text="Translate templates in the editor (the Translate button at the end of its toolbar). The translation runs on this PC: download a language once, and from then on translating works offline and nothing you translate leaves the PC. Each language translates to and from English; other pairs, such as German to French, go through English and need both languages."/>
             <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
