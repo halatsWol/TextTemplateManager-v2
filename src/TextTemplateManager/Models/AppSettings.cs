@@ -62,4 +62,17 @@ public partial class AppSettings : ObservableObject
     [ObservableProperty]
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public partial bool TranslateFormal { get; set; } = false;
+
+    // Settings > Translation: check Mozilla's list once a day for newer versions of the installed languages, and
+    // install them without asking. Off by default (nothing goes online); written only when on, like the time of the
+    // last check (UTC, round-trip format) only once there was one.
+    [ObservableProperty]
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public partial bool TranslationAutoCheck { get; set; } = false;
+
+    [ObservableProperty]
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public partial bool TranslationAutoInstall { get; set; } = false;
+
+    [ObservableProperty] public partial string? TranslationLastCheck { get; set; }
 }

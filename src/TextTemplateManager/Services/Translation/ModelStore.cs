@@ -41,6 +41,19 @@ public sealed class ModelStore
 
     private readonly string _attachmentBaseUrl;
 
+    // One install at a time in the app: the Settings page and the daily update can ask for the same language.
+    private static readonly SemaphoreSlim InstallGate = new(1, 1);
+
+    /// <summary>The app's one client for Mozilla's servers.</summary>
+    public static HttpClient Http { get; } = CreateHttpClient();
+
+    private static HttpClient CreateHttpClient()
+    {
+        var http = new HttpClient { Timeout = TimeSpan.FromMinutes(10) };
+        http.DefaultRequestHeaders.UserAgent.ParseAdd($"TextTemplateManager/{TextTemplateManager.Common.AppInfo.Version}");
+        return http;
+    }
+
     public ModelStore(string directory, string attachmentBaseUrl = ModelCatalog.AttachmentBaseUrl)
     {
         Directory = directory;
@@ -76,6 +89,14 @@ public sealed class ModelStore
     /// <summary>Downloads and installs one direction, replacing an installed one. Reports the downloaded bytes.
     /// Nothing changes unless every file arrives with the published hashes.</summary>
     public async Task InstallAsync(HttpClient http, ModelPair pair, IProgress<long>? downloaded = null, CancellationToken cancel = default)
+    {
+        System.IO.Directory.CreateDirectory(Directory);
+        await InstallGate.WaitAsync(cancel);
+        try { await InstallUnguardedAsync(http, pair, downloaded, cancel); }
+        finally { InstallGate.Release(); }
+    }
+
+    private async Task InstallUnguardedAsync(HttpClient http, ModelPair pair, IProgress<long>? downloaded, CancellationToken cancel)
     {
         string partial = Path.Combine(Directory, PartialPrefix + FolderName(pair.From, pair.To));
         DeleteQuietly(partial);

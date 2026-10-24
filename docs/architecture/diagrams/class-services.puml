@@ -205,6 +205,13 @@ package "Services.Translation" {
     +Remove(from, to)
     +Export(pairs, zip) / Import(zip)
   }
+  class TranslationUpdater {
+    +Start()
+    +TickAsync() : once a day, if on
+    +CheckAsync() : notice or install
+  }
+  TranslationUpdater ..> ModelCatalog : daily
+  TranslationUpdater ..> ModelStore : downloads newer
   ModelCatalog ..> ModelPair
   ModelCatalog ..> TranslationLanguage
   ModelStore ..> ModelPair : downloads, checks hashes

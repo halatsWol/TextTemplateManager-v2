@@ -11,6 +11,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using TextTemplateManager.Common;
+using TextTemplateManager.Models;
 using TextTemplateManager.Services.Translation;
 using Windows.Storage.Pickers;
 
@@ -39,6 +40,7 @@ public sealed partial class TranslationLanguageRow : ObservableObject
     [ObservableProperty] public partial double Progress { get; set; }
     [ObservableProperty] public partial Visibility DownloadVisibility { get; set; } = Visibility.Collapsed;
     [ObservableProperty] public partial Visibility UpdateVisibility { get; set; } = Visibility.Collapsed;
+    [ObservableProperty] public partial bool UpdateEnabled { get; set; }
     [ObservableProperty] public partial Visibility RemoveVisibility { get; set; } = Visibility.Collapsed;
     [ObservableProperty] public partial Visibility BusyVisibility { get; set; } = Visibility.Collapsed;
 
@@ -50,6 +52,7 @@ public sealed partial class TranslationLanguageRow : ObservableObject
 
     public bool IsBusy => Cancel != null;
     public bool IsInstalled => Installed.Count > 0;
+    public bool IsOutdated => Missing.Any(p => Installed.Any(i => i.From == p.From && i.To == p.To));
 
     /// <summary>The offered directions not installed yet, or installed in an older version.</summary>
     public IReadOnlyList<ModelPair> Missing => Offer?.Pairs
@@ -58,16 +61,18 @@ public sealed partial class TranslationLanguageRow : ObservableObject
     public void Refresh()
     {
         var missing = Missing;
-        bool outdated = missing.Any(p => Installed.Any(i => i.From == p.From && i.To == p.To));
+        bool outdated = IsOutdated;
         DownloadVisibility = Show(!IsBusy && missing.Count > 0 && !outdated);
-        UpdateVisibility = Show(!IsBusy && outdated);
+        // Shown on every installed language; it can only be clicked when Mozilla has a newer version.
+        UpdateVisibility = Show(!IsBusy && IsInstalled);
+        UpdateEnabled = outdated;
         RemoveVisibility = Show(!IsBusy && IsInstalled);
         BusyVisibility = Show(IsBusy);
 
         string directions = Offer is { } o && (o.ToEnglish == null || o.FromEnglish == null)
             ? (o.ToEnglish == null ? ", only from English" : ", only to English") : "";
         Detail = IsBusy ? "Downloading…"
-            : IsInstalled ? $"Installed, {Size(Installed.Sum(i => i.Size))}{(outdated ? ", update available" : "")}{directions}"
+            : IsInstalled ? $"Installed, {Size(Installed.Sum(i => i.Size))}{(outdated ? ", update available" : Offer != null ? ", up to date" : "")}{directions}"
             : Offer is { } offer ? $"{Size(offer.DownloadSize)} download, {Size(offer.DiskSize)} on disk{directions}"
             : "";
     }
@@ -81,10 +86,13 @@ public sealed partial class TranslationLanguageRow : ObservableObject
 /// import for PCs without internet access.</summary>
 public sealed partial class TranslationSettingsPage : Page
 {
-    /// <summary>The translation model folder, and whether to load Mozilla's list of languages (not in the tour).</summary>
-    public sealed record Parameters(string ModelDirectory, bool LoadCatalog);
+    /// <summary>The translation model folder, the settings (daily update check), and whether to load Mozilla's list of
+    /// languages (not in the tour).</summary>
+    public sealed record Parameters(string ModelDirectory, AppSettings Settings, bool LoadCatalog);
 
-    private static readonly HttpClient Http = CreateHttpClient();
+    private AppSettings? _settings;
+
+    private static HttpClient Http => ModelStore.Http;
 
     // Downloads outlive the page (leaving Settings doesn't stop them); a page opened meanwhile shows the same rows.
     private static readonly Dictionary<string, TranslationLanguageRow> Running = new();
@@ -100,18 +108,15 @@ public sealed partial class TranslationSettingsPage : Page
         LanguageList.ItemsSource = _shown;
     }
 
-    private static HttpClient CreateHttpClient()
-    {
-        var http = new HttpClient { Timeout = TimeSpan.FromMinutes(10) };
-        http.DefaultRequestHeaders.UserAgent.ParseAdd($"TextTemplateManager/{AppInfo.Version}");
-        return http;
-    }
-
     protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
         var parameters = e.Parameter as Parameters;
         _store = new ModelStore(parameters?.ModelDirectory ?? "");
+        _settings = parameters?.Settings;
+        AutoCheckBox.IsChecked = _settings?.TranslationAutoCheck == true;
+        AutoInstallBox.IsChecked = _settings?.TranslationAutoInstall == true;
+        AutoInstallBox.IsEnabled = AutoCheckBox.IsChecked == true;
         BuildRows();
         if (_catalog == null && parameters?.LoadCatalog == true) await LoadCatalogAsync();
     }
@@ -160,6 +165,7 @@ public sealed partial class TranslationSettingsPage : Page
         long used = installed.Sum(p => p.Size);
         DiskUsage.Text = installed.Count == 0 ? "No languages installed." : $"Installed languages use {TranslationLanguageRow.Size(used)}.";
         ExportButton.IsEnabled = installed.Count > 0;
+        RefreshUpdateAll();
         ApplyFilter();
     }
 
@@ -175,11 +181,37 @@ public sealed partial class TranslationSettingsPage : Page
 
     private void FilterBox_TextChanged(object sender, TextChangedEventArgs e) => ApplyFilter();
 
+    private void AutoCheck_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_settings == null) return;
+        _settings.TranslationAutoCheck = AutoCheckBox.IsChecked == true;
+        AutoInstallBox.IsEnabled = _settings.TranslationAutoCheck;
+        RefreshUpdateAll();
+    }
+
+    private void AutoInstall_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_settings == null) return;
+        _settings.TranslationAutoInstall = AutoInstallBox.IsChecked == true;
+        RefreshUpdateAll();
+    }
+
     private async void Retry_Click(object sender, RoutedEventArgs e) => await LoadCatalogAsync();
 
     private async void Download_Click(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.Tag is not TranslationLanguageRow row || row.IsBusy || _store is not { } store) return;
+        if ((sender as FrameworkElement)?.Tag is TranslationLanguageRow row) await DownloadAsync(row);
+    }
+
+    private async void UpdateAll_Click(object sender, RoutedEventArgs e)
+    {
+        foreach (var row in _rows.Where(r => r.IsOutdated && !r.IsBusy).ToList())
+            await DownloadAsync(row);
+    }
+
+    private async Task DownloadAsync(TranslationLanguageRow row)
+    {
+        if (row.IsBusy || _store is not { } store) return;
         var pairs = row.Missing;
         if (pairs.Count == 0) return;
 
@@ -187,6 +219,7 @@ public sealed partial class TranslationSettingsPage : Page
         Running[row.Code] = row;
         row.Progress = 0;
         row.Refresh();
+        RefreshUpdateAll();
         long total = pairs.Sum(p => p.DownloadSize), done = 0;
         string? problem = null;
         try
@@ -215,6 +248,14 @@ public sealed partial class TranslationSettingsPage : Page
         if (problem != null) ShowInfo(InfoBarSeverity.Error, $"{row.Name} couldn't be downloaded: {problem}");
         if (IsLoaded) BuildRows();
         else row.Refresh();
+    }
+
+    // Shown while newer versions aren't downloaded on their own; clickable when there is one to download.
+    private void RefreshUpdateAll()
+    {
+        bool automatic = _settings is { TranslationAutoCheck: true, TranslationAutoInstall: true };
+        UpdateAllButton.Visibility = automatic ? Visibility.Collapsed : Visibility.Visible;
+        UpdateAllButton.IsEnabled = _rows.Any(r => r.IsOutdated && !r.IsBusy);
     }
 
     private void Cancel_Click(object sender, RoutedEventArgs e)

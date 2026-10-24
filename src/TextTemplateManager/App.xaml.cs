@@ -31,6 +31,7 @@ namespace TextTemplateManager
         private BrowserConnector? _connector;
         private AppConnectorData? _connectorData;
         private BackupScheduler? _backupScheduler;
+        private Services.Translation.TranslationUpdater? _translationUpdater;
         private UpdateService? _updates;
         private DispatcherQueueTimer? _idleInstallTimer;
         // The tray notice comes once per run: the Store doesn't name the version, so "once per version" can't be told apart.
@@ -111,6 +112,11 @@ namespace TextTemplateManager
 
             _backupScheduler = new BackupScheduler(Backups, _store.Storage);
             _backupScheduler.Start();
+
+            _translationUpdater = new Services.Translation.TranslationUpdater(_store.CurrentSettings,
+                new Services.Translation.ModelStore(_store.Storage.TranslationModelDirectory), Services.Translation.ModelStore.Http,
+                (title, message) => ShowTrayBalloon(title, message));
+            _translationUpdater.Start();
 
             _hotkeyListener = new HotkeyListener();
             _hotkeyListener.HotkeyPressed += OnGlobalHotkeyPressed;
@@ -752,6 +758,7 @@ namespace TextTemplateManager
             try { _updates?.Dispose(); } catch { }
             try { _connector?.Stop(); } catch { }
             try { _backupScheduler?.Dispose(); } catch { }
+            try { _translationUpdater?.Dispose(); } catch { }
             // From here a new launch starts fresh instead of redirecting to this exiting instance.
             try { AppInstance.GetCurrent().UnregisterKey(); } catch { }
             try { _trayService?.Dispose(); } catch { }

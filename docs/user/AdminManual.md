@@ -172,8 +172,8 @@ The editor's **Translate** button translates templates on the PC with the Firefo
 
 The page and the downloads use two Mozilla servers over HTTPS, which a proxy or firewall has to allow:
 
-- `firefox.settings.services.mozilla.com`: the list of languages (Firefox's Remote Settings), loaded each time the page opens.
-- `firefox-settings-attachments.cdn.mozilla.net`: the model files. Each is checked against the SHA-256 checksums in the list before and after unpacking, and only a complete language is put in place.
+- `firefox.settings.services.mozilla.com`: the list of languages (Firefox's Remote Settings), loaded each time the page opens, and once a day while the app runs if the user turned on the daily update check (off by default).
+- `firefox-settings-attachments.cdn.mozilla.net`: the model files, also for automatic updates of installed languages when the user allowed them. Each is checked against the SHA-256 checksums in the list before and after unpacking, and only a complete language is put in place.
 
 Without access to them, install the languages from a file: on a PC that has them, **Settings ▸ Translation ▸ Export installed languages…** saves a `.zip`, and **Import languages…** installs it; every file is checked against the checksums stored with it. The models are licensed under the Mozilla Public License 2.0 (see **Help ▸ About ▸ Third-party notices**).
 

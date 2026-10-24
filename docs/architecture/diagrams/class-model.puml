@@ -50,6 +50,8 @@ class AppSettings <<ObservableObject>> {
   +NoAutomaticUpdates : bool
   +TranslateFrom / TranslateTo : string?
   +TranslateFormal : bool
+  +TranslationAutoCheck / TranslationAutoInstall : bool
+  +TranslationLastCheck : string?
 }
 
 class SyncSettings <<ObservableObject>> {

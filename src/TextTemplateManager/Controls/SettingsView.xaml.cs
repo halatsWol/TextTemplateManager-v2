@@ -79,7 +79,7 @@ public sealed partial class SettingsView : UserControl
                 break;
             case SettingsPage.Translation:
                 PageFrame.Navigate(typeof(TranslationSettingsPage),
-                    new TranslationSettingsPage.Parameters(store.Storage.TranslationModelDirectory, LoadCatalog: !Offline));
+                    new TranslationSettingsPage.Parameters(store.Storage.TranslationModelDirectory, store.CurrentSettings, LoadCatalog: !Offline));
                 break;
             case SettingsPage.Support:
                 PageFrame.Navigate(typeof(SupportSettingsPage), store.Storage.DataDirectory);
