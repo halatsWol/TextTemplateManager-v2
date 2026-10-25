@@ -6,39 +6,37 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalScrollMode="Auto">
     <StackPanel Spacing="25" Padding="20">
-        <TextBlock Text="General Settings" Style="{StaticResource TitleTextBlockStyle}"/>
+        <TextBlock x:Uid="GeneralPage_Title" Style="{StaticResource TitleTextBlockStyle}"/>
 
         <StackPanel Spacing="10">
-            <TextBlock Text="Quick Paste" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <TextBlock x:Uid="GeneralPage_QuickPasteHeading" Style="{StaticResource BodyStrongTextBlockStyle}"/>
 
             <StackPanel Spacing="4">
-                <TextBlock Text="Global shortcut"/>
-                <TextBlock Text="Opens the Quick Paste window from anywhere." Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <TextBlock x:Uid="GeneralPage_HotkeyLabel"/>
+                <TextBlock x:Uid="GeneralPage_HotkeyText" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 <Grid ColumnSpacing="10" HorizontalAlignment="Left">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="200"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox x:Name="HotkeyTextBox"
+                    <TextBox x:Name="HotkeyTextBox" x:Uid="GeneralPage_HotkeyBox"
                              IsReadOnly="True"
-                             PlaceholderText="Click to set shortcut..."
                              GotFocus="HotkeyTextBox_GotFocus"
                              LostFocus="HotkeyTextBox_LostFocus"
                              KeyDown="HotkeyTextBox_KeyDown"
                              KeyUp="HotkeyTextBox_KeyUp"/>
-                    <Button Grid.Column="1" Content="Clear" Click="ClearHotkey_Click"/>
+                    <Button x:Uid="GeneralPage_ClearHotkeyButton" Grid.Column="1" Click="ClearHotkey_Click"/>
                 </Grid>
-                <InfoBar x:Name="HotkeyUnavailableInfo"
+                <InfoBar x:Name="HotkeyUnavailableInfo" x:Uid="GeneralPage_HotkeyUnavailableInfo"
                          Severity="Warning"
                          IsClosable="False"
-                         IsOpen="False"
-                         Message="Another app already uses this shortcut, so it won't open Quick Paste. Choose a different one."/>
+                         IsOpen="False"/>
             </StackPanel>
 
             <StackPanel Spacing="4">
-                <TextBlock Text="Default paste mode"/>
-                <TextBlock Text="Used for newly created templates." Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                <ComboBox x:Name="PasteModeCombo" AutomationProperties.Name="Default paste mode"
+                <TextBlock x:Uid="GeneralPage_PasteModeLabel"/>
+                <TextBlock x:Uid="GeneralPage_PasteModeText" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <ComboBox x:Name="PasteModeCombo" x:Uid="GeneralPage_PasteModeCombo"
                           MinWidth="200"
                           SelectedItem="{x:Bind ViewModel.DefaultPasteMode, Mode=TwoWay}">
                     <ComboBox.ItemTemplate>
@@ -53,21 +51,19 @@
         <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
 
         <StackPanel Spacing="8">
-            <TextBlock Text="Startup" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <TextBlock x:Uid="GeneralPage_StartupHeading" Style="{StaticResource BodyStrongTextBlockStyle}"/>
             <StackPanel Spacing="2">
-                <ToggleSwitch x:Name="StartupToggle"
-                              Header="Run at Windows login"
+                <ToggleSwitch x:Name="StartupToggle" x:Uid="GeneralPage_StartupToggle"
                               Toggled="RunAtStartup_Toggled"/>
                 <TextBlock x:Name="StartupNote"
                            Visibility="Collapsed"
                            TextWrapping="Wrap"
                            Style="{StaticResource CaptionTextBlockStyle}"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                <ToggleSwitch x:Name="StartHiddenToggle"
-                              Header="Start hidden in the system tray"
+                <ToggleSwitch x:Name="StartHiddenToggle" x:Uid="GeneralPage_StartHiddenToggle"
                               Margin="24,0,0,0"
                               Toggled="StartHidden_Toggled"/>
-                <TextBlock Text="When Windows starts the app at login, it stays in the tray instead of opening the window. The hotkey and tray icon still work."
+                <TextBlock x:Uid="GeneralPage_StartHiddenText"
                            TextWrapping="Wrap"
                            Margin="24,0,0,0"
                            Style="{StaticResource CaptionTextBlockStyle}"
@@ -78,12 +74,11 @@
         <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
 
         <StackPanel Spacing="8">
-            <TextBlock Text="Editing" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <TextBlock x:Uid="GeneralPage_EditingHeading" Style="{StaticResource BodyStrongTextBlockStyle}"/>
             <StackPanel Spacing="2">
-                <ToggleSwitch x:Name="AutosaveToggle"
-                              Header="Autosave"
+                <ToggleSwitch x:Name="AutosaveToggle" x:Uid="GeneralPage_AutosaveToggle"
                               IsOn="{x:Bind ViewModel.Autosave, Mode=TwoWay}"/>
-                <TextBlock Text="Saves changes to a template or folder as you make them. When off, changes wait for Save (Ctrl+S), and you're asked before leaving an item with unsaved changes."
+                <TextBlock x:Uid="GeneralPage_AutosaveText"
                            TextWrapping="Wrap"
                            Style="{StaticResource CaptionTextBlockStyle}"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
@@ -93,20 +88,19 @@
         <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
 
         <StackPanel Spacing="8">
-            <TextBlock Text="Updates" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <TextBlock x:Uid="GeneralPage_UpdatesHeading" Style="{StaticResource BodyStrongTextBlockStyle}"/>
             <StackPanel Spacing="4">
                 <TextBlock x:Name="UpdateVersionText"/>
                 <TextBlock x:Name="UpdateStatusText"
                            TextWrapping="Wrap"
                            Style="{StaticResource CaptionTextBlockStyle}"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                <Button x:Name="CheckUpdatesButton" Content="Check for updates" Margin="0,4,0,0" Click="CheckUpdates_Click"/>
+                <Button x:Name="CheckUpdatesButton" x:Uid="GeneralPage_CheckUpdatesButton" Margin="0,4,0,0" Click="CheckUpdates_Click"/>
             </StackPanel>
             <StackPanel Spacing="2">
-                <ToggleSwitch x:Name="AutomaticUpdatesToggle"
-                              Header="Check for and download updates automatically"
+                <ToggleSwitch x:Name="AutomaticUpdatesToggle" x:Uid="GeneralPage_AutomaticUpdatesToggle"
                               Toggled="AutomaticUpdates_Toggled"/>
-                <TextBlock Text="On: the app regularly looks for new versions and downloads them in the background. Off: it looks only when you choose Check for updates, and installs a downloaded update only when you choose Restart to update."
+                <TextBlock x:Uid="GeneralPage_AutomaticUpdatesText"
                            TextWrapping="Wrap"
                            Style="{StaticResource CaptionTextBlockStyle}"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
@@ -122,10 +116,9 @@
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
             </StackPanel>
             <StackPanel Spacing="2">
-                <ToggleSwitch x:Name="IdleInstallToggle"
-                              Header="Install updates while the app isn't in use"
+                <ToggleSwitch x:Name="IdleInstallToggle" x:Uid="GeneralPage_IdleInstallToggle"
                               Toggled="IdleInstall_Toggled"/>
-                <TextBlock Text="On: a downloaded update is installed once you've been away from the PC for 10 minutes, with the app's windows closed and nothing unsaved. The app then opens and shows what's new. Off: the update is installed when you choose Restart to update or quit the app."
+                <TextBlock x:Uid="GeneralPage_IdleInstallText"
                            TextWrapping="Wrap"
                            Style="{StaticResource CaptionTextBlockStyle}"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
@@ -140,14 +133,13 @@
         <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
 
         <StackPanel Spacing="10">
-            <TextBlock Text="Other" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <TextBlock x:Uid="GeneralPage_OtherHeading" Style="{StaticResource BodyStrongTextBlockStyle}"/>
 
             <StackPanel Spacing="2">
-                <ToggleSwitch x:Name="HideCrossAreaWarningsToggle"
-                              Header="Hide cross-area shortcut warnings"
+                <ToggleSwitch x:Name="HideCrossAreaWarningsToggle" x:Uid="GeneralPage_HideCrossAreaWarningsToggle"
                               IsOn="{x:Bind ViewModel.HideCrossAreaShortcutWarnings, Mode=TwoWay}"
                               Toggled="HideCrossAreaWarnings_Toggled"/>
-                <TextBlock Text="Hides the notice when a shortcut is reused across areas (local + sync, or between sync folders). Same-area duplicates are always shown."
+                <TextBlock x:Uid="GeneralPage_HideCrossAreaWarningsText"
                            TextWrapping="Wrap"
                            Style="{StaticResource CaptionTextBlockStyle}"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>

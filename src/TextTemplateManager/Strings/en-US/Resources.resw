@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- UI text, en-US. Keys: x:Uid entries are Uid.Property (Page_Element.Text), text set in code is Area_Purpose (Loc.Get).
+<!-- UI text, en-US. Keys: x:Uid entries are Uid.Property (Page_Element.Text), text set in code is Area_Purpose (Loc.Get, always with the key written out, so the tests find it).
      Every other language under Strings\ must carry the same keys and the same {0} placeholders (LocalizationTests). -->
 <root>
   <resheader name="resmimetype">
@@ -91,5 +91,215 @@
   </data>
   <data name="Support_MailHint" xml:space="preserve">
     <value>If no e-mail window opened, write to {0}; the address is on the clipboard.</value>
+  </data>
+  <data name="SettingsView_General.Content" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="SettingsView_Integrations.Content" xml:space="preserve">
+    <value>Integrations</value>
+  </data>
+  <data name="SettingsView_Sync.Content" xml:space="preserve">
+    <value>Sync</value>
+  </data>
+  <data name="SettingsView_Backups.Content" xml:space="preserve">
+    <value>Backups</value>
+  </data>
+  <data name="SettingsView_Translation.Content" xml:space="preserve">
+    <value>Translation</value>
+  </data>
+  <data name="SettingsView_Support.Content" xml:space="preserve">
+    <value>Support</value>
+  </data>
+  <data name="GeneralPage_Title.Text" xml:space="preserve">
+    <value>General Settings</value>
+  </data>
+  <data name="GeneralPage_QuickPasteHeading.Text" xml:space="preserve">
+    <value>Quick Paste</value>
+  </data>
+  <data name="GeneralPage_HotkeyLabel.Text" xml:space="preserve">
+    <value>Global shortcut</value>
+  </data>
+  <data name="GeneralPage_HotkeyText.Text" xml:space="preserve">
+    <value>Opens the Quick Paste window from anywhere.</value>
+  </data>
+  <data name="GeneralPage_HotkeyBox.PlaceholderText" xml:space="preserve">
+    <value>Click to set shortcut...</value>
+  </data>
+  <data name="GeneralPage_ClearHotkeyButton.Content" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="GeneralPage_HotkeyUnavailableInfo.Message" xml:space="preserve">
+    <value>Another app already uses this shortcut, so it won't open Quick Paste. Choose a different one.</value>
+  </data>
+  <data name="GeneralPage_PasteModeLabel.Text" xml:space="preserve">
+    <value>Default paste mode</value>
+  </data>
+  <data name="GeneralPage_PasteModeText.Text" xml:space="preserve">
+    <value>Used for newly created templates.</value>
+  </data>
+  <data name="GeneralPage_PasteModeCombo.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Default paste mode</value>
+  </data>
+  <data name="GeneralPage_StartupHeading.Text" xml:space="preserve">
+    <value>Startup</value>
+  </data>
+  <data name="GeneralPage_StartupToggle.Header" xml:space="preserve">
+    <value>Run at Windows login</value>
+  </data>
+  <data name="GeneralPage_StartHiddenToggle.Header" xml:space="preserve">
+    <value>Start hidden in the system tray</value>
+  </data>
+  <data name="GeneralPage_StartHiddenText.Text" xml:space="preserve">
+    <value>When Windows starts the app at login, it stays in the tray instead of opening the window. The hotkey and tray icon still work.</value>
+  </data>
+  <data name="GeneralPage_EditingHeading.Text" xml:space="preserve">
+    <value>Editing</value>
+  </data>
+  <data name="GeneralPage_AutosaveToggle.Header" xml:space="preserve">
+    <value>Autosave</value>
+  </data>
+  <data name="GeneralPage_AutosaveText.Text" xml:space="preserve">
+    <value>Saves changes to a template or folder as you make them. When off, changes wait for Save (Ctrl+S), and you're asked before leaving an item with unsaved changes.</value>
+  </data>
+  <data name="GeneralPage_UpdatesHeading.Text" xml:space="preserve">
+    <value>Updates</value>
+  </data>
+  <data name="GeneralPage_CheckUpdatesButton.Content" xml:space="preserve">
+    <value>Check for updates</value>
+  </data>
+  <data name="GeneralPage_AutomaticUpdatesToggle.Header" xml:space="preserve">
+    <value>Check for and download updates automatically</value>
+  </data>
+  <data name="GeneralPage_AutomaticUpdatesText.Text" xml:space="preserve">
+    <value>On: the app regularly looks for new versions and downloads them in the background. Off: it looks only when you choose Check for updates, and installs a downloaded update only when you choose Restart to update.</value>
+  </data>
+  <data name="GeneralPage_IdleInstallToggle.Header" xml:space="preserve">
+    <value>Install updates while the app isn't in use</value>
+  </data>
+  <data name="GeneralPage_IdleInstallText.Text" xml:space="preserve">
+    <value>On: a downloaded update is installed once you've been away from the PC for 10 minutes, with the app's windows closed and nothing unsaved. The app then opens and shows what's new. Off: the update is installed when you choose Restart to update or quit the app.</value>
+  </data>
+  <data name="GeneralPage_OtherHeading.Text" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="GeneralPage_HideCrossAreaWarningsToggle.Header" xml:space="preserve">
+    <value>Hide cross-area shortcut warnings</value>
+  </data>
+  <data name="GeneralPage_HideCrossAreaWarningsText.Text" xml:space="preserve">
+    <value>Hides the notice when a shortcut is reused across areas (local + sync, or between sync folders). Same-area duplicates are always shown.</value>
+  </data>
+  <data name="IntegrationsPage_Title.Text" xml:space="preserve">
+    <value>Integrations</value>
+  </data>
+  <data name="IntegrationsPage_BrowserHeading.Text" xml:space="preserve">
+    <value>Browser extension</value>
+  </data>
+  <data name="IntegrationsPage_BrowserText.Text" xml:space="preserve">
+    <value>Lets the companion extension list and paste your templates over a local (127.0.0.1) connection. Paste the token below into the extension to pair it.</value>
+  </data>
+  <data name="IntegrationsPage_ConnectorToggle.Header" xml:space="preserve">
+    <value>Enable browser connector</value>
+  </data>
+  <data name="IntegrationsPage_PortLabel.Text" xml:space="preserve">
+    <value>Port</value>
+  </data>
+  <data name="IntegrationsPage_TokenLabel.Text" xml:space="preserve">
+    <value>Token</value>
+  </data>
+  <data name="IntegrationsPage_CopyTokenButton.Content" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="IntegrationsPage_RegenerateTokenButton.Content" xml:space="preserve">
+    <value>Regenerate</value>
+  </data>
+  <data name="IntegrationsPage_ConnectorUnavailableInfo.Title" xml:space="preserve">
+    <value>Port unavailable</value>
+  </data>
+  <data name="IntegrationsPage_GetExtensionLabel.Text" xml:space="preserve">
+    <value>Get the extension:</value>
+  </data>
+  <data name="IntegrationsPage_ApiDocLink.Content" xml:space="preserve">
+    <value>View API documentation</value>
+  </data>
+  <data name="IntegrationsPage_FileAssociationHeading.Text" xml:space="preserve">
+    <value>File association</value>
+  </data>
+  <data name="IntegrationsPage_FileAssociationText.Text" xml:space="preserve">
+    <value>.ttmdata files open with TextTemplateManager (opening one adds it as a sync source). If another app took them over, choose TextTemplateManager for .ttmdata again in Windows Settings › Apps › Default apps.</value>
+  </data>
+  <data name="IntegrationsPage_DefaultAppsLink.Content" xml:space="preserve">
+    <value>Open Default apps</value>
+  </data>
+  <data name="General_Version" xml:space="preserve">
+    <value>Version {0}</value>
+  </data>
+  <data name="General_UpdateUnavailable" xml:space="preserve">
+    <value>This copy wasn't installed from the Microsoft Store, so it can't update itself.</value>
+  </data>
+  <data name="General_UpdateDisabledByPolicy" xml:space="preserve">
+    <value>Your organization manages updates for this app.</value>
+  </data>
+  <data name="General_UpdateChecking" xml:space="preserve">
+    <value>Checking for updates…</value>
+  </data>
+  <data name="General_UpdateAvailable" xml:space="preserve">
+    <value>{0} is available. {1}</value>
+  </data>
+  <data name="General_UpdateChooseDownload" xml:space="preserve">
+    <value>Choose Download to get it.</value>
+  </data>
+  <data name="General_UpdateAvailableManaged" xml:space="preserve">
+    <value>{0} is available. Your organization manages updates on this PC.</value>
+  </data>
+  <data name="General_UpdateDownloading" xml:space="preserve">
+    <value>Downloading the update… {0} %</value>
+  </data>
+  <data name="General_UpdateReady" xml:space="preserve">
+    <value>{0} is ready to install. Restart to update saves your work and opens the new version within a few seconds.</value>
+  </data>
+  <data name="General_UpdateInstalling" xml:space="preserve">
+    <value>Installing the update…</value>
+  </data>
+  <data name="General_UpdateFailed" xml:space="preserve">
+    <value>The last update step didn't work.</value>
+  </data>
+  <data name="General_UpdateManualSteps" xml:space="preserve">
+    <value>{0} couldn't be installed automatically. To finish, quit the app and start it again from the Start menu.</value>
+  </data>
+  <data name="General_UpToDateCheckedAt" xml:space="preserve">
+    <value>Up to date (last checked at {0:t}).</value>
+  </data>
+  <data name="General_UpToDate" xml:space="preserve">
+    <value>Up to date.</value>
+  </data>
+  <data name="General_RestartToUpdateButton" xml:space="preserve">
+    <value>Restart to update</value>
+  </data>
+  <data name="General_DownloadButton" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="General_TryAgainButton" xml:space="preserve">
+    <value>Try again</value>
+  </data>
+  <data name="General_CheckUpdatesButton" xml:space="preserve">
+    <value>Check for updates</value>
+  </data>
+  <data name="General_SetByOrganization" xml:space="preserve">
+    <value>Set by your organization.</value>
+  </data>
+  <data name="General_StorePolicyAppAsks" xml:space="preserve">
+    <value>Automatic updates for Store apps are turned off on this PC. TextTemplateManager still asks the Microsoft Store for its own updates: on its own with this switch on, otherwise with Check for updates.</value>
+  </data>
+  <data name="General_StorePolicyWindowsUpdate" xml:space="preserve">
+    <value>Automatic updates for Store apps are turned off on this PC. An update that Windows Update brings is offered with Restart to update.</value>
+  </data>
+  <data name="General_AutostartNotAvailable" xml:space="preserve">
+    <value>Only the installed app can start with Windows.</value>
+  </data>
+  <data name="General_AutostartOffInWindows" xml:space="preserve">
+    <value>Switched off in Windows Settings › Apps › Startup; switch it on there.</value>
+  </data>
+  <data name="Integrations_PortUnavailable" xml:space="preserve">
+    <value>Port {0} can't be used, so the extension can't connect. Another app is using it (for example an older TextTemplateManager that is still running) or Windows has reserved it. Choose a different port above and set the same port in the extension.</value>
   </data>
 </root>

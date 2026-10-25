@@ -48,7 +48,7 @@ public sealed partial class GeneralSettingsPage : Page
 
     private void InitUpdatesUi()
     {
-        UpdateVersionText.Text = $"Version {Common.AppInfo.Version}";
+        UpdateVersionText.Text = Loc.Format("General_Version", Common.AppInfo.Version);
         if (Updates is not { } updates) { ShowUpdateStatus(new UpdateStatus(UpdateStage.Unavailable)); return; }
         updates.Changed += OnUpdateChanged;
         ShowUpdateStatus(updates.Status);
@@ -61,17 +61,17 @@ public sealed partial class GeneralSettingsPage : Page
         string v = MainPage.VersionName(s.Version);
         UpdateStatusText.Text = s.Stage switch
         {
-            UpdateStage.Unavailable => "This copy wasn't installed from the Microsoft Store, so it can't update itself.",
-            UpdateStage.DisabledByPolicy => "Your organization manages updates for this app.",
-            UpdateStage.Checking => "Checking for updates…",
-            UpdateStage.Available when s.CanDownload => $"{v} is available. " + (s.Message ?? "Choose Download to get it."),
-            UpdateStage.Available => $"{v} is available. Your organization manages updates on this PC.",
-            UpdateStage.Downloading => $"Downloading the update… {(int)(s.Progress * 100)} %",
-            UpdateStage.Ready => $"{v} is ready to install. Restart to update saves your work and opens the new version within a few seconds.",
-            UpdateStage.Installing => "Installing the update…",
-            UpdateStage.Failed => s.Message ?? "The last update step didn't work.",
-            UpdateStage.ManualStepsNeeded => $"{v} couldn't be installed automatically. To finish, quit the app and start it again from the Start menu.",
-            _ => s.Message ?? "Up to date" + (s.LastChecked is { } at ? $" (last checked at {at:t})." : "."),
+            UpdateStage.Unavailable => Loc.Get("General_UpdateUnavailable"),
+            UpdateStage.DisabledByPolicy => Loc.Get("General_UpdateDisabledByPolicy"),
+            UpdateStage.Checking => Loc.Get("General_UpdateChecking"),
+            UpdateStage.Available when s.CanDownload => Loc.Format("General_UpdateAvailable", v, s.Message ?? Loc.Get("General_UpdateChooseDownload")),
+            UpdateStage.Available => Loc.Format("General_UpdateAvailableManaged", v),
+            UpdateStage.Downloading => Loc.Format("General_UpdateDownloading", (int)(s.Progress * 100)),
+            UpdateStage.Ready => Loc.Format("General_UpdateReady", v),
+            UpdateStage.Installing => Loc.Get("General_UpdateInstalling"),
+            UpdateStage.Failed => s.Message ?? Loc.Get("General_UpdateFailed"),
+            UpdateStage.ManualStepsNeeded => Loc.Format("General_UpdateManualSteps", v),
+            _ => s.Message ?? (s.LastChecked is { } at ? Loc.Format("General_UpToDateCheckedAt", at) : Loc.Get("General_UpToDate")),
         };
         // The same action as the notice in the main window, so nobody has to leave Settings for it.
         _updateAction = s.Stage switch
@@ -83,10 +83,10 @@ public sealed partial class GeneralSettingsPage : Page
         };
         CheckUpdatesButton.Content = _updateAction switch
         {
-            UpdateAction.Install => "Restart to update",
-            UpdateAction.Download => "Download",
-            UpdateAction.Retry => "Try again",
-            _ => "Check for updates",
+            UpdateAction.Install => Loc.Get("General_RestartToUpdateButton"),
+            UpdateAction.Download => Loc.Get("General_DownloadButton"),
+            UpdateAction.Retry => Loc.Get("General_TryAgainButton"),
+            _ => Loc.Get("General_CheckUpdatesButton"),
         };
         CheckUpdatesButton.IsEnabled = s.Stage is UpdateStage.UpToDate or UpdateStage.Available or UpdateStage.Failed
             or UpdateStage.Ready or UpdateStage.ManualStepsNeeded;
@@ -99,16 +99,15 @@ public sealed partial class GeneralSettingsPage : Page
         bool automatic = policy.AutomaticUpdatesForced ?? !ViewModel.NoAutomaticUpdates;
         AutomaticUpdatesToggle.IsOn = automatic;
         AutomaticUpdatesToggle.IsEnabled = available && policy.AutomaticUpdatesForced == null;
-        AutomaticUpdatesNote.Text = disabledByPolicy || available && policy.AutomaticUpdatesForced != null ? "Set by your organization." : "";
+        AutomaticUpdatesNote.Text = disabledByPolicy || available && policy.AutomaticUpdatesForced != null ? Loc.Get("General_SetByOrganization") : "";
         AutomaticUpdatesNote.Visibility = AutomaticUpdatesNote.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
         IdleInstallToggle.IsOn = Updates?.IdleInstallAllowed(ViewModel.IdleInstall) ?? ViewModel.IdleInstall;
         IdleInstallToggle.IsEnabled = available && policy.Mode == InAppUpdatesMode.Full && policy.IdleInstallForced == null && automatic;
         IdleInstallNote.Text = disabledByPolicy || available && (policy.Mode != InAppUpdatesMode.Full || policy.IdleInstallForced != null)
-            ? "Set by your organization." : "";
+            ? Loc.Get("General_SetByOrganization") : "";
         IdleInstallNote.Visibility = IdleInstallNote.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
-        StorePolicyNote.Text = "Automatic updates for Store apps are turned off on this PC. " + (policy.UpdatesDespiteStorePolicy
-            ? "TextTemplateManager still asks the Microsoft Store for its own updates: on its own with this switch on, otherwise with Check for updates."
-            : "An update that Windows Update brings is offered with Restart to update.");
+        StorePolicyNote.Text = policy.UpdatesDespiteStorePolicy
+            ? Loc.Get("General_StorePolicyAppAsks") : Loc.Get("General_StorePolicyWindowsUpdate");
         StorePolicyNote.Visibility = available && policy.Mode == InAppUpdatesMode.Full && policy.StoreBlocksAutomaticUpdates
             ? Visibility.Visible : Visibility.Collapsed;
         _updatesLoading = false;
@@ -168,9 +167,9 @@ public sealed partial class GeneralSettingsPage : Page
         StartupToggle.IsEnabled = state is AutostartState.On or AutostartState.Off;
         StartupNote.Text = state switch
         {
-            AutostartState.NotAvailable => "Only the installed app can start with Windows.",
-            AutostartState.OffInWindows => "Switched off in Windows Settings › Apps › Startup; switch it on there.",
-            AutostartState.OnByPolicy or AutostartState.OffByPolicy => "Set by your organization.",
+            AutostartState.NotAvailable => Loc.Get("General_AutostartNotAvailable"),
+            AutostartState.OffInWindows => Loc.Get("General_AutostartOffInWindows"),
+            AutostartState.OnByPolicy or AutostartState.OffByPolicy => Loc.Get("General_SetByOrganization"),
             _ => "",
         };
         StartupNote.Visibility = StartupNote.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;

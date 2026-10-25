@@ -5,13 +5,12 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalScrollMode="Auto">
     <StackPanel Spacing="25" Padding="20">
-        <TextBlock Text="Integrations" Style="{StaticResource TitleTextBlockStyle}"/>
+        <TextBlock x:Uid="IntegrationsPage_Title" Style="{StaticResource TitleTextBlockStyle}"/>
 
         <StackPanel Spacing="8">
-            <TextBlock Text="Browser extension" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-            <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       Text="Lets the companion extension list and paste your templates over a local (127.0.0.1) connection. Paste the token below into the extension to pair it."/>
-            <ToggleSwitch x:Name="ConnectorToggle" Header="Enable browser connector" Toggled="Connector_Toggled"/>
+            <TextBlock x:Uid="IntegrationsPage_BrowserHeading" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <TextBlock x:Uid="IntegrationsPage_BrowserText" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            <ToggleSwitch x:Name="ConnectorToggle" x:Uid="IntegrationsPage_ConnectorToggle" Toggled="Connector_Toggled"/>
 
             <Grid x:Name="ConnectorDetails" Visibility="Collapsed" ColumnSpacing="10" RowSpacing="8" HorizontalAlignment="Left">
                 <Grid.ColumnDefinitions>
@@ -25,23 +24,22 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Port" VerticalAlignment="Center"/>
+                <TextBlock x:Uid="IntegrationsPage_PortLabel" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
                 <TextBox Grid.Row="0" Grid.Column="1" x:Name="ConnectorPortBox" HorizontalAlignment="Left" MinWidth="90"
                          InputScope="Number" LostFocus="ConnectorPort_LostFocus"/>
 
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Token" VerticalAlignment="Center"/>
+                <TextBlock x:Uid="IntegrationsPage_TokenLabel" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center"/>
                 <TextBox Grid.Row="1" Grid.Column="1" x:Name="ConnectorTokenBox" IsReadOnly="True" IsSpellCheckEnabled="False"/>
-                <Button Grid.Row="1" Grid.Column="2" Content="Copy" Click="CopyToken_Click"/>
-                <Button Grid.Row="1" Grid.Column="3" Content="Regenerate" Click="RegenerateToken_Click"/>
+                <Button x:Uid="IntegrationsPage_CopyTokenButton" Grid.Row="1" Grid.Column="2" Click="CopyToken_Click"/>
+                <Button x:Uid="IntegrationsPage_RegenerateTokenButton" Grid.Row="1" Grid.Column="3" Click="RegenerateToken_Click"/>
             </Grid>
-            <InfoBar x:Name="ConnectorUnavailableInfo"
+            <InfoBar x:Name="ConnectorUnavailableInfo" x:Uid="IntegrationsPage_ConnectorUnavailableInfo"
                      Severity="Warning"
                      IsClosable="False"
-                     IsOpen="False"
-                     Title="Port unavailable"/>
+                     IsOpen="False"/>
 
             <StackPanel Orientation="Horizontal" Spacing="16">
-                <TextBlock Text="Get the extension:" VerticalAlignment="Center"
+                <TextBlock x:Uid="IntegrationsPage_GetExtensionLabel" VerticalAlignment="Center"
                            Style="{StaticResource CaptionTextBlockStyle}"
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 <HyperlinkButton Content="Chrome" Padding="0"
@@ -51,16 +49,15 @@
                 <HyperlinkButton Content="Firefox" Padding="0"
                                  NavigateUri="https://addons.mozilla.org/addon/ttm-connect/"/>
             </StackPanel>
-            <HyperlinkButton x:Name="ApiDocLink" Content="View API documentation" Padding="0"/>
+            <HyperlinkButton x:Name="ApiDocLink" x:Uid="IntegrationsPage_ApiDocLink" Padding="0"/>
         </StackPanel>
 
         <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
 
         <StackPanel Spacing="8">
-            <TextBlock Text="File association" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-            <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       Text=".ttmdata files open with TextTemplateManager (opening one adds it as a sync source). If another app took them over, choose TextTemplateManager for .ttmdata again in Windows Settings › Apps › Default apps."/>
-            <HyperlinkButton Content="Open Default apps" Padding="0" Click="OpenDefaultApps_Click"/>
+            <TextBlock x:Uid="IntegrationsPage_FileAssociationHeading" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <TextBlock x:Uid="IntegrationsPage_FileAssociationText" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            <HyperlinkButton x:Uid="IntegrationsPage_DefaultAppsLink" Padding="0" Click="OpenDefaultApps_Click"/>
         </StackPanel>
     </StackPanel>
     </ScrollViewer>
