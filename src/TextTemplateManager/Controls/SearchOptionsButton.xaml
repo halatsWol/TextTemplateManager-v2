@@ -4,12 +4,10 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Button x:Name="OptionsButton"
+    <Button x:Name="OptionsButton" x:Uid="SearchOptions_Button"
             Style="{StaticResource SubtleButtonStyle}"
             VerticalAlignment="Stretch"
-            Padding="8,0"
-            ToolTipService.ToolTip="Search options"
-            AutomationProperties.Name="Search options">
+            Padding="8,0">
         <Grid>
             <FontIcon Glyph="&#xE71C;" FontSize="14"/>
             <!-- Shown while the search is widened, so the narrower default is never mistaken for it. -->
@@ -29,10 +27,8 @@
                         <Setter Property="Background" Value="{ThemeResource SolidBackgroundFillColorQuarternaryBrush}"/>
                     </Style>
                 </MenuFlyout.MenuFlyoutPresenterStyle>
-                <ToggleMenuFlyoutItem x:Name="ContentItem"
-                                      Text="Search template text"/>
-                <ToggleMenuFlyoutItem x:Name="StrictItem"
-                                      Text="Strict search: exactly as typed, * any characters, . one character"/>
+                <ToggleMenuFlyoutItem x:Name="ContentItem" x:Uid="SearchOptions_ContentItem"/>
+                <ToggleMenuFlyoutItem x:Name="StrictItem" x:Uid="SearchOptions_StrictItem"/>
             </MenuFlyout>
         </Button.Flyout>
     </Button>

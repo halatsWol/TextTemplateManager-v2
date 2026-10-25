@@ -2,6 +2,7 @@
 using Microsoft.UI.Xaml.Controls;
 using System;
 using TextTemplateManager.Common;
+using TextTemplateManager.Helpers;
 using TextTemplateManager.Services.Platform;
 using Windows.ApplicationModel.DataTransfer;
 
@@ -17,9 +18,9 @@ public sealed partial class AboutDialog : ContentDialog
     {
         InitializeComponent();
         _email = email;
-        VersionText.Text = $"Version {AppInfo.Version}";
-        ReleaseText.Text = AppInfo.ReleaseDate.Length > 0 ? $"Released {AppInfo.ReleaseDate}" : "Released: dev build";
-        ProtocolText.Text = $"Connector API protocol {BrowserConnector.ProtocolVersion}";
+        VersionText.Text = Loc.Format("General_Version", AppInfo.Version);
+        ReleaseText.Text = AppInfo.ReleaseDate.Length > 0 ? Loc.Format("About_Released", AppInfo.ReleaseDate) : Loc.Get("About_DevBuild");
+        ProtocolText.Text = Loc.Format("About_Protocol", BrowserConnector.ProtocolVersion);
         CopyrightText.Text = $"© {DateTime.Now.Year} Marflow Software";
         WebsiteLink.NavigateUri = new Uri(websiteUrl);
         EmailLink.Content = email;

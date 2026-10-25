@@ -4,5 +4,5 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <WebView2 x:Name="EditorWebView" Loaded="EditorWebView_Loaded" AutomationProperties.Name="Template editor"/>
+    <WebView2 x:Name="EditorWebView" x:Uid="TemplateEditor_WebView" Loaded="EditorWebView_Loaded"/>
 </UserControl>

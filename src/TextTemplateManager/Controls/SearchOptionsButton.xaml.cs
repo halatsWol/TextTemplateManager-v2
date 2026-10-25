@@ -2,6 +2,7 @@
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.ComponentModel;
+using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
 
 namespace TextTemplateManager.Controls;
@@ -63,10 +64,10 @@ public sealed partial class SearchOptionsButton : UserControl
         ActiveDot.Visibility = content || strict ? Visibility.Visible : Visibility.Collapsed;
         ToolTipService.SetToolTip(OptionsButton, (content, strict) switch
         {
-            (true, true) => "Search options (strict, searching template text too)",
-            (true, false) => "Search options (searching template text too)",
-            (false, true) => "Search options (strict search)",
-            _ => "Search options",
+            (true, true) => Loc.Get("SearchOptions_TooltipStrictContent"),
+            (true, false) => Loc.Get("SearchOptions_TooltipContent"),
+            (false, true) => Loc.Get("SearchOptions_TooltipStrict"),
+            _ => Loc.Get("SearchOptions_Tooltip"),
         });
     }
 }

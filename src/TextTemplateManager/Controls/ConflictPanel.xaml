@@ -33,13 +33,13 @@
 
         <StackPanel>
             <Grid Margin="0,0,0,6">
-                <TextBlock Text="⚠ Shortcut Conflicts" FontWeight="Bold" VerticalAlignment="Center"/>
+                <TextBlock x:Uid="ConflictPanel_Title" FontWeight="Bold" VerticalAlignment="Center"/>
                 <!-- Dismiss: only shown for purely cross-area (sync↔local) notes; same-area
                      conflicts must be resolved, so the panel stays put for those. -->
-                <Button x:Name="DismissButton" Visibility="Collapsed"
+                <Button x:Name="DismissButton" x:Uid="ConflictPanel_DismissButton" Visibility="Collapsed"
                         HorizontalAlignment="Right" VerticalAlignment="Top"
                         Padding="4" MinWidth="0" Background="Transparent" BorderThickness="0"
-                        Click="Dismiss_Click" ToolTipService.ToolTip="Dismiss" AutomationProperties.Name="Dismiss">
+                        Click="Dismiss_Click">
                     <FontIcon Glyph="&#xE711;" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 </Button>
             </Grid>

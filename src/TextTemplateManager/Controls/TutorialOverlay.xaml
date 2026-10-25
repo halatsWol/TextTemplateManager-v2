@@ -13,27 +13,26 @@
         <Border x:Name="Highlight" BorderBrush="{ThemeResource AccentFillColorDefaultBrush}" BorderThickness="2"
                 CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" IsHitTestVisible="False" Visibility="Collapsed"/>
 
-        <Border x:Name="Card" Width="360" HorizontalAlignment="Left" VerticalAlignment="Top"
+        <Border x:Name="Card" x:Uid="Tour_Card" Width="360" HorizontalAlignment="Left" VerticalAlignment="Top"
                 Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
                 BorderBrush="{ThemeResource SurfaceStrokeColorFlyoutBrush}" BorderThickness="1"
-                CornerRadius="8" Padding="16,12,16,14" TabFocusNavigation="Cycle"
-                AutomationProperties.Name="Tutorial">
+                CornerRadius="8" Padding="16,12,16,14" TabFocusNavigation="Cycle">
             <StackPanel Spacing="8">
                 <Grid>
                     <TextBlock x:Name="Counter" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                    <Button x:Name="CloseButton" HorizontalAlignment="Right" Style="{StaticResource SubtleButtonStyle}" Padding="6"
-                            Click="Skip_Click" ToolTipService.ToolTip="Close the tutorial (Esc)" AutomationProperties.Name="Close the tutorial">
+                    <Button x:Name="CloseButton" x:Uid="Tour_CloseButton" HorizontalAlignment="Right" Style="{StaticResource SubtleButtonStyle}" Padding="6"
+                            Click="Skip_Click">
                         <FontIcon Glyph="&#xE711;" FontSize="12"/>
                     </Button>
                 </Grid>
                 <TextBlock x:Name="StepTitle" Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="Wrap"/>
                 <TextBlock x:Name="StepText" TextWrapping="Wrap" AutomationProperties.LiveSetting="Assertive"/>
                 <Grid Margin="0,6,0,0">
-                    <HyperlinkButton x:Name="SkipButton" Content="Skip tutorial" Padding="0" Click="Skip_Click"/>
+                    <HyperlinkButton x:Name="SkipButton" x:Uid="Tour_SkipButton" Padding="0" Click="Skip_Click"/>
                     <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                        <Button x:Name="BackButton" Content="Back" Click="Back_Click"/>
-                        <Button x:Name="NextButton" Content="Next" Style="{StaticResource AccentButtonStyle}" Click="Next_Click"/>
+                        <Button x:Name="BackButton" x:Uid="Tour_BackButton" Click="Back_Click"/>
+                        <Button x:Name="NextButton" x:Uid="Tour_NextButton" Style="{StaticResource AccentButtonStyle}" Click="Next_Click"/>
                     </StackPanel>
                 </Grid>
             </StackPanel>

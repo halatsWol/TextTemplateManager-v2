@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Media;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TextTemplateManager.Helpers;
 using TextTemplateManager.Tutorial;
 using Windows.Foundation;
 using VirtualKey = Windows.System.VirtualKey;
@@ -133,12 +134,12 @@ public sealed partial class TutorialOverlay : UserControl
         StepTitle.Text = step.Title;
         StepText.Text = step.Text;
         BackButton.IsEnabled = _index > 0 || _canGoBackFromFirst;
-        NextButton.Content = _index == _steps.Count - 1 && _endsTour ? "Done" : "Next";
+        NextButton.Content = _index == _steps.Count - 1 && _endsTour ? Loc.Get("Tour_DoneButton") : Loc.Get("Tour_NextButtonText");
         UpdateLayout();
         Place(force: true);
         Card.Opacity = 1;
         NextButton.Focus(FocusState.Programmatic);
-        Announce($"{Counter.Text}: {step.Title}. {step.Text}");
+        Announce(Loc.Format("Tour_Announcement", Counter.Text, step.Title, step.Text));
     }
 
     // Focus stays on Next from step to step, so a screen reader would only say "Next": the step itself is announced.
