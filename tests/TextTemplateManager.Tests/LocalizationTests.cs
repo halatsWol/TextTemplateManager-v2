@@ -31,7 +31,7 @@ public partial class LocalizationTests
     [GeneratedRegex(@"x:Uid=""([^""]+)""")]
     private static partial Regex UidPattern();
 
-    [GeneratedRegex(@"Loc\.(?:Get|Format)\(""([^""]+)""")]
+    [GeneratedRegex(@"Loc\.(Get|Format|Plural)\(""([^""]+)""")]
     private static partial Regex CodeKeyPattern();
 
     [GeneratedRegex(@"\{(\d+)(?:[,:][^}]*)?\}")]
@@ -40,8 +40,13 @@ public partial class LocalizationTests
     private static List<string> Uids() =>
         SourceFiles("*.xaml").SelectMany(f => UidPattern().Matches(File.ReadAllText(f)).Select(m => m.Groups[1].Value)).ToList();
 
+    // A Loc.Plural key stands for its two forms.
     private static List<string> CodeKeys() =>
-        SourceFiles("*.cs").SelectMany(f => CodeKeyPattern().Matches(File.ReadAllText(f)).Select(m => m.Groups[1].Value)).ToList();
+        SourceFiles("*.cs").SelectMany(f => CodeKeyPattern().Matches(File.ReadAllText(f)))
+            .SelectMany(m => m.Groups[1].Value == "Plural"
+                ? new[] { m.Groups[2].Value + "_One", m.Groups[2].Value + "_Other" }
+                : new[] { m.Groups[2].Value })
+            .ToList();
 
     private static string[] Placeholders(string value) =>
         PlaceholderPattern().Matches(value).Select(m => m.Groups[1].Value).Distinct().Order().ToArray();
@@ -50,6 +55,15 @@ public partial class LocalizationTests
     public void Loc_reads_the_english_text_in_a_test_run()
     {
         Assert.Equal(English()["Support_MailHint"].Replace("{0}", "a@b.c"), Loc.Format("Support_MailHint", "a@b.c"));
+    }
+
+    [Fact]
+    public void Plural_picks_the_form_by_count()
+    {
+        var english = English();
+        Assert.Equal(english["Main_DeleteSelection_One"].Replace("{0}", "1"), Loc.Plural("Main_DeleteSelection", 1));
+        Assert.Equal(english["Main_DeleteSelection_Other"].Replace("{0}", "3"), Loc.Plural("Main_DeleteSelection", 3));
+        Assert.Equal(english["Main_DropInto_Other"].Replace("{0}", "2").Replace("{1}", "Team"), Loc.Plural("Main_DropInto", 2, "Team"));
     }
 
     [Fact]

@@ -17,4 +17,9 @@ internal static class Loc
     public static string Get(string key) => Loader.Value.GetString(key);
 
     public static string Format(string key, params object?[] args) => string.Format(CultureInfo.CurrentCulture, Get(key), args);
+
+    /// <summary>key_One for a count of 1, key_Other otherwise (English and German need no more forms); {0} is the
+    /// count, <paramref name="args"/> follow from {1}.</summary>
+    public static string Plural(string key, int count, params object?[] args) =>
+        Format(key + (count == 1 ? "_One" : "_Other"), [count, .. args]);
 }

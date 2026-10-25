@@ -48,7 +48,7 @@ namespace TextTemplateManager
             ItemTreeView.AddHandler(UIElement.KeyDownEvent, new KeyEventHandler(ItemTreeView_KeyDown), true);
             ItemTreeView.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(ItemTreeView_PointerPressed), true);
             ItemTreeView.PreviewKeyDown += ItemTreeView_PreviewKeyDown;
-            TreeViewNames.NameForScreenReaders(ItemTreeView, "Templates");
+            TreeViewNames.NameForScreenReaders(ItemTreeView, Loc.Get("Main_TreeName"));
             // The list marks drag events over its empty space handled; a drop there moves to the end.
             ItemTreeView.AddHandler(UIElement.DragOverEvent, new DragEventHandler(ItemTreeView_DragOver), true);
             ItemTreeView.AddHandler(UIElement.DropEvent, new DragEventHandler(ItemTreeView_Drop), true);
@@ -87,7 +87,7 @@ namespace TextTemplateManager
                         bool isSyncRoot = ViewModel.SelectedItem is Folder folder && folder.IsSyncRoot;
                         FolderTitleBox.IsReadOnly = isSyncRoot || !editable;
                         ToolTipService.SetToolTip(FolderTitleBox,
-                            isSyncRoot ? "The sync folder name is set in Settings ▸ Sync" : null);
+                            isSyncRoot ? Loc.Get("Main_SyncRootNameTooltip") : null);
                     });
                 }
             };
@@ -136,11 +136,11 @@ namespace TextTemplateManager
         {
             var dialog = new ContentDialog
             {
-                Title = "Save changes?",
-                Content = $"\"{ViewModel.EditedItem?.Title}\" has changes that aren't saved.",
-                PrimaryButtonText = "Save",
-                SecondaryButtonText = "Don't save",
-                CloseButtonText = "Cancel",
+                Title = Loc.Get("Main_UnsavedTitle"),
+                Content = Loc.Format("Main_UnsavedText", ViewModel.EditedItem?.Title),
+                PrimaryButtonText = Loc.Get("Main_SaveButton"),
+                SecondaryButtonText = Loc.Get("Main_DontSaveButton"),
+                CloseButtonText = Loc.Get("Common_CancelButton"),
                 DefaultButton = ContentDialogButton.Primary,
             };
             return await ShowDialogAsync(dialog) switch
@@ -257,7 +257,7 @@ namespace TextTemplateManager
                 int count = ViewModel.SelectedItems.Count;
                 var exportAll = new MenuFlyoutItem
                 {
-                    Text = ViewModel.CanExportSelection ? $"Export {count} items…" : ExportLabel(false),
+                    Text = ViewModel.CanExportSelection ? Loc.Plural("Main_ExportSelection", count) : ExportLabel(false),
                     Icon = new SymbolIcon(Symbol.Save),
                     IsEnabled = ViewModel.CanExportSelection,
                 };
@@ -266,7 +266,7 @@ namespace TextTemplateManager
                 if (ViewModel.DeletableSelection.Count > 0)
                 {
                     flyout.Items.Add(new MenuFlyoutSeparator());
-                    var deleteAll = new MenuFlyoutItem { Text = $"Delete {ViewModel.DeletableSelection.Count} items", Icon = new SymbolIcon(Symbol.Delete) };
+                    var deleteAll = new MenuFlyoutItem { Text = Loc.Plural("Main_DeleteSelection", ViewModel.DeletableSelection.Count), Icon = new SymbolIcon(Symbol.Delete) };
                     deleteAll.Click += async (_, _) => await ConfirmAndDeleteAsync();
                     flyout.Items.Add(deleteAll);
                 }
@@ -278,15 +278,15 @@ namespace TextTemplateManager
 
             if (item is Template t)
             {
-                var dup = new MenuFlyoutItem { Text = "Duplicate", Icon = new SymbolIcon(Symbol.Copy) };
+                var dup = new MenuFlyoutItem { Text = Loc.Get("Main_DuplicateItem"), Icon = new SymbolIcon(Symbol.Copy) };
                 dup.Click += (_, _) => ViewModel.CloneItemCommand.Execute(null);
                 flyout.Items.Add(dup);
 
-                var copy = new MenuFlyoutItem { Text = $"Copy ({PasteModeLabel.For(t.DefaultPasteMode)})" };
+                var copy = new MenuFlyoutItem { Text = Loc.Format("Main_CopyItem", PasteModeLabel.For(t.DefaultPasteMode)) };
                 copy.Click += (_, _) => _ = PasteService.CopyToClipboardAsync(t.Content, t.DefaultPasteMode);
                 flyout.Items.Add(copy);
 
-                var copyAs = new MenuFlyoutSubItem { Text = "Copy As" };
+                var copyAs = new MenuFlyoutSubItem { Text = Loc.Get("Main_CopyAsItem") };
                 foreach (PasteMode mode in ViewModel.PasteModes)
                 {
                     var captured = mode;
@@ -299,7 +299,7 @@ namespace TextTemplateManager
 
             if (!item.IsSyncRoot)   // a pinned sync folder already is a file
             {
-                var export = new MenuFlyoutItem { Text = "Export…", Icon = new SymbolIcon(Symbol.Save) };
+                var export = new MenuFlyoutItem { Text = Loc.Get("Main_ExportItem"), Icon = new SymbolIcon(Symbol.Save) };
                 export.Click += async (_, _) => await ViewModel.ExportAsync(new[] { item });
                 flyout.Items.Add(export);
             }
@@ -309,7 +309,7 @@ namespace TextTemplateManager
             if (!item.IsSyncRoot && !ViewModel.IsReadOnly(item))
             {
                 if (flyout.Items.Count > 0) flyout.Items.Add(new MenuFlyoutSeparator());
-                var del = new MenuFlyoutItem { Text = "Delete", Icon = new SymbolIcon(Symbol.Delete) };
+                var del = new MenuFlyoutItem { Text = Loc.Get("Main_DeleteItem"), Icon = new SymbolIcon(Symbol.Delete) };
                 del.Click += async (_, _) => await ConfirmAndDeleteAsync();
                 flyout.Items.Add(del);
             }
@@ -331,20 +331,18 @@ namespace TextTemplateManager
             if (items.Count > 1)
             {
                 int inside = items.Sum(i => i.SelfAndDescendants().Count() - 1);
-                message = $"Delete these {items.Count} items" + (inside > 0 ? $" and the {inside} item(s) inside their folders" : "") +
-                          "? This cannot be undone.";
+                message = inside > 0 ? Loc.Plural("Main_DeleteManyWithInside", inside, items.Count) : Loc.Format("Main_DeleteMany", items.Count);
                 int skipped = ViewModel.SelectedItems.Count - items.Count;
-                if (skipped > 0) message += $"\n\n{skipped} selected item(s) can't be deleted here (synced folders or read-only sync items) and stay.";
+                if (skipped > 0) message += "\n\n" + Loc.Plural("Main_DeleteSkipped", skipped);
             }
             else if (item is Folder folder && folder.Children.Count > 0)
             {
                 int childCount = folder.SelfAndDescendants().Count() - 1; // exclude the folder itself
-                message = $"Delete the folder \"{item.Title}\" and its {childCount} item(s)?\n\n" +
-                          "All items inside this folder will be deleted as well. This cannot be undone.";
+                message = Loc.Plural("Main_DeleteFolder", childCount, item.Title);
             }
             else if (item is Template)
             {
-                message = $"Delete the template \"{item.Title}\"? This cannot be undone.";
+                message = Loc.Format("Main_DeleteTemplate", item.Title);
             }
             // else: empty folder -> no confirmation needed.
 
@@ -352,10 +350,10 @@ namespace TextTemplateManager
             {
                 var dialog = new ContentDialog
                 {
-                    Title = "Confirm deletion",
+                    Title = Loc.Get("Main_DeleteTitle"),
                     Content = message,
-                    PrimaryButtonText = "Delete",
-                    CloseButtonText = "Cancel",
+                    PrimaryButtonText = Loc.Get("Main_DeleteButton"),
+                    CloseButtonText = Loc.Get("Common_CancelButton"),
                     DefaultButton = ContentDialogButton.Close,
                 };
 
@@ -371,25 +369,25 @@ namespace TextTemplateManager
             var (result, file) = await ViewModel.PickImportFileAsync();
             if (result == MainViewModel.ImportPick.Unreadable)
             {
-                await ShowMessageAsync("Nothing imported", "The file couldn't be read as TextTemplateManager data. Nothing was changed.");
+                await ShowMessageAsync(Loc.Get("Main_NothingImportedTitle"), Loc.Get("Main_ImportUnreadable"));
                 return;
             }
             if (file == null) return;
             if (file.Templates == 0 && file.Folders == 0)
             {
-                await ShowMessageAsync("Nothing imported", $"\"{file.Name}\" holds no templates or folders.");
+                await ShowMessageAsync(Loc.Get("Main_NothingImportedTitle"), Loc.Format("Main_ImportEmpty", file.Name));
                 return;
             }
 
-            var newFolder = new RadioButton { Content = $"Into a new folder \"{file.Name}\"", GroupName = "ImportWhere" };
-            var direct = new RadioButton { Content = "Directly into the tree (folders with the same name are merged)", GroupName = "ImportWhere", IsChecked = true };
-            var overwriteAll = new RadioButton { Content = "Overwrite all of them", GroupName = "ImportConflicts" };
-            var overwriteOlder = new RadioButton { Content = "Overwrite only where the imported one is more recent", GroupName = "ImportConflicts", IsChecked = true };
-            var skip = new RadioButton { Content = "Skip them, keep the existing ones", GroupName = "ImportConflicts" };
+            var newFolder = new RadioButton { Content = Loc.Format("Main_ImportIntoNewFolder", file.Name), GroupName = "ImportWhere" };
+            var direct = new RadioButton { Content = Loc.Get("Main_ImportDirectly"), GroupName = "ImportWhere", IsChecked = true };
+            var overwriteAll = new RadioButton { Content = Loc.Get("Main_ImportOverwriteAll"), GroupName = "ImportConflicts" };
+            var overwriteOlder = new RadioButton { Content = Loc.Get("Main_ImportOverwriteOlder"), GroupName = "ImportConflicts", IsChecked = true };
+            var skip = new RadioButton { Content = Loc.Get("Main_ImportSkip"), GroupName = "ImportConflicts" };
             var conflicts = new StackPanel { Spacing = 4, Margin = new Thickness(0, 12, 0, 0) };
             conflicts.Children.Add(new TextBlock
             {
-                Text = $"{file.Conflicts} of these template(s) already exist (same template, or same title in the same folder):",
+                Text = Loc.Plural("Main_ImportConflicts", file.Conflicts),
                 TextWrapping = TextWrapping.Wrap,
             });
             foreach (var choice in new[] { overwriteAll, overwriteOlder, skip }) conflicts.Children.Add(choice);
@@ -401,7 +399,7 @@ namespace TextTemplateManager
             var content = new StackPanel { Spacing = 4 };
             content.Children.Add(new TextBlock
             {
-                Text = $"\"{file.Name}\" holds {file.Templates} template(s) in {file.Folders} folder(s). Where should they go?",
+                Text = Loc.Format("Main_ImportHolds", file.Name, Loc.Plural("Main_ImportTemplates", file.Templates), Loc.Plural("Main_ImportInFolders", file.Folders)),
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 8),
             });
@@ -411,10 +409,10 @@ namespace TextTemplateManager
 
             var dialog = new ContentDialog
             {
-                Title = "Import",
+                Title = Loc.Get("Main_ImportTitle"),
                 Content = content,
-                PrimaryButtonText = "Import",
-                CloseButtonText = "Cancel",
+                PrimaryButtonText = Loc.Get("Main_ImportButton"),
+                CloseButtonText = Loc.Get("Common_CancelButton"),
                 DefaultButton = ContentDialogButton.Primary,
             };
             if (await ShowDialogAsync(dialog) != ContentDialogResult.Primary) return;
@@ -427,7 +425,7 @@ namespace TextTemplateManager
         private async void Export_Click(object sender, RoutedEventArgs e) => await ViewModel.ExportAsync(ViewModel.SelectedItems);
 
         // A disabled menu item shows no tooltip, so the label says why.
-        public string ExportLabel(bool canExport) => canExport ? "Export…" : "Export… (not across areas)";
+        public string ExportLabel(bool canExport) => canExport ? Loc.Get("Main_ExportItem") : Loc.Get("Main_ExportNotAcrossAreas");
 
         private void OpenPreferences_Click(object sender, RoutedEventArgs e) => Settings.Open();
 
@@ -470,8 +468,7 @@ namespace TextTemplateManager
             if (string.Equals(full, _store.Storage.GetDataPath(), StringComparison.OrdinalIgnoreCase))
             {
                 OpenSyncSettings();
-                await ShowMessageAsync("Not added as a sync source",
-                    "The added file is this app's own data file, so it can't be linked as a sync source.");
+                await ShowMessageAsync(Loc.Get("Main_NotSyncSourceTitle"), Loc.Get("Main_NotSyncSourceText"));
                 return;
             }
 
@@ -499,16 +496,15 @@ namespace TextTemplateManager
         {
             string path = System.IO.Path.Combine(AppContext.BaseDirectory, "Manual.pdf");
             if (System.IO.File.Exists(path)) ExternalLinks.Open(path);
-            else await ShowMessageAsync("Manual unavailable",
-                "The manual PDF was not found next to the app. It is generated at build time.");
+            else await ShowMessageAsync(Loc.Get("Main_ManualUnavailableTitle"), Loc.Get("Main_ManualUnavailableText"));
         }
 
 
         private async void About_Click(object sender, RoutedEventArgs e)
         {
             var result = await ShowDialogAsync(new AboutDialog(SupportLinks.WebsiteUrl, SupportLinks.Email));
-            if (result == ContentDialogResult.Primary) await ShowTextFileAsync("LICENSE", "License");
-            else if (result == ContentDialogResult.Secondary) await ShowTextFileAsync("THIRD-PARTY-NOTICES.txt", "Third-party notices");
+            if (result == ContentDialogResult.Primary) await ShowTextFileAsync("LICENSE", Loc.Get("Main_LicenseTitle"));
+            else if (result == ContentDialogResult.Secondary) await ShowTextFileAsync("THIRD-PARTY-NOTICES.txt", Loc.Get("Main_NoticesTitle"));
         }
 
         // A text file shipped next to the app (license, third-party notices) in a dialog.
@@ -516,7 +512,7 @@ namespace TextTemplateManager
         {
             string text;
             try { text = System.IO.File.ReadAllText(System.IO.Path.Combine(AppContext.BaseDirectory, fileName)); }
-            catch { text = $"{title}: file not found."; }
+            catch { text = Loc.Format("Main_FileNotFound", title); }
 
             var scroll = new ScrollViewer
             {
@@ -533,7 +529,7 @@ namespace TextTemplateManager
             {
                 Title = title,
                 Content = scroll,
-                CloseButtonText = "Close",
+                CloseButtonText = Loc.Get("Common_CloseButton"),
             });
         }
 
@@ -542,12 +538,11 @@ namespace TextTemplateManager
         public async void ReportUnreadableFiles(IReadOnlyList<StorageService.UnreadableFile> files)
         {
             var lines = files.Select(f => f.KeptAs != null
-                ? $"• {System.IO.Path.GetFileName(f.Path)}: started without it. The original was kept as {System.IO.Path.GetFileName(f.KeptAs)}."
-                : $"• {System.IO.Path.GetFileName(f.Path)}: couldn't be read or moved. It won't be changed until the app is restarted.");
+                ? "• " + Loc.Format("Main_UnreadableKept", System.IO.Path.GetFileName(f.Path), System.IO.Path.GetFileName(f.KeptAs))
+                : "• " + Loc.Format("Main_UnreadableLocked", System.IO.Path.GetFileName(f.Path)));
             string folder = System.IO.Path.GetDirectoryName(files[0].Path) ?? "";
 
-            await ShowStartupMessageAsync("Some files couldn't be read",
-                string.Join("\n", lines) + $"\n\nFolder: {folder}\n\nThe original files were not overwritten.");
+            await ShowStartupMessageAsync(Loc.Get("Main_UnreadableTitle"), Loc.Format("Main_UnreadableText", string.Join("\n", lines), folder));
         }
 
         public async void ReportStartupProblem(string title, string message) =>
@@ -560,10 +555,10 @@ namespace TextTemplateManager
             await WaitUntilDialogCanOpenAsync();
             var dialog = new ContentDialog
             {
-                Title = "TextTemplateManager 1 is still installed",
-                Content = "This version replaces it. Its data stays on this PC, and a backup of it is listed in Settings ▸ Backups.\n\nRemove the old version now?",
-                PrimaryButtonText = "Remove TextTemplateManager 1",
-                CloseButtonText = "Keep it",
+                Title = Loc.Get("Main_LegacyTitle"),
+                Content = Loc.Get("Main_LegacyText"),
+                PrimaryButtonText = Loc.Get("Main_LegacyRemoveButton"),
+                CloseButtonText = Loc.Get("Main_LegacyKeepButton"),
                 DefaultButton = ContentDialogButton.Primary,
             };
             var answer = await ShowDialogAsync(dialog);
@@ -578,10 +573,9 @@ namespace TextTemplateManager
             try { removed = await LegacyApp.UninstallAsync(TimeSpan.FromSeconds(60)); }
             finally { _dialogOpen = false; }
             if (removed)
-                await ShowMessageAsync("TextTemplateManager 1 removed", "The old version was removed. Its data folder was kept.");
+                await ShowMessageAsync(Loc.Get("Main_LegacyRemovedTitle"), Loc.Get("Main_LegacyRemovedText"));
             else
-                await ShowMessageAsync("TextTemplateManager 1 wasn't removed",
-                    "The old version couldn't be removed from here. Remove it in Windows Settings ▸ Apps ▸ Installed apps.");
+                await ShowMessageAsync(Loc.Get("Main_LegacyNotRemovedTitle"), Loc.Get("Main_LegacyNotRemovedText"));
         }
 
         /// <summary>The first start with no data yet, when there is something to start from: the 1.x data (its v1
@@ -594,17 +588,17 @@ namespace TextTemplateManager
             await WaitUntilDialogCanOpenAsync();
             var import = new RadioButton
             {
-                Content = "Import from TextTemplateManager 1: your templates, settings and sync settings as you left them there. The app restarts afterwards.",
+                Content = Loc.Get("Main_FirstStartImport"),
                 GroupName = "FirstStart",
             };
             var restore = new RadioButton
             {
-                Content = $"Restore a backup (the newest is from {newest?.Created:f})",
+                Content = Loc.Format("Main_FirstStartRestore", newest?.Created),
                 GroupName = "FirstStart",
             };
-            var fresh = new RadioButton { Content = "Start fresh", GroupName = "FirstStart" };
+            var fresh = new RadioButton { Content = Loc.Get("Main_FirstStartFresh"), GroupName = "FirstStart" };
             var content = new StackPanel { Spacing = 4 };
-            content.Children.Add(new TextBlock { Text = "How would you like to start?", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8) });
+            content.Children.Add(new TextBlock { Text = Loc.Get("Main_FirstStartQuestion"), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8) });
             if (v1 != null) content.Children.Add(import);
             if (newest != null) content.Children.Add(restore);
             content.Children.Add(fresh);
@@ -614,9 +608,9 @@ namespace TextTemplateManager
 
             var dialog = new ContentDialog
             {
-                Title = "Welcome to TextTemplateManager",
+                Title = Loc.Get("Main_FirstStartTitle"),
                 Content = content,
-                PrimaryButtonText = "Continue",
+                PrimaryButtonText = Loc.Get("Main_ContinueButton"),
                 DefaultButton = ContentDialogButton.Primary,
             };
             bool chosen = await ShowDialogAsync(dialog) == ContentDialogResult.Primary;
@@ -644,8 +638,7 @@ namespace TextTemplateManager
             RestoreFlow.Outcome outcome;
             try { outcome = await new RestoreFlow(XamlRoot).RunAsync(v1.Path, parts, "TextTemplateManager 1", confirm: false); }
             finally { _dialogOpen = false; }
-            await ShowMessageAsync("Import from TextTemplateManager 1 failed",
-                $"{outcome.Problem}\n\nYou can try again in Settings ▸ Backups ▸ Import from TextTemplateManager 1.");
+            await ShowMessageAsync(Loc.Get("Main_ImportV1FailedTitle"), Loc.Format("Main_ImportV1FailedText", outcome.Problem));
         }
 
         /// <summary>Take the tour, Later (also Esc: asked again on the next start) or Don't show again.</summary>
@@ -654,16 +647,15 @@ namespace TextTemplateManager
             bool declined = false;
             var dialog = new ContentDialog
             {
-                Title = "Take the guided tour?",
+                Title = Loc.Get("Main_TourOfferTitle"),
                 Content = new TextBlock
                 {
-                    Text = "A short tour shows the main window, the settings and Quick Paste on sample templates; your own templates aren't touched. "
-                         + "You can also start it any time from Help ▸ Start tutorial.",
+                    Text = Loc.Get("Main_TourOfferText"),
                     TextWrapping = TextWrapping.Wrap,
                 },
-                PrimaryButtonText = "Take the tour",
-                SecondaryButtonText = "Later",
-                CloseButtonText = "Don't show again",
+                PrimaryButtonText = Loc.Get("Main_TourOfferTakeButton"),
+                SecondaryButtonText = Loc.Get("Main_TourOfferLaterButton"),
+                CloseButtonText = Loc.Get("Main_TourOfferNeverButton"),
                 DefaultButton = ContentDialogButton.Primary,
             };
             // Esc also raises CloseButtonClick: it's remembered here and counts as Later.
@@ -720,8 +712,8 @@ namespace TextTemplateManager
                 VerticalAlignment = VerticalAlignment.Top,
                 Margin = new Thickness(12, -16, -16, 0),   // into the corner, past the dialog's padding
             };
-            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(close, "Close");
-            ToolTipService.SetToolTip(close, "Close");
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(close, Loc.Get("Common_CloseButton"));
+            ToolTipService.SetToolTip(close, Loc.Get("Common_CloseButton"));
             close.Click += (_, _) => dialog.Hide();
             dialog.Opened += (_, _) => close.Focus(FocusState.Programmatic);   // so Esc reaches the dialog
             dialog.PreviewKeyDown += (_, e) =>   // without a close button a dialog ignores Esc
@@ -733,7 +725,7 @@ namespace TextTemplateManager
             var title = new Grid();
             title.ColumnDefinitions.Add(new ColumnDefinition());
             title.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            title.Children.Add(new TextBlock { Text = $"What's new in {version}", TextWrapping = TextWrapping.Wrap });
+            title.Children.Add(new TextBlock { Text = Loc.Format("Main_WhatsNewTitle", version), TextWrapping = TextWrapping.Wrap });
             Grid.SetColumn(close, 1);
             title.Children.Add(close);
             scroll.SizeChanged += (_, _) => title.Width = scroll.ActualWidth;   // the dialog sizes its title to the text
@@ -762,12 +754,10 @@ namespace TextTemplateManager
             await WaitUntilDialogCanOpenAsync();
             var dialog = new ContentDialog
             {
-                Title = "Something went wrong",
-                Content = (saved ? "An unexpected error occurred. Your changes have been saved."
-                                 : "An unexpected error occurred, and your latest changes may not have been saved.")
-                          + " To be safe, quit and restart TextTemplateManager.\n\nDetails: " + crashLogPath,
-                PrimaryButtonText = "Quit",
-                CloseButtonText = "Keep running",
+                Title = Loc.Get("Main_ErrorTitle"),
+                Content = saved ? Loc.Format("Main_ErrorSaved", crashLogPath) : Loc.Format("Main_ErrorUnsaved", crashLogPath),
+                PrimaryButtonText = Loc.Get("Main_QuitButton"),
+                CloseButtonText = Loc.Get("Main_KeepRunningButton"),
                 DefaultButton = ContentDialogButton.Primary,
             };
             return await ShowDialogAsync(dialog) == ContentDialogResult.Primary;
@@ -800,7 +790,7 @@ namespace TextTemplateManager
             {
                 Title = title,
                 Content = message,
-                CloseButtonText = "OK",
+                CloseButtonText = Loc.Get("Common_OkButton"),
             });
         }
 
@@ -834,7 +824,7 @@ namespace TextTemplateManager
             if (_exitProgress != null) return;
             _exitProgress = new ContentDialog
             {
-                Title = "Saving changes…",
+                Title = Loc.Get("Main_SavingTitle"),
                 Content = new ProgressRing { IsActive = true, Width = 32, Height = 32 },
             };
             _exitProgressShown = ShowDialogAsync(_exitProgress);
@@ -855,11 +845,10 @@ namespace TextTemplateManager
         {
             var dialog = new ContentDialog
             {
-                Title = "Still saving",
-                Content = "Your latest changes haven't finished saving yet (a synced file may be busy). " +
-                          "Quitting now can lose them.",
-                PrimaryButtonText = "Keep waiting",
-                SecondaryButtonText = "Quit anyway",
+                Title = Loc.Get("Main_StillSavingTitle"),
+                Content = Loc.Get("Main_StillSavingText"),
+                PrimaryButtonText = Loc.Get("Main_KeepWaitingButton"),
+                SecondaryButtonText = Loc.Get("Main_QuitAnywayButton"),
                 DefaultButton = ContentDialogButton.Primary,
             };
             return await ShowDialogAsync(dialog) != ContentDialogResult.Secondary;
@@ -871,12 +860,11 @@ namespace TextTemplateManager
         {
             var ask = new ContentDialog
             {
-                Title = "A language is still downloading",
-                Content = "A translation language is still downloading. Wait for it to finish and then exit, or stop it " +
-                          "and exit now; you can download it again later in Settings ▸ Translation.",
-                PrimaryButtonText = "Wait, then exit",
-                SecondaryButtonText = "Stop and exit",
-                CloseButtonText = "Cancel",
+                Title = Loc.Get("Main_DownloadingTitle"),
+                Content = Loc.Get("Main_DownloadingText"),
+                PrimaryButtonText = Loc.Get("Main_WaitThenExitButton"),
+                SecondaryButtonText = Loc.Get("Main_StopAndExitButton"),
+                CloseButtonText = Loc.Get("Common_CancelButton"),
                 DefaultButton = ContentDialogButton.Primary,
             };
             switch (await ShowDialogAsync(ask))
@@ -884,13 +872,13 @@ namespace TextTemplateManager
                 case ContentDialogResult.Primary:
                     var bar = new ProgressBar { Maximum = 100, MinWidth = 280 };
                     var percent = new TextBlock();
-                    Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(bar, "Download progress");
+                    Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(bar, Loc.Get("Main_DownloadProgressName"));
                     var waiting = new ContentDialog
                     {
-                        Title = "Finishing the download…",
+                        Title = Loc.Get("Main_FinishingDownloadTitle"),
                         Content = new StackPanel { Spacing = 8, Children = { bar, percent } },
-                        PrimaryButtonText = "Stop and exit",
-                        CloseButtonText = "Cancel",
+                        PrimaryButtonText = Loc.Get("Main_StopAndExitButton"),
+                        CloseButtonText = Loc.Get("Common_CancelButton"),
                     };
                     // A language's second direction joins the total only when it starts, so the share can drop; the bar doesn't.
                     void ShowProgress()
@@ -1218,11 +1206,11 @@ namespace TextTemplateManager
 
         // Folders: the top and bottom quarter of a row drop beside the folder, the middle into it. A drop
         // below an expanded folder lands at the top of its children, which is what the rows below show.
-        private (Folder? Folder, int Index, string Caption) DropDestination(DragEventArgs e)
+        private (Folder? Folder, int Index, string Caption) DropDestination(DragEventArgs e, int count)
         {
             var row = RowAt(e);
             if (row?.DataContext is not TreeNode { Item: var target } node)
-                return (null, ViewModel.AllItems.Count, "Move to the end");
+                return (null, ViewModel.AllItems.Count, Loc.Plural("Main_DropEnd", count));
 
             double y = Math.Clamp(e.GetPosition(row).Y, 0, row.ActualHeight), height = row.ActualHeight;
             var spot = target is Folder
@@ -1230,14 +1218,14 @@ namespace TextTemplateManager
                 : y < height / 2 ? MainViewModel.DropSpot.Before : MainViewModel.DropSpot.After;
 
             if (spot == MainViewModel.DropSpot.After && target is Folder open && node.IsExpanded && node.Children.Count > 0)
-                return (open, 0, $"Move into \"{target.Title}\"");
+                return (open, 0, Loc.Plural("Main_DropInto", count, target.Title));
 
             var (folder, index) = ViewModel.DropDestination(target, spot);
             string caption = spot switch
             {
-                MainViewModel.DropSpot.Into => $"Move into \"{target.Title}\"",
-                MainViewModel.DropSpot.Before => $"Move above \"{target.Title}\"",
-                _ => $"Move below \"{target.Title}\"",
+                MainViewModel.DropSpot.Into => Loc.Plural("Main_DropInto", count, target.Title),
+                MainViewModel.DropSpot.Before => Loc.Plural("Main_DropAbove", count, target.Title),
+                _ => Loc.Plural("Main_DropBelow", count, target.Title),
             };
             return (folder, index, caption);
         }
@@ -1312,11 +1300,11 @@ namespace TextTemplateManager
         {
             e.AcceptedOperation = DataPackageOperation.None;
             if (_draggedItems is not { Count: > 0 } items) return;
-            var (folder, _, caption) = DropDestination(e);
+            var (folder, _, caption) = DropDestination(e, items.Count);
             if (items.Any(i => !ViewModel.CanMove(i, folder))) return;
 
             e.AcceptedOperation = DataPackageOperation.Move;
-            e.DragUIOverride.Caption = items.Count > 1 ? caption.Replace("Move ", $"Move {items.Count} items ") : caption;
+            e.DragUIOverride.Caption = caption;
             e.DragUIOverride.IsGlyphVisible = false;
         }
 
@@ -1327,7 +1315,7 @@ namespace TextTemplateManager
             _draggedItems = null;
             if (items is not { Count: > 0 }) return;
 
-            var (folder, index, _) = DropDestination(e);
+            var (folder, index, _) = DropDestination(e, 1);
             await ViewModel.MoveAsync(items, folder, index);
         }
 

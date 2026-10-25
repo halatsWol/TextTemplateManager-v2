@@ -5,7 +5,8 @@ using TextTemplateManager.Common;
 namespace TextTemplateManager.Helpers
 {
     /// <summary>Display names for <see cref="PasteMode"/>. Most modes use their enum name; a few
-    /// have a friendlier label (e.g. <see cref="PasteMode.Jira"/> shows as "HTML/Jira").</summary>
+    /// have a friendlier label (e.g. <see cref="PasteMode.Jira"/> shows as "HTML/Jira"), and Auto and Plaintext are
+    /// translated.</summary>
     public static class PasteModeLabel
     {
         /// <summary>The order paste modes are shown in menus and drop-downs (most-used first).
@@ -16,6 +17,14 @@ namespace TextTemplateManager.Helpers
         };
 
         public static string For(PasteMode mode) => mode switch
+        {
+            PasteMode.Auto => Loc.Get("PasteMode_Auto"),
+            PasteMode.Plaintext => Loc.Get("PasteMode_Plaintext"),
+            _ => Invariant(mode),
+        };
+
+        /// <summary>The English name, for the browser connector: the extension shows it in its own UI.</summary>
+        public static string Invariant(PasteMode mode) => mode switch
         {
             PasteMode.Jira => "HTML/Jira",
             _ => mode.ToString(),

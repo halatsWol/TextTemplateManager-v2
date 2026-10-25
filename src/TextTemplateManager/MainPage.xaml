@@ -35,12 +35,12 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <TextBox Header="Folder Title"
+                <TextBox x:Uid="MainPage_FolderTemplateTitleBox"
                          Text="{Binding Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                 <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.5">
                     <FontIcon Glyph="&#xE8B7;" FontSize="80"/>
-                    <TextBlock Text="Folder selected" HorizontalAlignment="Center"/>
+                    <TextBlock x:Uid="MainPage_FolderTemplateSelected" HorizontalAlignment="Center"/>
                 </StackPanel>
             </Grid>
         </DataTemplate>
@@ -49,7 +49,7 @@
         <DataTemplate x:Key="EmptyDetailTemplate">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.3">
                 <FontIcon Glyph="&#xE12B;" FontSize="80"/>
-                <TextBlock Text="Select an item to view details" HorizontalAlignment="Center"/>
+                <TextBlock x:Uid="MainPage_EmptyTemplateText" HorizontalAlignment="Center"/>
             </StackPanel>
         </DataTemplate>
 
@@ -78,32 +78,29 @@
 
             <!-- Menu Bar -->
             <MenuBar Grid.Row="0">
-                <MenuBarItem x:Name="FileMenu" Title="File">
-                    <MenuFlyoutItem Text="Import…" Icon="OpenFile" Click="Import_Click"
-                                    ToolTipService.ToolTip="Adds the templates and folders of a .ttmdata file to your local ones"/>
-                    <MenuFlyoutItem Text="{x:Bind ExportLabel(ViewModel.CanExportSelection), Mode=OneWay}" Icon="Save" Click="Export_Click"
-                                    IsEnabled="{x:Bind ViewModel.CanExportSelection, Mode=OneWay}"
-                                    ToolTipService.ToolTip="Saves the selected items (or, with nothing selected, all your local templates and folders) to a .ttmdata file"/>
+                <MenuBarItem x:Name="FileMenu" x:Uid="MainPage_FileMenu">
+                    <MenuFlyoutItem x:Uid="MainPage_ImportItem" Icon="OpenFile" Click="Import_Click"/>
+                    <MenuFlyoutItem x:Uid="MainPage_ExportItem" Text="{x:Bind ExportLabel(ViewModel.CanExportSelection), Mode=OneWay}" Icon="Save" Click="Export_Click"
+                                    IsEnabled="{x:Bind ViewModel.CanExportSelection, Mode=OneWay}"/>
                     <MenuFlyoutSeparator/>
-                    <MenuFlyoutItem Text="Settings" Icon="Setting" Click="OpenPreferences_Click"/>
+                    <MenuFlyoutItem x:Uid="MainPage_SettingsItem" Icon="Setting" Click="OpenPreferences_Click"/>
                     <MenuFlyoutSeparator/>
-                    <MenuFlyoutItem Text="Exit" Click="Exit_Click"/>
+                    <MenuFlyoutItem x:Uid="MainPage_ExitItem" Click="Exit_Click"/>
                 </MenuBarItem>
-                <MenuBarItem x:Name="HelpMenu" Title="Help">
-                    <MenuFlyoutItem Text="Open Manual" Icon="Library" Click="OpenManual_Click"/>
-                    <MenuFlyoutItem Text="Start tutorial" Click="StartTutorial_Click">
+                <MenuBarItem x:Name="HelpMenu" x:Uid="MainPage_HelpMenu">
+                    <MenuFlyoutItem x:Uid="MainPage_ManualItem" Icon="Library" Click="OpenManual_Click"/>
+                    <MenuFlyoutItem x:Uid="MainPage_TutorialItem" Click="StartTutorial_Click">
                         <MenuFlyoutItem.Icon>
                             <FontIcon Glyph="&#xE7BE;"/>
                         </MenuFlyoutItem.Icon>
                     </MenuFlyoutItem>
-                    <MenuFlyoutItem Text="Go to website" Click="GoToWebsite_Click"
-                                    ToolTipService.ToolTip="software.kmarflow.com: online help, troubleshooting and problem reports">
+                    <MenuFlyoutItem x:Uid="MainPage_WebsiteItem" Click="GoToWebsite_Click">
                         <MenuFlyoutItem.Icon>
                             <FontIcon Glyph="&#xE774;"/>
                         </MenuFlyoutItem.Icon>
                     </MenuFlyoutItem>
                     <MenuFlyoutSeparator/>
-                    <MenuFlyoutItem Text="About" Icon="Help" Click="About_Click"/>
+                    <MenuFlyoutItem x:Uid="MainPage_AboutItem" Icon="Help" Click="About_Click"/>
                 </MenuBarItem>
             </MenuBar>
 
@@ -114,26 +111,23 @@
                 <StackPanel x:Name="SaveNotification" Orientation="Horizontal" Spacing="4"
                             VerticalAlignment="Center" Opacity="0" IsHitTestVisible="False">
                     <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="{ThemeResource SystemFillColorSuccessBrush}"/>
-                    <TextBlock Text="Saved" FontSize="12" VerticalAlignment="Center"
+                    <TextBlock x:Uid="MainPage_SavedText" FontSize="12" VerticalAlignment="Center"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                 </StackPanel>
                 <!-- Autosave off: shown while the edited item has unsaved changes. -->
-                <Button x:Name="SaveButton" Click="Save_Click" Style="{StaticResource AccentButtonStyle}" Padding="10,3"
-                        Visibility="{x:Bind ViewModel.HasUnsavedChanges, Mode=OneWay, Converter={StaticResource BoolToVis}}"
-                        ToolTipService.ToolTip="Save changes (Ctrl+S)" AutomationProperties.Name="Save">
+                <Button x:Name="SaveButton" x:Uid="MainPage_SaveButton" Click="Save_Click" Style="{StaticResource AccentButtonStyle}" Padding="10,3"
+                        Visibility="{x:Bind ViewModel.HasUnsavedChanges, Mode=OneWay, Converter={StaticResource BoolToVis}}">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <FontIcon Glyph="&#xE74E;" FontSize="12"/>
-                        <TextBlock Text="Save" FontSize="12"/>
+                        <TextBlock x:Uid="MainPage_SaveButtonText" FontSize="12"/>
                     </StackPanel>
                 </Button>
-                <Button x:Name="MainHelpButton"
-                        Content="&#xE897;" FontFamily="Segoe MDL2 Assets" Click="MainHelpButton_Click"
-                        ToolTipService.ToolTip="Quick Help" AutomationProperties.Name="Quick Help" Style="{StaticResource SubtleButtonStyle}"/>
+                <Button x:Name="MainHelpButton" x:Uid="MainPage_HelpButton"
+                        Content="&#xE897;" FontFamily="Segoe MDL2 Assets" Click="MainHelpButton_Click" Style="{StaticResource SubtleButtonStyle}"/>
             </StackPanel>
 
             <!-- In-app updates: downloading, ready (Restart to update), blocked by policy, failed. See MainPage.Updates.cs. -->
-            <InfoBar x:Name="UpdateBar" Grid.Row="1" IsOpen="False" Margin="10,0,10,6"
-                     AutomationProperties.Name="Update" CloseButtonClick="UpdateBar_CloseButtonClick">
+            <InfoBar x:Name="UpdateBar" x:Uid="MainPage_UpdateBar" Grid.Row="1" IsOpen="False" Margin="10,0,10,6" CloseButtonClick="UpdateBar_CloseButtonClick">
                 <InfoBar.ActionButton>
                     <Button x:Name="UpdateBarAction" Click="UpdateBarAction_Click"/>
                 </InfoBar.ActionButton>
@@ -165,22 +159,18 @@
                     <Grid x:Name="TreeToolbar" Margin="10,10,10,5">
                         <StackPanel Orientation="Horizontal" Spacing="4">
                             <!-- The tree's item icons (Symbol.Document / Symbol.Folder), as glyphs to match the other buttons' size. -->
-                            <Button x:Name="AddTemplateButton" Content="&#xE8A5;" FontFamily="Segoe MDL2 Assets" Click="AddTemplate_Click" ToolTipService.ToolTip="Add Template"
-                                    AutomationProperties.Name="Add Template" IsEnabled="{x:Bind ViewModel.CanAddHere, Mode=OneWay}"/>
-                            <Button x:Name="AddFolderButton" Content="&#xE8B7;" FontFamily="Segoe MDL2 Assets" Click="AddFolder_Click" ToolTipService.ToolTip="Add Folder"
-                                    AutomationProperties.Name="Add Folder" IsEnabled="{x:Bind ViewModel.CanAddHere, Mode=OneWay}"/>
-                            <Button x:Name="DeleteButton" Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" Click="DeleteItem_Click" ToolTipService.ToolTip="Delete Item" AutomationProperties.Name="Delete Item"
+                            <Button x:Name="AddTemplateButton" x:Uid="MainPage_AddTemplateButton" Content="&#xE8A5;" FontFamily="Segoe MDL2 Assets" Click="AddTemplate_Click" IsEnabled="{x:Bind ViewModel.CanAddHere, Mode=OneWay}"/>
+                            <Button x:Name="AddFolderButton" x:Uid="MainPage_AddFolderButton" Content="&#xE8B7;" FontFamily="Segoe MDL2 Assets" Click="AddFolder_Click" IsEnabled="{x:Bind ViewModel.CanAddHere, Mode=OneWay}"/>
+                            <Button x:Name="DeleteButton" x:Uid="MainPage_DeleteButton" Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" Click="DeleteItem_Click"
                                     IsEnabled="{x:Bind ViewModel.CanDeleteSelection, Mode=OneWay}"/>
                         </StackPanel>
                         <!-- Chevrons as on the tree's folders: right = collapsed, down = expanded. Smaller glyphs; the
                              buttons keep the toolbar's size (full row height, padding making up the width). -->
                         <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right">
-                            <Button x:Name="CollapseAllButton" Content="&#xE76C;" FontFamily="Segoe MDL2 Assets" FontSize="11"
-                                    Padding="13,0,12,0" VerticalAlignment="Stretch" Click="CollapseAll_Click"
-                                    ToolTipService.ToolTip="Collapse all" AutomationProperties.Name="Collapse all"/>
-                            <Button x:Name="ExpandAllButton" Content="&#xE70D;" FontFamily="Segoe MDL2 Assets" FontSize="11"
-                                    Padding="13,0,12,0" VerticalAlignment="Stretch" Click="ExpandAll_Click"
-                                    ToolTipService.ToolTip="Expand all" AutomationProperties.Name="Expand all"/>
+                            <Button x:Name="CollapseAllButton" x:Uid="MainPage_CollapseAllButton" Content="&#xE76C;" FontFamily="Segoe MDL2 Assets" FontSize="11"
+                                    Padding="13,0,12,0" VerticalAlignment="Stretch" Click="CollapseAll_Click"/>
+                            <Button x:Name="ExpandAllButton" x:Uid="MainPage_ExpandAllButton" Content="&#xE70D;" FontFamily="Segoe MDL2 Assets" FontSize="11"
+                                    Padding="13,0,12,0" VerticalAlignment="Stretch" Click="ExpandAll_Click"/>
                         </StackPanel>
                     </Grid>
 
@@ -190,9 +180,8 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <AutoSuggestBox x:Name="SearchBox"
+                        <AutoSuggestBox x:Name="SearchBox" x:Uid="MainPage_SearchBox"
                                         QueryIcon="Find"
-                                        PlaceholderText="Search templates..."
                                         Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         <appcontrols:SearchOptionsButton x:Name="SearchOptions" Grid.Column="1"/>
                     </Grid>
@@ -240,9 +229,8 @@
                                             </Border>
                                         </Grid>
                                         <TextBlock Text="{x:Bind Item.Title, Mode=OneWay}" VerticalAlignment="Center"/>
-                                        <FontIcon Glyph="&#xE7BA;" FontSize="12" Foreground="#E6A700" VerticalAlignment="Center"
-                                                  Visibility="{x:Bind Item.SyncFileMissing, Converter={StaticResource BoolToVis}}"
-                                                  ToolTipService.ToolTip="Sync file not found — showing the cached copy. Recreate the file or link another one in Settings › Sync."/>
+                                        <FontIcon x:Uid="MainPage_SyncMissingIcon" Glyph="&#xE7BA;" FontSize="12" Foreground="#E6A700" VerticalAlignment="Center"
+                                                  Visibility="{x:Bind Item.SyncFileMissing, Converter={StaticResource BoolToVis}}"/>
                                         <FontIcon Glyph="&#xE7BA;" FontSize="12" Foreground="#E6A700" VerticalAlignment="Center"
                                                   Visibility="{x:Bind Item.HasSyncWriteProblem, Mode=OneWay, Converter={StaticResource BoolToVis}}"
                                                   AutomationProperties.Name="{x:Bind Item.SyncWriteProblem, Mode=OneWay}"
@@ -258,8 +246,7 @@
                 <!-- Splitter: the gripper glyph shows you can click & drag here to resize the panes.
                      The glyph is IsHitTestVisible=False so drags pass through to the GridSplitter, which
                      stays a direct child of this Grid (column 1) so it still resizes the outer columns. -->
-                <controls:GridSplitter Grid.Column="1" Width="12" Background="Transparent" IsThumbVisible="False"
-                                       AutomationProperties.Name="Resize the template list"/>
+                <controls:GridSplitter x:Uid="MainPage_Splitter" Grid.Column="1" Width="12" Background="Transparent" IsThumbVisible="False"/>
                 <FontIcon Grid.Column="1" Glyph="&#xE784;" FontSize="14" FontFamily="Segoe MDL2 Assets"
                           IsHitTestVisible="False"
                           Foreground="{ThemeResource TextFillColorTertiaryBrush}"
@@ -279,7 +266,7 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <TextBox x:Name="TemplateTitleBox" Header="Title"
+                        <TextBox x:Name="TemplateTitleBox" x:Uid="MainPage_TitleBox"
                                  IsReadOnly="{x:Bind ViewModel.IsSelectedReadOnly, Mode=OneWay}"
                                  Text="{Binding Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
@@ -300,8 +287,8 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" HorizontalAlignment="Left">
-                                    <TextBlock Text="Single Key" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                    <TextBox x:Name="SingleKeyBox" Width="50" AutomationProperties.Name="Single Key"
+                                    <TextBlock x:Uid="MainPage_SingleKeyLabel" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="SingleKeyBox" x:Uid="MainPage_SingleKeyBox" Width="50"
                                              CharacterCasing="Upper"
                                              MaxLength="1"
                                              IsReadOnly="{x:Bind ViewModel.IsSelectedReadOnly, Mode=OneWay}"
@@ -313,8 +300,8 @@
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1" HorizontalAlignment="Left">
-                                    <TextBlock Text="Multi Key" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                                    <TextBox x:Name="MultiKeyBox" Width="250" AutomationProperties.Name="Multi Key"
+                                    <TextBlock x:Uid="MainPage_MultiKeyLabel" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                                    <TextBox x:Name="MultiKeyBox" x:Uid="MainPage_MultiKeyBox" Width="250"
                                              MaxLength="20"
                                              CharacterCasing="Upper"
                                              IsReadOnly="{x:Bind ViewModel.IsSelectedReadOnly, Mode=OneWay}"
@@ -326,11 +313,11 @@
                                 </StackPanel>
                             </Grid>
 
-                            <TextBox x:Name="TagsBox" Header="Tags"
+                            <TextBox x:Name="TagsBox" x:Uid="MainPage_TagsBox"
                                      IsReadOnly="{x:Bind ViewModel.IsSelectedReadOnly, Mode=OneWay}"
                                      Text="{Binding TagsCsv, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                            <ComboBox x:Name="PasteModeBox" Header="Default Paste Mode"
+                            <ComboBox x:Name="PasteModeBox" x:Uid="MainPage_PasteModeBox"
                                       HorizontalAlignment="Stretch"
                                       IsEnabled="{x:Bind ViewModel.IsSelectedEditable, Mode=OneWay}"
                                       ItemsSource="{Binding DataContext.ViewModel.PasteModes, ElementName=ItemTreeView}"
@@ -353,11 +340,11 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <TextBox x:Name="FolderTitleBox" Header="Folder Title"
+                        <TextBox x:Name="FolderTitleBox" x:Uid="MainPage_FolderTitleBox"
                                  Text="{Binding Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.5">
                             <FontIcon Glyph="&#xE8B7;" FontSize="80"/>
-                            <TextBlock Text="Folder selected" HorizontalAlignment="Center"/>
+                            <TextBlock x:Uid="MainPage_FolderSelected" HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
 
@@ -366,7 +353,7 @@
                                 VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.3"
                                 Visibility="{x:Bind ViewModel.IsNoSelection, Mode=OneWay, Converter={StaticResource BoolToVis}}">
                         <FontIcon Glyph="&#xE12B;" FontSize="80"/>
-                        <TextBlock Text="Select an item to view details" HorizontalAlignment="Center"/>
+                        <TextBlock x:Uid="MainPage_EmptyText" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </Grid>
@@ -382,7 +369,7 @@
         <!-- Settings, shown in place over the main content. -->
         <appcontrols:SettingsView x:Name="Settings"/>
 
-        <TeachingTip x:Name="MainHelpTip" Title="Template Manager Guide" Target="{x:Bind MainHelpButton}"
+        <TeachingTip x:Name="MainHelpTip" x:Uid="MainPage_HelpTip" Target="{x:Bind MainHelpButton}"
                      PreferredPlacement="BottomLeft" IsLightDismissEnabled="True"
                      ShouldConstrainToRootBounds="False">
             <TeachingTip.Content>
@@ -404,49 +391,48 @@
 
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="🗂️" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="0" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Organize:"/><Run Text=" add with the toolbar; drag to reorder or nest (drop on a folder's middle to put an item inside, near a row's top or bottom to place it above or below). Click empty space or press Esc to deselect (new items then go to the root)."/>
+                        <Run x:Uid="MainPage_GuideOrganizeLabel" FontWeight="SemiBold"/><Run x:Uid="MainPage_GuideOrganizeText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="🔄" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="1" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Sync folders:"/><Run Text=" pinned at the top with a sync badge. Configure them in Settings ▸ Sync. Read-only ones are dimmed."/>
+                        <Run x:Uid="MainPage_GuideSyncLabel" FontWeight="SemiBold"/><Run x:Uid="MainPage_GuideSyncText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="⌨️" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="2" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Shortcuts:"/><Run Text=" set a single- or multi-key shortcut per template. The same key may repeat across areas; the local one wins, then sync folders in order."/>
+                        <Run x:Uid="MainPage_GuideShortcutsLabel" FontWeight="SemiBold"/><Run x:Uid="MainPage_GuideShortcutsText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="3" Grid.Column="0" Text="⚠" VerticalAlignment="Top" FontWeight="SemiBold"/>
                     <TextBlock Grid.Row="3" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Conflicts:"/><Run Text=" a duplicate shortcut inside the same area is blocked (a panel top-right lists it); across areas it's just a note you can dismiss."/>
+                        <Run x:Uid="MainPage_GuideConflictsLabel" FontWeight="SemiBold"/><Run x:Uid="MainPage_GuideConflictsText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="4" Grid.Column="0" Text="🖱️" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="4" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Right-click:"/><Run Text=" a template to Duplicate / Copy; a template or folder to Export or Delete. Drag an item to the empty space below the tree to move it to the top level."/>
+                        <Run x:Uid="MainPage_GuideRightClickLabel" FontWeight="SemiBold"/><Run x:Uid="MainPage_GuideRightClickText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="5" Grid.Column="0" Text="🔍" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="5" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Search:"/><Run Text=" filters the tree by title and tags; the filter button beside it can search the template text too."/>
+                        <Run x:Uid="MainPage_GuideSearchLabel" FontWeight="SemiBold"/><Run x:Uid="MainPage_GuideSearchText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="6" Grid.Column="0" Text="🎨" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="6" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Editor:"/><Run Text=" format with the toolbar — headings, lists, tables, colors, and Info/Note/Success/Warning/Error panels. Use the HTML/Jira paste mode to paste panels into Jira."/>
+                        <Run x:Uid="MainPage_GuideEditorLabel" FontWeight="SemiBold"/><Run x:Uid="MainPage_GuideEditorText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="7" Grid.Column="0" Text="⚡" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="7" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Quick Paste:"/><Run Text=" press the global hotkey (Settings ▸ General) anywhere to paste a template into the active app."/>
+                        <Run x:Uid="MainPage_GuideQuickPasteLabel" FontWeight="SemiBold"/><Run x:Uid="MainPage_GuideQuickPasteText"/>
                     </TextBlock>
                 </Grid>
             </TeachingTip.Content>
         </TeachingTip>
 
         <!-- After a skipped tour: where it can be started again. -->
-        <TeachingTip x:Name="TourHintTip" Title="Tutorial closed" Target="{x:Bind HelpMenu}"
-                     Subtitle="Start it again any time with Help ▸ Start tutorial." PreferredPlacement="Bottom" IsLightDismissEnabled="True"/>
+        <TeachingTip x:Name="TourHintTip" x:Uid="MainPage_TourHintTip" Target="{x:Bind HelpMenu}" PreferredPlacement="Bottom" IsLightDismissEnabled="True"/>
     </Grid>
 </Page>

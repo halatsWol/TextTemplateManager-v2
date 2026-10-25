@@ -42,7 +42,7 @@ namespace TextTemplateManager
             _entry = new QuickPasteController(store.ShortcutEntries, () => store.CurrentSyncSettings.Sources, store.ResolveSingleKey);
             this.InitializeComponent();
             _hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-            TreeViewNames.NameForScreenReaders(TemplateTree, "Templates");
+            TreeViewNames.NameForScreenReaders(TemplateTree, Loc.Get("Main_TreeName"));
 
             this.Activated += (s, e) =>
             {

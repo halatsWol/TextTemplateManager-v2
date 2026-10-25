@@ -707,4 +707,524 @@
   <data name="Translation_ImportFailed" xml:space="preserve">
     <value>The file couldn't be imported: {0}</value>
   </data>
+  <data name="MainPage_FolderTemplateTitleBox.Header" xml:space="preserve">
+    <value>Folder Title</value>
+  </data>
+  <data name="MainPage_FolderTemplateSelected.Text" xml:space="preserve">
+    <value>Folder selected</value>
+  </data>
+  <data name="MainPage_EmptyTemplateText.Text" xml:space="preserve">
+    <value>Select an item to view details</value>
+  </data>
+  <data name="MainPage_FileMenu.Title" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="MainPage_ImportItem.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Adds the templates and folders of a .ttmdata file to your local ones</value>
+  </data>
+  <data name="MainPage_ImportItem.Text" xml:space="preserve">
+    <value>Import…</value>
+  </data>
+  <data name="MainPage_ExportItem.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Saves the selected items (or, with nothing selected, all your local templates and folders) to a .ttmdata file</value>
+  </data>
+  <data name="MainPage_SettingsItem.Text" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="MainPage_ExitItem.Text" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="MainPage_HelpMenu.Title" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="MainPage_ManualItem.Text" xml:space="preserve">
+    <value>Open Manual</value>
+  </data>
+  <data name="MainPage_TutorialItem.Text" xml:space="preserve">
+    <value>Start tutorial</value>
+  </data>
+  <data name="MainPage_WebsiteItem.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>software.kmarflow.com: online help, troubleshooting and problem reports</value>
+  </data>
+  <data name="MainPage_WebsiteItem.Text" xml:space="preserve">
+    <value>Go to website</value>
+  </data>
+  <data name="MainPage_AboutItem.Text" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="MainPage_SavedText.Text" xml:space="preserve">
+    <value>Saved</value>
+  </data>
+  <data name="MainPage_SaveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="MainPage_SaveButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Save changes (Ctrl+S)</value>
+  </data>
+  <data name="MainPage_SaveButtonText.Text" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="MainPage_HelpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Quick Help</value>
+  </data>
+  <data name="MainPage_HelpButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Quick Help</value>
+  </data>
+  <data name="MainPage_UpdateBar.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="MainPage_AddTemplateButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Add Template</value>
+  </data>
+  <data name="MainPage_AddTemplateButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Add Template</value>
+  </data>
+  <data name="MainPage_AddFolderButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Add Folder</value>
+  </data>
+  <data name="MainPage_AddFolderButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Add Folder</value>
+  </data>
+  <data name="MainPage_DeleteButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Delete Item</value>
+  </data>
+  <data name="MainPage_DeleteButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Delete Item</value>
+  </data>
+  <data name="MainPage_CollapseAllButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Collapse all</value>
+  </data>
+  <data name="MainPage_CollapseAllButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Collapse all</value>
+  </data>
+  <data name="MainPage_ExpandAllButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Expand all</value>
+  </data>
+  <data name="MainPage_ExpandAllButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Expand all</value>
+  </data>
+  <data name="MainPage_SearchBox.PlaceholderText" xml:space="preserve">
+    <value>Search templates...</value>
+  </data>
+  <data name="MainPage_SyncMissingIcon.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Sync file not found — showing the cached copy. Recreate the file or link another one in Settings › Sync.</value>
+  </data>
+  <data name="MainPage_Splitter.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Resize the template list</value>
+  </data>
+  <data name="MainPage_TitleBox.Header" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="MainPage_SingleKeyLabel.Text" xml:space="preserve">
+    <value>Single Key</value>
+  </data>
+  <data name="MainPage_SingleKeyBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Single Key</value>
+  </data>
+  <data name="MainPage_MultiKeyLabel.Text" xml:space="preserve">
+    <value>Multi Key</value>
+  </data>
+  <data name="MainPage_MultiKeyBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Multi Key</value>
+  </data>
+  <data name="MainPage_TagsBox.Header" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="MainPage_PasteModeBox.Header" xml:space="preserve">
+    <value>Default Paste Mode</value>
+  </data>
+  <data name="MainPage_FolderTitleBox.Header" xml:space="preserve">
+    <value>Folder Title</value>
+  </data>
+  <data name="MainPage_FolderSelected.Text" xml:space="preserve">
+    <value>Folder selected</value>
+  </data>
+  <data name="MainPage_EmptyText.Text" xml:space="preserve">
+    <value>Select an item to view details</value>
+  </data>
+  <data name="MainPage_HelpTip.Title" xml:space="preserve">
+    <value>Template Manager Guide</value>
+  </data>
+  <data name="MainPage_GuideOrganizeLabel.Text" xml:space="preserve">
+    <value>Organize:</value>
+  </data>
+  <data name="MainPage_GuideOrganizeText.Text" xml:space="preserve">
+    <value> add with the toolbar; drag to reorder or nest (drop on a folder's middle to put an item inside, near a row's top or bottom to place it above or below). Click empty space or press Esc to deselect (new items then go to the root).</value>
+  </data>
+  <data name="MainPage_GuideSyncLabel.Text" xml:space="preserve">
+    <value>Sync folders:</value>
+  </data>
+  <data name="MainPage_GuideSyncText.Text" xml:space="preserve">
+    <value> pinned at the top with a sync badge. Configure them in Settings ▸ Sync. Read-only ones are dimmed.</value>
+  </data>
+  <data name="MainPage_GuideShortcutsLabel.Text" xml:space="preserve">
+    <value>Shortcuts:</value>
+  </data>
+  <data name="MainPage_GuideShortcutsText.Text" xml:space="preserve">
+    <value> set a single- or multi-key shortcut per template. The same key may repeat across areas; the local one wins, then sync folders in order.</value>
+  </data>
+  <data name="MainPage_GuideConflictsLabel.Text" xml:space="preserve">
+    <value>Conflicts:</value>
+  </data>
+  <data name="MainPage_GuideConflictsText.Text" xml:space="preserve">
+    <value> a duplicate shortcut inside the same area is blocked (a panel top-right lists it); across areas it's just a note you can dismiss.</value>
+  </data>
+  <data name="MainPage_GuideRightClickLabel.Text" xml:space="preserve">
+    <value>Right-click:</value>
+  </data>
+  <data name="MainPage_GuideRightClickText.Text" xml:space="preserve">
+    <value> a template to Duplicate / Copy; a template or folder to Export or Delete. Drag an item to the empty space below the tree to move it to the top level.</value>
+  </data>
+  <data name="MainPage_GuideSearchLabel.Text" xml:space="preserve">
+    <value>Search:</value>
+  </data>
+  <data name="MainPage_GuideSearchText.Text" xml:space="preserve">
+    <value> filters the tree by title and tags; the filter button beside it can search the template text too.</value>
+  </data>
+  <data name="MainPage_GuideEditorLabel.Text" xml:space="preserve">
+    <value>Editor:</value>
+  </data>
+  <data name="MainPage_GuideEditorText.Text" xml:space="preserve">
+    <value> format with the toolbar — headings, lists, tables, colors, and Info/Note/Success/Warning/Error panels. Use the HTML/Jira paste mode to paste panels into Jira.</value>
+  </data>
+  <data name="MainPage_GuideQuickPasteLabel.Text" xml:space="preserve">
+    <value>Quick Paste:</value>
+  </data>
+  <data name="MainPage_GuideQuickPasteText.Text" xml:space="preserve">
+    <value> press the global hotkey (Settings ▸ General) anywhere to paste a template into the active app.</value>
+  </data>
+  <data name="MainPage_TourHintTip.Subtitle" xml:space="preserve">
+    <value>Start it again any time with Help ▸ Start tutorial.</value>
+  </data>
+  <data name="MainPage_TourHintTip.Title" xml:space="preserve">
+    <value>Tutorial closed</value>
+  </data>
+  <data name="Common_CancelButton" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Common_CloseButton" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="PasteMode_Auto" xml:space="preserve">
+    <value>Auto</value>
+  </data>
+  <data name="PasteMode_Plaintext" xml:space="preserve">
+    <value>Plaintext</value>
+  </data>
+  <data name="Main_TreeName" xml:space="preserve">
+    <value>Templates</value>
+  </data>
+  <data name="Main_SyncRootNameTooltip" xml:space="preserve">
+    <value>The sync folder name is set in Settings ▸ Sync</value>
+  </data>
+  <data name="Main_UnsavedTitle" xml:space="preserve">
+    <value>Save changes?</value>
+  </data>
+  <data name="Main_UnsavedText" xml:space="preserve">
+    <value>"{0}" has changes that aren't saved.</value>
+  </data>
+  <data name="Main_SaveButton" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Main_DontSaveButton" xml:space="preserve">
+    <value>Don't save</value>
+  </data>
+  <data name="Main_ExportSelection_One" xml:space="preserve">
+    <value>Export {0} item…</value>
+  </data>
+  <data name="Main_ExportSelection_Other" xml:space="preserve">
+    <value>Export {0} items…</value>
+  </data>
+  <data name="Main_DeleteSelection_One" xml:space="preserve">
+    <value>Delete {0} item</value>
+  </data>
+  <data name="Main_DeleteSelection_Other" xml:space="preserve">
+    <value>Delete {0} items</value>
+  </data>
+  <data name="Main_DuplicateItem" xml:space="preserve">
+    <value>Duplicate</value>
+  </data>
+  <data name="Main_CopyItem" xml:space="preserve">
+    <value>Copy ({0})</value>
+  </data>
+  <data name="Main_CopyAsItem" xml:space="preserve">
+    <value>Copy As</value>
+  </data>
+  <data name="Main_ExportItem" xml:space="preserve">
+    <value>Export…</value>
+  </data>
+  <data name="Main_ExportNotAcrossAreas" xml:space="preserve">
+    <value>Export… (not across areas)</value>
+  </data>
+  <data name="Main_DeleteItem" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Main_DeleteMany" xml:space="preserve">
+    <value>Delete these {0} items? This cannot be undone.</value>
+  </data>
+  <data name="Main_DeleteManyWithInside_One" xml:space="preserve">
+    <value>Delete these {1} items and the {0} item inside their folders? This cannot be undone.</value>
+  </data>
+  <data name="Main_DeleteManyWithInside_Other" xml:space="preserve">
+    <value>Delete these {1} items and the {0} items inside their folders? This cannot be undone.</value>
+  </data>
+  <data name="Main_DeleteSkipped_One" xml:space="preserve">
+    <value>{0} selected item can't be deleted here (synced folders or read-only sync items) and stays.</value>
+  </data>
+  <data name="Main_DeleteSkipped_Other" xml:space="preserve">
+    <value>{0} selected items can't be deleted here (synced folders or read-only sync items) and stay.</value>
+  </data>
+  <data name="Main_DeleteFolder_One" xml:space="preserve">
+    <value>Delete the folder "{1}" and its {0} item?
+
+The item inside this folder will be deleted as well. This cannot be undone.</value>
+  </data>
+  <data name="Main_DeleteFolder_Other" xml:space="preserve">
+    <value>Delete the folder "{1}" and its {0} items?
+
+All items inside this folder will be deleted as well. This cannot be undone.</value>
+  </data>
+  <data name="Main_DeleteTemplate" xml:space="preserve">
+    <value>Delete the template "{0}"? This cannot be undone.</value>
+  </data>
+  <data name="Main_DeleteTitle" xml:space="preserve">
+    <value>Confirm deletion</value>
+  </data>
+  <data name="Main_DeleteButton" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Main_NothingImportedTitle" xml:space="preserve">
+    <value>Nothing imported</value>
+  </data>
+  <data name="Main_ImportUnreadable" xml:space="preserve">
+    <value>The file couldn't be read as TextTemplateManager data. Nothing was changed.</value>
+  </data>
+  <data name="Main_ImportEmpty" xml:space="preserve">
+    <value>"{0}" holds no templates or folders.</value>
+  </data>
+  <data name="Main_ImportIntoNewFolder" xml:space="preserve">
+    <value>Into a new folder "{0}"</value>
+  </data>
+  <data name="Main_ImportDirectly" xml:space="preserve">
+    <value>Directly into the tree (folders with the same name are merged)</value>
+  </data>
+  <data name="Main_ImportOverwriteAll" xml:space="preserve">
+    <value>Overwrite all of them</value>
+  </data>
+  <data name="Main_ImportOverwriteOlder" xml:space="preserve">
+    <value>Overwrite only where the imported one is more recent</value>
+  </data>
+  <data name="Main_ImportSkip" xml:space="preserve">
+    <value>Skip them, keep the existing ones</value>
+  </data>
+  <data name="Main_ImportConflicts_One" xml:space="preserve">
+    <value>{0} of these templates already exists (same template, or same title in the same folder):</value>
+  </data>
+  <data name="Main_ImportConflicts_Other" xml:space="preserve">
+    <value>{0} of these templates already exist (same template, or same title in the same folder):</value>
+  </data>
+  <data name="Main_ImportHolds" xml:space="preserve">
+    <value>"{0}" holds {1} {2}. Where should they go?</value>
+  </data>
+  <data name="Main_ImportTemplates_One" xml:space="preserve">
+    <value>{0} template</value>
+  </data>
+  <data name="Main_ImportTemplates_Other" xml:space="preserve">
+    <value>{0} templates</value>
+  </data>
+  <data name="Main_ImportInFolders_One" xml:space="preserve">
+    <value>in {0} folder</value>
+  </data>
+  <data name="Main_ImportInFolders_Other" xml:space="preserve">
+    <value>in {0} folders</value>
+  </data>
+  <data name="Main_ImportTitle" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="Main_ImportButton" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="Main_NotSyncSourceTitle" xml:space="preserve">
+    <value>Not added as a sync source</value>
+  </data>
+  <data name="Main_NotSyncSourceText" xml:space="preserve">
+    <value>The added file is this app's own data file, so it can't be linked as a sync source.</value>
+  </data>
+  <data name="Main_ManualUnavailableTitle" xml:space="preserve">
+    <value>Manual unavailable</value>
+  </data>
+  <data name="Main_ManualUnavailableText" xml:space="preserve">
+    <value>The manual PDF was not found next to the app. It is generated at build time.</value>
+  </data>
+  <data name="Main_LicenseTitle" xml:space="preserve">
+    <value>License</value>
+  </data>
+  <data name="Main_NoticesTitle" xml:space="preserve">
+    <value>Third-party notices</value>
+  </data>
+  <data name="Main_FileNotFound" xml:space="preserve">
+    <value>{0}: file not found.</value>
+  </data>
+  <data name="Main_UnreadableKept" xml:space="preserve">
+    <value>{0}: started without it. The original was kept as {1}.</value>
+  </data>
+  <data name="Main_UnreadableLocked" xml:space="preserve">
+    <value>{0}: couldn't be read or moved. It won't be changed until the app is restarted.</value>
+  </data>
+  <data name="Main_UnreadableTitle" xml:space="preserve">
+    <value>Some files couldn't be read</value>
+  </data>
+  <data name="Main_UnreadableText" xml:space="preserve">
+    <value>{0}
+
+Folder: {1}
+
+The original files were not overwritten.</value>
+  </data>
+  <data name="Main_LegacyTitle" xml:space="preserve">
+    <value>TextTemplateManager 1 is still installed</value>
+  </data>
+  <data name="Main_LegacyText" xml:space="preserve">
+    <value>This version replaces it. Its data stays on this PC, and a backup of it is listed in Settings ▸ Backups.
+
+Remove the old version now?</value>
+  </data>
+  <data name="Main_LegacyRemoveButton" xml:space="preserve">
+    <value>Remove TextTemplateManager 1</value>
+  </data>
+  <data name="Main_LegacyKeepButton" xml:space="preserve">
+    <value>Keep it</value>
+  </data>
+  <data name="Main_LegacyRemovedTitle" xml:space="preserve">
+    <value>TextTemplateManager 1 removed</value>
+  </data>
+  <data name="Main_LegacyRemovedText" xml:space="preserve">
+    <value>The old version was removed. Its data folder was kept.</value>
+  </data>
+  <data name="Main_LegacyNotRemovedTitle" xml:space="preserve">
+    <value>TextTemplateManager 1 wasn't removed</value>
+  </data>
+  <data name="Main_LegacyNotRemovedText" xml:space="preserve">
+    <value>The old version couldn't be removed from here. Remove it in Windows Settings ▸ Apps ▸ Installed apps.</value>
+  </data>
+  <data name="Main_FirstStartImport" xml:space="preserve">
+    <value>Import from TextTemplateManager 1: your templates, settings and sync settings as you left them there. The app restarts afterwards.</value>
+  </data>
+  <data name="Main_FirstStartRestore" xml:space="preserve">
+    <value>Restore a backup (the newest is from {0:f})</value>
+  </data>
+  <data name="Main_FirstStartFresh" xml:space="preserve">
+    <value>Start fresh</value>
+  </data>
+  <data name="Main_FirstStartQuestion" xml:space="preserve">
+    <value>How would you like to start?</value>
+  </data>
+  <data name="Main_FirstStartTitle" xml:space="preserve">
+    <value>Welcome to TextTemplateManager</value>
+  </data>
+  <data name="Main_ContinueButton" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="Main_ImportV1FailedTitle" xml:space="preserve">
+    <value>Import from TextTemplateManager 1 failed</value>
+  </data>
+  <data name="Main_ImportV1FailedText" xml:space="preserve">
+    <value>{0}
+
+You can try again in Settings ▸ Backups ▸ Import from TextTemplateManager 1.</value>
+  </data>
+  <data name="Main_TourOfferTitle" xml:space="preserve">
+    <value>Take the guided tour?</value>
+  </data>
+  <data name="Main_TourOfferText" xml:space="preserve">
+    <value>A short tour shows the main window, the settings and Quick Paste on sample templates; your own templates aren't touched. You can also start it any time from Help ▸ Start tutorial.</value>
+  </data>
+  <data name="Main_TourOfferTakeButton" xml:space="preserve">
+    <value>Take the tour</value>
+  </data>
+  <data name="Main_TourOfferLaterButton" xml:space="preserve">
+    <value>Later</value>
+  </data>
+  <data name="Main_TourOfferNeverButton" xml:space="preserve">
+    <value>Don't show again</value>
+  </data>
+  <data name="Main_WhatsNewTitle" xml:space="preserve">
+    <value>What's new in {0}</value>
+  </data>
+  <data name="Main_ErrorTitle" xml:space="preserve">
+    <value>Something went wrong</value>
+  </data>
+  <data name="Main_ErrorSaved" xml:space="preserve">
+    <value>An unexpected error occurred. Your changes have been saved. To be safe, quit and restart TextTemplateManager.
+
+Details: {0}</value>
+  </data>
+  <data name="Main_ErrorUnsaved" xml:space="preserve">
+    <value>An unexpected error occurred, and your latest changes may not have been saved. To be safe, quit and restart TextTemplateManager.
+
+Details: {0}</value>
+  </data>
+  <data name="Main_QuitButton" xml:space="preserve">
+    <value>Quit</value>
+  </data>
+  <data name="Main_KeepRunningButton" xml:space="preserve">
+    <value>Keep running</value>
+  </data>
+  <data name="Main_SavingTitle" xml:space="preserve">
+    <value>Saving changes…</value>
+  </data>
+  <data name="Main_StillSavingTitle" xml:space="preserve">
+    <value>Still saving</value>
+  </data>
+  <data name="Main_StillSavingText" xml:space="preserve">
+    <value>Your latest changes haven't finished saving yet (a synced file may be busy). Quitting now can lose them.</value>
+  </data>
+  <data name="Main_KeepWaitingButton" xml:space="preserve">
+    <value>Keep waiting</value>
+  </data>
+  <data name="Main_QuitAnywayButton" xml:space="preserve">
+    <value>Quit anyway</value>
+  </data>
+  <data name="Main_DownloadingTitle" xml:space="preserve">
+    <value>A language is still downloading</value>
+  </data>
+  <data name="Main_DownloadingText" xml:space="preserve">
+    <value>A translation language is still downloading. Wait for it to finish and then exit, or stop it and exit now; you can download it again later in Settings ▸ Translation.</value>
+  </data>
+  <data name="Main_WaitThenExitButton" xml:space="preserve">
+    <value>Wait, then exit</value>
+  </data>
+  <data name="Main_StopAndExitButton" xml:space="preserve">
+    <value>Stop and exit</value>
+  </data>
+  <data name="Main_DownloadProgressName" xml:space="preserve">
+    <value>Download progress</value>
+  </data>
+  <data name="Main_FinishingDownloadTitle" xml:space="preserve">
+    <value>Finishing the download…</value>
+  </data>
+  <data name="Main_DropEnd_One" xml:space="preserve">
+    <value>Move to the end</value>
+  </data>
+  <data name="Main_DropEnd_Other" xml:space="preserve">
+    <value>Move {0} items to the end</value>
+  </data>
+  <data name="Main_DropInto_One" xml:space="preserve">
+    <value>Move into "{1}"</value>
+  </data>
+  <data name="Main_DropInto_Other" xml:space="preserve">
+    <value>Move {0} items into "{1}"</value>
+  </data>
+  <data name="Main_DropAbove_One" xml:space="preserve">
+    <value>Move above "{1}"</value>
+  </data>
+  <data name="Main_DropAbove_Other" xml:space="preserve">
+    <value>Move {0} items above "{1}"</value>
+  </data>
+  <data name="Main_DropBelow_One" xml:space="preserve">
+    <value>Move below "{1}"</value>
+  </data>
+  <data name="Main_DropBelow_Other" xml:space="preserve">
+    <value>Move {0} items below "{1}"</value>
+  </data>
 </root>

@@ -30,7 +30,7 @@ public sealed class AppConnectorData : IConnectorDataSource
     public string AppVersion => AppInfo.Version;
 
     public IReadOnlyList<PasteModeDto> PasteModes() =>
-        PasteModeLabel.DisplayOrder.Select(m => new PasteModeDto(m.ToString(), PasteModeLabel.For(m))).ToList();
+        PasteModeLabel.DisplayOrder.Select(m => new PasteModeDto(m.ToString(), PasteModeLabel.Invariant(m))).ToList();
 
     public IReadOnlyList<ConnectorNodeDto> Tree() => _snap.Tree;
 
