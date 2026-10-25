@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
 using Windows.UI.Text;
 
@@ -14,7 +15,7 @@ public sealed record ShortcutRow(Template Template, string Key, string Source, b
     public FontStyle SourceStyle => IsLocal ? FontStyle.Italic : FontStyle.Normal;
 
     // What a screen reader says for the row; a record would print all its members.
-    public override string ToString() => $"{Title}, shortcut {Key}, {Source}";
+    public override string ToString() => Loc.Format("QuickPaste_RowName", Title, Key, Source);
 
     /// <summary>The rows for every template with a single key (or a multi key, with the sync prefix),
     /// local first, then in sync-source order, as a single-key press resolves them.</summary>
@@ -36,7 +37,7 @@ public sealed record ShortcutRow(Template Template, string Key, string Source, b
             .Select(e => new ShortcutRow(
                 e.Template,
                 multiKey ? e.EffectiveMultiKey : e.Template.SingleKeyShortcut,
-                sources.FirstOrDefault(s => s.Id == e.Area)?.Name ?? "local",
+                sources.FirstOrDefault(s => s.Id == e.Area)?.Name ?? Loc.Get("QuickPaste_LocalSource"),
                 e.Area == Guid.Empty))
             .ToList();
     }

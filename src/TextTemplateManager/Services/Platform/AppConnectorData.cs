@@ -92,7 +92,7 @@ public sealed class AppConnectorData : IConnectorDataSource
     private static string CleanName(string? name)
     {
         string s = new string((name ?? "").Where(c => !char.IsControl(c)).ToArray()).Trim();
-        if (s.Length == 0) return "New Template";
+        if (s.Length == 0) return Loc.Get("Main_NewTemplateTitle");
         return s.Length > 120 ? s[..120].Trim() : s;
     }
 

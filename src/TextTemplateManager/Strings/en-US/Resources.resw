@@ -1227,4 +1227,144 @@ Details: {0}</value>
   <data name="Main_DropBelow_Other" xml:space="preserve">
     <value>Move {0} items below "{1}"</value>
   </data>
+  <data name="Updates_DownloadingTitle" xml:space="preserve">
+    <value>Downloading update</value>
+  </data>
+  <data name="Updates_DownloadingText" xml:space="preserve">
+    <value>The update is downloading in the background. You can keep working.</value>
+  </data>
+  <data name="Updates_ReadyTitle" xml:space="preserve">
+    <value>Update ready</value>
+  </data>
+  <data name="Updates_ReadyText" xml:space="preserve">
+    <value>The update is ready to install. Restart to update saves your work and opens the new version within a few seconds.</value>
+  </data>
+  <data name="Updates_InstallingTitle" xml:space="preserve">
+    <value>Installing update</value>
+  </data>
+  <data name="Updates_InstallingVersion" xml:space="preserve">
+    <value>TextTemplateManager restarts with version {0} in a moment.</value>
+  </data>
+  <data name="Updates_InstallingNew" xml:space="preserve">
+    <value>TextTemplateManager restarts with the new version in a moment.</value>
+  </data>
+  <data name="Updates_AvailableTitle" xml:space="preserve">
+    <value>Update available</value>
+  </data>
+  <data name="Updates_Available" xml:space="preserve">
+    <value>{0} is available.</value>
+  </data>
+  <data name="Updates_StoreBlocked" xml:space="preserve">
+    <value>Automatic updates for Store apps are turned off on this PC, so choose Download to get it.</value>
+  </data>
+  <data name="Updates_AvailableManaged" xml:space="preserve">
+    <value>{0} is available. Your organization manages updates on this PC: ask your IT department, or update the app in the Microsoft Store if you're allowed to.</value>
+  </data>
+  <data name="Updates_FailedTitle" xml:space="preserve">
+    <value>Update problem</value>
+  </data>
+  <data name="Updates_FailedText" xml:space="preserve">
+    <value>The update didn't work.</value>
+  </data>
+  <data name="Updates_ManualStepsTitle" xml:space="preserve">
+    <value>Update couldn't be installed</value>
+  </data>
+  <data name="Updates_ManualStepsText" xml:space="preserve">
+    <value>The update is downloaded, but the app couldn't switch to it. Quit the app (File ▸ Exit) and start it again from the Start menu. If Help ▸ About still shows the old version, update the app in the Microsoft Store.</value>
+  </data>
+  <data name="Updates_NewVersion" xml:space="preserve">
+    <value>A new version</value>
+  </data>
+  <data name="Updates_NotInstalledTitle" xml:space="preserve">
+    <value>Update not installed</value>
+  </data>
+  <data name="Updates_NotInstalledText" xml:space="preserve">
+    <value>{0}
+
+Your templates weren't affected. The update stays ready; you can try again.</value>
+  </data>
+  <data name="Updates_WindowsUpdateHint" xml:space="preserve">
+    <value>Windows Update usually brings it on its own; Restart to update appears as soon as it's downloaded.</value>
+  </data>
+  <data name="Updates_UpToDateNextCheck" xml:space="preserve">
+    <value>Up to date (last checked at {0:t}). The Microsoft Store allows another check at {1} or later.</value>
+  </data>
+  <data name="Updates_NextCheck" xml:space="preserve">
+    <value>The Microsoft Store allows another check at {0} or later.</value>
+  </data>
+  <data name="Updates_CheckFailed" xml:space="preserve">
+    <value>Couldn't check for updates ({0}, error {1}).</value>
+  </data>
+  <data name="Updates_CheckRefused" xml:space="preserve">
+    <value>The Microsoft Store skipped this check because it limits how often an app may check. Try again at {0} or later.</value>
+  </data>
+  <data name="Updates_StoreNotDownloaded" xml:space="preserve">
+    <value>The Microsoft Store hasn't downloaded it yet. {0}</value>
+  </data>
+  <data name="Updates_NotStagedYet" xml:space="preserve">
+    <value>The download finished, but Windows hasn't prepared the update yet. The app checks again later.</value>
+  </data>
+  <data name="Updates_DownloadFailedCode" xml:space="preserve">
+    <value>The update couldn't be downloaded ({0}, error {1}).</value>
+  </data>
+  <data name="Updates_DownloadFailedDetail" xml:space="preserve">
+    <value>The update couldn't be downloaded: {0}.</value>
+  </data>
+  <data name="Updates_NoneReady" xml:space="preserve">
+    <value>No update is ready.</value>
+  </data>
+  <data name="Updates_ManagedByOrganization" xml:space="preserve">
+    <value>Your organization manages updates on this PC.</value>
+  </data>
+  <data name="Updates_Busy" xml:space="preserve">
+    <value>An update step is already running.</value>
+  </data>
+  <data name="Updates_NoLongerStaged" xml:space="preserve">
+    <value>The downloaded update is no longer there (Windows may have removed it). The app downloads it again at the next check.</value>
+  </data>
+  <data name="Updates_SwitchFailedCode" xml:space="preserve">
+    <value>Windows didn't switch to the new version (error {0}).</value>
+  </data>
+  <data name="Updates_SwitchFailed" xml:space="preserve">
+    <value>Windows didn't switch to the new version.</value>
+  </data>
+  <data name="Updates_LastAttemptFailedWith" xml:space="preserve">
+    <value>The last attempt to install it didn't work. {0}</value>
+  </data>
+  <data name="Updates_LastAttemptFailed" xml:space="preserve">
+    <value>The last attempt to install it didn't work.</value>
+  </data>
+  <data name="Main_NewTemplateTitle" xml:space="preserve">
+    <value>New Template</value>
+  </data>
+  <data name="Main_NewFolderTitle" xml:space="preserve">
+    <value>New Folder</value>
+  </data>
+  <data name="Main_CopyTitle" xml:space="preserve">
+    <value>{0} (Copy)</value>
+  </data>
+  <data name="Main_ExportFileName" xml:space="preserve">
+    <value>Templates_{0:yyyyMMdd}</value>
+  </data>
+  <data name="Conflicts_SingleKeyHeading" xml:space="preserve">
+    <value>Single-Key Conflicts</value>
+  </data>
+  <data name="Conflicts_MultiKeyHeading" xml:space="preserve">
+    <value>Multi-Key Conflicts</value>
+  </data>
+  <data name="Conflicts_SingleKeyNote" xml:space="preserve">
+    <value>Note — same single key in different areas (allowed; local wins, then sync order):</value>
+  </data>
+  <data name="Conflicts_MultiKeyNote" xml:space="preserve">
+    <value>Note — same multi-key in different areas (allowed; local wins, then sync order):</value>
+  </data>
+  <data name="Conflicts_Shortcut" xml:space="preserve">
+    <value>Shortcut: {0}</value>
+  </data>
+  <data name="QuickPaste_RowName" xml:space="preserve">
+    <value>{0}, shortcut {1}, {2}</value>
+  </data>
+  <data name="QuickPaste_LocalSource" xml:space="preserve">
+    <value>local</value>
+  </data>
 </root>

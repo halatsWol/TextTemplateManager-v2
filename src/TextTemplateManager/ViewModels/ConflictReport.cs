@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
 
 namespace TextTemplateManager.ViewModels;
@@ -39,10 +40,10 @@ public sealed class ConflictReport
         var multiNotes = hideNotes ? new List<IGrouping<string, Template>>() : all.Where(t => t.HasMultiKeyCrossAreaWarning).GroupBy(t => t.MultiKeyShortcut).ToList();
 
         var lines = new List<ConflictLine>();
-        AddConflicts(lines, "Single-Key Conflicts", single);
-        AddConflicts(lines, "Multi-Key Conflicts", multi);
-        AddNotes(lines, "Note — same single key in different areas (allowed; local wins, then sync order):", singleNotes);
-        AddNotes(lines, "Note — same multi-key in different areas (allowed; local wins, then sync order):", multiNotes);
+        AddConflicts(lines, Loc.Get("Conflicts_SingleKeyHeading"), single);
+        AddConflicts(lines, Loc.Get("Conflicts_MultiKeyHeading"), multi);
+        AddNotes(lines, Loc.Get("Conflicts_SingleKeyNote"), singleNotes);
+        AddNotes(lines, Loc.Get("Conflicts_MultiKeyNote"), multiNotes);
 
         string signature = string.Join("|",
             singleNotes.SelectMany(g => g.Select(t => "S:" + g.Key + "~" + t.Title))
@@ -58,7 +59,7 @@ public sealed class ConflictReport
         lines.Add(new(ConflictLineKind.Heading, heading));
         foreach (var g in groups)
         {
-            lines.Add(new(ConflictLineKind.Key, $"Shortcut: {g.Key}"));
+            lines.Add(new(ConflictLineKind.Key, Loc.Format("Conflicts_Shortcut", g.Key)));
             lines.AddRange(g.Select(t => new ConflictLine(ConflictLineKind.Template, $"- {t.Title}")));
         }
     }

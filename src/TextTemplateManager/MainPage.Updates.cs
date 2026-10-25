@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using TextTemplateManager.Helpers;
 using TextTemplateManager.Services.Updates;
 
 namespace TextTemplateManager
@@ -19,23 +20,23 @@ namespace TextTemplateManager
             string extra = string.IsNullOrEmpty(s.Message) ? "" : " " + s.Message;
             (InfoBarSeverity severity, string title, string message, UpdateAction action, bool closable) = s.Stage switch
             {
-                UpdateStage.Downloading => (InfoBarSeverity.Informational, "Downloading update",
-                    "The update is downloading in the background. You can keep working.", UpdateAction.None, true),
-                UpdateStage.Ready => (InfoBarSeverity.Success, "Update ready",
-                    $"The update is ready to install. Restart to update saves your work and opens the new version within a few seconds.{extra}", UpdateAction.Install, true),
-                UpdateStage.Installing => (InfoBarSeverity.Informational, "Installing update",
-                    $"TextTemplateManager restarts with {(s.Version is { } target ? "version " + Short(target) : "the new version")} in a moment.", UpdateAction.None, false),
-                UpdateStage.Available when s.CanDownload => (InfoBarSeverity.Informational, "Update available",
-                    $"{v} is available." + (extra.Length > 0 ? extra
-                        : s.StoreBlocked ? " Automatic updates for Store apps are turned off on this PC, so choose Download to get it." : ""),
+                UpdateStage.Downloading => (InfoBarSeverity.Informational, Loc.Get("Updates_DownloadingTitle"),
+                    Loc.Get("Updates_DownloadingText"), UpdateAction.None, true),
+                UpdateStage.Ready => (InfoBarSeverity.Success, Loc.Get("Updates_ReadyTitle"),
+                    Loc.Get("Updates_ReadyText") + extra, UpdateAction.Install, true),
+                UpdateStage.Installing => (InfoBarSeverity.Informational, Loc.Get("Updates_InstallingTitle"),
+                    s.Version is { } target ? Loc.Format("Updates_InstallingVersion", Short(target)) : Loc.Get("Updates_InstallingNew"),
+                    UpdateAction.None, false),
+                UpdateStage.Available when s.CanDownload => (InfoBarSeverity.Informational, Loc.Get("Updates_AvailableTitle"),
+                    Loc.Format("Updates_Available", v) + (extra.Length > 0 ? extra
+                        : s.StoreBlocked ? " " + Loc.Get("Updates_StoreBlocked") : ""),
                     UpdateAction.Download, true),
-                UpdateStage.Available => (InfoBarSeverity.Informational, "Update available",
-                    $"{v} is available. Your organization manages updates on this PC: ask your IT department, or update the app in the Microsoft Store if you're allowed to.",
-                    UpdateAction.None, true),
-                UpdateStage.Failed => (InfoBarSeverity.Warning, "Update problem", s.Message ?? "The update didn't work.", UpdateAction.Retry, true),
-                UpdateStage.ManualStepsNeeded => (InfoBarSeverity.Warning, "Update couldn't be installed",
-                    "The update is downloaded, but the app couldn't switch to it. Quit the app (File ▸ Exit) and start it again from the Start menu. " +
-                    "If Help ▸ About still shows the old version, update the app in the Microsoft Store.", UpdateAction.None, true),
+                UpdateStage.Available => (InfoBarSeverity.Informational, Loc.Get("Updates_AvailableTitle"),
+                    Loc.Format("Updates_AvailableManaged", v), UpdateAction.None, true),
+                UpdateStage.Failed => (InfoBarSeverity.Warning, Loc.Get("Updates_FailedTitle"), s.Message ?? Loc.Get("Updates_FailedText"),
+                    UpdateAction.Retry, true),
+                UpdateStage.ManualStepsNeeded => (InfoBarSeverity.Warning, Loc.Get("Updates_ManualStepsTitle"),
+                    Loc.Get("Updates_ManualStepsText"), UpdateAction.None, true),
                 _ => (InfoBarSeverity.Informational, "", "", UpdateAction.None, true),
             };
 
@@ -47,9 +48,9 @@ namespace TextTemplateManager
             _updateAction = action;
             UpdateBarAction.Content = action switch
             {
-                UpdateAction.Install => "Restart to update",
-                UpdateAction.Download => "Download",
-                UpdateAction.Retry => "Try again",
+                UpdateAction.Install => Loc.Get("General_RestartToUpdateButton"),
+                UpdateAction.Download => Loc.Get("General_DownloadButton"),
+                UpdateAction.Retry => Loc.Get("General_TryAgainButton"),
                 _ => "",
             };
             UpdateBarAction.Visibility = action == UpdateAction.None ? Visibility.Collapsed : Visibility.Visible;
@@ -64,7 +65,7 @@ namespace TextTemplateManager
         internal static string Short(Version v) => v.Revision > 0 ? v.ToString() : v.ToString(3);
 
         /// <summary>"Version 2.2.1", or "A new version" when the Store didn't name it.</summary>
-        internal static string VersionName(Version? v) => v is { } known ? "Version " + Short(known) : "A new version";
+        internal static string VersionName(Version? v) => v is { } known ? Loc.Format("General_Version", Short(known)) : Loc.Get("Updates_NewVersion");
 
         private async void UpdateBarAction_Click(object sender, RoutedEventArgs e)
         {
@@ -88,6 +89,6 @@ namespace TextTemplateManager
 
         /// <summary>Shows a problem with the update in a dialog (Restart to update that didn't happen).</summary>
         public async void ReportUpdateProblem(string message) =>
-            await ShowMessageAsync("Update not installed", message + "\n\nYour templates weren't affected. The update stays ready; you can try again.");
+            await ShowMessageAsync(Loc.Get("Updates_NotInstalledTitle"), Loc.Format("Updates_NotInstalledText", message));
     }
 }

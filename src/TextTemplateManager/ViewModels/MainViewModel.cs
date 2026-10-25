@@ -420,7 +420,7 @@ public partial class MainViewModel : ObservableObject
 
         var item = new Template
         {
-            Title = ItemTitles.Unique("New Template", siblings),
+            Title = ItemTitles.Unique(Loc.Get("Main_NewTemplateTitle"), siblings),
             Id = Guid.NewGuid(),
             DefaultPasteMode = _dataNode.CurrentSettings.DefaultPasteMode
         };
@@ -441,7 +441,7 @@ public partial class MainViewModel : ObservableObject
 
         var item = new Folder
         {
-            Title = ItemTitles.Unique("New Folder", siblings),
+            Title = ItemTitles.Unique(Loc.Get("Main_NewFolderTitle"), siblings),
             Id = Guid.NewGuid()
         };
 
@@ -462,7 +462,7 @@ public partial class MainViewModel : ObservableObject
             ? null
             : AllItems.ParentOf(SelectedItem) as Folder;
         var siblings = parent?.Children ?? AllItems;
-        string cloneTitle = ItemTitles.Unique($"{SelectedItem.Title} (Copy)", siblings);
+        string cloneTitle = ItemTitles.Unique(Loc.Format("Main_CopyTitle", SelectedItem.Title), siblings);
 
         BaseItem clone = SelectedItem is Template t
             ? new Template
@@ -538,7 +538,7 @@ public partial class MainViewModel : ObservableObject
     public async Task ExportAsync(IReadOnlyList<BaseItem> items)
     {
         if (!_dataNode.InOneArea(items)) return;
-        string name = items.Count == 1 && items[0].Title is { Length: > 0 } title ? title : $"Templates_{DateTime.Now:yyyyMMdd}";
+        string name = items.Count == 1 && items[0].Title is { Length: > 0 } title ? title : Loc.Format("Main_ExportFileName", DateTime.Now);
         if (await DataFilePicker.PickToSaveAsync(MainWindowHandle, name) is not { } path) return;
         if (items is [Folder folder]) await _dataNode.ExportFolderAsync(path, folder);
         else if (items.Count > 0) await _dataNode.ExportItemsAsync(path, items);

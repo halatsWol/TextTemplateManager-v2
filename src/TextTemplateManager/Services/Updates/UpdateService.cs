@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using TextTemplateManager.Helpers;
 
 namespace TextTemplateManager.Services.Updates;
 
@@ -95,7 +96,7 @@ public sealed class UpdateService : IDisposable
 
     /// <summary>Added when the Store reports a download done that doesn't get staged: on 2026-10-21 Windows Update staged
     /// the update on a PC with automatic Store updates off and without the Store app.</summary>
-    public const string WindowsUpdateHint = "Windows Update usually brings it on its own; Restart to update appears as soon as it's downloaded.";
+    public static string WindowsUpdateHint => Loc.Get("Updates_WindowsUpdateHint");
 
     private enum DownloadRoute { None, Silent, Consent }
 
@@ -232,10 +233,9 @@ public sealed class UpdateService : IDisposable
         {
             if (userInitiated)
             {
-                string when = $"The Microsoft Store allows another check at {At(next)} or later.";
                 Set(before.Stage is UpdateStage.UpToDate or UpdateStage.Checking or UpdateStage.Failed
-                    ? new UpdateStatus(UpdateStage.UpToDate, Message: $"Up to date (last checked at {_lastChecked:t}). {when}")
-                    : before with { Message = when });
+                    ? new UpdateStatus(UpdateStage.UpToDate, Message: Loc.Format("Updates_UpToDateNextCheck", _lastChecked, At(next)))
+                    : before with { Message = Loc.Format("Updates_NextCheck", At(next)) });
             }
             return false;
         }
@@ -245,7 +245,7 @@ public sealed class UpdateService : IDisposable
         catch (Exception ex)
         {
             _log.Write($"check ({source.Name}) failed: {UpdateError.Describe(ex)}");
-            Set(userInitiated ? new UpdateStatus(UpdateStage.Failed, Message: $"Couldn't check for updates ({source.DisplayName}, error {UpdateError.Code(ex)}).")
+            Set(userInitiated ? new UpdateStatus(UpdateStage.Failed, Message: Loc.Format("Updates_CheckFailed", source.DisplayName, UpdateError.Code(ex)))
                 : before.Stage == UpdateStage.Checking ? new UpdateStatus(UpdateStage.UpToDate) : before);
             return false;
         }
@@ -255,8 +255,7 @@ public sealed class UpdateService : IDisposable
             _refusedUntil = refusedUntil;
             _log.Write($"check ({source.Name}{(userInitiated ? ", asked" : "")}): refused by the Store's check limits, next from {refusedUntil.ToLocalTime():g}");
             _offer = null;
-            Set(new UpdateStatus(UpdateStage.UpToDate, Message: "The Microsoft Store skipped this check because it limits how often an app may check. " +
-                $"Try again at {At(refusedUntil)} or later."));
+            Set(new UpdateStatus(UpdateStage.UpToDate, Message: Loc.Format("Updates_CheckRefused", At(refusedUntil))));
             return false;
         }
         _checks.Record(UtcNow());
@@ -343,16 +342,16 @@ public sealed class UpdateService : IDisposable
                 Set(AvailableStatus(offer));
             else if (result.Outcome == DownloadOutcome.Completed && route == DownloadRoute.Consent && AvailableStatus(offer).StoreBlocked)
                 // The Store's queue item can stay paused under the policy: Windows Update may still bring it.
-                Set(AvailableStatus(offer) with { Message = "The Microsoft Store hasn't downloaded it yet. " + WindowsUpdateHint });
+                Set(AvailableStatus(offer) with { Message = Loc.Format("Updates_StoreNotDownloaded", WindowsUpdateHint) });
             else if (result.Outcome == DownloadOutcome.Completed)
                 // The source says done but nothing is staged (the Store may still be finishing): look again at the next check.
-                Set(AvailableStatus(offer) with { Message = "The download finished, but Windows hasn't prepared the update yet. The app checks again later." });
+                Set(AvailableStatus(offer) with { Message = Loc.Get("Updates_NotStagedYet") });
             else if (result.Outcome == DownloadOutcome.Blocked)
                 Set(AvailableStatus(offer) with { StoreBlocked = true });
             else
                 Set(new UpdateStatus(UpdateStage.Failed, offer.Version, Message: result.Code is { } code
-                    ? $"The update couldn't be downloaded ({_source.DisplayName}, error {code})."
-                    : $"The update couldn't be downloaded: {result.Detail ?? "unknown error"}."));
+                    ? Loc.Format("Updates_DownloadFailedCode", _source.DisplayName, code)
+                    : Loc.Format("Updates_DownloadFailedDetail", result.Detail ?? "unknown error")));
         }
         finally
         {
@@ -369,10 +368,10 @@ public sealed class UpdateService : IDisposable
     /// with the next launch.</summary>
     public async Task<string?> SwitchAsync(bool idle, bool restart = true)
     {
-        if (_switcher == null || _source == null || Status.Stage != UpdateStage.Ready) return "No update is ready.";
+        if (_switcher == null || _source == null || Status.Stage != UpdateStage.Ready) return Loc.Get("Updates_NoneReady");
         Version? target = Status.Version;
-        if (!RefreshPolicyForSwitch()) return "Your organization manages updates on this PC.";
-        if (!await _busy.WaitAsync(0)) return "An update step is already running.";
+        if (!RefreshPolicyForSwitch()) return Loc.Get("Updates_ManagedByOrganization");
+        if (!await _busy.WaitAsync(0)) return Loc.Get("Updates_Busy");
         try
         {
             if (!await IsStagedAsync(_offer ?? new UpdateOffer(target)))
@@ -380,7 +379,7 @@ public sealed class UpdateService : IDisposable
                 _log.Write($"switch to {Describe(target)}: not staged any more");
                 _offer = null;
                 Set(new UpdateStatus(UpdateStage.UpToDate));
-                return "The downloaded update is no longer there (Windows may have removed it). The app downloads it again at the next check.";
+                return Loc.Get("Updates_NoLongerStaged");
             }
             var previous = UpdateAttempt.Load(_attemptPath);
             int tries = previous?.IsFor(target, _switcher.RunningVersion) == true ? previous.Attempts + 1 : 1;
@@ -401,12 +400,12 @@ public sealed class UpdateService : IDisposable
             // Still running: Windows didn't switch.
             _log.Write($"switch to {Describe(target)} failed: {failure?.Detail ?? "no reason"}");
             string problem = failure?.Code is { } code
-                ? $"Windows didn't switch to the new version (error {code})."
-                : "Windows didn't switch to the new version.";
+                ? Loc.Format("Updates_SwitchFailedCode", code)
+                : Loc.Get("Updates_SwitchFailed");
             if (tries >= UpdateAttempt.MaxAttempts)
                 Set(new UpdateStatus(UpdateStage.ManualStepsNeeded, target, Message: problem));
             else
-                Set(new UpdateStatus(UpdateStage.Ready, target, Message: "The last attempt to install it didn't work. " + problem));
+                Set(new UpdateStatus(UpdateStage.Ready, target, Message: Loc.Format("Updates_LastAttemptFailedWith", problem)));
             return problem;
         }
         finally { _busy.Release(); }
@@ -420,8 +419,8 @@ public sealed class UpdateService : IDisposable
         if (attempt.Attempts >= UpdateAttempt.MaxAttempts) Set(new UpdateStatus(UpdateStage.ManualStepsNeeded, target));
         // Without a version the next check finds out whether it's still staged.
         else if (target != null && _switcher?.IsStaged(target) == true && Policy.Mode == InAppUpdatesMode.Full)
-            Set(new UpdateStatus(UpdateStage.Ready, target, Message: "The last attempt to install it didn't work."));
-        else Set(AvailableStatus(_offer) with { Message = "The last attempt to install it didn't work." });
+            Set(new UpdateStatus(UpdateStage.Ready, target, Message: Loc.Get("Updates_LastAttemptFailed")));
+        else Set(AvailableStatus(_offer) with { Message = Loc.Get("Updates_LastAttemptFailed") });
     }
 
     public void Dispose()
