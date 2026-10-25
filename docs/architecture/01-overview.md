@@ -28,13 +28,14 @@ TextTemplateManager stores reusable text templates (rich text as HTML) in a tree
 | `  Services/Platform/` | Environment (packaged or dev), hotkey, tray, browser connector, TextTemplateManager 1 handling, error handler, log export |
 | `  Services/Pasting/` | `PasteService` (clipboard and `Ctrl+V`) |
 | `  Services/Updates/` | The in-app updater: `UpdateService`, Store and test sources, package switch, update policy (see [13](13-updates.md)) |
-| `  Helpers/` | HTML conversions (RTF, Markdown, panels, sanitizer), template variables, Win32 window helpers, converters |
+| `  Helpers/` | HTML conversions (RTF, Markdown, panels, sanitizer), template variables, Win32 window helpers, converters, `Loc` (UI text set in code) |
+| `  Strings/<language>/` | UI text (`Resources.resw`); en-US is the source (see [11](11-platform-build-release.md)) |
 | `  Controls/` | User controls: editor, settings view, conflict panel, search options, tutorial overlay, About |
 | `  Tutorial/` | Tour steps and sample data, startup greeting, What's new parser |
 | `src/editor/` | TipTap editor and preview sources, the translator worker, their JavaScript tests |
 | `tests/TextTemplateManager.Tests/` | xUnit tests |
 | `tools/ManualGen/` | Renders the Markdown manuals to PDF (QuestPDF) |
-| `build/` | Release build, release-notes and website scripts |
+| `build/` | Release build, release-notes and website scripts, the pseudo-language generator |
 | `website/` | The documentation site's own pages and MkDocs settings (see [11](11-platform-build-release.md)) |
 | `design/logo/` | The logo as SVG and the script that renders the icon and tile assets from it |
 | `design/store/` | Store listing images: Photoshop scripts and templates, window captures, the rendered PNGs |

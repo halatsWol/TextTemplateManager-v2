@@ -1,0 +1,107 @@
+using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
+using TextTemplateManager.Helpers;
+using Xunit;
+
+namespace TextTemplateManager.Tests;
+
+/// <summary>The UI text in Strings\&lt;language&gt;\*.resw: every key the XAML (x:Uid) and the code (Loc.Get/Format)
+/// asks for exists in en-US, en-US carries nothing unused, and every other language has the same keys with the same
+/// placeholders, so a missing translation fails here instead of showing an empty label.</summary>
+public partial class LocalizationTests
+{
+    private static string AppDir([CallerFilePath] string self = "") =>
+        Path.GetFullPath(Path.Combine(Path.GetDirectoryName(self)!, "..", "..", "src", "TextTemplateManager"));
+
+    private static string StringsDir => Path.Combine(AppDir(), "Strings");
+
+    private static Dictionary<string, string> Read(string resw) =>
+        XDocument.Load(resw).Root!.Elements("data")
+            .ToDictionary(d => (string)d.Attribute("name")!, d => (string?)d.Element("value") ?? "");
+
+    private static Dictionary<string, string> English(string file = "Resources.resw") =>
+        Read(Path.Combine(StringsDir, "en-US", file));
+
+    private static IEnumerable<string> SourceFiles(string pattern) =>
+        Directory.EnumerateFiles(AppDir(), pattern, SearchOption.AllDirectories)
+            .Where(f => !f.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}")
+                     && !f.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}"));
+
+    [GeneratedRegex(@"x:Uid=""([^""]+)""")]
+    private static partial Regex UidPattern();
+
+    [GeneratedRegex(@"Loc\.(?:Get|Format)\(""([^""]+)""")]
+    private static partial Regex CodeKeyPattern();
+
+    [GeneratedRegex(@"\{(\d+)(?:[,:][^}]*)?\}")]
+    private static partial Regex PlaceholderPattern();
+
+    private static List<string> Uids() =>
+        SourceFiles("*.xaml").SelectMany(f => UidPattern().Matches(File.ReadAllText(f)).Select(m => m.Groups[1].Value)).ToList();
+
+    private static List<string> CodeKeys() =>
+        SourceFiles("*.cs").SelectMany(f => CodeKeyPattern().Matches(File.ReadAllText(f)).Select(m => m.Groups[1].Value)).ToList();
+
+    private static string[] Placeholders(string value) =>
+        PlaceholderPattern().Matches(value).Select(m => m.Groups[1].Value).Distinct().Order().ToArray();
+
+    [Fact]
+    public void Loc_reads_the_english_text_in_a_test_run()
+    {
+        Assert.Equal(English()["Support_MailHint"].Replace("{0}", "a@b.c"), Loc.Format("Support_MailHint", "a@b.c"));
+    }
+
+    [Fact]
+    public void Every_x_Uid_has_english_text()
+    {
+        var keys = English().Keys;
+        var missing = Uids().Where(uid => !keys.Any(k => k.StartsWith(uid + ".", StringComparison.Ordinal))).ToList();
+        Assert.Empty(missing);
+    }
+
+    [Fact]
+    public void Every_key_the_code_asks_for_has_english_text()
+    {
+        var keys = English().Keys.ToHashSet();
+        Assert.Empty(CodeKeys().Where(k => !keys.Contains(k)).Distinct());
+    }
+
+    [Fact]
+    public void English_has_no_unused_keys()
+    {
+        var uids = Uids().ToHashSet();
+        var code = CodeKeys().ToHashSet();
+        var unused = English().Keys.Where(k => !code.Contains(k) && !(k.Contains('.') && uids.Contains(k[..k.IndexOf('.')])));
+        Assert.Empty(unused);
+    }
+
+    [Fact]
+    public void Uids_are_unique()
+    {
+        Assert.Empty(Uids().GroupBy(u => u).Where(g => g.Count() > 1).Select(g => g.Key));
+    }
+
+    [Fact]
+    public void Every_language_has_the_english_keys_and_placeholders()
+    {
+        var problems = new List<string>();
+        foreach (string file in Directory.EnumerateFiles(Path.Combine(StringsDir, "en-US"), "*.resw"))
+        {
+            var english = Read(file);
+            foreach (string dir in Directory.EnumerateDirectories(StringsDir).Where(d => Path.GetFileName(d) != "en-US"))
+            {
+                string language = Path.GetFileName(dir);
+                string other = Path.Combine(dir, Path.GetFileName(file));
+                if (!File.Exists(other)) { problems.Add($"{language}: {Path.GetFileName(file)} missing"); continue; }
+                var translated = Read(other);
+                problems.AddRange(english.Keys.Except(translated.Keys).Select(k => $"{language}: {k} missing"));
+                problems.AddRange(translated.Keys.Except(english.Keys).Select(k => $"{language}: {k} not in en-US"));
+                problems.AddRange(english.Where(e => translated.TryGetValue(e.Key, out var t)
+                        && !Placeholders(e.Value).SequenceEqual(Placeholders(t)))
+                    .Select(e => $"{language}: {e.Key} placeholders differ"));
+            }
+        }
+        Assert.Empty(problems);
+    }
+}

@@ -10,7 +10,7 @@ pwsh -File tests/run-tests.ps1
 
 `run-tests.ps1` builds the app **unpackaged and self-contained** (`-p:WindowsPackageType=None -p:WindowsAppSDKSelfContained=true`). This isn't optional: the app assembly's module initializer boots the Windows App Runtime as soon as one of its types loads, and built the default way it fails with `REGDB_E_CLASSNOTREG` inside a test host, so every test would fail.
 
-`TestEnvironment` sets `TTM_DATA_DIR` from a module initializer before any test runs, as a safety net, and gives each test its own scratch folder (`NewScratchDir()`); tests create their own `StorageService` / `DataNode` over it, so they run in parallel without sharing files, locks or write signals.
+`TestEnvironment` sets `TTM_DATA_DIR` from a module initializer before any test runs, as a safety net, and gives each test its own scratch folder (`NewScratchDir()`); tests create their own `StorageService` / `DataNode` over it, so they run in parallel without sharing files, locks or write signals. It also points `Loc` at `ttm2.pri` next to the tests: the test host isn't `ttm2.exe`, so `ResourceLoader` finds no default file there.
 
 ## What is covered
 
@@ -29,6 +29,7 @@ pwsh -File tests/run-tests.ps1
 | Platform and 1.x | `AppEnvironmentTests`, `LegacyAppTests`, `LegacyAutostartTests`, `AppInfoTests`, `UnexpectedErrorHandlerTests` |
 | Updates | `UpdateServiceTests` (check, background download, updates the source doesn't name (the Store's way: downloaded by the source's word, switch counted by a newer running version), download under the Store policy (on its own with automatic updates on, from Check for updates and from Download, over the app's window), a failed download and Try again without a new check, a known update downloaded inside the Store's 30 minutes, the Windows Update hint, a version Windows Update staged (ready without asking the Store), staged-version log texts (real AppX log lines), automatic updates off and the policy that locks them, notice only with an update already staged, a policy set before a switch, policy values, the switch and its attempt record, two failures, idle install conditions, the Store's check limits and the check times across restarts, a check the Store refused and its logged refusal (real log texts), the update log) over a stand-in Store and package switch |
 | Tour and startup | `TutorialTests` (sample store, card placement, tour offer and What's new, the shipped `release.md`) |
+| UI text | `LocalizationTests` (every `x:Uid` and every `Loc` key has en-US text, en-US has no unused keys, every other language has the same keys and placeholders, `Loc` reads the text) |
 | Smoke | `SmokeTests` |
 
 The editor's JavaScript has its own tests (`src/editor/test`, Node's test runner), run from `src/editor`:

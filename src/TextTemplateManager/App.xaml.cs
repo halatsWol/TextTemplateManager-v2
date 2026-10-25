@@ -57,6 +57,9 @@ namespace TextTemplateManager
 
         public App()
         {
+            // Dev and UI-test runs: TTM_UI_LANGUAGE=qps-ploc shows the pseudo-language that only Debug builds carry.
+            if (Environment.GetEnvironmentVariable("TTM_UI_LANGUAGE") is { Length: > 0 } uiLanguage)
+                Microsoft.Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = uiLanguage;
             InitializeComponent();
             _store = new DataNode(StorageService.CreateDefault(_environment));
             _errors = new UnexpectedErrorHandler(ex => LogCrash("UnhandledException", ex),

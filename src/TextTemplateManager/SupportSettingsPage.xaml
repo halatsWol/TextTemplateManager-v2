@@ -5,29 +5,26 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalScrollMode="Auto">
     <StackPanel Spacing="25" Padding="20">
-        <TextBlock Text="Support" Style="{StaticResource TitleTextBlockStyle}"/>
+        <TextBlock x:Uid="SupportPage_Title" Style="{StaticResource TitleTextBlockStyle}"/>
 
         <StackPanel Spacing="8">
-            <TextBlock Text="Help" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-            <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       Text="Answers to common questions (updates, Quick Paste, moving to another PC) are on the website, together with the manuals."/>
-            <HyperlinkButton x:Name="HelpLink" Content="Help &amp; troubleshooting" Padding="0"/>
+            <TextBlock x:Uid="SupportPage_HelpHeading" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <TextBlock x:Uid="SupportPage_HelpText" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            <HyperlinkButton x:Name="HelpLink" x:Uid="SupportPage_HelpLink" Padding="0"/>
         </StackPanel>
 
         <StackPanel Spacing="8">
-            <TextBlock Text="Logs" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-            <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       Text="For problems with installing, updating or starting the app, attach the logs to your report: the app's update and crash logs, the installed version and update policies, and the last 14 days of Microsoft Store, app installation and app error events about TextTemplateManager. Your templates, settings and sync files aren't included; your user name, computer name and account ID are replaced. Every file in the .zip is plain text, so you can read it before you send it."/>
+            <TextBlock x:Uid="SupportPage_LogsHeading" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <TextBlock x:Uid="SupportPage_LogsText" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <Button x:Name="ExportLogsButton" Content="Export logs…" Click="ExportLogs_Click"/>
+                <Button x:Name="ExportLogsButton" x:Uid="SupportPage_ExportLogsButton" Click="ExportLogs_Click"/>
                 <ProgressRing x:Name="ExportLogsProgress" IsActive="False" Width="20" Height="20"/>
-                <TextBlock x:Name="ExportLogsStatus" VerticalAlignment="Center" Visibility="Collapsed"
-                           Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           Text="Reading the event logs; this can take a minute."/>
+                <TextBlock x:Name="ExportLogsStatus" x:Uid="SupportPage_ExportLogsStatus" VerticalAlignment="Center" Visibility="Collapsed"
+                           Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
             </StackPanel>
             <InfoBar x:Name="ExportLogsInfo" IsOpen="False" IsClosable="True">
                 <InfoBar.ActionButton>
-                    <Button x:Name="ShowLogsButton" Content="Show in folder" Click="ShowLogs_Click"/>
+                    <Button x:Name="ShowLogsButton" x:Uid="SupportPage_ShowLogsButton" Click="ShowLogs_Click"/>
                 </InfoBar.ActionButton>
             </InfoBar>
         </StackPanel>
@@ -35,39 +32,34 @@
         <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
 
         <StackPanel Spacing="8">
-            <TextBlock Text="Report a problem" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-            <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       Text="Describe it as exactly as you can: when it happened (date and time), what you did right before, step by step, what you expected and what happened instead, with the exact text of any message. The e-mail and the GitHub form ask for all of it; the e-mail already has the app and Windows version."/>
+            <TextBlock x:Uid="SupportPage_ProblemHeading" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <TextBlock x:Uid="SupportPage_ProblemText" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
             <StackPanel Orientation="Horizontal" Spacing="8">
-                <Button Content="Report by e-mail" Style="{StaticResource AccentButtonStyle}" Click="ProblemMail_Click"/>
-                <Button Content="Report on GitHub" Click="ProblemGitHub_Click"/>
+                <Button x:Uid="SupportPage_ProblemMailButton" Style="{StaticResource AccentButtonStyle}" Click="ProblemMail_Click"/>
+                <Button x:Uid="SupportPage_ProblemGitHubButton" Click="ProblemGitHub_Click"/>
             </StackPanel>
         </StackPanel>
 
         <StackPanel Spacing="8">
-            <TextBlock Text="Suggest a feature" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-            <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       Text="What would you like to get done, how do you do it today, and how could it work?"/>
+            <TextBlock x:Uid="SupportPage_FeatureHeading" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <TextBlock x:Uid="SupportPage_FeatureText" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
             <StackPanel Orientation="Horizontal" Spacing="8">
-                <Button Content="Suggest by e-mail" Click="FeatureMail_Click"/>
-                <Button Content="Suggest on GitHub" Click="FeatureGitHub_Click"/>
+                <Button x:Uid="SupportPage_FeatureMailButton" Click="FeatureMail_Click"/>
+                <Button x:Uid="SupportPage_FeatureGitHubButton" Click="FeatureGitHub_Click"/>
             </StackPanel>
         </StackPanel>
 
         <StackPanel Spacing="8">
-            <TextBlock Text="Report a security vulnerability" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-            <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       Text="Report it privately, never as a public issue. Only the developer sees the report until a fix is out."/>
+            <TextBlock x:Uid="SupportPage_SecurityHeading" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <TextBlock x:Uid="SupportPage_SecurityText" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
             <StackPanel Orientation="Horizontal" Spacing="8">
-                <Button Content="Report by e-mail" Click="SecurityMail_Click"
-                        AutomationProperties.Name="Report a security vulnerability by e-mail"/>
-                <Button Content="Report privately on GitHub" Click="SecurityGitHub_Click"/>
+                <Button x:Uid="SupportPage_SecurityMailButton" Click="SecurityMail_Click"/>
+                <Button x:Uid="SupportPage_SecurityGitHubButton" Click="SecurityGitHub_Click"/>
             </StackPanel>
         </StackPanel>
 
         <StackPanel Spacing="4">
-            <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       Text="GitHub needs a GitHub account, and issues there are public: don't post private text. E-mail works without an account."/>
+            <TextBlock x:Uid="SupportPage_GitHubHint" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
             <TextBlock x:Name="MailHint" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Visibility="Collapsed"
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
         </StackPanel>

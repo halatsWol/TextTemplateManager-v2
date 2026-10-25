@@ -115,6 +115,30 @@
           Command="dotnet run --project &quot;$(MSBuildProjectDirectory)\..\..\tools\ManualGen\ManualGen.csproj&quot; -c Release -- &quot;$(MSBuildProjectDirectory)\..\..\docs\user\Manual.md&quot; &quot;$(MSBuildProjectDirectory)\Assets\Manual.pdf&quot; &quot;$(Version)&quot;" />
   </Target>
 
+  <!-- Debug builds also carry the pseudo-language qps-ploc (TTM_UI_LANGUAGE=qps-ploc), generated into obj\ from
+       en-US. Never in Release or Store builds: the package would then list it as a supported language. -->
+  <PropertyGroup>
+    <PseudoLocEnabled Condition="'$(Configuration)' == 'Debug' and '$(StoreBuild)' != 'true'">true</PseudoLocEnabled>
+  </PropertyGroup>
+  <!-- IntermediateOutputPath is only set once the SDK targets are in, so the folder is resolved here. -->
+  <Target Name="PseudoLocPaths">
+    <PropertyGroup>
+      <PseudoLocDir>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)PseudoLoc\</PseudoLocDir>
+    </PropertyGroup>
+  </Target>
+  <Target Name="GeneratePseudoLoc" Condition="'$(PseudoLocEnabled)' == 'true'" DependsOnTargets="PseudoLocPaths"
+          Inputs="@(PRIResource->WithMetadataValue('RelativeDir','Strings\en-US\'));..\..\build\New-PseudoLoc.ps1"
+          Outputs="@(PRIResource->WithMetadataValue('RelativeDir','Strings\en-US\')->'$(PseudoLocDir)%(Filename).lang-qps-ploc%(Extension)')">
+    <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\..\..\build\New-PseudoLoc.ps1&quot; -Source &quot;$(MSBuildProjectDirectory)\Strings\en-US&quot; -Destination &quot;$(PseudoLocDir.TrimEnd('\'))&quot;" />
+  </Target>
+  <Target Name="IncludePseudoLoc" BeforeTargets="BeforeBuild" DependsOnTargets="PseudoLocPaths;GeneratePseudoLoc"
+          Condition="'$(PseudoLocEnabled)' == 'true'">
+    <ItemGroup>
+      <!-- makepri takes the language from the file name here (the folder is obj\, not Strings\<language>). -->
+      <PRIResource Include="@(PRIResource->WithMetadataValue('RelativeDir','Strings\en-US\')->'$(PseudoLocDir)%(Filename).lang-qps-ploc%(Extension)')" />
+    </ItemGroup>
+  </Target>
+
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.2.251219" />

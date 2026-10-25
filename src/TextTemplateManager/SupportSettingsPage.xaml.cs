@@ -54,8 +54,8 @@ public sealed partial class SupportSettingsPage : Page
 
         _exported = problem is null ? path : null;
         (ExportLogsInfo.Severity, ExportLogsInfo.Message) = problem is null
-            ? (InfoBarSeverity.Success, $"Saved to {path}. Attach it to your report.")
-            : (InfoBarSeverity.Error, $"The logs couldn't be saved: {problem}");
+            ? (InfoBarSeverity.Success, Loc.Format("Support_LogsSaved", path))
+            : (InfoBarSeverity.Error, Loc.Format("Support_LogsSaveFailed", problem));
         ShowLogsButton.Visibility = problem is null ? Visibility.Visible : Visibility.Collapsed;
         ExportLogsInfo.IsOpen = true;
     }
@@ -87,7 +87,7 @@ public sealed partial class SupportSettingsPage : Page
         var package = new DataPackage();
         package.SetText(SupportLinks.Email);
         Clipboard.SetContent(package);
-        MailHint.Text = $"If no e-mail window opened, write to {SupportLinks.Email}; the address is on the clipboard.";
+        MailHint.Text = Loc.Format("Support_MailHint", SupportLinks.Email);
         MailHint.Visibility = Visibility.Visible;
         ExternalLinks.Open(mailto);
     }

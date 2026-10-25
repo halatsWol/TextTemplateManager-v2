@@ -24,6 +24,8 @@ internal static class TestEnvironment
 
         // The app registers the Windows code pages at launch (App.OnLaunched); RTF needs Windows-1252.
         System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
+        Helpers.Loc.ResourceFile = Path.Combine(AppContext.BaseDirectory, "ttm2.pri");
     }
 
     /// <summary>A fresh empty directory for one test, so file-system tests can't interfere with

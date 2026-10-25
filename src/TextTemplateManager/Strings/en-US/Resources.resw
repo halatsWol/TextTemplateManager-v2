@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI text, en-US. Keys: x:Uid entries are Uid.Property (Page_Element.Text), text set in code is Area_Purpose (Loc.Get).
+     Every other language under Strings\ must carry the same keys and the same {0} placeholders (LocalizationTests). -->
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="SupportPage_Title.Text" xml:space="preserve">
+    <value>Support</value>
+  </data>
+  <data name="SupportPage_HelpHeading.Text" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="SupportPage_HelpText.Text" xml:space="preserve">
+    <value>Answers to common questions (updates, Quick Paste, moving to another PC) are on the website, together with the manuals.</value>
+  </data>
+  <data name="SupportPage_HelpLink.Content" xml:space="preserve">
+    <value>Help &amp; troubleshooting</value>
+  </data>
+  <data name="SupportPage_LogsHeading.Text" xml:space="preserve">
+    <value>Logs</value>
+  </data>
+  <data name="SupportPage_LogsText.Text" xml:space="preserve">
+    <value>For problems with installing, updating or starting the app, attach the logs to your report: the app's update and crash logs, the installed version and update policies, and the last 14 days of Microsoft Store, app installation and app error events about TextTemplateManager. Your templates, settings and sync files aren't included; your user name, computer name and account ID are replaced. Every file in the .zip is plain text, so you can read it before you send it.</value>
+  </data>
+  <data name="SupportPage_ExportLogsButton.Content" xml:space="preserve">
+    <value>Export logs…</value>
+  </data>
+  <data name="SupportPage_ExportLogsStatus.Text" xml:space="preserve">
+    <value>Reading the event logs; this can take a minute.</value>
+  </data>
+  <data name="SupportPage_ShowLogsButton.Content" xml:space="preserve">
+    <value>Show in folder</value>
+  </data>
+  <data name="SupportPage_ProblemHeading.Text" xml:space="preserve">
+    <value>Report a problem</value>
+  </data>
+  <data name="SupportPage_ProblemText.Text" xml:space="preserve">
+    <value>Describe it as exactly as you can: when it happened (date and time), what you did right before, step by step, what you expected and what happened instead, with the exact text of any message. The e-mail and the GitHub form ask for all of it; the e-mail already has the app and Windows version.</value>
+  </data>
+  <data name="SupportPage_ProblemMailButton.Content" xml:space="preserve">
+    <value>Report by e-mail</value>
+  </data>
+  <data name="SupportPage_ProblemGitHubButton.Content" xml:space="preserve">
+    <value>Report on GitHub</value>
+  </data>
+  <data name="SupportPage_FeatureHeading.Text" xml:space="preserve">
+    <value>Suggest a feature</value>
+  </data>
+  <data name="SupportPage_FeatureText.Text" xml:space="preserve">
+    <value>What would you like to get done, how do you do it today, and how could it work?</value>
+  </data>
+  <data name="SupportPage_FeatureMailButton.Content" xml:space="preserve">
+    <value>Suggest by e-mail</value>
+  </data>
+  <data name="SupportPage_FeatureGitHubButton.Content" xml:space="preserve">
+    <value>Suggest on GitHub</value>
+  </data>
+  <data name="SupportPage_SecurityHeading.Text" xml:space="preserve">
+    <value>Report a security vulnerability</value>
+  </data>
+  <data name="SupportPage_SecurityText.Text" xml:space="preserve">
+    <value>Report it privately, never as a public issue. Only the developer sees the report until a fix is out.</value>
+  </data>
+  <data name="SupportPage_SecurityMailButton.Content" xml:space="preserve">
+    <value>Report by e-mail</value>
+  </data>
+  <data name="SupportPage_SecurityMailButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Report a security vulnerability by e-mail</value>
+  </data>
+  <data name="SupportPage_SecurityGitHubButton.Content" xml:space="preserve">
+    <value>Report privately on GitHub</value>
+  </data>
+  <data name="SupportPage_GitHubHint.Text" xml:space="preserve">
+    <value>GitHub needs a GitHub account, and issues there are public: don't post private text. E-mail works without an account.</value>
+  </data>
+  <data name="Support_LogsSaved" xml:space="preserve">
+    <value>Saved to {0}. Attach it to your report.</value>
+  </data>
+  <data name="Support_LogsSaveFailed" xml:space="preserve">
+    <value>The logs couldn't be saved: {0}</value>
+  </data>
+  <data name="Support_MailHint" xml:space="preserve">
+    <value>If no e-mail window opened, write to {0}; the address is on the clipboard.</value>
+  </data>
+</root>
