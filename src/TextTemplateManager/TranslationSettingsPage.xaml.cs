@@ -11,6 +11,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using TextTemplateManager.Common;
+using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
 using TextTemplateManager.Services.Translation;
 using Windows.Storage.Pickers;
@@ -44,11 +45,11 @@ public sealed partial class TranslationLanguageRow : ObservableObject
     [ObservableProperty] public partial Visibility RemoveVisibility { get; set; } = Visibility.Collapsed;
     [ObservableProperty] public partial Visibility BusyVisibility { get; set; } = Visibility.Collapsed;
 
-    public string DownloadName => $"Download {Name}";
-    public string UpdateName => $"Update {Name}";
-    public string RemoveName => $"Remove {Name}";
-    public string CancelName => $"Cancel the download of {Name}";
-    public string ProgressName => $"Downloading {Name}";
+    public string DownloadName => Loc.Format("Translation_DownloadName", Name);
+    public string UpdateName => Loc.Format("Translation_UpdateName", Name);
+    public string RemoveName => Loc.Format("Translation_RemoveName", Name);
+    public string CancelName => Loc.Format("Translation_CancelName", Name);
+    public string ProgressName => Loc.Format("Translation_ProgressName", Name);
 
     public bool IsBusy => Cancel != null;
     public bool IsInstalled => Installed.Count > 0;
@@ -69,17 +70,29 @@ public sealed partial class TranslationLanguageRow : ObservableObject
         RemoveVisibility = Show(!IsBusy && IsInstalled);
         BusyVisibility = Show(IsBusy);
 
-        string directions = Offer is { } o && (o.ToEnglish == null || o.FromEnglish == null)
-            ? (o.ToEnglish == null ? ", only from English" : ", only to English") : "";
-        Detail = IsBusy ? "Downloading…"
-            : IsInstalled ? $"Installed, {Size(Installed.Sum(i => i.Size))}{(outdated ? ", update available" : Offer != null ? ", up to date" : "")}{directions}"
-            : Offer is { } offer ? $"{Size(offer.DownloadSize)} download, {Size(offer.DiskSize)} on disk{directions}"
-            : "";
+        // A list of facts joined by commas, each one translated on its own.
+        var facts = new List<string>();
+        if (IsBusy) facts.Add(Loc.Get("Translation_RowDownloading"));
+        else if (IsInstalled)
+        {
+            facts.Add(Loc.Get("Translation_RowInstalled"));
+            facts.Add(Size(Installed.Sum(i => i.Size)));
+            if (outdated) facts.Add(Loc.Get("Translation_RowUpdateAvailable"));
+            else if (Offer != null) facts.Add(Loc.Get("Translation_RowUpToDate"));
+        }
+        else if (Offer is { } offer)
+        {
+            facts.Add(Loc.Format("Translation_RowDownloadSize", Size(offer.DownloadSize)));
+            facts.Add(Loc.Format("Translation_RowDiskSize", Size(offer.DiskSize)));
+        }
+        if (facts.Count > 0 && !IsBusy && Offer is { } o && (o.ToEnglish == null || o.FromEnglish == null))
+            facts.Add(o.ToEnglish == null ? Loc.Get("Translation_RowOnlyFromEnglish") : Loc.Get("Translation_RowOnlyToEnglish"));
+        Detail = string.Join(", ", facts);
     }
 
     private static Visibility Show(bool on) => on ? Visibility.Visible : Visibility.Collapsed;
 
-    internal static string Size(long bytes) => $"{Math.Max(1, (bytes + 500_000) / 1_000_000)} MB";
+    internal static string Size(long bytes) => Loc.Format("Translation_SizeMB", Math.Max(1, (bytes + 500_000) / 1_000_000));
 }
 
 /// <summary>Settings ▸ Translation: the languages from Mozilla's catalog, download, update and remove, and export and
@@ -127,7 +140,7 @@ public sealed partial class TranslationSettingsPage : Page
     private async Task LoadCatalogAsync()
     {
         CatalogProgress.IsActive = true;
-        CatalogStatus.Text = "Loading the languages from Mozilla…";
+        CatalogStatus.Text = Loc.Get("Translation_CatalogLoading");
         Info.IsOpen = false;
         try
         {
@@ -138,7 +151,7 @@ public sealed partial class TranslationSettingsPage : Page
             or InvalidOperationException or KeyNotFoundException)
         {
             CatalogStatus.Text = "";
-            ShowInfo(InfoBarSeverity.Warning, "The list of languages couldn't be loaded from Mozilla's server. Installed languages still work.", retry: true);
+            ShowInfo(InfoBarSeverity.Warning, Loc.Get("Translation_CatalogFailed"), retry: true);
         }
         finally { CatalogProgress.IsActive = false; }
         BuildRows();
@@ -166,7 +179,7 @@ public sealed partial class TranslationSettingsPage : Page
             : string.Compare(a.Name, b.Name, StringComparison.CurrentCultureIgnoreCase));
 
         long used = installed.Sum(p => p.Size);
-        DiskUsage.Text = installed.Count == 0 ? "No languages installed." : $"Installed languages use {TranslationLanguageRow.Size(used)}.";
+        DiskUsage.Text = installed.Count == 0 ? Loc.Get("Translation_NoneInstalled") : Loc.Format("Translation_DiskUsage", TranslationLanguageRow.Size(used));
         ExportButton.IsEnabled = installed.Count > 0;
         RefreshUpdateAll();
         ApplyFilter();
@@ -259,7 +272,7 @@ public sealed partial class TranslationSettingsPage : Page
 
     private void OnDownloadEnded(TranslationLanguageRow row, string? problem)
     {
-        if (problem != null) ShowInfo(InfoBarSeverity.Error, $"{row.Name} couldn't be downloaded: {problem}");
+        if (problem != null) ShowInfo(InfoBarSeverity.Error, Loc.Format("Translation_DownloadFailed", row.Name, problem));
         BuildRows();
     }
 
@@ -288,8 +301,8 @@ public sealed partial class TranslationSettingsPage : Page
         if (_store is not { } store) return;
         var picker = new FileSavePicker();
         WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow));
-        picker.FileTypeChoices.Add("TextTemplateManager languages", new List<string> { ".zip" });
-        picker.SuggestedFileName = "TextTemplateManager languages";
+        picker.FileTypeChoices.Add(Loc.Get("Translation_ExportFileType"), new List<string> { ".zip" });
+        picker.SuggestedFileName = Loc.Get("Translation_ExportFileName");
         if ((await picker.PickSaveFileAsync())?.Path is not { } path) return;
 
         var installed = store.Installed();
@@ -298,8 +311,8 @@ public sealed partial class TranslationSettingsPage : Page
             try { store.Export(installed, path); return null; }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { return ex.Message; }
         });
-        if (problem == null) ShowInfo(InfoBarSeverity.Success, $"Saved to {path}.");
-        else ShowInfo(InfoBarSeverity.Error, $"The languages couldn't be exported: {problem}");
+        if (problem == null) ShowInfo(InfoBarSeverity.Success, Loc.Format("Translation_ExportSaved", path));
+        else ShowInfo(InfoBarSeverity.Error, Loc.Format("Translation_ExportFailed", problem));
     }
 
     private async void Import_Click(object sender, RoutedEventArgs e)
@@ -319,9 +332,9 @@ public sealed partial class TranslationSettingsPage : Page
         if (imported != null)
         {
             var names = imported.SelectMany(i => new[] { i.From, i.To }).Where(c => c != "en").Distinct().Select(TranslationLanguage.NameOf);
-            ShowInfo(InfoBarSeverity.Success, $"Imported: {string.Join(", ", names)}.");
+            ShowInfo(InfoBarSeverity.Success, Loc.Format("Translation_Imported", string.Join(", ", names)));
         }
-        else ShowInfo(InfoBarSeverity.Error, $"The file couldn't be imported: {problem}");
+        else ShowInfo(InfoBarSeverity.Error, Loc.Format("Translation_ImportFailed", problem));
     }
 
     private void ShowInfo(InfoBarSeverity severity, string message, bool retry = false)

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TextTemplateManager.Data;
+using TextTemplateManager.Helpers;
 
 namespace TextTemplateManager;
 
@@ -21,15 +22,15 @@ public sealed class BackupRow
         Title = fromFile ? $"{System.IO.Path.GetFileName(info.Path)} ({info.Created:f})" : info.Created.ToString("f");
         string tier = info.Tier switch
         {
-            BackupTier.Recent => "Recent",
-            BackupTier.TwoHourly => "Every 2 hours",
-            BackupTier.Daily => "Daily",
-            BackupTier.Exported => "Exported",
-            _ => "From TextTemplateManager v1",
+            BackupTier.Recent => Loc.Get("Backups_TierRecent"),
+            BackupTier.TwoHourly => Loc.Get("Backups_TierTwoHourly"),
+            BackupTier.Daily => Loc.Get("Backups_TierDaily"),
+            BackupTier.Exported => Loc.Get("Backups_TierExported"),
+            _ => Loc.Get("Backups_TierV1"),
         };
         Detail = info.IsValid
-            ? $"{(fromFile ? "From a file · " : "")}{tier} · made by version {info.Manifest!.AppVersion}"
-            : $"{tier} · damaged, can't be restored ({info.Problem})";
+            ? $"{(fromFile ? Loc.Get("Backups_FromFile") + " · " : "")}{tier} · {Loc.Format("Backups_MadeByVersion", info.Manifest!.AppVersion)}"
+            : $"{tier} · {Loc.Format("Backups_Damaged", info.Problem)}";
     }
 
     public BackupInfo Info { get; }
@@ -130,8 +131,8 @@ public sealed partial class BackupsSettingsPage : Page
             ImportV1Button.IsEnabled = true;
             if (result.Outcome is not (BackupOutcome.Created or BackupOutcome.Unchanged))
             {
-                ShowProblem(result.Outcome == BackupOutcome.NothingToBackUp ? "There is no TextTemplateManager 1 data on this PC."
-                    : $"The data of TextTemplateManager 1 couldn't be read: {result.Problem ?? result.Outcome.ToString()}");
+                ShowProblem(result.Outcome == BackupOutcome.NothingToBackUp ? Loc.Get("Backups_NoV1Data")
+                    : Loc.Format("Backups_V1Unreadable", result.Problem ?? result.Outcome.ToString()));
                 return;
             }
             row = (await LoadRowsAsync()).FirstOrDefault(r => r.Info.Tier == BackupTier.V1 && r.Info.IsValid);
@@ -166,23 +167,23 @@ public sealed partial class BackupsSettingsPage : Page
             System.IO.Directory.CreateDirectory(_backups.Directory);
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe", $"\"{_backups.Directory}\"") { UseShellExecute = true });
         }
-        catch (Exception ex) { ShowProblem($"The folder couldn't be opened: {ex.Message}"); }
+        catch (Exception ex) { ShowProblem(Loc.Format("Backups_FolderOpenFailed", ex.Message)); }
     }
 
     private async void ExportBackup_Click(object sender, RoutedEventArgs e)
     {
         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
-        if (await Helpers.DataFilePicker.PickBackupToSaveAsync(hwnd, $"TextTemplateManager backup {DateTime.Now:yyyy-MM-dd}") is not { } path) return;
+        if (await Helpers.DataFilePicker.PickBackupToSaveAsync(hwnd, Loc.Format("Backups_ExportFileName", DateTime.Now)) is not { } path) return;
 
         ExportButton.IsEnabled = false;
         var result = await App.ExportBackupAsync(path);
         ExportButton.IsEnabled = true;
         (ExportInfo.Severity, ExportInfo.Message) = result.Outcome switch
         {
-            BackupOutcome.Created => (InfoBarSeverity.Success, $"Saved to {path}"),
-            BackupOutcome.NothingToBackUp => (InfoBarSeverity.Informational, "There is nothing to back up yet."),
-            BackupOutcome.NotQuiet => (InfoBarSeverity.Warning, "Files were still being saved. Try again in a moment."),
-            _ => (InfoBarSeverity.Error, $"The backup couldn't be saved: {result.Problem}"),
+            BackupOutcome.Created => (InfoBarSeverity.Success, Loc.Format("Backups_ExportSaved", path)),
+            BackupOutcome.NothingToBackUp => (InfoBarSeverity.Informational, Loc.Get("Backups_NothingToBackUp")),
+            BackupOutcome.NotQuiet => (InfoBarSeverity.Warning, Loc.Get("Backups_NotQuiet")),
+            _ => (InfoBarSeverity.Error, Loc.Format("Backups_ExportFailed", result.Problem)),
         };
         ExportInfo.IsOpen = true;
     }
@@ -238,7 +239,7 @@ public sealed partial class BackupsSettingsPage : Page
         if (await Helpers.DataFilePicker.PickBackupToOpenAsync(hwnd) is not { } path) return;
 
         var (problem, manifest) = await Task.Run(() => (BackupService.Verify(path, out var m), m));
-        if (problem != null) { ShowProblem($"\"{System.IO.Path.GetFileName(path)}\" can't be restored: {problem}."); return; }
+        if (problem != null) { ShowProblem(Loc.Format("Backups_FileCantRestore", System.IO.Path.GetFileName(path), problem)); return; }
 
         var row = await Task.Run(() => new BackupRow(new BackupInfo(path, manifest!.Tier, manifest.CreatedUtc.ToLocalTime(), manifest, null), fromFile: true));
         var rows = (BackupList.ItemsSource as IEnumerable<BackupRow> ?? Enumerable.Empty<BackupRow>()).Where(r => r.Info.Path != path).ToList();

@@ -6,22 +6,20 @@
 
     <ScrollViewer x:Name="PageScroll" VerticalScrollBarVisibility="Auto" VerticalScrollMode="Auto">
     <StackPanel Spacing="25" Padding="20">
-        <TextBlock Text="Backups" Style="{StaticResource TitleTextBlockStyle}"/>
+        <TextBlock x:Uid="BackupsPage_Title" Style="{StaticResource TitleTextBlockStyle}"/>
 
         <StackPanel Spacing="8">
-            <TextBlock Text="Automatic backups" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-            <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       Text="Made on their own: 2 minutes after a change and when you quit (the last 3 are kept), every 2 hours while the app runs (5 kept) and daily (5 kept). Each holds your templates, settings, sync settings and a copy of every shared sync file."/>
+            <TextBlock x:Uid="BackupsPage_AutomaticHeading" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <TextBlock x:Uid="BackupsPage_AutomaticText" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <TextBlock x:Name="FolderText" VerticalAlignment="Center" IsTextSelectionEnabled="True"
                            TextTrimming="CharacterEllipsis" MaxWidth="480"/>
-                <Button Content="Open backups folder" Click="OpenFolder_Click"/>
+                <Button x:Uid="BackupsPage_OpenFolderButton" Click="OpenFolder_Click"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,4,0,0">
-                <Button x:Name="ExportButton" Content="Export backup…" Click="ExportBackup_Click"/>
-                <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="420"
-                           Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           Text="Saves a backup of everything as a .zip file wherever you choose, e.g. to move to another PC."/>
+                <Button x:Name="ExportButton" x:Uid="BackupsPage_ExportButton" Click="ExportBackup_Click"/>
+                <TextBlock x:Uid="BackupsPage_ExportText" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="420"
+                           Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
             </StackPanel>
             <InfoBar x:Name="ExportInfo" IsOpen="False" IsClosable="True"/>
         </StackPanel>
@@ -29,12 +27,10 @@
         <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
 
         <StackPanel Spacing="8">
-            <TextBlock Text="Restore from a backup" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-            <TextBlock TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       Text="Pick a backup and what to take from it. The app saves a backup of the current state first, then restores and restarts."/>
+            <TextBlock x:Uid="BackupsPage_RestoreHeading" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <TextBlock x:Uid="BackupsPage_RestoreText" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
-            <ListView x:Name="BackupList" SelectionMode="Single" MaxHeight="320" SelectionChanged="BackupList_SelectionChanged"
-                      AutomationProperties.Name="Backups">
+            <ListView x:Name="BackupList" x:Uid="BackupsPage_BackupList" SelectionMode="Single" MaxHeight="320" SelectionChanged="BackupList_SelectionChanged">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="local:BackupRow">
                         <StackPanel Padding="0,6" Opacity="{x:Bind Opacity}" AutomationProperties.Name="{x:Bind Title}">
@@ -45,25 +41,22 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            <TextBlock x:Name="EmptyText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}"
-                       Text="No backups yet. The first one is made shortly after the app starts."/>
+            <TextBlock x:Name="EmptyText" x:Uid="BackupsPage_EmptyText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}"/>
 
-            <TextBlock Text="Restore" Margin="0,8,0,0"/>
-            <CheckBox x:Name="LocalBox" Content="Templates and folders" IsChecked="True" Click="Parts_Click"/>
-            <CheckBox x:Name="SettingsBox" Content="Settings" IsChecked="True" Click="Parts_Click"/>
-            <CheckBox x:Name="SyncBox" Content="Sync" IsChecked="True" Click="Sync_Click"/>
+            <TextBlock x:Uid="BackupsPage_RestorePartsLabel" Margin="0,8,0,0"/>
+            <CheckBox x:Name="LocalBox" x:Uid="BackupsPage_LocalBox" IsChecked="True" Click="Parts_Click"/>
+            <CheckBox x:Name="SettingsBox" x:Uid="BackupsPage_SettingsBox" IsChecked="True" Click="Parts_Click"/>
+            <CheckBox x:Name="SyncBox" x:Uid="BackupsPage_SyncBox" IsChecked="True" Click="Sync_Click"/>
             <StackPanel Margin="28,0,0,0">
-                <CheckBox x:Name="SyncSettingsBox" Content="Sync settings (the linked files and their options)" IsChecked="True" Click="SyncPart_Click"/>
-                <CheckBox x:Name="SyncedFoldersBox" Content="Synced templates and folders (as last seen in the linked files)" IsChecked="False" Click="SyncPart_Click"/>
+                <CheckBox x:Name="SyncSettingsBox" x:Uid="BackupsPage_SyncSettingsBox" IsChecked="True" Click="SyncPart_Click"/>
+                <CheckBox x:Name="SyncedFoldersBox" x:Uid="BackupsPage_SyncedFoldersBox" IsChecked="False" Click="SyncPart_Click"/>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,4,0,0">
-                <Button x:Name="RestoreButton" Content="Restore…" Style="{StaticResource AccentButtonStyle}" IsEnabled="False"
+                <Button x:Name="RestoreButton" x:Uid="BackupsPage_RestoreButton" Style="{StaticResource AccentButtonStyle}" IsEnabled="False"
                         Click="Restore_Click"/>
-                <Button x:Name="RestoreFileButton" Content="Restore from file…" Click="RestoreFromFile_Click"
-                        ToolTipService.ToolTip="Restore an exported backup (.zip) from anywhere, with the parts ticked above"/>
-                <Button x:Name="ImportV1Button" Content="Import from TextTemplateManager 1…" Click="ImportV1_Click" Visibility="Collapsed"
-                        ToolTipService.ToolTip="Take over the templates, settings and sync settings of version 1 on this PC"/>
+                <Button x:Name="RestoreFileButton" x:Uid="BackupsPage_RestoreFileButton" Click="RestoreFromFile_Click"/>
+                <Button x:Name="ImportV1Button" x:Uid="BackupsPage_ImportV1Button" Click="ImportV1_Click" Visibility="Collapsed"/>
             </StackPanel>
             <InfoBar x:Name="RestoreInfo" IsOpen="False" IsClosable="True" Severity="Error"/>
         </StackPanel>

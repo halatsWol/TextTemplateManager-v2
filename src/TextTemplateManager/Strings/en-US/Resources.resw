@@ -302,4 +302,409 @@
   <data name="Integrations_PortUnavailable" xml:space="preserve">
     <value>Port {0} can't be used, so the extension can't connect. Another app is using it (for example an older TextTemplateManager that is still running) or Windows has reserved it. Choose a different port above and set the same port in the extension.</value>
   </data>
+  <data name="SyncPage_Title.Text" xml:space="preserve">
+    <value>Sync</value>
+  </data>
+  <data name="SyncPage_SeparatorLabel.Text" xml:space="preserve">
+    <value>Shortcut prefix separator</value>
+  </data>
+  <data name="SyncPage_SeparatorBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Shortcut prefix separator</value>
+  </data>
+  <data name="SyncPage_SeparatorNone.Text" xml:space="preserve">
+    <value>none</value>
+  </data>
+  <data name="SyncPage_HelpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Quick Help</value>
+  </data>
+  <data name="SyncPage_HelpButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Quick Help</value>
+  </data>
+  <data name="SyncPage_AddButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Link an existing .ttmdata sync file</value>
+  </data>
+  <data name="SyncPage_AddButton.Content" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="SyncPage_CreateButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Create a new sync file</value>
+  </data>
+  <data name="SyncPage_CreateButton.Content" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="SyncPage_HelpTip.Title" xml:space="preserve">
+    <value>Sync Guide</value>
+  </data>
+  <data name="SyncPage_GuideAddLabel.Text" xml:space="preserve">
+    <value>Add a source:</value>
+  </data>
+  <data name="SyncPage_GuideAddText.Text" xml:space="preserve">
+    <value> link an existing .ttmdata file, or Create a new one (e.g. inside a OneDrive folder to sync across PCs).</value>
+  </data>
+  <data name="SyncPage_GuideActiveLabel.Text" xml:space="preserve">
+    <value>Active:</value>
+  </data>
+  <data name="SyncPage_GuideActiveText.Text" xml:space="preserve">
+    <value> load the source as a pinned top-level folder. Uncheck to hide it without deleting.</value>
+  </data>
+  <data name="SyncPage_GuideSaveLabel.Text" xml:space="preserve">
+    <value>Save:</value>
+  </data>
+  <data name="SyncPage_GuideSaveText.Text" xml:space="preserve">
+    <value> on = editable and your changes write back to the file; off = read-only (the file always wins on reload).</value>
+  </data>
+  <data name="SyncPage_GuideNameLabel.Text" xml:space="preserve">
+    <value>Name &amp; Prefix:</value>
+  </data>
+  <data name="SyncPage_GuideNameText.Text" xml:space="preserve">
+    <value> Name is the folder's local title. Prefix namespaces its multi-key shortcuts, e.g. prefix 'and' + 'msg' is typed as and-msg.</value>
+  </data>
+  <data name="SyncPage_GuideOrderLabel.Text" xml:space="preserve">
+    <value>Order:</value>
+  </data>
+  <data name="SyncPage_GuideOrderText.Text" xml:space="preserve">
+    <value> the arrows set folder priority — for a single key shared across areas, the first source here wins after local. Applies immediately.</value>
+  </data>
+  <data name="SyncPage_GuideMissingLabel.Text" xml:space="preserve">
+    <value>Missing file:</value>
+  </data>
+  <data name="SyncPage_GuideMissingText.Text" xml:space="preserve">
+    <value> a warning icon appears and the folder shows its cached copy. Click the icon to recreate the file from that copy, or to link another file.</value>
+  </data>
+  <data name="SyncPage_GuideSeparatorLabel.Text" xml:space="preserve">
+    <value>Separator:</value>
+  </data>
+  <data name="SyncPage_GuideSeparatorText.Text" xml:space="preserve">
+    <value> the character joining a prefix to a shortcut (default '-'). Choose '-', '.', or none (the prefix joins the shortcut directly, e.g. ANDMSG).</value>
+  </data>
+  <data name="SyncPage_ActiveColumn.Text" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="SyncPage_SaveColumn.Text" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SyncPage_NameColumn.Text" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="SyncPage_PrefixColumn.Text" xml:space="preserve">
+    <value>Prefix</value>
+  </data>
+  <data name="SyncPage_FileColumn.Text" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="SyncPage_SourceList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Sync sources</value>
+  </data>
+  <data name="SyncPage_ActiveBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="SyncPage_ActiveBox.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Active (loaded into the tree)</value>
+  </data>
+  <data name="SyncPage_SaveBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Allow save</value>
+  </data>
+  <data name="SyncPage_SaveBox.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Allow save (editable / writes back)</value>
+  </data>
+  <data name="SyncPage_NameBox.PlaceholderText" xml:space="preserve">
+    <value>Folder name</value>
+  </data>
+  <data name="SyncPage_PrefixBox.PlaceholderText" xml:space="preserve">
+    <value>PREFIX</value>
+  </data>
+  <data name="SyncPage_MissingFileButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>File not found — recreate it or link another file</value>
+  </data>
+  <data name="SyncPage_MissingFileButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>File not found</value>
+  </data>
+  <data name="SyncPage_RecreateItem.Text" xml:space="preserve">
+    <value>Recreate the file from the cached copy</value>
+  </data>
+  <data name="SyncPage_RelinkItem.Text" xml:space="preserve">
+    <value>Link another file…</value>
+  </data>
+  <data name="SyncPage_MoveUpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Move up</value>
+  </data>
+  <data name="SyncPage_MoveUpButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Move up</value>
+  </data>
+  <data name="SyncPage_MoveDownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Move down</value>
+  </data>
+  <data name="SyncPage_MoveDownButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Move down</value>
+  </data>
+  <data name="SyncPage_RemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="SyncPage_RemoveButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="BackupsPage_Title.Text" xml:space="preserve">
+    <value>Backups</value>
+  </data>
+  <data name="BackupsPage_AutomaticHeading.Text" xml:space="preserve">
+    <value>Automatic backups</value>
+  </data>
+  <data name="BackupsPage_AutomaticText.Text" xml:space="preserve">
+    <value>Made on their own: 2 minutes after a change and when you quit (the last 3 are kept), every 2 hours while the app runs (5 kept) and daily (5 kept). Each holds your templates, settings, sync settings and a copy of every shared sync file.</value>
+  </data>
+  <data name="BackupsPage_OpenFolderButton.Content" xml:space="preserve">
+    <value>Open backups folder</value>
+  </data>
+  <data name="BackupsPage_ExportButton.Content" xml:space="preserve">
+    <value>Export backup…</value>
+  </data>
+  <data name="BackupsPage_ExportText.Text" xml:space="preserve">
+    <value>Saves a backup of everything as a .zip file wherever you choose, e.g. to move to another PC.</value>
+  </data>
+  <data name="BackupsPage_RestoreHeading.Text" xml:space="preserve">
+    <value>Restore from a backup</value>
+  </data>
+  <data name="BackupsPage_RestoreText.Text" xml:space="preserve">
+    <value>Pick a backup and what to take from it. The app saves a backup of the current state first, then restores and restarts.</value>
+  </data>
+  <data name="BackupsPage_BackupList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Backups</value>
+  </data>
+  <data name="BackupsPage_EmptyText.Text" xml:space="preserve">
+    <value>No backups yet. The first one is made shortly after the app starts.</value>
+  </data>
+  <data name="BackupsPage_RestorePartsLabel.Text" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="BackupsPage_LocalBox.Content" xml:space="preserve">
+    <value>Templates and folders</value>
+  </data>
+  <data name="BackupsPage_SettingsBox.Content" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="BackupsPage_SyncBox.Content" xml:space="preserve">
+    <value>Sync</value>
+  </data>
+  <data name="BackupsPage_SyncSettingsBox.Content" xml:space="preserve">
+    <value>Sync settings (the linked files and their options)</value>
+  </data>
+  <data name="BackupsPage_SyncedFoldersBox.Content" xml:space="preserve">
+    <value>Synced templates and folders (as last seen in the linked files)</value>
+  </data>
+  <data name="BackupsPage_RestoreButton.Content" xml:space="preserve">
+    <value>Restore…</value>
+  </data>
+  <data name="BackupsPage_RestoreFileButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Restore an exported backup (.zip) from anywhere, with the parts ticked above</value>
+  </data>
+  <data name="BackupsPage_RestoreFileButton.Content" xml:space="preserve">
+    <value>Restore from file…</value>
+  </data>
+  <data name="BackupsPage_ImportV1Button.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Take over the templates, settings and sync settings of version 1 on this PC</value>
+  </data>
+  <data name="BackupsPage_ImportV1Button.Content" xml:space="preserve">
+    <value>Import from TextTemplateManager 1…</value>
+  </data>
+  <data name="TranslationPage_Title.Text" xml:space="preserve">
+    <value>Translation</value>
+  </data>
+  <data name="TranslationPage_ExperimentalBadge.Text" xml:space="preserve">
+    <value>Experimental</value>
+  </data>
+  <data name="TranslationPage_CheckInfo.Message" xml:space="preserve">
+    <value>Machine translation makes mistakes: it can change the meaning, drop words or put formatting on the wrong words. German can mix the formal (Sie) and informal (du) form: rarely with Formal on, often with it off (informal is best effort).</value>
+  </data>
+  <data name="TranslationPage_CheckInfo.Title" xml:space="preserve">
+    <value>Check every translation</value>
+  </data>
+  <data name="TranslationPage_IntroText.Text" xml:space="preserve">
+    <value>Translate templates in the editor (the Translate button at the end of its toolbar). The translation runs on this PC: download a language once, and from then on translating works offline and nothing you translate leaves the PC. Each language translates to and from English; other pairs, such as German to French, go through English and need both languages.</value>
+  </data>
+  <data name="TranslationPage_ModelsText.Text" xml:space="preserve">
+    <value>The languages are Firefox Translations models from Mozilla, downloaded from Mozilla's servers (Mozilla Public License 2.0).</value>
+  </data>
+  <data name="TranslationPage_AutoCheckBox.Content" xml:space="preserve">
+    <value>Check for newer versions of the installed languages once a day</value>
+  </data>
+  <data name="TranslationPage_AutoInstallBox.Content" xml:space="preserve">
+    <value>Download them automatically</value>
+  </data>
+  <data name="TranslationPage_UpdateAllButton.Content" xml:space="preserve">
+    <value>Download all updates</value>
+  </data>
+  <data name="TranslationPage_RetryButton.Content" xml:space="preserve">
+    <value>Try again</value>
+  </data>
+  <data name="TranslationPage_FilterBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Search languages</value>
+  </data>
+  <data name="TranslationPage_FilterBox.PlaceholderText" xml:space="preserve">
+    <value>Search languages</value>
+  </data>
+  <data name="TranslationPage_LanguageList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Languages</value>
+  </data>
+  <data name="TranslationPage_RowDownloadButton.Content" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="TranslationPage_RowUpdateButton.Content" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="TranslationPage_RowRemoveButton.Content" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="TranslationPage_RowCancelButton.Content" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="TranslationPage_OfflineText.Text" xml:space="preserve">
+    <value>No internet access on this PC? Export the installed languages on another PC with TextTemplateManager and import the file here.</value>
+  </data>
+  <data name="TranslationPage_ExportButton.Content" xml:space="preserve">
+    <value>Export installed languages…</value>
+  </data>
+  <data name="TranslationPage_ImportButton.Content" xml:space="preserve">
+    <value>Import languages…</value>
+  </data>
+  <data name="Common_OkButton" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Sync_NewFileName" xml:space="preserve">
+    <value>Sync</value>
+  </data>
+  <data name="Sync_RecreateFailedTitle" xml:space="preserve">
+    <value>Couldn't recreate the file</value>
+  </data>
+  <data name="Sync_RecreateFailedWrite" xml:space="preserve">
+    <value>The file couldn't be written to {0}.</value>
+  </data>
+  <data name="Sync_RecreateFailedInactive" xml:space="preserve">
+    <value>This source is turned off, so there is no cached copy of its folder. Link another file instead.</value>
+  </data>
+  <data name="Backups_TierRecent" xml:space="preserve">
+    <value>Recent</value>
+  </data>
+  <data name="Backups_TierTwoHourly" xml:space="preserve">
+    <value>Every 2 hours</value>
+  </data>
+  <data name="Backups_TierDaily" xml:space="preserve">
+    <value>Daily</value>
+  </data>
+  <data name="Backups_TierExported" xml:space="preserve">
+    <value>Exported</value>
+  </data>
+  <data name="Backups_TierV1" xml:space="preserve">
+    <value>From TextTemplateManager v1</value>
+  </data>
+  <data name="Backups_FromFile" xml:space="preserve">
+    <value>From a file</value>
+  </data>
+  <data name="Backups_MadeByVersion" xml:space="preserve">
+    <value>made by version {0}</value>
+  </data>
+  <data name="Backups_Damaged" xml:space="preserve">
+    <value>damaged, can't be restored ({0})</value>
+  </data>
+  <data name="Backups_NoV1Data" xml:space="preserve">
+    <value>There is no TextTemplateManager 1 data on this PC.</value>
+  </data>
+  <data name="Backups_V1Unreadable" xml:space="preserve">
+    <value>The data of TextTemplateManager 1 couldn't be read: {0}</value>
+  </data>
+  <data name="Backups_FolderOpenFailed" xml:space="preserve">
+    <value>The folder couldn't be opened: {0}</value>
+  </data>
+  <data name="Backups_ExportFileName" xml:space="preserve">
+    <value>TextTemplateManager backup {0:yyyy-MM-dd}</value>
+  </data>
+  <data name="Backups_ExportSaved" xml:space="preserve">
+    <value>Saved to {0}</value>
+  </data>
+  <data name="Backups_NothingToBackUp" xml:space="preserve">
+    <value>There is nothing to back up yet.</value>
+  </data>
+  <data name="Backups_NotQuiet" xml:space="preserve">
+    <value>Files were still being saved. Try again in a moment.</value>
+  </data>
+  <data name="Backups_ExportFailed" xml:space="preserve">
+    <value>The backup couldn't be saved: {0}</value>
+  </data>
+  <data name="Backups_FileCantRestore" xml:space="preserve">
+    <value>"{0}" can't be restored: {1}.</value>
+  </data>
+  <data name="Translation_DownloadName" xml:space="preserve">
+    <value>Download {0}</value>
+  </data>
+  <data name="Translation_UpdateName" xml:space="preserve">
+    <value>Update {0}</value>
+  </data>
+  <data name="Translation_RemoveName" xml:space="preserve">
+    <value>Remove {0}</value>
+  </data>
+  <data name="Translation_CancelName" xml:space="preserve">
+    <value>Cancel the download of {0}</value>
+  </data>
+  <data name="Translation_ProgressName" xml:space="preserve">
+    <value>Downloading {0}</value>
+  </data>
+  <data name="Translation_RowDownloading" xml:space="preserve">
+    <value>Downloading…</value>
+  </data>
+  <data name="Translation_RowInstalled" xml:space="preserve">
+    <value>Installed</value>
+  </data>
+  <data name="Translation_RowUpdateAvailable" xml:space="preserve">
+    <value>update available</value>
+  </data>
+  <data name="Translation_RowUpToDate" xml:space="preserve">
+    <value>up to date</value>
+  </data>
+  <data name="Translation_RowDownloadSize" xml:space="preserve">
+    <value>{0} download</value>
+  </data>
+  <data name="Translation_RowDiskSize" xml:space="preserve">
+    <value>{0} on disk</value>
+  </data>
+  <data name="Translation_RowOnlyFromEnglish" xml:space="preserve">
+    <value>only from English</value>
+  </data>
+  <data name="Translation_RowOnlyToEnglish" xml:space="preserve">
+    <value>only to English</value>
+  </data>
+  <data name="Translation_SizeMB" xml:space="preserve">
+    <value>{0} MB</value>
+  </data>
+  <data name="Translation_CatalogLoading" xml:space="preserve">
+    <value>Loading the languages from Mozilla…</value>
+  </data>
+  <data name="Translation_CatalogFailed" xml:space="preserve">
+    <value>The list of languages couldn't be loaded from Mozilla's server. Installed languages still work.</value>
+  </data>
+  <data name="Translation_NoneInstalled" xml:space="preserve">
+    <value>No languages installed.</value>
+  </data>
+  <data name="Translation_DiskUsage" xml:space="preserve">
+    <value>Installed languages use {0}.</value>
+  </data>
+  <data name="Translation_DownloadFailed" xml:space="preserve">
+    <value>{0} couldn't be downloaded: {1}</value>
+  </data>
+  <data name="Translation_ExportFileType" xml:space="preserve">
+    <value>TextTemplateManager languages</value>
+  </data>
+  <data name="Translation_ExportFileName" xml:space="preserve">
+    <value>TextTemplateManager languages</value>
+  </data>
+  <data name="Translation_ExportSaved" xml:space="preserve">
+    <value>Saved to {0}.</value>
+  </data>
+  <data name="Translation_ExportFailed" xml:space="preserve">
+    <value>The languages couldn't be exported: {0}</value>
+  </data>
+  <data name="Translation_Imported" xml:space="preserve">
+    <value>Imported: {0}.</value>
+  </data>
+  <data name="Translation_ImportFailed" xml:space="preserve">
+    <value>The file couldn't be imported: {0}</value>
+  </data>
 </root>

@@ -128,7 +128,7 @@ namespace TextTemplateManager
 
         private async void CreateNew_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            if (await DataFilePicker.PickToSaveAsync(_hwnd, "Sync") is not { } path) return;
+            if (await DataFilePicker.PickToSaveAsync(_hwnd, Loc.Get("Sync_NewFileName")) is not { } path) return;
 
             // Write an empty, valid sync file (a serialized root Folder).
             await _store.Storage.SaveAsync(path, new Folder { Id = Guid.Empty, Title = "Root" });
@@ -180,11 +180,11 @@ namespace TextTemplateManager
                 await new ContentDialog
                 {
                     XamlRoot = XamlRoot,
-                    Title = "Couldn't recreate the file",
+                    Title = Loc.Get("Sync_RecreateFailedTitle"),
                     Content = s.IsActive
-                        ? $"The file couldn't be written to {path}."
-                        : "This source is turned off, so there is no cached copy of its folder. Link another file instead.",
-                    CloseButtonText = "OK",
+                        ? Loc.Format("Sync_RecreateFailedWrite", path)
+                        : Loc.Get("Sync_RecreateFailedInactive"),
+                    CloseButtonText = Loc.Get("Common_OkButton"),
                 }.ShowAsync();
             }
         }

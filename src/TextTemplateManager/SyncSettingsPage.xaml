@@ -24,36 +24,35 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel Spacing="10">
-                <TextBlock Text="Sync" Style="{StaticResource TitleTextBlockStyle}"/>
+                <TextBlock x:Uid="SyncPage_Title" Style="{StaticResource TitleTextBlockStyle}"/>
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <TextBlock Text="Shortcut prefix separator" VerticalAlignment="Center"
+                    <TextBlock x:Uid="SyncPage_SeparatorLabel" VerticalAlignment="Center"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     <!-- Value is mapped by index: 0='-', 1='.', 2=none (""). See the code-behind. -->
-                    <ComboBox x:Name="SeparatorBox" Width="96" AutomationProperties.Name="Shortcut prefix separator"
+                    <ComboBox x:Name="SeparatorBox" x:Uid="SyncPage_SeparatorBox" Width="96"
                               SelectionChanged="Separator_SelectionChanged">
                         <ComboBoxItem Content="-"/>
                         <ComboBoxItem Content="."/>
                         <ComboBoxItem>
                             <!-- Right padding keeps the italic slant of "none" from clipping when selected. -->
-                            <TextBlock Text="none" FontStyle="Italic" Padding="0,0,4,0"/>
+                            <TextBlock x:Uid="SyncPage_SeparatorNone" FontStyle="Italic" Padding="0,0,4,0"/>
                         </ComboBoxItem>
                     </ComboBox>
                 </StackPanel>
             </StackPanel>
-            <Button x:Name="SyncHelpButton" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Right"
-                    Click="SyncHelpButton_Click" ToolTipService.ToolTip="Quick Help" AutomationProperties.Name="Quick Help" Style="{StaticResource SubtleButtonStyle}">
+            <Button x:Name="SyncHelpButton" x:Uid="SyncPage_HelpButton" Grid.Column="1" VerticalAlignment="Top" HorizontalAlignment="Right"
+                    Click="SyncHelpButton_Click" Style="{StaticResource SubtleButtonStyle}">
                 <FontIcon Glyph="&#xE897;"/>
             </Button>
         </Grid>
 
         <!-- Toolbar: add existing / create new -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-            <Button Content="Add" Click="AddExisting_Click" ToolTipService.ToolTip="Link an existing .ttmdata sync file"/>
-            <Button Content="Create" Click="CreateNew_Click"
-                    ToolTipService.ToolTip="Create a new sync file"/>
+            <Button x:Uid="SyncPage_AddButton" Click="AddExisting_Click"/>
+            <Button x:Uid="SyncPage_CreateButton" Click="CreateNew_Click"/>
         </StackPanel>
 
-        <TeachingTip x:Name="SyncHelpTip" Title="Sync Guide" Target="{x:Bind SyncHelpButton}"
+        <TeachingTip x:Name="SyncHelpTip" x:Uid="SyncPage_HelpTip" Target="{x:Bind SyncHelpButton}"
                      PreferredPlacement="BottomLeft" IsLightDismissEnabled="True">
             <TeachingTip.Content>
                 <Grid MaxWidth="360" Margin="0,4" ColumnSpacing="8" RowSpacing="8">
@@ -73,37 +72,37 @@
 
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="➕" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="0" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Add a source:"/><Run Text=" link an existing .ttmdata file, or Create a new one (e.g. inside a OneDrive folder to sync across PCs)."/>
+                        <Run x:Uid="SyncPage_GuideAddLabel" FontWeight="SemiBold"/><Run x:Uid="SyncPage_GuideAddText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="✅" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="1" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Active:"/><Run Text=" load the source as a pinned top-level folder. Uncheck to hide it without deleting."/>
+                        <Run x:Uid="SyncPage_GuideActiveLabel" FontWeight="SemiBold"/><Run x:Uid="SyncPage_GuideActiveText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="💾" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="2" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Save:"/><Run Text=" on = editable and your changes write back to the file; off = read-only (the file always wins on reload)."/>
+                        <Run x:Uid="SyncPage_GuideSaveLabel" FontWeight="SemiBold"/><Run x:Uid="SyncPage_GuideSaveText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="3" Grid.Column="0" Text="🏷️" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="3" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Name &amp; Prefix:"/><Run Text=" Name is the folder's local title. Prefix namespaces its multi-key shortcuts, e.g. prefix 'and' + 'msg' is typed as and-msg."/>
+                        <Run x:Uid="SyncPage_GuideNameLabel" FontWeight="SemiBold"/><Run x:Uid="SyncPage_GuideNameText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="4" Grid.Column="0" Text="↕️" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="4" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Order:"/><Run Text=" the arrows set folder priority — for a single key shared across areas, the first source here wins after local. Applies immediately."/>
+                        <Run x:Uid="SyncPage_GuideOrderLabel" FontWeight="SemiBold"/><Run x:Uid="SyncPage_GuideOrderText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="5" Grid.Column="0" Text="⚠" VerticalAlignment="Top" FontWeight="SemiBold"/>
                     <TextBlock Grid.Row="5" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Missing file:"/><Run Text=" a warning icon appears and the folder shows its cached copy. Click the icon to recreate the file from that copy, or to link another file."/>
+                        <Run x:Uid="SyncPage_GuideMissingLabel" FontWeight="SemiBold"/><Run x:Uid="SyncPage_GuideMissingText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="6" Grid.Column="0" Text="🔤" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="6" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Separator:"/><Run Text=" the character joining a prefix to a shortcut (default '-'). Choose '-', '.', or none (the prefix joins the shortcut directly, e.g. ANDMSG)."/>
+                        <Run x:Uid="SyncPage_GuideSeparatorLabel" FontWeight="SemiBold"/><Run x:Uid="SyncPage_GuideSeparatorText"/>
                     </TextBlock>
                 </Grid>
             </TeachingTip.Content>
@@ -119,15 +118,15 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="Active" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-            <TextBlock Grid.Column="1" Text="Save" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-            <TextBlock Grid.Column="2" Text="Name" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-            <TextBlock Grid.Column="3" Text="Prefix" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-            <TextBlock Grid.Column="4" Text="File" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            <TextBlock x:Uid="SyncPage_ActiveColumn" Grid.Column="0" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            <TextBlock x:Uid="SyncPage_SaveColumn" Grid.Column="1" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            <TextBlock x:Uid="SyncPage_NameColumn" Grid.Column="2" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            <TextBlock x:Uid="SyncPage_PrefixColumn" Grid.Column="3" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            <TextBlock x:Uid="SyncPage_FileColumn" Grid.Column="4" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
         </Grid>
 
         <!-- Source list -->
-        <ListView Grid.Row="3" x:Name="SourceList" SelectionMode="None" AutomationProperties.Name="Sync sources">
+        <ListView Grid.Row="3" x:Name="SourceList" x:Uid="SyncPage_SourceList" SelectionMode="None">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -147,25 +146,20 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <CheckBox Grid.Column="0" MinWidth="0" IsChecked="{x:Bind IsActive, Mode=TwoWay}"
-                                  ToolTipService.ToolTip="Active (loaded into the tree)" AutomationProperties.Name="Active"/>
-                        <CheckBox Grid.Column="1" MinWidth="0" IsChecked="{x:Bind AllowSave, Mode=TwoWay}"
-                                  ToolTipService.ToolTip="Allow save (editable / writes back)" AutomationProperties.Name="Allow save"/>
-                        <TextBox Grid.Column="2" Text="{x:Bind Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 PlaceholderText="Folder name"/>
-                        <TextBox Grid.Column="3" Text="{x:Bind ShortcutPrefix, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 TextChanged="Prefix_TextChanged" PlaceholderText="PREFIX"/>
+                        <CheckBox x:Uid="SyncPage_ActiveBox" Grid.Column="0" MinWidth="0" IsChecked="{x:Bind IsActive, Mode=TwoWay}"/>
+                        <CheckBox x:Uid="SyncPage_SaveBox" Grid.Column="1" MinWidth="0" IsChecked="{x:Bind AllowSave, Mode=TwoWay}"/>
+                        <TextBox x:Uid="SyncPage_NameBox" Grid.Column="2" Text="{x:Bind Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox x:Uid="SyncPage_PrefixBox" Grid.Column="3" Text="{x:Bind ShortcutPrefix, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 TextChanged="Prefix_TextChanged"/>
 
                         <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                            <Button Padding="4" Background="Transparent" BorderThickness="0"
-                                    Visibility="{x:Bind IsFileMissing, Mode=OneWay, Converter={StaticResource BoolToVis}}"
-                                    AutomationProperties.Name="File not found"
-                                    ToolTipService.ToolTip="File not found — recreate it or link another file">
+                            <Button x:Uid="SyncPage_MissingFileButton" Padding="4" Background="Transparent" BorderThickness="0"
+                                    Visibility="{x:Bind IsFileMissing, Mode=OneWay, Converter={StaticResource BoolToVis}}">
                                 <FontIcon Glyph="&#xE7BA;" Foreground="#E6A700" FontSize="16"/>
                                 <Button.Flyout>
                                     <MenuFlyout>
-                                        <MenuFlyoutItem Text="Recreate the file from the cached copy" Tag="{x:Bind}" Click="Recreate_Click"/>
-                                        <MenuFlyoutItem Text="Link another file…" Tag="{x:Bind}" Click="Relink_Click"/>
+                                        <MenuFlyoutItem x:Uid="SyncPage_RecreateItem" Tag="{x:Bind}" Click="Recreate_Click"/>
+                                        <MenuFlyoutItem x:Uid="SyncPage_RelinkItem" Tag="{x:Bind}" Click="Relink_Click"/>
                                     </MenuFlyout>
                                 </Button.Flyout>
                             </Button>
@@ -179,15 +173,15 @@
                         </StackPanel>
 
                         <StackPanel Grid.Column="5" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
-                            <Button Click="MoveUp_Click" Padding="6" ToolTipService.ToolTip="Move up" AutomationProperties.Name="Move up"
+                            <Button x:Uid="SyncPage_MoveUpButton" Click="MoveUp_Click" Padding="6"
                                     IsEnabled="{x:Bind CanMoveUp, Mode=OneWay}">
                                 <FontIcon Glyph="&#xE70E;" FontSize="14"/>
                             </Button>
-                            <Button Click="MoveDown_Click" Padding="6" ToolTipService.ToolTip="Move down" AutomationProperties.Name="Move down"
+                            <Button x:Uid="SyncPage_MoveDownButton" Click="MoveDown_Click" Padding="6"
                                     IsEnabled="{x:Bind CanMoveDown, Mode=OneWay}">
                                 <FontIcon Glyph="&#xE70D;" FontSize="14"/>
                             </Button>
-                            <Button Click="Remove_Click" Padding="6" ToolTipService.ToolTip="Remove" AutomationProperties.Name="Remove">
+                            <Button x:Uid="SyncPage_RemoveButton" Click="Remove_Click" Padding="6">
                                 <FontIcon Glyph="&#xE74D;" FontSize="14"/>
                             </Button>
                         </StackPanel>
