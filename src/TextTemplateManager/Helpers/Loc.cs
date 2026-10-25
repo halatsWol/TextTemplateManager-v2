@@ -22,4 +22,15 @@ internal static class Loc
     /// count, <paramref name="args"/> follow from {1}.</summary>
     public static string Plural(string key, int count, params object?[] args) =>
         Format(key + (count == 1 ? "_One" : "_Other"), [count, .. args]);
+
+    /// <summary>The guided tour's steps and sample templates, from Strings\&lt;language&gt;\Tour.resw.</summary>
+    public static class Tour
+    {
+        private static readonly Lazy<ResourceLoader> Loader =
+            new(() => new ResourceLoader(ResourceFile ?? ResourceLoader.GetDefaultResourceFilePath(), "Tour"));
+
+        public static string Get(string key) => Loader.Value.GetString(key);
+
+        public static string Format(string key, params object?[] args) => string.Format(CultureInfo.CurrentCulture, Get(key), args);
+    }
 }

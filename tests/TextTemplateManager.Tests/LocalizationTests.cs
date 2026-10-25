@@ -31,7 +31,7 @@ public partial class LocalizationTests
     [GeneratedRegex(@"x:Uid=""([^""]+)""")]
     private static partial Regex UidPattern();
 
-    [GeneratedRegex(@"Loc\.(Get|Format|Plural)\(""([^""]+)""")]
+    [GeneratedRegex(@"Loc\.(Tour\.)?(Get|Format|Plural)\(""([^""]+)""")]
     private static partial Regex CodeKeyPattern();
 
     [GeneratedRegex(@"\{(\d+)(?:[,:][^}]*)?\}")]
@@ -40,13 +40,17 @@ public partial class LocalizationTests
     private static List<string> Uids() =>
         SourceFiles("*.xaml").SelectMany(f => UidPattern().Matches(File.ReadAllText(f)).Select(m => m.Groups[1].Value)).ToList();
 
-    // A Loc.Plural key stands for its two forms.
-    private static List<string> CodeKeys() =>
+    // The keys the code asks for in the .resw file: Loc.Tour reads Tour.resw, Loc Resources.resw. A Loc.Plural key
+    // stands for its two forms.
+    private static List<string> CodeKeys(string file = "Resources.resw") =>
         SourceFiles("*.cs").SelectMany(f => CodeKeyPattern().Matches(File.ReadAllText(f)))
-            .SelectMany(m => m.Groups[1].Value == "Plural"
-                ? new[] { m.Groups[2].Value + "_One", m.Groups[2].Value + "_Other" }
-                : new[] { m.Groups[2].Value })
+            .Where(m => (m.Groups[1].Success ? "Tour.resw" : "Resources.resw") == file)
+            .SelectMany(m => m.Groups[2].Value == "Plural"
+                ? new[] { m.Groups[3].Value + "_One", m.Groups[3].Value + "_Other" }
+                : new[] { m.Groups[3].Value })
             .ToList();
+
+    public static TheoryData<string> EnglishFiles => new("Resources.resw", "Tour.resw");
 
     private static string[] Placeholders(string value) =>
         PlaceholderPattern().Matches(value).Select(m => m.Groups[1].Value).Distinct().Order().ToArray();
@@ -75,18 +79,26 @@ public partial class LocalizationTests
     }
 
     [Fact]
-    public void Every_key_the_code_asks_for_has_english_text()
+    public void Loc_Tour_reads_the_tour_file()
     {
-        var keys = English().Keys.ToHashSet();
-        Assert.Empty(CodeKeys().Where(k => !keys.Contains(k)).Distinct());
+        Assert.Equal(English("Tour.resw")["StepWelcome_Title"], Loc.Tour.Get("StepWelcome_Title"));
     }
 
-    [Fact]
-    public void English_has_no_unused_keys()
+    [Theory]
+    [MemberData(nameof(EnglishFiles))]
+    public void Every_key_the_code_asks_for_has_english_text(string file)
     {
-        var uids = Uids().ToHashSet();
-        var code = CodeKeys().ToHashSet();
-        var unused = English().Keys.Where(k => !code.Contains(k) && !(k.Contains('.') && uids.Contains(k[..k.IndexOf('.')])));
+        var keys = English(file).Keys.ToHashSet();
+        Assert.Empty(CodeKeys(file).Where(k => !keys.Contains(k)).Distinct());
+    }
+
+    [Theory]
+    [MemberData(nameof(EnglishFiles))]
+    public void English_has_no_unused_keys(string file)
+    {
+        var uids = file == "Resources.resw" ? Uids().ToHashSet() : [];
+        var code = CodeKeys(file).ToHashSet();
+        var unused = English(file).Keys.Where(k => !code.Contains(k) && !(k.Contains('.') && uids.Contains(k[..k.IndexOf('.')])));
         Assert.Empty(unused);
     }
 

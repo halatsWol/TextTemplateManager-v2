@@ -45,30 +45,30 @@ namespace TextTemplateManager
             return Task.Delay(200);
         }
 
-        private string Hotkey => _store.CurrentSettings.PasteWindowHotkey is { Length: > 0 } key && key != "None" ? key : "the global shortcut (Settings ▸ General)";
+        private string Hotkey => _store.CurrentSettings.PasteWindowHotkey is { Length: > 0 } key && key != "None" ? key : Loc.Tour.Get("HotkeyFallback");
 
         private IReadOnlyList<TourStep> TourSteps() => new List<TourStep>
         {
-            new("Quick Paste",
-                $"Press {Hotkey} in any app: Quick Paste opens on top, and the template you pick is pasted into that app. For the tour it's open already, with the sample templates, and pastes nothing.",
+            new(Loc.Tour.Get("StepQuickPaste_Title"),
+                Loc.Tour.Format("StepQuickPaste_Text", Hotkey),
                 Enter: () => ShowTab(multi: false)),
-            new("Single-key shortcuts",
-                "Right after opening, press a template's single key (T, S or P in the samples): it's pasted at once. You can also select a row in this list with ↑ and ↓; Enter pastes the selected one.",
+            new(Loc.Tour.Get("StepSingleKey_Title"),
+                Loc.Tour.Get("StepSingleKey_Text"),
                 () => ShortcutPane, () => ShowTab(multi: false), Corner: TourCorner.TopRight),
-            new("Multi-key shortcuts",
-                "Hold Alt and type a multi key (Alt + T, H, X): the list narrows as you type, and releasing Alt pastes the highlighted shortcut. Enter also pastes the row selected in this list. Alt + Backspace corrects, Alt + Esc cancels.",
+            new(Loc.Tour.Get("StepMultiKey_Title"),
+                Loc.Tour.Get("StepMultiKey_Text"),
                 () => ShortcutPane, () => ShowTab(multi: true), Corner: TourCorner.TopRight),
-            new("As plain text",
-                "Add _ (Alt + Shift + -) while typing a multi key to paste the template as plain text; this bar shows what you typed and marks it.",
+            new(Loc.Tour.Get("StepPlainText_Title"),
+                Loc.Tour.Get("StepPlainText_Text"),
                 () => BufferContainer, () => ShowTab(multi: true)),
-            new("Search",
-                "Tab or Ctrl + F moves into the search box: it filters the tree and the lists by title and tags, or the text too with the filter button. ↓ moves on into the tree.",
+            new(Loc.Tour.Get("StepSearch_Title"),
+                Loc.Tour.Get("StepSearch_Text"),
                 () => TreePane, () => ShowTab(multi: false)),
-            new("Browse and paste",
-                "Pick a template in the tree to see it in the preview; Enter or a double-click pastes it. Right-click for Paste As, to paste it in another paste mode. Esc closes Quick Paste.",
+            new(Loc.Tour.Get("StepBrowse_Title"),
+                Loc.Tour.Get("StepBrowse_Text"),
                 () => TemplateTree),
-            new("That's it",
-                "You're ready to go. Quick Paste closes now; start this tour again any time from Help ▸ Start tutorial."),
+            new(Loc.Tour.Get("StepEnd_Title"),
+                Loc.Tour.Get("StepEnd_Text")),
         };
     }
 }

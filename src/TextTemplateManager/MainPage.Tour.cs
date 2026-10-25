@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
+using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
 using TextTemplateManager.Tutorial;
 
@@ -72,7 +73,7 @@ namespace TextTemplateManager
                 items.Children.Add(row);
             }
             var picture = new StackPanel { HorizontalAlignment = HorizontalAlignment.Left };
-            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(picture, $"{menu.Title} menu (picture)");
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(picture, Loc.Tour.Format("MenuPictureName", menu.Title));
             picture.Children.Add(new Border { Height = menu.ActualHeight, Width = menu.ActualWidth, HorizontalAlignment = HorizontalAlignment.Left });   // the menu's title, seen through the cutout
             picture.Children.Add(new Border
             {
@@ -114,55 +115,55 @@ namespace TextTemplateManager
 
         private IReadOnlyList<TourStep> TourSteps() => new List<TourStep>
         {
-            new("Welcome to TextTemplateManager",
-                "Keep reusable text (replies, snippets, signatures) and insert it into any app with a keystroke. This short tour shows the main parts using sample templates; your own templates aren't touched. Next continues, Esc skips.",
+            new(Loc.Tour.Get("StepWelcome_Title"),
+                Loc.Tour.Get("StepWelcome_Text"),
                 Enter: () => { ViewModel.SetAllExpanded(true); return Task.CompletedTask; }),
-            new("Templates and folders",
-                "Your templates, in folders. Synced folders (with the badge) come from a shared file and stay at the top. The search box filters the tree; Ctrl+F jumps to it, and ↓ moves on into the tree.",
+            new(Loc.Tour.Get("StepTree_Title"),
+                Loc.Tour.Get("StepTree_Text"),
                 () => LeftPane),
-            new("Organizing",
-                "Add a template or a folder (into the selected folder), delete the selection, and collapse or expand all folders. Drag and drop moves items; Ctrl+click, Shift+click and Shift+arrow keys select several, Ctrl+A all.",
+            new(Loc.Tour.Get("StepOrganizing_Title"),
+                Loc.Tour.Get("StepOrganizing_Text"),
                 () => TreeToolbar),
-            new("The editor",
-                "Format text with headings, lists, tables, code blocks with syntax highlighting, and callout panels like the Info panel here.",
+            new(Loc.Tour.Get("StepEditor_Title"),
+                Loc.Tour.Get("StepEditor_Text"),
                 () => EditorCard, () => SelectSample(TourSample.ReleaseNotesId)),
-            new("Translating (experimental)",
-                "The Translate button at the right end of the editor's toolbar translates a template on this PC: replace its text, only the selection, or create a translated copy. German can be formal (Sie). Check every translation; machine translation makes mistakes.",
+            new(Loc.Tour.Get("StepTranslating_Title"),
+                Loc.Tour.Get("StepTranslating_Text"),
                 () => EditorCard),
-            new("Shortcuts and tags",
-                "Single Key and Multi Key are the template's shortcuts in Quick Paste, tags help finding it, and the default paste mode decides the format it is pasted in.",
+            new(Loc.Tour.Get("StepShortcuts_Title"),
+                Loc.Tour.Get("StepShortcuts_Text"),
                 () => TemplateMetaPanel),
-            new("Paste modes",
-                "Auto picks the best format for the app you paste into; HTML/Jira keeps callout panels for Jira; HTML, RTF, Markdown and Plaintext paste just that. Right-click a template to copy it in another mode.",
+            new(Loc.Tour.Get("StepPasteModes_Title"),
+                Loc.Tour.Get("StepPasteModes_Text"),
                 () => PasteModeBox),
-            new("Saving",
-                "Changes to a template or folder wait for Save here (or Ctrl+S), and you're asked before leaving unsaved changes. To save as you type, turn on Autosave in Settings ▸ General.",
+            new(Loc.Tour.Get("StepSaving_Title"),
+                Loc.Tour.Get("StepSaving_Text"),
                 () => SaveButton, ShowSaveButtonForTour, ShowSaveButtonAsIs),
-            new("Always at hand",
-                "Closing the window keeps TextTemplateManager running in the system tray, so Quick Paste is always ready. To quit, use File ▸ Exit or the tray icon."),
-            new("Import and export",
-                "File ▸ Export saves the selected items, or all of them, to a .ttmdata file; File ▸ Import adds such a file to your tree.",
+            new(Loc.Tour.Get("StepTray_Title"),
+                Loc.Tour.Get("StepTray_Text")),
+            new(Loc.Tour.Get("StepImportExport_Title"),
+                Loc.Tour.Get("StepImportExport_Text"),
                 () => _menuPicture, () => ShowMenuAsync(FileMenu), HideMenu),
-            new("Settings ▸ General",
-                "File ▸ Settings: the global shortcut that opens Quick Paste, the paste mode for new templates, starting with Windows (hidden in the tray if you like), Autosave and updates.",
+            new(Loc.Tour.Get("StepSettingsGeneral_Title"),
+                Loc.Tour.Get("StepSettingsGeneral_Text"),
                 () => Settings.PageArea, () => OpenSettings(Controls.SettingsPage.General), Corner: TourCorner.TopRight),
-            new("Settings ▸ Integrations",
-                "The browser connector lets the TTM-Connect browser extension paste your templates on web pages and save selected text as a new template. Opening a .ttmdata file (a double-click in Explorer) starts TextTemplateManager and adds the file as a synced folder; if another app took .ttmdata files over, set TextTemplateManager again in Default apps.",
+            new(Loc.Tour.Get("StepSettingsIntegrations_Title"),
+                Loc.Tour.Get("StepSettingsIntegrations_Text"),
                 () => Settings.PageArea, () => OpenSettings(Controls.SettingsPage.Integrations), Corner: TourCorner.BottomLeft),
-            new("Settings ▸ Sync",
-                "Share templates with your team through a .ttmdata file on a shared drive or OneDrive. Each linked file becomes a synced folder; choose a shortcut prefix, whether you may change it (or only read it), and link another file if one goes missing.",
+            new(Loc.Tour.Get("StepSettingsSync_Title"),
+                Loc.Tour.Get("StepSettingsSync_Text"),
                 () => Settings.PageArea, () => OpenSettings(Controls.SettingsPage.Sync), Corner: TourCorner.BottomLeft),
-            new("Settings ▸ Backups",
-                "Backups are made on their own (after changes, every two hours and daily) in your Documents folder. Restore any of them, choosing what to take back, export a backup to move to another PC, or import from TextTemplateManager 1.",
+            new(Loc.Tour.Get("StepSettingsBackups_Title"),
+                Loc.Tour.Get("StepSettingsBackups_Text"),
                 () => Settings.PageArea, () => OpenSettings(Controls.SettingsPage.Backups), Corner: TourCorner.BottomRight),
-            new("Settings ▸ Translation",
-                "Download the languages for the Translate button from Mozilla once; from then on translating works offline and your text never leaves the PC. Export and import carry them to a PC without internet access.",
+            new(Loc.Tour.Get("StepSettingsTranslation_Title"),
+                Loc.Tour.Get("StepSettingsTranslation_Text"),
                 () => Settings.PageArea, () => OpenSettings(Controls.SettingsPage.Translation), Corner: TourCorner.BottomRight),
-            new("Settings ▸ Support",
-                "Help from the website, Export logs for a problem report, and how to report a problem, suggest a feature or report a security vulnerability: by e-mail, with the questions already filled in, or on GitHub (needs a GitHub account).",
+            new(Loc.Tour.Get("StepSettingsSupport_Title"),
+                Loc.Tour.Get("StepSettingsSupport_Text"),
                 () => Settings.PageArea, () => OpenSettings(Controls.SettingsPage.Support), Corner: TourCorner.BottomRight),
-            new("Help",
-                "The manual, this tour again (Help ▸ Start tutorial), and the website with online help and problem reports (Help ▸ Go to website).",
+            new(Loc.Tour.Get("StepHelp_Title"),
+                Loc.Tour.Get("StepHelp_Text"),
                 () => _menuPicture, () => ShowMenuAsync(HelpMenu), HideMenu),
         };
     }

@@ -32,7 +32,7 @@ The tour walks through the main window, the settings and Quick Paste on sample d
 
 Starting the tour (from the offer or from Help) sets `TutorialOfferDone`; see [9](09-lifecycle.md) for when the tour is offered and when What's new shows instead.
 
-When a feature or a window changes, the tour steps, texts, targets and sample data are updated in the same change.
+When a feature or a window changes, the tour steps, texts, targets and sample data are updated in the same change. The steps' titles and texts and the samples' titles, tags and contents are in `Strings/<language>/Tour.resw` (see [11](11-platform-build-release.md)), so a new language gets its own samples; the samples' shortcuts stay in `TourSample`, since the steps name them.
 
 ---
 

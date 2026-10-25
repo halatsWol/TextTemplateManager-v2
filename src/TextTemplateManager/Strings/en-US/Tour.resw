@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The guided tour's steps (StepX_Title / StepX_Text) and its sample templates (SampleX), en-US; read with Loc.Tour.
+     Sample contents are HTML: translate the text and keep the tags and attributes. The shortcuts the steps name
+     (T, S, P, THX ...) are the samples' own and stay as they are. -->
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="StepWelcome_Title" xml:space="preserve">
+    <value>Welcome to TextTemplateManager</value>
+  </data>
+  <data name="StepWelcome_Text" xml:space="preserve">
+    <value>Keep reusable text (replies, snippets, signatures) and insert it into any app with a keystroke. This short tour shows the main parts using sample templates; your own templates aren't touched. Next continues, Esc skips.</value>
+  </data>
+  <data name="StepTree_Title" xml:space="preserve">
+    <value>Templates and folders</value>
+  </data>
+  <data name="StepTree_Text" xml:space="preserve">
+    <value>Your templates, in folders. Synced folders (with the badge) come from a shared file and stay at the top. The search box filters the tree; Ctrl+F jumps to it, and ↓ moves on into the tree.</value>
+  </data>
+  <data name="StepOrganizing_Title" xml:space="preserve">
+    <value>Organizing</value>
+  </data>
+  <data name="StepOrganizing_Text" xml:space="preserve">
+    <value>Add a template or a folder (into the selected folder), delete the selection, and collapse or expand all folders. Drag and drop moves items; Ctrl+click, Shift+click and Shift+arrow keys select several, Ctrl+A all.</value>
+  </data>
+  <data name="StepEditor_Title" xml:space="preserve">
+    <value>The editor</value>
+  </data>
+  <data name="StepEditor_Text" xml:space="preserve">
+    <value>Format text with headings, lists, tables, code blocks with syntax highlighting, and callout panels like the Info panel here.</value>
+  </data>
+  <data name="StepTranslating_Title" xml:space="preserve">
+    <value>Translating (experimental)</value>
+  </data>
+  <data name="StepTranslating_Text" xml:space="preserve">
+    <value>The Translate button at the right end of the editor's toolbar translates a template on this PC: replace its text, only the selection, or create a translated copy. German can be formal (Sie). Check every translation; machine translation makes mistakes.</value>
+  </data>
+  <data name="StepShortcuts_Title" xml:space="preserve">
+    <value>Shortcuts and tags</value>
+  </data>
+  <data name="StepShortcuts_Text" xml:space="preserve">
+    <value>Single Key and Multi Key are the template's shortcuts in Quick Paste, tags help finding it, and the default paste mode decides the format it is pasted in.</value>
+  </data>
+  <data name="StepPasteModes_Title" xml:space="preserve">
+    <value>Paste modes</value>
+  </data>
+  <data name="StepPasteModes_Text" xml:space="preserve">
+    <value>Auto picks the best format for the app you paste into; HTML/Jira keeps callout panels for Jira; HTML, RTF, Markdown and Plaintext paste just that. Right-click a template to copy it in another mode.</value>
+  </data>
+  <data name="StepSaving_Title" xml:space="preserve">
+    <value>Saving</value>
+  </data>
+  <data name="StepSaving_Text" xml:space="preserve">
+    <value>Changes to a template or folder wait for Save here (or Ctrl+S), and you're asked before leaving unsaved changes. To save as you type, turn on Autosave in Settings ▸ General.</value>
+  </data>
+  <data name="StepTray_Title" xml:space="preserve">
+    <value>Always at hand</value>
+  </data>
+  <data name="StepTray_Text" xml:space="preserve">
+    <value>Closing the window keeps TextTemplateManager running in the system tray, so Quick Paste is always ready. To quit, use File ▸ Exit or the tray icon.</value>
+  </data>
+  <data name="StepImportExport_Title" xml:space="preserve">
+    <value>Import and export</value>
+  </data>
+  <data name="StepImportExport_Text" xml:space="preserve">
+    <value>File ▸ Export saves the selected items, or all of them, to a .ttmdata file; File ▸ Import adds such a file to your tree.</value>
+  </data>
+  <data name="StepSettingsGeneral_Title" xml:space="preserve">
+    <value>Settings ▸ General</value>
+  </data>
+  <data name="StepSettingsGeneral_Text" xml:space="preserve">
+    <value>File ▸ Settings: the global shortcut that opens Quick Paste, the paste mode for new templates, starting with Windows (hidden in the tray if you like), Autosave and updates.</value>
+  </data>
+  <data name="StepSettingsIntegrations_Title" xml:space="preserve">
+    <value>Settings ▸ Integrations</value>
+  </data>
+  <data name="StepSettingsIntegrations_Text" xml:space="preserve">
+    <value>The browser connector lets the TTM-Connect browser extension paste your templates on web pages and save selected text as a new template. Opening a .ttmdata file (a double-click in Explorer) starts TextTemplateManager and adds the file as a synced folder; if another app took .ttmdata files over, set TextTemplateManager again in Default apps.</value>
+  </data>
+  <data name="StepSettingsSync_Title" xml:space="preserve">
+    <value>Settings ▸ Sync</value>
+  </data>
+  <data name="StepSettingsSync_Text" xml:space="preserve">
+    <value>Share templates with your team through a .ttmdata file on a shared drive or OneDrive. Each linked file becomes a synced folder; choose a shortcut prefix, whether you may change it (or only read it), and link another file if one goes missing.</value>
+  </data>
+  <data name="StepSettingsBackups_Title" xml:space="preserve">
+    <value>Settings ▸ Backups</value>
+  </data>
+  <data name="StepSettingsBackups_Text" xml:space="preserve">
+    <value>Backups are made on their own (after changes, every two hours and daily) in your Documents folder. Restore any of them, choosing what to take back, export a backup to move to another PC, or import from TextTemplateManager 1.</value>
+  </data>
+  <data name="StepSettingsTranslation_Title" xml:space="preserve">
+    <value>Settings ▸ Translation</value>
+  </data>
+  <data name="StepSettingsTranslation_Text" xml:space="preserve">
+    <value>Download the languages for the Translate button from Mozilla once; from then on translating works offline and your text never leaves the PC. Export and import carry them to a PC without internet access.</value>
+  </data>
+  <data name="StepSettingsSupport_Title" xml:space="preserve">
+    <value>Settings ▸ Support</value>
+  </data>
+  <data name="StepSettingsSupport_Text" xml:space="preserve">
+    <value>Help from the website, Export logs for a problem report, and how to report a problem, suggest a feature or report a security vulnerability: by e-mail, with the questions already filled in, or on GitHub (needs a GitHub account).</value>
+  </data>
+  <data name="StepHelp_Title" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="StepHelp_Text" xml:space="preserve">
+    <value>The manual, this tour again (Help ▸ Start tutorial), and the website with online help and problem reports (Help ▸ Go to website).</value>
+  </data>
+  <data name="MenuPictureName" xml:space="preserve">
+    <value>{0} menu (picture)</value>
+  </data>
+  <data name="StepQuickPaste_Title" xml:space="preserve">
+    <value>Quick Paste</value>
+  </data>
+  <data name="StepQuickPaste_Text" xml:space="preserve">
+    <value>Press {0} in any app: Quick Paste opens on top, and the template you pick is pasted into that app. For the tour it's open already, with the sample templates, and pastes nothing.</value>
+  </data>
+  <data name="StepSingleKey_Title" xml:space="preserve">
+    <value>Single-key shortcuts</value>
+  </data>
+  <data name="StepSingleKey_Text" xml:space="preserve">
+    <value>Right after opening, press a template's single key (T, S or P in the samples): it's pasted at once. You can also select a row in this list with ↑ and ↓; Enter pastes the selected one.</value>
+  </data>
+  <data name="StepMultiKey_Title" xml:space="preserve">
+    <value>Multi-key shortcuts</value>
+  </data>
+  <data name="StepMultiKey_Text" xml:space="preserve">
+    <value>Hold Alt and type a multi key (Alt + T, H, X): the list narrows as you type, and releasing Alt pastes the highlighted shortcut. Enter also pastes the row selected in this list. Alt + Backspace corrects, Alt + Esc cancels.</value>
+  </data>
+  <data name="StepPlainText_Title" xml:space="preserve">
+    <value>As plain text</value>
+  </data>
+  <data name="StepPlainText_Text" xml:space="preserve">
+    <value>Add _ (Alt + Shift + -) while typing a multi key to paste the template as plain text; this bar shows what you typed and marks it.</value>
+  </data>
+  <data name="StepSearch_Title" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="StepSearch_Text" xml:space="preserve">
+    <value>Tab or Ctrl + F moves into the search box: it filters the tree and the lists by title and tags, or the text too with the filter button. ↓ moves on into the tree.</value>
+  </data>
+  <data name="StepBrowse_Title" xml:space="preserve">
+    <value>Browse and paste</value>
+  </data>
+  <data name="StepBrowse_Text" xml:space="preserve">
+    <value>Pick a template in the tree to see it in the preview; Enter or a double-click pastes it. Right-click for Paste As, to paste it in another paste mode. Esc closes Quick Paste.</value>
+  </data>
+  <data name="StepEnd_Title" xml:space="preserve">
+    <value>That's it</value>
+  </data>
+  <data name="StepEnd_Text" xml:space="preserve">
+    <value>You're ready to go. Quick Paste closes now; start this tour again any time from Help ▸ Start tutorial.</value>
+  </data>
+  <data name="HotkeyFallback" xml:space="preserve">
+    <value>the global shortcut (Settings ▸ General)</value>
+  </data>
+  <data name="SampleTeamName" xml:space="preserve">
+    <value>Team (sample)</value>
+  </data>
+  <data name="SampleRepliesFolder" xml:space="preserve">
+    <value>Customer replies</value>
+  </data>
+  <data name="SampleThanksContent" xml:space="preserve">
+    <value>&lt;p&gt;Hello,&lt;/p&gt;&lt;p&gt;thank you for your message. We will get back to you &lt;strong&gt;within one working day&lt;/strong&gt;.&lt;/p&gt;&lt;p&gt;Kind regards&lt;/p&gt;</value>
+  </data>
+  <data name="SampleReleaseNotesContent" xml:space="preserve">
+    <value>&lt;h2&gt;What's new&lt;/h2&gt;&lt;div class="ttm-panel ak-editor-panel" data-panel-type="info"&gt;&lt;p&gt;This update is installed automatically.&lt;/p&gt;&lt;/div&gt;&lt;ul&gt;&lt;li&gt;&lt;p&gt;Faster search&lt;/p&gt;&lt;/li&gt;&lt;li&gt;&lt;p&gt;New export options&lt;/p&gt;&lt;/li&gt;&lt;/ul&gt;</value>
+  </data>
+  <data name="SampleCodeFolder" xml:space="preserve">
+    <value>Code snippets</value>
+  </data>
+  <data name="SampleServicesTitle" xml:space="preserve">
+    <value>List running services</value>
+  </data>
+  <data name="SampleSignatureTitle" xml:space="preserve">
+    <value>Signature</value>
+  </data>
+  <data name="SampleSignatureContent" xml:space="preserve">
+    <value>&lt;p&gt;Best regards&lt;br&gt;Alex Example&lt;/p&gt;</value>
+  </data>
+  <data name="SampleOutOfOfficeTitle" xml:space="preserve">
+    <value>Out of office</value>
+  </data>
+  <data name="SampleOutOfOfficeContent" xml:space="preserve">
+    <value>&lt;p&gt;I'm out of the office until Monday and will reply then.&lt;/p&gt;</value>
+  </data>
+  <data name="SampleThanksTitle" xml:space="preserve">
+    <value>Thanks for your message</value>
+  </data>
+  <data name="SampleThanksTags" xml:space="preserve">
+    <value>support, reply</value>
+  </data>
+  <data name="SampleReleaseNotesTitle" xml:space="preserve">
+    <value>Release notes</value>
+  </data>
+  <data name="SampleReleaseNotesTags" xml:space="preserve">
+    <value>release</value>
+  </data>
+</root>

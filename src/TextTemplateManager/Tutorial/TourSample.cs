@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using TextTemplateManager.Common;
 using TextTemplateManager.Data;
+using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
 
 namespace TextTemplateManager.Tutorial;
@@ -34,7 +35,7 @@ public sealed class TourSample : IDisposable
         await storage.SaveSharedAsync(teamFile, TeamItems());
         await storage.SaveSyncSettingsAsync(new SyncSettings
         {
-            Sources = { new SyncSource { Id = TeamId, Name = "Team (sample)", Path = teamFile, ShortcutPrefix = "team" } },
+            Sources = { new SyncSource { Id = TeamId, Name = Loc.Tour.Get("SampleTeamName"), Path = teamFile, ShortcutPrefix = "team" } },
         });
 
         // Two backups for the Backups page: daily (yesterday) and recent (today).
@@ -58,39 +59,38 @@ public sealed class TourSample : IDisposable
         {
             new Folder
             {
-                Title = "Customer replies",
+                Title = Loc.Tour.Get("SampleRepliesFolder"),
                 Children =
                 {
                     new Template
                     {
-                        Title = "Thanks for your message", TagsCsv = "support, reply", SingleKeyShortcut = "T", MultiKeyShortcut = "THX",
-                        Content = "<p>Hello,</p><p>thank you for your message. We will get back to you <strong>within one working day</strong>.</p><p>Kind regards</p>",
+                        Title = Loc.Tour.Get("SampleThanksTitle"), TagsCsv = Loc.Tour.Get("SampleThanksTags"), SingleKeyShortcut = "T", MultiKeyShortcut = "THX",
+                        Content = Loc.Tour.Get("SampleThanksContent"),
                     },
                     new Template
                     {
                         Id = ReleaseNotesId,
-                        Title = "Release notes", TagsCsv = "release", MultiKeyShortcut = "REL", DefaultPasteMode = PasteMode.Jira,
-                        Content = "<h2>What's new</h2><div class=\"ttm-panel ak-editor-panel\" data-panel-type=\"info\"><p>This update is installed automatically.</p></div>"
-                                + "<ul><li><p>Faster search</p></li><li><p>New export options</p></li></ul>",
+                        Title = Loc.Tour.Get("SampleReleaseNotesTitle"), TagsCsv = Loc.Tour.Get("SampleReleaseNotesTags"), MultiKeyShortcut = "REL", DefaultPasteMode = PasteMode.Jira,
+                        Content = Loc.Tour.Get("SampleReleaseNotesContent"),
                     },
                 },
             },
             new Folder
             {
-                Title = "Code snippets",
+                Title = Loc.Tour.Get("SampleCodeFolder"),
                 Children =
                 {
                     new Template
                     {
-                        Title = "List running services", TagsCsv = "powershell", SingleKeyShortcut = "P", MultiKeyShortcut = "SVC", DefaultPasteMode = PasteMode.Plaintext,
+                        Title = Loc.Tour.Get("SampleServicesTitle"), TagsCsv = "powershell", SingleKeyShortcut = "P", MultiKeyShortcut = "SVC", DefaultPasteMode = PasteMode.Plaintext,
                         Content = "<pre><code class=\"language-powershell\">Get-Service | Where-Object Status -eq 'Running'</code></pre>",
                     },
                 },
             },
             new Template
             {
-                Title = "Signature", SingleKeyShortcut = "S", MultiKeyShortcut = "SIG",
-                Content = "<p>Best regards<br>Alex Example</p>",
+                Title = Loc.Tour.Get("SampleSignatureTitle"), SingleKeyShortcut = "S", MultiKeyShortcut = "SIG",
+                Content = Loc.Tour.Get("SampleSignatureContent"),
             },
         },
     };
@@ -103,8 +103,8 @@ public sealed class TourSample : IDisposable
         {
             new Template
             {
-                Title = "Out of office", MultiKeyShortcut = "OOO",
-                Content = "<p>I'm out of the office until Monday and will reply then.</p>",
+                Title = Loc.Tour.Get("SampleOutOfOfficeTitle"), MultiKeyShortcut = "OOO",
+                Content = Loc.Tour.Get("SampleOutOfOfficeContent"),
             },
         },
     };
