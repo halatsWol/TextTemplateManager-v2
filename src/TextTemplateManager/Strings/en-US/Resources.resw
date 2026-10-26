@@ -1460,4 +1460,136 @@ Your templates weren't affected. The update stays ready; you can try again.</val
   <data name="Tour_Announcement" xml:space="preserve">
     <value>{0}: {1}. {2}</value>
   </data>
+  <data name="QuickPaste_PasteItem.Text" xml:space="preserve">
+    <value>Paste</value>
+  </data>
+  <data name="QuickPaste_PasteAsItem.Text" xml:space="preserve">
+    <value>Paste As</value>
+  </data>
+  <data name="QuickPaste_PasteAsAuto.Text" xml:space="preserve">
+    <value>Auto</value>
+  </data>
+  <data name="QuickPaste_PasteAsPlaintext.Text" xml:space="preserve">
+    <value>Plaintext</value>
+  </data>
+  <data name="QuickPaste_HelpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Usage Help</value>
+  </data>
+  <data name="QuickPaste_HelpButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Usage Help</value>
+  </data>
+  <data name="QuickPaste_SearchBox.PlaceholderText" xml:space="preserve">
+    <value>Search...</value>
+  </data>
+  <data name="QuickPaste_TreeSplitter.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Resize the template list</value>
+  </data>
+  <data name="QuickPaste_PreviewHeading.Text" xml:space="preserve">
+    <value>Content Preview</value>
+  </data>
+  <data name="QuickPaste_PreviewWebView.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Template preview</value>
+  </data>
+  <data name="QuickPaste_PreviewSplitter.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Resize the preview</value>
+  </data>
+  <data name="QuickPaste_ShortcutLabel.Text" xml:space="preserve">
+    <value>SHORTCUT:</value>
+  </data>
+  <data name="QuickPaste_PlaintextBadge.Text" xml:space="preserve">
+    <value>PLAINTEXT</value>
+  </data>
+  <data name="QuickPaste_ShortcutTabs.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Shortcut lists</value>
+  </data>
+  <data name="QuickPaste_TabSingle.Text" xml:space="preserve">
+    <value>Single Key</value>
+  </data>
+  <data name="QuickPaste_TabMulti.Text" xml:space="preserve">
+    <value>Multi Key</value>
+  </data>
+  <data name="QuickPaste_SingleKeyList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Single Key shortcuts</value>
+  </data>
+  <data name="QuickPaste_MultiKeyList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Multi Key shortcuts</value>
+  </data>
+  <data name="QuickPaste_HelpTip.Title" xml:space="preserve">
+    <value>Quick Paste Guide</value>
+  </data>
+  <data name="QuickPaste_GuideSingleLabel.Text" xml:space="preserve">
+    <value>Single key:</value>
+  </data>
+  <data name="QuickPaste_GuideSingleText.Text" xml:space="preserve">
+    <value> press a key to paste instantly (when Search is empty), or use ↑/↓ and Enter to pick from the list. If the same key exists in several areas, the local one wins, then sync folders in order.</value>
+  </data>
+  <data name="QuickPaste_GuideMultiLabel.Text" xml:space="preserve">
+    <value>Multi-key:</value>
+  </data>
+  <data name="QuickPaste_GuideMultiText.Text" xml:space="preserve">
+    <value> hold ALT and type the shortcut (synced ones are prefixed, e.g. and-msg; separators - _ . allowed). Release ALT to paste the highlighted match — a partial entry is enough. ↑/↓ move the highlight, Enter pastes it.</value>
+  </data>
+  <data name="QuickPaste_GuidePlaintextLabel.Text" xml:space="preserve">
+    <value>Plaintext:</value>
+  </data>
+  <data name="QuickPaste_GuidePlaintextText.Text" xml:space="preserve">
+    <value> end with Shift+'-' ('_') to paste as plain text.</value>
+  </data>
+  <data name="QuickPaste_GuideBackspaceLabel.Text" xml:space="preserve">
+    <value>Backspace:</value>
+  </data>
+  <data name="QuickPaste_GuideBackspaceText.Text" xml:space="preserve">
+    <value> fix a typo while holding ALT.</value>
+  </data>
+  <data name="QuickPaste_GuideDoubleClickLabel.Text" xml:space="preserve">
+    <value>Double-click:</value>
+  </data>
+  <data name="QuickPaste_GuideDoubleClickText.Text" xml:space="preserve">
+    <value> paste a template from the tree or a list.</value>
+  </data>
+  <data name="QuickPaste_GuideRightClickLabel.Text" xml:space="preserve">
+    <value>Right-click:</value>
+  </data>
+  <data name="QuickPaste_GuideRightClickText.Text" xml:space="preserve">
+    <value> Paste, or Paste As — Plaintext, Markdown, RTF, HTML, HTML/Jira or Auto.</value>
+  </data>
+  <data name="QuickPaste_GuideSearchLabel.Text" xml:space="preserve">
+    <value>Search:</value>
+  </data>
+  <data name="QuickPaste_GuideSearchText.Text" xml:space="preserve">
+    <value> folder-aware; matches show their parent path. The filter button beside it can search the template text too. ↑/↓ move the cursor; ↓ at the end steps into the tree.</value>
+  </data>
+  <data name="QuickPaste_GuideEscLabel.Text" xml:space="preserve">
+    <value>Esc:</value>
+  </data>
+  <data name="QuickPaste_GuideEscText.Text" xml:space="preserve">
+    <value> close the Quick Paste window.</value>
+  </data>
+  <data name="QuickPaste_WindowTitle" xml:space="preserve">
+    <value>Quick Paste</value>
+  </data>
+  <data name="App_ConnectorUnavailableTitle" xml:space="preserve">
+    <value>Browser connector unavailable</value>
+  </data>
+  <data name="App_ConnectorUnavailableText" xml:space="preserve">
+    <value>Port {0} can't be used, so the browser extension can't connect. Another app is using it (for example an older TextTemplateManager that is still running) or Windows has reserved it. Choose a different port in Settings › Integrations and set the same port in the extension.</value>
+  </data>
+  <data name="App_HotkeyUnavailableTitle" xml:space="preserve">
+    <value>Quick Paste shortcut unavailable</value>
+  </data>
+  <data name="App_HotkeyUnavailableText" xml:space="preserve">
+    <value>The Quick Paste shortcut {0} is already used by another app, so it won't open Quick Paste. Choose a different shortcut in Settings › General.</value>
+  </data>
+  <data name="App_RestoreNoRestart" xml:space="preserve">
+    <value>The backup was restored, but the app couldn't restart itself. Start it again to load the restored data.</value>
+  </data>
+  <data name="App_UpdateReadyBalloon" xml:space="preserve">
+    <value>The update is ready to install. Choose Restart to update in the tray icon's menu.</value>
+  </data>
+  <data name="Tray_OpenItem" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Tray_ExitItem" xml:space="preserve">
+    <value>Exit App</value>
+  </data>
 </root>

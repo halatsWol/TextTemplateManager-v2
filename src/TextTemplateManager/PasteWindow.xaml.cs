@@ -41,6 +41,7 @@ namespace TextTemplateManager
             _tour = tour;
             _entry = new QuickPasteController(store.ShortcutEntries, () => store.CurrentSyncSettings.Sources, store.ResolveSingleKey);
             this.InitializeComponent();
+            Title = Loc.Get("QuickPaste_WindowTitle");   // a Window takes no x:Uid
             _hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             TreeViewNames.NameForScreenReaders(TemplateTree, Loc.Get("Main_TreeName"));
 

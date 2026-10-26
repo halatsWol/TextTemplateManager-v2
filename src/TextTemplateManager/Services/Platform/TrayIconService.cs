@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
+using TextTemplateManager.Helpers;
 
 namespace TextTemplateManager.Services.Platform
 {
@@ -53,9 +54,9 @@ namespace TextTemplateManager.Services.Platform
         private MenuFlyout BuildMenu()
         {
             var menu = new MenuFlyout();
-            menu.Items.Add(new MenuFlyoutItem { Text = "Open", Command = OpenCommand });
-            if (_updateReady) menu.Items.Add(new MenuFlyoutItem { Text = "Restart to update", Command = UpdateCommand });
-            menu.Items.Add(new MenuFlyoutItem { Text = "Exit App", Command = ExitCommand });
+            menu.Items.Add(new MenuFlyoutItem { Text = Loc.Get("Tray_OpenItem"), Command = OpenCommand });
+            if (_updateReady) menu.Items.Add(new MenuFlyoutItem { Text = Loc.Get("General_RestartToUpdateButton"), Command = UpdateCommand });
+            menu.Items.Add(new MenuFlyoutItem { Text = Loc.Get("Tray_ExitItem"), Command = ExitCommand });
             return menu;
         }
 

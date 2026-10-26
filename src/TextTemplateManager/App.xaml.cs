@@ -197,10 +197,8 @@ namespace TextTemplateManager
             if (!HotkeyRegistered)
                 ReportHotkeyUnavailable(startHidden);
             if (ConnectorUnavailable)
-                ReportStartupProblem("Browser connector unavailable",
-                    $"Port {_store.CurrentSettings.BrowserConnectorPort} can't be used, so the browser extension can't connect. " +
-                    "Another app is using it (for example an older TextTemplateManager that is still running) or Windows has reserved it. " +
-                    "Choose a different port in Settings › Integrations and set the same port in the extension.", startHidden);
+                ReportStartupProblem(Loc.Get("App_ConnectorUnavailableTitle"),
+                    Loc.Format("App_ConnectorUnavailableText", _store.CurrentSettings.BrowserConnectorPort), startHidden);
 
             // A .ttmdata passed to this (first) launch: add it as a sync source once the UI is up.
             if (fileArg != null)
@@ -316,9 +314,7 @@ namespace TextTemplateManager
         private void ReportHotkeyUnavailable(bool startedHidden)
         {
             string hotkey = _store.CurrentSettings.PasteWindowHotkey;
-            ReportStartupProblem("Quick Paste shortcut unavailable",
-                $"The Quick Paste shortcut {hotkey} is already used by another app, so it won't open Quick Paste. " +
-                "Choose a different shortcut in Settings › General.", startedHidden);
+            ReportStartupProblem(Loc.Get("App_HotkeyUnavailableTitle"), Loc.Format("App_HotkeyUnavailableText", hotkey), startedHidden);
         }
 
         // At startup: a dialog when the window is shown, a tray notice when started hidden.
@@ -454,7 +450,7 @@ namespace TextTemplateManager
             try { _trayService?.Dispose(); } catch { }
             try { AppInstance.GetCurrent().UnregisterKey(); } catch { }
             AppInstance.Restart(OfferTourInDevRun ? "--offer-tour" : "");   // ends this process; returns only if the restart failed
-            return new RestoreOutcome(true, "The backup was restored, but the app couldn't restart itself. Start it again to load the restored data.");
+            return new RestoreOutcome(true, Loc.Get("App_RestoreNoRestart"));
         }
 
         public sealed record RestoreOutcome(bool Restored, string? Problem);
@@ -575,7 +571,7 @@ namespace TextTemplateManager
                 && !(_updates?.IdleInstallAllowed(_store.CurrentSettings.IdleInstall) ?? false))
             {
                 _readyNoticeShown = true;
-                ShowTrayBalloon("Update ready", "The update is ready to install. Choose Restart to update in the tray icon's menu.");
+                ShowTrayBalloon(Loc.Get("Updates_ReadyTitle"), Loc.Get("App_UpdateReadyBalloon"));
             }
         }
 
@@ -601,7 +597,7 @@ namespace TextTemplateManager
             }
             if (!updates.RefreshPolicyForSwitch())
             {
-                if (!idle && MainWindow.Content is MainPage refused) refused.ReportUpdateProblem("Your organization manages updates on this PC.");
+                if (!idle && MainWindow.Content is MainPage refused) refused.ReportUpdateProblem(Loc.Get("Updates_ManagedByOrganization"));
                 return;
             }
             if (!idle)

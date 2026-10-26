@@ -5,8 +5,7 @@
     xmlns:viewmodels="using:TextTemplateManager.ViewModels"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:helpers="using:TextTemplateManager.Helpers"
-    xmlns:appcontrols="using:TextTemplateManager.Controls"
-    Title="Quick Paste">
+    xmlns:appcontrols="using:TextTemplateManager.Controls">
 
     <!-- NOTE: KeyDown is intentionally NOT wired here. The constructor attaches
          OnKeyDown/OnKeyUp via AddHandler(..., handledEventsToo: true) so keys are
@@ -19,14 +18,14 @@
             <helpers:BoolToVisibilityConverter x:Key="BoolToVis"/>
             <helpers:ItemIconConverter x:Key="ItemIcon"/>
             <MenuFlyout x:Key="TreeItemContextMenu">
-                <MenuFlyoutItem Text="Paste" Click="CtxPaste_Click" Icon="Paste"/>
-                <MenuFlyoutSubItem Text="Paste As">
-                    <MenuFlyoutItem Text="Auto" Tag="Auto" Click="CtxPasteAs_Click"/>
+                <MenuFlyoutItem x:Uid="QuickPaste_PasteItem" Click="CtxPaste_Click" Icon="Paste"/>
+                <MenuFlyoutSubItem x:Uid="QuickPaste_PasteAsItem">
+                    <MenuFlyoutItem x:Uid="QuickPaste_PasteAsAuto" Tag="Auto" Click="CtxPasteAs_Click"/>
                     <MenuFlyoutItem Text="HTML/Jira" Tag="Jira" Click="CtxPasteAs_Click"/>
                     <MenuFlyoutItem Text="HTML" Tag="HTML" Click="CtxPasteAs_Click"/>
                     <MenuFlyoutItem Text="RTF" Tag="RTF" Click="CtxPasteAs_Click"/>
                     <MenuFlyoutItem Text="Markdown" Tag="Markdown" Click="CtxPasteAs_Click"/>
-                    <MenuFlyoutItem Text="Plaintext" Tag="Plaintext" Click="CtxPasteAs_Click"/>
+                    <MenuFlyoutItem x:Uid="QuickPaste_PasteAsPlaintext" Tag="Plaintext" Click="CtxPasteAs_Click"/>
                 </MenuFlyoutSubItem>
             </MenuFlyout>
 
@@ -51,7 +50,7 @@
              in the tree, so screen readers reach its card before the preview: a UI Automation search stops at a WebView2. -->
         <appcontrols:TutorialOverlay x:Name="Tour" Grid.ColumnSpan="3" Canvas.ZIndex="200"/>
 
-        <Button x:Name="HelpButton"
+        <Button x:Name="HelpButton" x:Uid="QuickPaste_HelpButton"
                 Grid.Column="2"
                 Click="HelpButton_Click"
                 VerticalAlignment="Top"
@@ -59,8 +58,7 @@
                 Canvas.ZIndex="100"
                 Margin="0,10,15,0"
                 IsTabStop="False"
-                Style="{StaticResource SubtleButtonStyle}"
-                ToolTipService.ToolTip="Usage Help" AutomationProperties.Name="Usage Help">
+                Style="{StaticResource SubtleButtonStyle}">
             <SymbolIcon Symbol="Help"/>
         </Button>
 
@@ -75,8 +73,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBox x:Name="SearchBox"
-                         PlaceholderText="Search..."
+                <TextBox x:Name="SearchBox" x:Uid="QuickPaste_SearchBox"
                          TextChanged="SearchBox_TextChanged" />
                 <!-- Never takes focus itself: with focus outside the search box and tree, letters would paste. -->
                 <appcontrols:SearchOptionsButton x:Name="SearchOptions"
@@ -130,15 +127,14 @@
 
         <!-- Splitter: the gripper glyph shows you can click & drag here to resize. It is
              IsHitTestVisible=False so drags pass through to the GridSplitter beneath. -->
-        <controls:GridSplitter Grid.Column="1"
+        <controls:GridSplitter x:Uid="QuickPaste_TreeSplitter" Grid.Column="1"
                                 Width="8"
                                 ResizeBehavior="BasedOnAlignment"
                                 ResizeDirection="Columns"
                                 IsThumbVisible="False"
                                 IsTabStop="False"
                                 Background="Transparent"
-                                Foreground="{ThemeResource DividerStrokeColorDefaultBrush}"
-                                AutomationProperties.Name="Resize the template list"/>
+                                Foreground="{ThemeResource DividerStrokeColorDefaultBrush}"/>
         <FontIcon Grid.Column="1" Glyph="&#xE784;" FontSize="14" FontFamily="Segoe MDL2 Assets"
                   IsHitTestVisible="False"
                   Foreground="{ThemeResource TextFillColorTertiaryBrush}"
@@ -156,7 +152,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock Text="Content Preview" 
+                <TextBlock x:Uid="QuickPaste_PreviewHeading" 
                            Style="{StaticResource CaptionTextBlockStyle}" 
                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                            Margin="0,0,0,8"/>
@@ -165,11 +161,11 @@
                         BorderThickness="1"
                         CornerRadius="4"
                         Background="{ThemeResource ControlFillColorDefaultBrush}">
-                    <WebView2 x:Name="PreviewWebView" Loaded="PreviewWebView_Loaded" IsTabStop="False" AutomationProperties.Name="Template preview"/>
+                    <WebView2 x:Name="PreviewWebView" x:Uid="QuickPaste_PreviewWebView" Loaded="PreviewWebView_Loaded" IsTabStop="False"/>
                 </Border>
             </Grid>
 
-            <controls:GridSplitter Grid.Row="1"
+            <controls:GridSplitter x:Uid="QuickPaste_PreviewSplitter" Grid.Row="1"
                                    Height="8"
                                    HorizontalAlignment="Stretch"
                                    ResizeBehavior="PreviousAndNext"
@@ -177,8 +173,7 @@
                                    IsThumbVisible="False"
                                    IsTabStop="False"
                                    Background="Transparent"
-                                   Foreground="{ThemeResource DividerStrokeColorDefaultBrush}"
-                                   AutomationProperties.Name="Resize the preview"/>
+                                   Foreground="{ThemeResource DividerStrokeColorDefaultBrush}"/>
             <!-- Gripper glyph: click & drag affordance; IsHitTestVisible=False so the splitter gets the drag. -->
             <FontIcon Grid.Row="1" Glyph="&#xE76F;" FontSize="14" FontFamily="Segoe MDL2 Assets"
                       IsHitTestVisible="False"
@@ -196,10 +191,10 @@
 
                 <Grid Grid.Row="0" x:Name="BufferContainer" Height="50" Background="{ThemeResource SystemControlBackgroundChromeMediumBrush}">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12">
-                    <TextBlock Text="SHORTCUT:" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock x:Uid="QuickPaste_ShortcutLabel" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                     <TextBlock x:Name="BufferDisplay" Text="---" FontSize="22" FontWeight="Bold" VerticalAlignment="Center" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
                     <Border x:Name="PlaintextBadge" Visibility="Collapsed" Background="{ThemeResource SystemControlBackgroundBaseMediumLowBrush}" CornerRadius="4" Padding="8,2" VerticalAlignment="Center">
-                        <TextBlock Text="PLAINTEXT" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock x:Uid="QuickPaste_PlaintextBadge" FontSize="10" FontWeight="Bold" Foreground="White"/>
                     </Border>
                 </StackPanel>
             </Grid>
@@ -210,14 +205,14 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Border BorderThickness="0,1,0,1" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}" Padding="6,0">
-                    <SelectorBar x:Name="ShortcutTabs" AutomationProperties.Name="Shortcut lists" SelectionChanged="ShortcutTabs_SelectionChanged" IsTabStop="False">
-                        <SelectorBarItem x:Name="TabSingle" Text="Single Key" IsSelected="True"/>
-                        <SelectorBarItem x:Name="TabMulti" Text="Multi Key"/>
+                    <SelectorBar x:Name="ShortcutTabs" x:Uid="QuickPaste_ShortcutTabs" SelectionChanged="ShortcutTabs_SelectionChanged" IsTabStop="False">
+                        <SelectorBarItem x:Name="TabSingle" x:Uid="QuickPaste_TabSingle" IsSelected="True"/>
+                        <SelectorBarItem x:Name="TabMulti" x:Uid="QuickPaste_TabMulti"/>
                     </SelectorBar>
                 </Border>
 
                 <Grid Grid.Row="1">
-                    <ListView x:Name="SingleKeyList" AutomationProperties.Name="Single Key shortcuts" SelectionMode="Single" IsTabStop="False" SelectionChanged="SingleKeyList_SelectionChanged">
+                    <ListView x:Name="SingleKeyList" x:Uid="QuickPaste_SingleKeyList" SelectionMode="Single" IsTabStop="False" SelectionChanged="SingleKeyList_SelectionChanged">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -248,7 +243,7 @@
                         </ListView.ItemTemplate>
                     </ListView>
 
-                    <ListView x:Name="MultiKeyList" AutomationProperties.Name="Multi Key shortcuts" SelectionMode="Single" IsTabStop="False" Visibility="Collapsed" SelectionChanged="MultiKeyList_SelectionChanged">
+                    <ListView x:Name="MultiKeyList" x:Uid="QuickPaste_MultiKeyList" SelectionMode="Single" IsTabStop="False" Visibility="Collapsed" SelectionChanged="MultiKeyList_SelectionChanged">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -283,7 +278,7 @@
             </Grid>
         </Grid>
 
-        <TeachingTip x:Name="HelpTip" Title="Quick Paste Guide" Target="{Binding ElementName=HelpButton}"
+        <TeachingTip x:Name="HelpTip" x:Uid="QuickPaste_HelpTip" Target="{Binding ElementName=HelpButton}"
                      PreferredPlacement="BottomLeft" IsLightDismissEnabled="True"
                      ShouldConstrainToRootBounds="False">
             <TeachingTip.Content>
@@ -305,42 +300,42 @@
 
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="⌨️" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="0" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Single key:"/><Run Text=" press a key to paste instantly (when Search is empty), or use ↑/↓ and Enter to pick from the list. If the same key exists in several areas, the local one wins, then sync folders in order."/>
+                        <Run x:Uid="QuickPaste_GuideSingleLabel" FontWeight="SemiBold"/><Run x:Uid="QuickPaste_GuideSingleText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="⌨️" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="1" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Multi-key:"/><Run Text=" hold ALT and type the shortcut (synced ones are prefixed, e.g. and-msg; separators - _ . allowed). Release ALT to paste the highlighted match — a partial entry is enough. ↑/↓ move the highlight, Enter pastes it."/>
+                        <Run x:Uid="QuickPaste_GuideMultiLabel" FontWeight="SemiBold"/><Run x:Uid="QuickPaste_GuideMultiText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="2" Grid.Column="1" TextWrapping="Wrap" FontSize="13" Margin="14,0,0,0"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                        <Run FontWeight="SemiBold" Text="Plaintext:"/><Run Text=" end with Shift+'-' ('_') to paste as plain text."/>
+                        <Run x:Uid="QuickPaste_GuidePlaintextLabel" FontWeight="SemiBold"/><Run x:Uid="QuickPaste_GuidePlaintextText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="3" Grid.Column="1" TextWrapping="Wrap" FontSize="13" Margin="14,0,0,0"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                        <Run FontWeight="SemiBold" Text="Backspace:"/><Run Text=" fix a typo while holding ALT."/>
+                        <Run x:Uid="QuickPaste_GuideBackspaceLabel" FontWeight="SemiBold"/><Run x:Uid="QuickPaste_GuideBackspaceText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="4" Grid.Column="0" Text="🖱️" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="4" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Double-click:"/><Run Text=" paste a template from the tree or a list."/>
+                        <Run x:Uid="QuickPaste_GuideDoubleClickLabel" FontWeight="SemiBold"/><Run x:Uid="QuickPaste_GuideDoubleClickText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="5" Grid.Column="0" Text="🖱️" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="5" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Right-click:"/><Run Text=" Paste, or Paste As — Plaintext, Markdown, RTF, HTML, HTML/Jira or Auto."/>
+                        <Run x:Uid="QuickPaste_GuideRightClickLabel" FontWeight="SemiBold"/><Run x:Uid="QuickPaste_GuideRightClickText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="6" Grid.Column="0" Text="🔍" VerticalAlignment="Top"/>
                     <TextBlock Grid.Row="6" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Search:"/><Run Text=" folder-aware; matches show their parent path. The filter button beside it can search the template text too. ↑/↓ move the cursor; ↓ at the end steps into the tree."/>
+                        <Run x:Uid="QuickPaste_GuideSearchLabel" FontWeight="SemiBold"/><Run x:Uid="QuickPaste_GuideSearchText"/>
                     </TextBlock>
 
                     <TextBlock Grid.Row="7" Grid.Column="0" Text="⎋" VerticalAlignment="Top" FontWeight="SemiBold"/>
                     <TextBlock Grid.Row="7" Grid.Column="1" TextWrapping="Wrap" FontSize="13">
-                        <Run FontWeight="SemiBold" Text="Esc:"/><Run Text=" close the Quick Paste window."/>
+                        <Run x:Uid="QuickPaste_GuideEscLabel" FontWeight="SemiBold"/><Run x:Uid="QuickPaste_GuideEscText"/>
                     </TextBlock>
                 </Grid>
             </TeachingTip.Content>
