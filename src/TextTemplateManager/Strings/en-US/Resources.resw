@@ -1592,4 +1592,205 @@ Your templates weren't affected. The update stays ready; you can try again.</val
   <data name="Tray_ExitItem" xml:space="preserve">
     <value>Exit App</value>
   </data>
+  <data name="Restore_LeaveMissingButton" xml:space="preserve">
+    <value>Leave it missing</value>
+  </data>
+  <data name="Restore_Failed" xml:space="preserve">
+    <value>Restoring failed, nothing was changed.</value>
+  </data>
+  <data name="Restore_FailedWith" xml:space="preserve">
+    <value>Restoring failed, nothing was changed: {0}</value>
+  </data>
+  <data name="Restore_RestoredTitle" xml:space="preserve">
+    <value>Backup restored</value>
+  </data>
+  <data name="Restore_PartLocal" xml:space="preserve">
+    <value>templates and folders</value>
+  </data>
+  <data name="Restore_PartSettings" xml:space="preserve">
+    <value>settings</value>
+  </data>
+  <data name="Restore_PartSyncSettings" xml:space="preserve">
+    <value>sync settings</value>
+  </data>
+  <data name="Restore_PartSyncedFolders" xml:space="preserve">
+    <value>synced templates and folders</value>
+  </data>
+  <data name="Restore_ListAnd" xml:space="preserve">
+    <value>{0} and {1}</value>
+  </data>
+  <data name="Restore_ConfirmReplace" xml:space="preserve">
+    <value>Your current {0} are replaced with the ones from {1}.</value>
+  </data>
+  <data name="Restore_ConfirmIntoFiles" xml:space="preserve">
+    <value>Without the sync settings, the synced templates and folders are restored into their sync files. You're asked next for each synced folder.</value>
+  </data>
+  <data name="Restore_ConfirmLinkAsIs" xml:space="preserve">
+    <value>An existing shared sync file is linked as it is; you're asked about a missing one. To restore the synced templates and folders into the files, also tick "Synced templates and folders".</value>
+  </data>
+  <data name="Restore_ConfirmFilesStay" xml:space="preserve">
+    <value>A shared sync file that still exists stays as it is, unless you choose to overwrite it; the folder of a missing one shows its copy from the backup.</value>
+  </data>
+  <data name="Restore_ConfirmChanged_One" xml:space="preserve">
+    <value>One shared sync file has changed since the backup. You're asked next whether to overwrite it or keep it.</value>
+  </data>
+  <data name="Restore_ConfirmChanged_Other" xml:space="preserve">
+    <value>{0} shared sync files have changed since the backup. You're asked next whether to overwrite or keep each.</value>
+  </data>
+  <data name="Restore_ConfirmMissing_One" xml:space="preserve">
+    <value>One sync file of the backup isn't on this PC. You're asked next what to do with it.</value>
+  </data>
+  <data name="Restore_ConfirmMissing_Other" xml:space="preserve">
+    <value>{0} sync files of the backup aren't on this PC. You're asked next what to do with each.</value>
+  </data>
+  <data name="Restore_ConfirmBackupFirst" xml:space="preserve">
+    <value>The current state is backed up first, then the app restarts.</value>
+  </data>
+  <data name="Restore_ConfirmTitle" xml:space="preserve">
+    <value>Restore this backup?</value>
+  </data>
+  <data name="Restore_RestoreButton" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="Restore_ChangedTitle" xml:space="preserve">
+    <value>Sync file "{0}" has changed</value>
+  </data>
+  <data name="Restore_ChangedText" xml:space="preserve">
+    <value>{0}
+
+The file was last changed {1:f} and differs from the backup's copy ({2}).
+
+Keep it: the folder shows the file as it is now.
+Overwrite it: the file gets the backup's copy, for everyone who uses it.</value>
+  </data>
+  <data name="Restore_OverwriteButton" xml:space="preserve">
+    <value>Overwrite with the backup's copy</value>
+  </data>
+  <data name="Restore_KeepFileButton" xml:space="preserve">
+    <value>Keep the file</value>
+  </data>
+  <data name="Restore_NoFileKnown" xml:space="preserve">
+    <value>No sync file is known for it, neither in the current sync settings nor in the backup's.</value>
+  </data>
+  <data name="Restore_FileMissing" xml:space="preserve">
+    <value>The file isn't there any more.</value>
+  </data>
+  <data name="Restore_FolderMissing" xml:space="preserve">
+    <value>Its folder doesn't exist on this PC:
+{0}</value>
+  </data>
+  <data name="Restore_FileUnreadable" xml:space="preserve">
+    <value>A file is there, but it isn't a valid sync file, so it isn't overwritten.</value>
+  </data>
+  <data name="Restore_LocationImpossible" xml:space="preserve">
+    <value>This location can't exist on this PC, for example because the drive or network share isn't there.</value>
+  </data>
+  <data name="Restore_HasCopy" xml:space="preserve">
+    <value>The backup holds a copy of its templates and folders.</value>
+  </data>
+  <data name="Restore_NoCopy" xml:space="preserve">
+    <value>The backup holds no copy of it, so only an existing file can be linked instead.</value>
+  </data>
+  <data name="Restore_RecreateButton" xml:space="preserve">
+    <value>Recreate it there</value>
+  </data>
+  <data name="Restore_CreateFolderButton" xml:space="preserve">
+    <value>Create the folder and the file</value>
+  </data>
+  <data name="Restore_UnreadableTitle" xml:space="preserve">
+    <value>Sync file "{0}" can't be read</value>
+  </data>
+  <data name="Restore_MissingTitle" xml:space="preserve">
+    <value>Sync file "{0}" is missing</value>
+  </data>
+  <data name="Restore_ChooseLocationButton" xml:space="preserve">
+    <value>Choose a location…</value>
+  </data>
+  <data name="Restore_LinkAnotherButton" xml:space="preserve">
+    <value>Link another file…</value>
+  </data>
+  <data name="Restore_SkipFolderButton" xml:space="preserve">
+    <value>Skip this folder</value>
+  </data>
+  <data name="Restore_OverwriteOlder" xml:space="preserve">
+    <value>Overwrite only where the backup's is more recent</value>
+  </data>
+  <data name="Restore_SkipThem" xml:space="preserve">
+    <value>Skip them, keep the ones in the file</value>
+  </data>
+  <data name="Restore_CopyHolds_One" xml:space="preserve">
+    <value>The backup's copy holds {0} template. Folders with the same name are merged.</value>
+  </data>
+  <data name="Restore_CopyHolds_Other" xml:space="preserve">
+    <value>The backup's copy holds {0} templates. Folders with the same name are merged.</value>
+  </data>
+  <data name="Restore_CopyConflicts_One" xml:space="preserve">
+    <value>{0} of these templates already exists in the file (same template, or same title in the same folder):</value>
+  </data>
+  <data name="Restore_CopyConflicts_Other" xml:space="preserve">
+    <value>{0} of these templates already exist in the file (same template, or same title in the same folder):</value>
+  </data>
+  <data name="Restore_RelinkedNote" xml:space="preserve">
+    <value>The file isn't linked in your current sync settings; it is linked again.</value>
+  </data>
+  <data name="Restore_IntoFileTitle" xml:space="preserve">
+    <value>Restore "{0}" into its sync file?</value>
+  </data>
+  <data name="Restore_IntoFileButton" xml:space="preserve">
+    <value>Restore into the file</value>
+  </data>
+  <data name="Restore_BackupUnusable" xml:space="preserve">
+    <value>The backup can't be used: {0}.</value>
+  </data>
+  <data name="Restore_NoneOfTheParts" xml:space="preserve">
+    <value>The backup holds none of the chosen parts.</value>
+  </data>
+  <data name="Backups_ProblemNoManifest" xml:space="preserve">
+    <value>no manifest</value>
+  </data>
+  <data name="Backups_ProblemUnreadableManifest" xml:space="preserve">
+    <value>unreadable manifest</value>
+  </data>
+  <data name="Backups_ProblemNewerVersion" xml:space="preserve">
+    <value>made by a newer version</value>
+  </data>
+  <data name="Backups_ProblemNoData" xml:space="preserve">
+    <value>no template data</value>
+  </data>
+  <data name="Backups_ProblemFileMissing" xml:space="preserve">
+    <value>{0} is missing</value>
+  </data>
+  <data name="Backups_ProblemFileDamaged" xml:space="preserve">
+    <value>{0} is damaged</value>
+  </data>
+  <data name="Backups_ProblemFileUnloadable" xml:space="preserve">
+    <value>{0} doesn't load</value>
+  </data>
+  <data name="Backups_ProblemNotZip" xml:space="preserve">
+    <value>not a readable zip</value>
+  </data>
+  <data name="Sync_WriteProblem" xml:space="preserve">
+    <value>Couldn't save to the sync file: {0} Your changes are kept here and saved to the file as soon as it can be written.</value>
+  </data>
+  <data name="Translation_ImportEmpty" xml:space="preserve">
+    <value>The file holds no translation models.</value>
+  </data>
+  <data name="Translation_DownloadDamaged" xml:space="preserve">
+    <value>{0} arrived damaged.</value>
+  </data>
+  <data name="Translation_UpdatesTitle" xml:space="preserve">
+    <value>Translation updates</value>
+  </data>
+  <data name="Translation_UpdatesText" xml:space="preserve">
+    <value>Newer versions of {0} are available. Install them in Settings ▸ Translation.</value>
+  </data>
+  <data name="Picker_DataFileType" xml:space="preserve">
+    <value>TextTemplateManager data</value>
+  </data>
+  <data name="Picker_BackupFileType" xml:space="preserve">
+    <value>TextTemplateManager backup</value>
+  </data>
+  <data name="Picker_LogsFileType" xml:space="preserve">
+    <value>Logs for a problem report</value>
+  </data>
 </root>

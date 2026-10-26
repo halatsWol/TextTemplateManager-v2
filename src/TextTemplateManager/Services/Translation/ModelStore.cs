@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using TextTemplateManager.Helpers;
 
 namespace TextTemplateManager.Services.Translation;
 
@@ -256,7 +257,7 @@ public sealed class ModelStore
                 throw;
             }
         }
-        if (imported.Count == 0) throw new InvalidDataException("The file holds no translation models.");
+        if (imported.Count == 0) throw new InvalidDataException(Loc.Get("Translation_ImportEmpty"));
         return imported;
     }
 
@@ -278,7 +279,7 @@ public sealed class ModelStore
             }
         }
         if (!string.Equals(Convert.ToHexString(hash.GetHashAndReset()), file.Hash, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidDataException($"{file.Name} arrived damaged.");
+            throw new InvalidDataException(Loc.Format("Translation_DownloadDamaged", file.Name));
     }
 
     private static async Task UnpackAsync(ModelFile file, string packed, string path, CancellationToken cancel)

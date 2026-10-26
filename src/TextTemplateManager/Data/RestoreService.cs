@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
 
 namespace TextTemplateManager.Data;
@@ -92,7 +93,7 @@ public sealed class RestoreService
     {
         RecoverInterrupted();
         string? problem = BackupService.Verify(backupPath, out var manifest);
-        if (problem != null) return new(false, $"The backup can't be used: {problem}.");
+        if (problem != null) return new(false, Loc.Format("Restore_BackupUnusable", problem));
 
         string staging = Path.Combine(WorkDirectory, "new");
         string previous = Path.Combine(WorkDirectory, "old");
@@ -148,7 +149,7 @@ public sealed class RestoreService
                 else if (synced && data != null && placements is { Count: > 0 })
                     PlaceSyncedFolders(plan, data, Take(BackupFileKind.SyncSettings), placements);
             }
-            if (plan.Count == 0) return new(false, "The backup holds none of the chosen parts.");
+            if (plan.Count == 0) return new(false, Loc.Get("Restore_NoneOfTheParts"));
 
             if (Directory.Exists(WorkDirectory)) Directory.Delete(WorkDirectory, recursive: true);
             Directory.CreateDirectory(staging);
@@ -182,7 +183,7 @@ public sealed class RestoreService
             catch (Exception ex)
             {
                 RollBack(journal);
-                return new(false, $"Restoring failed, nothing was changed: {ex.Message}");
+                return new(false, Loc.Format("Restore_FailedWith", ex.Message));
             }
 
             Directory.Delete(WorkDirectory, recursive: true);
@@ -191,7 +192,7 @@ public sealed class RestoreService
         catch (Exception ex)
         {
             if (!File.Exists(JournalPath)) TryDeleteWork();
-            return new(false, $"Restoring failed, nothing was changed: {ex.Message}");
+            return new(false, Loc.Format("Restore_FailedWith", ex.Message));
         }
     }
 

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TextTemplateManager.Data;
+using TextTemplateManager.Helpers;
 
 namespace TextTemplateManager;
 
@@ -42,7 +43,7 @@ public sealed class RestoreFlow
 
         var placements = new List<SyncFilePlacement>();
         foreach (var issue in issues)
-            if (await AskAboutMissingFileAsync(issue.SourceId, issue.Name, issue.Path, issue.Problem, issue.HasCopy, "Leave it missing", linkElsewhere: !writeFiles) is { } placement)
+            if (await AskAboutMissingFileAsync(issue.SourceId, issue.Name, issue.Path, issue.Problem, issue.HasCopy, Loc.Get("Restore_LeaveMissingButton"), linkElsewhere: !writeFiles) is { } placement)
                 placements.Add(placement);
         foreach (var file in changed)
             if (await AskOverwriteSyncFileAsync(file, description))
@@ -52,10 +53,10 @@ public sealed class RestoreFlow
 
         restoring?.Invoke();
         var outcome = await App.RestoreFromBackupAsync(backupPath, parts, placements);
-        if (!outcome.Restored) return new Outcome(false, outcome.Problem ?? "Restoring failed, nothing was changed.");
+        if (!outcome.Restored) return new Outcome(false, outcome.Problem ?? Loc.Get("Restore_Failed"));
 
         // Restored, but the restart didn't happen: nothing may be saved over the restored files any more.
-        await new ContentDialog { XamlRoot = _xamlRoot, Title = "Backup restored", Content = outcome.Problem, CloseButtonText = "Quit" }.ShowAsync();
+        await new ContentDialog { XamlRoot = _xamlRoot, Title = Loc.Get("Restore_RestoredTitle"), Content = outcome.Problem, CloseButtonText = Loc.Get("Main_QuitButton") }.ShowAsync();
         App.Shutdown();
         return new Outcome(false, null);
     }
@@ -63,36 +64,32 @@ public sealed class RestoreFlow
     private async Task<bool> ConfirmAsync(RestoreParts parts, string description, int issues, int changed, int targets)
     {
         var names = new List<string>();
-        if (parts.HasFlag(RestoreParts.Local)) names.Add("templates and folders");
-        if (parts.HasFlag(RestoreParts.Settings)) names.Add("settings");
-        if (parts.HasFlag(RestoreParts.SyncSettings)) names.Add("sync settings");
-        if (parts.HasFlag(RestoreParts.SyncedFolders)) names.Add("synced templates and folders");
-        string what = names.Count == 1 ? names[0] : string.Join(", ", names.GetRange(0, names.Count - 1)) + " and " + names[^1];
+        if (parts.HasFlag(RestoreParts.Local)) names.Add(Loc.Get("Restore_PartLocal"));
+        if (parts.HasFlag(RestoreParts.Settings)) names.Add(Loc.Get("Restore_PartSettings"));
+        if (parts.HasFlag(RestoreParts.SyncSettings)) names.Add(Loc.Get("Restore_PartSyncSettings"));
+        if (parts.HasFlag(RestoreParts.SyncedFolders)) names.Add(Loc.Get("Restore_PartSyncedFolders"));
+        string what = names.Count == 1 ? names[0] : Loc.Format("Restore_ListAnd", string.Join(", ", names.GetRange(0, names.Count - 1)), names[^1]);
 
-        string message = $"Your current {what} are replaced with the ones from {description}.";
+        string message = Loc.Format("Restore_ConfirmReplace", what, description);
         if (targets > 0)
-            message += "\n\nWithout the sync settings, the synced templates and folders are restored into their sync files. You're asked next for each synced folder.";
+            message += "\n\n" + Loc.Get("Restore_ConfirmIntoFiles");
         else if (parts.HasFlag(RestoreParts.SyncSettings) && !parts.HasFlag(RestoreParts.SyncedFolders))
-            message += "\n\nAn existing shared sync file is linked as it is; you're asked about a missing one. To restore the synced templates and folders into the files, also tick \"Synced templates and folders\".";
+            message += "\n\n" + Loc.Get("Restore_ConfirmLinkAsIs");
         else if ((parts & RestoreParts.Sync) != 0)
-            message += "\n\nA shared sync file that still exists stays as it is, unless you choose to overwrite it; the folder of a missing one shows its copy from the backup.";
+            message += "\n\n" + Loc.Get("Restore_ConfirmFilesStay");
         if (changed > 0)
-            message += changed == 1
-                ? "\n\nOne shared sync file has changed since the backup. You're asked next whether to overwrite it or keep it."
-                : $"\n\n{changed} shared sync files have changed since the backup. You're asked next whether to overwrite or keep each.";
+            message += "\n\n" + Loc.Plural("Restore_ConfirmChanged", changed);
         if (issues > 0)
-            message += issues == 1
-                ? "\n\nOne sync file of the backup isn't on this PC. You're asked next what to do with it."
-                : $"\n\n{issues} sync files of the backup aren't on this PC. You're asked next what to do with each.";
-        message += "\n\nThe current state is backed up first, then the app restarts.";
+            message += "\n\n" + Loc.Plural("Restore_ConfirmMissing", issues);
+        message += "\n\n" + Loc.Get("Restore_ConfirmBackupFirst");
 
         var confirm = new ContentDialog
         {
             XamlRoot = _xamlRoot,
-            Title = "Restore this backup?",
+            Title = Loc.Get("Restore_ConfirmTitle"),
             Content = message,
-            PrimaryButtonText = "Restore",
-            CloseButtonText = "Cancel",
+            PrimaryButtonText = Loc.Get("Restore_RestoreButton"),
+            CloseButtonText = Loc.Get("Common_CancelButton"),
             DefaultButton = ContentDialogButton.Close,
         };
         return await confirm.ShowAsync() == ContentDialogResult.Primary;
@@ -105,12 +102,10 @@ public sealed class RestoreFlow
         var dialog = new ContentDialog
         {
             XamlRoot = _xamlRoot,
-            Title = $"Sync file \"{file.Name}\" has changed",
-            Content = $"{file.Path}\n\nThe file was last changed {file.FileChanged:f} and differs from the backup's copy ({description}).\n\n"
-                + "Keep it: the folder shows the file as it is now.\n"
-                + "Overwrite it: the file gets the backup's copy, for everyone who uses it.",
-            PrimaryButtonText = "Overwrite with the backup's copy",
-            CloseButtonText = "Keep the file",
+            Title = Loc.Format("Restore_ChangedTitle", file.Name),
+            Content = Loc.Format("Restore_ChangedText", file.Path, file.FileChanged, description),
+            PrimaryButtonText = Loc.Get("Restore_OverwriteButton"),
+            CloseButtonText = Loc.Get("Restore_KeepFileButton"),
             DefaultButton = ContentDialogButton.Close,
         };
         return await dialog.ShowAsync() == ContentDialogResult.Primary;
@@ -122,20 +117,19 @@ public sealed class RestoreFlow
     private async Task<SyncFilePlacement?> AskAboutMissingFileAsync(Guid sourceId, string name, string? path,
         SyncLocationProblem problem, bool hasCopy, string closeText, bool linkElsewhere = false)
     {
-        string what = path == null ? "No sync file is known for it, neither in the current sync settings nor in the backup's." : problem switch
+        string what = path == null ? Loc.Get("Restore_NoFileKnown") : problem switch
         {
-            SyncLocationProblem.FileMissing => "The file isn't there any more.",
-            SyncLocationProblem.FolderMissing => $"Its folder doesn't exist on this PC:\n{System.IO.Path.GetDirectoryName(path)}",
-            SyncLocationProblem.Unreadable => "A file is there, but it isn't a valid sync file, so it isn't overwritten.",
-            _ => "This location can't exist on this PC, for example because the drive or network share isn't there.",
+            SyncLocationProblem.FileMissing => Loc.Get("Restore_FileMissing"),
+            SyncLocationProblem.FolderMissing => Loc.Format("Restore_FolderMissing", System.IO.Path.GetDirectoryName(path)),
+            SyncLocationProblem.Unreadable => Loc.Get("Restore_FileUnreadable"),
+            _ => Loc.Get("Restore_LocationImpossible"),
         };
-        string copy = hasCopy ? "The backup holds a copy of its templates and folders."
-            : "The backup holds no copy of it, so only an existing file can be linked instead.";
+        string copy = hasCopy ? Loc.Get("Restore_HasCopy") : Loc.Get("Restore_NoCopy");
         bool placeCopy = hasCopy && !linkElsewhere;
         string recreate = !hasCopy || path == null ? "" : problem switch
         {
-            SyncLocationProblem.FileMissing => "Recreate it there",
-            SyncLocationProblem.FolderMissing => "Create the folder and the file",
+            SyncLocationProblem.FileMissing => Loc.Get("Restore_RecreateButton"),
+            SyncLocationProblem.FolderMissing => Loc.Get("Restore_CreateFolderButton"),
             _ => "",
         };
         while (true)
@@ -143,10 +137,10 @@ public sealed class RestoreFlow
             var dialog = new ContentDialog
             {
                 XamlRoot = _xamlRoot,
-                Title = problem == SyncLocationProblem.Unreadable ? $"Sync file \"{name}\" can't be read" : $"Sync file \"{name}\" is missing",
+                Title = problem == SyncLocationProblem.Unreadable ? Loc.Format("Restore_UnreadableTitle", name) : Loc.Format("Restore_MissingTitle", name),
                 Content = path == null ? $"{what}\n\n{copy}" : $"{path}\n\n{what}\n\n{copy}",
                 PrimaryButtonText = recreate,
-                SecondaryButtonText = placeCopy ? "Choose a location…" : "Link another file…",
+                SecondaryButtonText = placeCopy ? Loc.Get("Restore_ChooseLocationButton") : Loc.Get("Restore_LinkAnotherButton"),
                 CloseButtonText = closeText,
                 DefaultButton = ContentDialogButton.Close,
             };
@@ -172,29 +166,29 @@ public sealed class RestoreFlow
     private async Task<SyncFilePlacement?> AskAboutSyncedFolderAsync(SyncedFolderTarget target)
     {
         if (target.Problem is { } problem)
-            return await AskAboutMissingFileAsync(target.SourceId, target.Name, target.Path, problem, hasCopy: true, "Skip this folder");
+            return await AskAboutMissingFileAsync(target.SourceId, target.Name, target.Path, problem, hasCopy: true, Loc.Get("Restore_SkipFolderButton"));
 
-        var overwriteAll = new RadioButton { Content = "Overwrite all of them", GroupName = "RestoreConflicts" };
-        var overwriteOlder = new RadioButton { Content = "Overwrite only where the backup's is more recent", GroupName = "RestoreConflicts", IsChecked = true };
-        var skip = new RadioButton { Content = "Skip them, keep the ones in the file", GroupName = "RestoreConflicts" };
+        var overwriteAll = new RadioButton { Content = Loc.Get("Main_ImportOverwriteAll"), GroupName = "RestoreConflicts" };
+        var overwriteOlder = new RadioButton { Content = Loc.Get("Restore_OverwriteOlder"), GroupName = "RestoreConflicts", IsChecked = true };
+        var skip = new RadioButton { Content = Loc.Get("Restore_SkipThem"), GroupName = "RestoreConflicts" };
         var content = new StackPanel { Spacing = 4 };
         void Say(string text) => content.Children.Add(new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8) });
         Say(target.Path!);
-        Say($"The backup's copy holds {target.Templates} template(s). Folders with the same name are merged.");
+        Say(Loc.Plural("Restore_CopyHolds", target.Templates));
         if (target.Conflicts > 0)
         {
-            Say($"{target.Conflicts} of these template(s) already exist in the file (same template, or same title in the same folder):");
+            Say(Loc.Plural("Restore_CopyConflicts", target.Conflicts));
             foreach (var choice in new[] { overwriteAll, overwriteOlder, skip }) content.Children.Add(choice);
         }
-        if (target.AddsSource) Say("The file isn't linked in your current sync settings; it is linked again.");
+        if (target.AddsSource) Say(Loc.Get("Restore_RelinkedNote"));
 
         var dialog = new ContentDialog
         {
             XamlRoot = _xamlRoot,
-            Title = $"Restore \"{target.Name}\" into its sync file?",
+            Title = Loc.Format("Restore_IntoFileTitle", target.Name),
             Content = content,
-            PrimaryButtonText = "Restore into the file",
-            CloseButtonText = "Skip this folder",
+            PrimaryButtonText = Loc.Get("Restore_IntoFileButton"),
+            CloseButtonText = Loc.Get("Restore_SkipFolderButton"),
             DefaultButton = ContentDialogButton.Primary,
         };
         if (await dialog.ShowAsync() != ContentDialogResult.Primary) return null;

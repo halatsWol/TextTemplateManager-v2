@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
 
 namespace TextTemplateManager.Data;
@@ -749,7 +750,7 @@ public class DataNode
     private static void SetWriteProblem(SyncSource source, Folder? folder, string? problem)
     {
         string? message = problem == null ? null
-            : $"Couldn't save to the sync file: {problem} Your changes are kept here and saved to the file as soon as it can be written.";
+            : Loc.Format("Sync_WriteProblem", problem);
         source.WriteProblem = message;
         if (folder != null) folder.SyncWriteProblem = message;
     }

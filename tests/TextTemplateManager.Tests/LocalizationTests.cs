@@ -102,6 +102,24 @@ public partial class LocalizationTests
         Assert.Empty(unused);
     }
 
+    [GeneratedRegex(@"\s(Text|Content|Header|PlaceholderText|Message|Title|Subtitle|Description|OnContent|OffContent|PrimaryButtonText|SecondaryButtonText|CloseButtonText|ToolTipService\.ToolTip|AutomationProperties\.Name|AutomationProperties\.HelpText)=""([^""{][^""]*)""")]
+    private static partial Regex TextAttributePattern();
+
+    // Names that stay as they are in every language.
+    private static readonly HashSet<string> Untranslated =
+        ["TextTemplateManager", "Marflow Software", "Chrome", "Edge", "Firefox", "HTML/Jira", "HTML", "RTF", "Markdown"];
+
+    [Fact]
+    public void Xaml_has_no_literal_ui_text()
+    {
+        var literal = SourceFiles("*.xaml")
+            .SelectMany(f => TextAttributePattern().Matches(File.ReadAllText(f))
+                .Select(m => (File: Path.GetFileName(f), Attribute: m.Groups[1].Value, Value: m.Groups[2].Value)))
+            .Where(a => a.Value.Any(char.IsLetter) && !a.Value.StartsWith("&#x") && !Untranslated.Contains(a.Value))
+            .Select(a => $"{a.File}: {a.Attribute}=\"{a.Value}\"");
+        Assert.Empty(literal);
+    }
+
     [Fact]
     public void Uids_are_unique()
     {

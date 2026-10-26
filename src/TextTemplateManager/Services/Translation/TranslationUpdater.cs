@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
 
 namespace TextTemplateManager.Services.Translation;
@@ -100,7 +101,7 @@ public sealed class TranslationUpdater : IDisposable
             var names = string.Join(", ", outdated.SelectMany(p => new[] { p.From, p.To }).Where(c => c != "en").Distinct().Select(TranslationLanguage.NameOf));
             if (!_settings.TranslationAutoInstall)
             {
-                _notify?.Invoke("Translation updates", $"Newer versions of {names} are available. Install them in Settings ▸ Translation.");
+                _notify?.Invoke(Loc.Get("Translation_UpdatesTitle"), Loc.Format("Translation_UpdatesText", names));
                 return new(outdated, [], null);
             }
 

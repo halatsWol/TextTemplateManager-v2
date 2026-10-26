@@ -21,7 +21,7 @@ public static class DataFilePicker
     {
         var picker = new FileSavePicker();
         WinRT.Interop.InitializeWithWindow.Initialize(picker, owner);
-        picker.FileTypeChoices.Add("TextTemplateManager data", new List<string> { ".ttmdata" });
+        picker.FileTypeChoices.Add(Loc.Get("Picker_DataFileType"), new List<string> { ".ttmdata" });
         picker.SuggestedFileName = suggestedName;
         return (await picker.PickSaveFileAsync())?.Path;
     }
@@ -38,7 +38,7 @@ public static class DataFilePicker
     {
         var picker = new FileSavePicker();
         WinRT.Interop.InitializeWithWindow.Initialize(picker, owner);
-        picker.FileTypeChoices.Add("TextTemplateManager backup", new List<string> { ".zip" });
+        picker.FileTypeChoices.Add(Loc.Get("Picker_BackupFileType"), new List<string> { ".zip" });
         picker.SuggestedFileName = suggestedName;
         return (await picker.PickSaveFileAsync())?.Path;
     }
@@ -48,7 +48,7 @@ public static class DataFilePicker
         var picker = new FileSavePicker();
         WinRT.Interop.InitializeWithWindow.Initialize(picker, owner);
         picker.SuggestedStartLocation = PickerLocationId.Desktop;
-        picker.FileTypeChoices.Add("Logs for a problem report", new List<string> { ".zip" });
+        picker.FileTypeChoices.Add(Loc.Get("Picker_LogsFileType"), new List<string> { ".zip" });
         picker.SuggestedFileName = suggestedName;
         return (await picker.PickSaveFileAsync())?.Path;
     }

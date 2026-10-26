@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using TextTemplateManager.Common;
+using TextTemplateManager.Helpers;
 
 namespace TextTemplateManager.Data;
 
@@ -286,26 +287,26 @@ public sealed class BackupService
         {
             using var zip = ZipFile.OpenRead(path);
             var manifestEntry = zip.GetEntry(ManifestName);
-            if (manifestEntry == null) return "no manifest";
+            if (manifestEntry == null) return Loc.Get("Backups_ProblemNoManifest");
             manifest = StorageService.ParseManifest(ReadEntry(manifestEntry));
-            if (manifest == null) return "unreadable manifest";
-            if (manifest.Format > BackupManifest.CurrentFormat) return "made by a newer version";
-            if (!manifest.Files.Any(f => f.Kind == BackupFileKind.Data && f.Included)) return "no template data";
+            if (manifest == null) return Loc.Get("Backups_ProblemUnreadableManifest");
+            if (manifest.Format > BackupManifest.CurrentFormat) return Loc.Get("Backups_ProblemNewerVersion");
+            if (!manifest.Files.Any(f => f.Kind == BackupFileKind.Data && f.Included)) return Loc.Get("Backups_ProblemNoData");
 
             foreach (var file in manifest.Files.Where(f => f.Included))
             {
                 var entry = zip.GetEntry(file.Name);
-                if (entry == null) return $"{file.Name} is missing";
+                if (entry == null) return Loc.Format("Backups_ProblemFileMissing", file.Name);
                 byte[] content = ReadEntry(entry);
                 if (content.LongLength != file.Size || !string.Equals(Hash(content), file.Sha256, StringComparison.OrdinalIgnoreCase))
-                    return $"{file.Name} is damaged";
-                if (!StorageService.Parses(file.Kind, content)) return $"{file.Name} doesn't load";
+                    return Loc.Format("Backups_ProblemFileDamaged", file.Name);
+                if (!StorageService.Parses(file.Kind, content)) return Loc.Format("Backups_ProblemFileUnloadable", file.Name);
             }
             return null;
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException)
         {
-            return "not a readable zip";
+            return Loc.Get("Backups_ProblemNotZip");
         }
     }
 
