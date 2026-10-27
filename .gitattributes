@@ -1,2 +1,5 @@
 # Expected serializer output, compared byte for byte by FileFormatTests: never convert line endings.
 tests/TextTemplateManager.Tests/Fixtures/** -text
+# Written by src/editor/build.mjs with LF, so a rebuild leaves them unchanged.
+src/TextTemplateManager/Assets/editor/*.html text eol=lf
+src/TextTemplateManager/Assets/translator/translator-worker.js text eol=lf

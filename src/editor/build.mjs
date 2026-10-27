@@ -18,6 +18,12 @@ async function bundle(entry) {
   return result.outputFiles[0].text
 }
 
+// Always LF (.gitattributes checks these out as LF): the shells and the CSS come with the checkout's
+// line endings, esbuild's output with LF, so git saw the rebuilt files as changed.
+function write(file, text) {
+  writeFileSync(file, text.replaceAll('\r\n', '\n'))
+}
+
 // One self-contained page per WebView: the app navigates to it as a string, so there is nothing to
 // fetch and no cache that could serve a stale bundle. Function replacers keep `$` in the content as is.
 function page(shell, bundleFile, js) {
@@ -28,7 +34,7 @@ function page(shell, bundleFile, js) {
   html = html.replace(link, () => `<style>${css}</style>`)
   // An accidental </script> in the bundle would close the inline tag.
   html = html.replace(script, () => `<script>${js.replaceAll('</script', '<\\/script')}</script>`)
-  writeFileSync(resolve(outDir, shell), html)
+  write(resolve(outDir, shell), html)
 }
 
 page('editor.html', 'editor.bundle.js', await bundle('main.js'))
@@ -39,5 +45,5 @@ page('preview.html', 'preview.bundle.js', await bundle('preview.js'))
 // Firefox Translations v0.6.0, MPL-2.0), which is checked in there as published by Mozilla.
 const translatorDir = resolve(here, '..', 'TextTemplateManager', 'Assets', 'translator')
 mkdirSync(translatorDir, { recursive: true })
-writeFileSync(resolve(translatorDir, 'translator-worker.js'), await bundle('translator/worker.js'))
+write(resolve(translatorDir, 'translator-worker.js'), await bundle('translator/worker.js'))
 console.log('Editor pages written to', outDir)
