@@ -1793,4 +1793,22 @@ Overwrite it: the file gets the backup's copy, for everyone who uses it.</value>
   <data name="Picker_LogsFileType" xml:space="preserve">
     <value>Logs for a problem report</value>
   </data>
+  <data name="GeneralPage_LanguageHeading.Text" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="GeneralPage_LanguageText.Text" xml:space="preserve">
+    <value>The language of the app's windows, menus and messages. Your templates aren't changed.</value>
+  </data>
+  <data name="GeneralPage_LanguageCombo.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>App language</value>
+  </data>
+  <data name="GeneralPage_LanguageRestartInfo.Message" xml:space="preserve">
+    <value>The app switches to the new language when it starts again.</value>
+  </data>
+  <data name="GeneralPage_LanguageRestartButton.Content" xml:space="preserve">
+    <value>Restart now</value>
+  </data>
+  <data name="General_LanguageWindows" xml:space="preserve">
+    <value>Use the Windows language</value>
+  </data>
 </root>

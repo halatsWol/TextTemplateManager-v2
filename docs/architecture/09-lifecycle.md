@@ -6,6 +6,8 @@
 
 ([source](diagrams/seq-app-launch.puml))
 
+**Language.** Before the diagram's steps, the `App` constructor reads the chosen UI language (`UiLanguages.Apply`) and sets it as the app's language override, ahead of `InitializeComponent`: the first resource lookup fixes the language for the whole run. Settings ▸ General's **Restart now** (`App.RestartAsync`) quits like Exit (unsaved edits and running downloads asked about, everything saved) and starts the app again with `AppInstance.Restart`.
+
 **Single instance.** The app registers the `AppInstance` key `"main"`. A later launch (the Start menu, a `.ttmdata` opened from Explorer, a startup activation) redirects its activation to the running instance and exits; the running one shows its window and opens the file (`OnRedirected`). A redundant startup activation without a file just exits. TextTemplateManager 1 uses its own mutex and pipe, so the two versions never take over each other's launches; instead the packaged app closes a running 1.x at every start (`LegacyApp.CloseRunningAsync`), which would otherwise hold the hotkey and the connector port.
 
 **Start hidden.** Started by Windows at sign-in (the package's startup task) with **Start hidden** on, the app stays in the tray; the hotkey and tray icon work. A `.ttmdata` to open or a file that couldn't be read shows the window anyway.

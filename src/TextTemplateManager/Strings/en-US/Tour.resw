@@ -79,7 +79,7 @@
     <value>Settings ▸ General</value>
   </data>
   <data name="StepSettingsGeneral_Text" xml:space="preserve">
-    <value>File ▸ Settings: the global shortcut that opens Quick Paste, the paste mode for new templates, starting with Windows (hidden in the tray if you like), Autosave and updates.</value>
+    <value>File ▸ Settings: the app's language, the global shortcut that opens Quick Paste, the paste mode for new templates, starting with Windows (hidden in the tray if you like), Autosave and updates.</value>
   </data>
   <data name="StepSettingsIntegrations_Title" xml:space="preserve">
     <value>Settings ▸ Integrations</value>

@@ -8,6 +8,20 @@
     <StackPanel Spacing="25" Padding="20">
         <TextBlock x:Uid="GeneralPage_Title" Style="{StaticResource TitleTextBlockStyle}"/>
 
+        <StackPanel Spacing="4">
+            <TextBlock x:Uid="GeneralPage_LanguageHeading" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+            <TextBlock x:Uid="GeneralPage_LanguageText" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            <ComboBox x:Name="LanguageCombo" x:Uid="GeneralPage_LanguageCombo" MinWidth="200" DisplayMemberPath="Name"
+                      SelectionChanged="Language_SelectionChanged"/>
+            <InfoBar x:Name="LanguageRestartInfo" x:Uid="GeneralPage_LanguageRestartInfo" Severity="Informational" IsClosable="False" IsOpen="False">
+                <InfoBar.ActionButton>
+                    <Button x:Uid="GeneralPage_LanguageRestartButton" Click="LanguageRestart_Click"/>
+                </InfoBar.ActionButton>
+            </InfoBar>
+        </StackPanel>
+
+        <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>
+
         <StackPanel Spacing="10">
             <TextBlock x:Uid="GeneralPage_QuickPasteHeading" Style="{StaticResource BodyStrongTextBlockStyle}"/>
 

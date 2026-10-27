@@ -57,11 +57,12 @@ namespace TextTemplateManager
 
         public App()
         {
-            // Dev and UI-test runs: TTM_UI_LANGUAGE=qps-ploc shows the pseudo-language that only Debug builds carry.
-            if (Environment.GetEnvironmentVariable("TTM_UI_LANGUAGE") is { Length: > 0 } uiLanguage)
-                Microsoft.Windows.Globalization.ApplicationLanguages.PrimaryLanguageOverride = uiLanguage;
+            // The language comes first: the first resource lookup fixes it for the whole run. Dev and UI-test runs can
+            // set TTM_UI_LANGUAGE (qps-ploc: the pseudo-language that only Debug builds carry).
+            var storage = StorageService.CreateDefault(_environment);
+            UiLanguages.Apply(storage.DataDirectory);
             InitializeComponent();
-            _store = new DataNode(StorageService.CreateDefault(_environment));
+            _store = new DataNode(storage);
             _errors = new UnexpectedErrorHandler(ex => LogCrash("UnhandledException", ex),
                 PersistPendingAsync, AskQuitAfterErrorAsync, ExitAsync);
             UnhandledException += OnUnhandledException;
@@ -479,15 +480,43 @@ namespace TextTemplateManager
         /// takes more than a second and asks before giving up on a save that hangs.</summary>
         public async Task ExitAsync()
         {
+            if (await WindUpAsync() is not { } save) return;
+            // A downloaded update is installed on the way out (Windows closes the app for it); the next start is the new
+            // version. Not when the save above was given up on.
+            if (save.IsCompletedSuccessfully && _updates is { Status.IsReady: true } updates && updates.RefreshPolicyForSwitch()
+                && updates.InstallOnQuit)
+            {
+                ReleaseForSwitch();
+                var exitSwitch = updates.SwitchAsync(idle: false, restart: false);
+                await Task.WhenAny(exitSwitch, Task.Delay(TimeSpan.FromSeconds(15)));
+            }
+            Shutdown();
+        }
+
+        /// <summary>Restart now (Settings ▸ General, after choosing another language): quits like Exit, then starts
+        /// again. Quits for good when Windows can't restart the app.</summary>
+        public async Task RestartAsync()
+        {
+            if (await WindUpAsync() is null) return;
+            try { _trayService?.Dispose(); } catch { }
+            try { AppInstance.GetCurrent().UnregisterKey(); } catch { }   // the new instance must not redirect to this one
+            AppInstance.Restart(OfferTourInDevRun ? "--offer-tour" : "");   // ends this process; returns only if the restart failed
+            Shutdown();
+        }
+
+        // What Exit and Restart do first: unsaved edits and running downloads asked about, then everything saved, with
+        // progress after a second. Null when the user stays; otherwise the save, which may have been given up on.
+        private async Task<Task?> WindUpAsync()
+        {
             EndTutorial();
             if (MainWindow.Content is MainPage editing)
             {
                 if (editing.ViewModel.HasUnsavedChanges) ShowMainWindow();   // the question needs the window
-                if (!await editing.ResolveUnsavedEditsAsync()) return;
+                if (!await editing.ResolveUnsavedEditsAsync()) return null;
                 if (Services.Translation.ModelStore.Busy)
                 {
                     ShowMainWindow();
-                    if (!await editing.ResolveTranslationDownloadsAsync()) return;
+                    if (!await editing.ResolveTranslationDownloadsAsync()) return null;
                 }
             }
             StopAcceptingWork();
@@ -505,16 +534,7 @@ namespace TextTemplateManager
                 }
                 await page.HideExitProgressAsync();
             }
-            // A downloaded update is installed on the way out (Windows closes the app for it); the next start is the new
-            // version. Not when the save above was given up on.
-            if (save.IsCompletedSuccessfully && _updates is { Status.IsReady: true } updates && updates.RefreshPolicyForSwitch()
-                && updates.InstallOnQuit)
-            {
-                ReleaseForSwitch();
-                var exitSwitch = updates.SwitchAsync(idle: false, restart: false);
-                await Task.WhenAny(exitSwitch, Task.Delay(TimeSpan.FromSeconds(15)));
-            }
-            Shutdown();
+            return save;
         }
 
         // ---- In-app updates (see Services/Updates) ----

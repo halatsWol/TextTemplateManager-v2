@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -30,9 +33,50 @@ public sealed partial class GeneralSettingsPage : Page
         }
         HotkeyTextBox.Text = FormatHotkey(ViewModel?.PasteWindowHotkey);
         HotkeyUnavailableInfo.IsOpen = Application.Current is App { HotkeyRegistered: false };
+        InitLanguageUi();
         InitStartupUi();
         InitUpdatesUi();
         base.OnNavigatedTo(e);
+    }
+
+    // ---- Language ----
+    public sealed record LanguageChoice(string Code, string Name);
+
+    private bool _languageLoading;
+
+    private void InitLanguageUi()
+    {
+        _languageLoading = true;
+        var choices = new List<LanguageChoice> { new("", Loc.Get("General_LanguageWindows")) };
+        choices.AddRange(UiLanguages.Available.Select(code => new LanguageChoice(code, UiLanguages.NameOf(code))));
+#if DEBUG
+        choices.Add(new(UiLanguages.Pseudo, UiLanguages.NameOf(UiLanguages.Pseudo)));
+#endif
+        LanguageCombo.ItemsSource = choices;
+        string chosen = UiLanguages.Chosen;
+        LanguageCombo.SelectedItem = choices.FirstOrDefault(c => string.Equals(c.Code, chosen, StringComparison.OrdinalIgnoreCase)) ?? choices[0];
+        ShowLanguageRestart();
+        _languageLoading = false;
+    }
+
+    private void Language_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_languageLoading || LanguageCombo.SelectedItem is not LanguageChoice choice) return;
+        try { UiLanguages.Choose(choice.Code); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Language] choice not saved: {ex.Message}");
+        }
+        ShowLanguageRestart();
+    }
+
+    // The new language shows from the next start: until then the bar offers the restart.
+    private void ShowLanguageRestart() =>
+        LanguageRestartInfo.IsOpen = !string.Equals(UiLanguages.Chosen, UiLanguages.AtStart, StringComparison.OrdinalIgnoreCase);
+
+    private async void LanguageRestart_Click(object sender, RoutedEventArgs e)
+    {
+        if (Application.Current is App app) await app.RestartAsync();
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)

@@ -51,6 +51,7 @@ All files are UTF-8 JSON without BOM (a BOM is accepted when reading), written i
 | `data.ttmdata` | `Folder` (the root, `Id = Guid.Empty`, title "Root") | Data folder |
 | `settings.ttmsettings` | `AppSettings` | Data folder |
 | `sync.ttmsettings` | `SyncSettings` | Data folder |
+| `ui-language.txt` | Text: the language chosen in Settings ▸ General (absent: the Windows language); per device, in no backup (see [11](11-platform-build-release.md)) | Data folder |
 | `crash.log` | Text, appended | Data folder |
 | `update.log`, `update-checks.txt`, `update-attempt.json`, `update-watchdog.ps1` / `.xml` | The updater's log, its check times (Store limits), the switch in progress, the watchdog task (see [13](13-updates.md)) | Data folder |
 | sync file (`*.ttmdata`) | `Folder` root as written by `DataNode.BuildFileTree` | Anywhere (OneDrive, share) |

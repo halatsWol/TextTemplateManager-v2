@@ -149,6 +149,35 @@ public partial class LocalizationTests
     }
 
     [Fact]
+    public void The_language_switch_offers_exactly_the_shipped_languages()
+    {
+        var folders = Directory.EnumerateDirectories(StringsDir).Select(Path.GetFileName).Order(StringComparer.OrdinalIgnoreCase);
+        Assert.Equal(folders, UiLanguages.Available.Order(StringComparer.OrdinalIgnoreCase));
+        Assert.DoesNotContain(UiLanguages.Pseudo, UiLanguages.Available);
+    }
+
+    [Fact]
+    public void The_language_choice_is_kept_in_the_data_folder_and_the_windows_language_leaves_no_file()
+    {
+        string dir = TestEnvironment.NewScratchDir();
+        Assert.Equal("", UiLanguages.Read(dir));
+        UiLanguages.Write(dir, "en-US");
+        Assert.Equal("en-US", UiLanguages.Read(dir));
+        UiLanguages.Write(dir, "");
+        Assert.Equal("", UiLanguages.Read(dir));
+        Assert.Empty(Directory.EnumerateFileSystemEntries(dir));
+    }
+
+    [Theory]
+    [InlineData("en-US", "English")]
+    [InlineData("de-DE", "Deutsch")]
+    [InlineData("fr-FR", "Français")]
+    public void Languages_are_named_in_their_own_language(string code, string name)
+    {
+        Assert.Equal(name, UiLanguages.NameOf(code));
+    }
+
+    [Fact]
     public void Uids_are_unique()
     {
         Assert.Empty(Uids().GroupBy(u => u).Where(g => g.Count() > 1).Select(g => g.Key));
