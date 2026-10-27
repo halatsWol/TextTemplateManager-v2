@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.Windows.ApplicationModel.Resources;
 
@@ -32,5 +33,26 @@ internal static class Loc
         public static string Get(string key) => Loader.Value.GetString(key);
 
         public static string Format(string key, params object?[] args) => string.Format(CultureInfo.CurrentCulture, Get(key), args);
+    }
+
+    /// <summary>The editor's and preview's own text, from Strings\&lt;language&gt;\Editor.resw: the page gets all of it
+    /// at once (<see cref="EditorPages"/>) and looks it up itself.</summary>
+    public static class Editor
+    {
+        private static readonly Lazy<IReadOnlyDictionary<string, string>> Strings = new(() =>
+        {
+            var map = new ResourceManager(ResourceFile ?? ResourceLoader.GetDefaultResourceFilePath()).MainResourceMap.GetSubtree("Editor");
+            var all = new Dictionary<string, string>();
+            for (uint i = 0; i < map.ResourceCount; i++)
+            {
+                var (name, candidate) = map.GetValueByIndex(i);
+                all[name[(name.LastIndexOf('/') + 1)..]] = candidate.ValueAsString;
+            }
+            return all;
+        });
+
+        public static IReadOnlyDictionary<string, string> All() => Strings.Value;
+
+        public static string Get(string key) => Strings.Value.TryGetValue(key, out var text) ? text : key;
     }
 }

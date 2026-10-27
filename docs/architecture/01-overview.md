@@ -29,7 +29,7 @@ TextTemplateManager stores reusable text templates (rich text as HTML) in a tree
 | `  Services/Pasting/` | `PasteService` (clipboard and `Ctrl+V`) |
 | `  Services/Updates/` | The in-app updater: `UpdateService`, Store and test sources, package switch, update policy (see [13](13-updates.md)) |
 | `  Helpers/` | HTML conversions (RTF, Markdown, panels, sanitizer), template variables, Win32 window helpers, converters, `Loc` (UI text set in code) |
-| `  Strings/<language>/` | UI text (`Resources.resw`) and the guided tour's texts and samples (`Tour.resw`); en-US is the source (see [11](11-platform-build-release.md)) |
+| `  Strings/<language>/` | UI text (`Resources.resw`), the guided tour's texts and samples (`Tour.resw`) and the editor page's text (`Editor.resw`); en-US is the source (see [11](11-platform-build-release.md)) |
 | `  Controls/` | User controls: editor, settings view, conflict panel, search options, tutorial overlay, About |
 | `  Tutorial/` | Tour steps and sample data, startup greeting, What's new parser |
 | `src/editor/` | TipTap editor and preview sources, the translator worker, their JavaScript tests |

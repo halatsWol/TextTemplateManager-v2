@@ -31,8 +31,14 @@ public partial class LocalizationTests
     [GeneratedRegex(@"x:Uid=""([^""]+)""")]
     private static partial Regex UidPattern();
 
-    [GeneratedRegex(@"Loc\.(Tour\.)?(Get|Format|Plural)\(""([^""]+)""")]
+    [GeneratedRegex(@"Loc\.(?:(Tour|Editor)\.)?(Get|Format|Plural)\(""([^""]+)""")]
     private static partial Regex CodeKeyPattern();
+
+    // The editor page's own lookups (src/editor/src/main.js): t('Key', ...) and tp('Key', n, ...).
+    [GeneratedRegex(@"(?<![\w.])(t|tp)\('([^']+)'")]
+    private static partial Regex ScriptKeyPattern();
+
+    private static string EditorSourceDir => Path.GetFullPath(Path.Combine(AppDir(), "..", "editor", "src"));
 
     [GeneratedRegex(@"\{(\d+)(?:[,:][^}]*)?\}")]
     private static partial Regex PlaceholderPattern();
@@ -40,17 +46,23 @@ public partial class LocalizationTests
     private static List<string> Uids() =>
         SourceFiles("*.xaml").SelectMany(f => UidPattern().Matches(File.ReadAllText(f)).Select(m => m.Groups[1].Value)).ToList();
 
-    // The keys the code asks for in the .resw file: Loc.Tour reads Tour.resw, Loc Resources.resw. A Loc.Plural key
-    // stands for its two forms.
-    private static List<string> CodeKeys(string file = "Resources.resw") =>
-        SourceFiles("*.cs").SelectMany(f => CodeKeyPattern().Matches(File.ReadAllText(f)))
-            .Where(m => (m.Groups[1].Success ? "Tour.resw" : "Resources.resw") == file)
-            .SelectMany(m => m.Groups[2].Value == "Plural"
-                ? new[] { m.Groups[3].Value + "_One", m.Groups[3].Value + "_Other" }
-                : new[] { m.Groups[3].Value })
-            .ToList();
+    // The keys the code asks for in the .resw file: Loc.Tour reads Tour.resw, Loc.Editor and the editor page's script
+    // Editor.resw, Loc Resources.resw. A plural key (Loc.Plural, tp) stands for its two forms.
+    private static List<string> CodeKeys(string file = "Resources.resw")
+    {
+        var keys = SourceFiles("*.cs").SelectMany(f => CodeKeyPattern().Matches(File.ReadAllText(f)))
+            .Where(m => (m.Groups[1].Success ? m.Groups[1].Value + ".resw" : "Resources.resw") == file)
+            .SelectMany(m => Forms(m.Groups[3].Value, m.Groups[2].Value == "Plural"));
+        if (file == "Editor.resw")
+            keys = keys.Concat(Directory.EnumerateFiles(EditorSourceDir, "*.js", SearchOption.AllDirectories)
+                .SelectMany(f => ScriptKeyPattern().Matches(File.ReadAllText(f)))
+                .SelectMany(m => Forms(m.Groups[2].Value, m.Groups[1].Value == "tp")));
+        return keys.ToList();
+    }
 
-    public static TheoryData<string> EnglishFiles => new("Resources.resw", "Tour.resw");
+    private static string[] Forms(string key, bool plural) => plural ? [key + "_One", key + "_Other"] : [key];
+
+    public static TheoryData<string> EnglishFiles => new("Resources.resw", "Tour.resw", "Editor.resw");
 
     private static string[] Placeholders(string value) =>
         PlaceholderPattern().Matches(value).Select(m => m.Groups[1].Value).Distinct().Order().ToArray();
@@ -82,6 +94,22 @@ public partial class LocalizationTests
     public void Loc_Tour_reads_the_tour_file()
     {
         Assert.Equal(English("Tour.resw")["StepWelcome_Title"], Loc.Tour.Get("StepWelcome_Title"));
+    }
+
+    [Fact]
+    public void The_editor_page_gets_its_text_title_and_language_before_its_scripts()
+    {
+        var english = English("Editor.resw");
+        Assert.Equal(english.Count, Loc.Editor.All().Count);
+        Assert.Equal(english["Undo"], Loc.Editor.All()["Undo"]);
+
+        string html = EditorPages.Localized("<!doctype html><html lang=\"en\"><head><title>x</title></head><body><script>main()</script></body></html>",
+            "A </script> & title");
+        int strings = html.IndexOf("window.ttmStrings", StringComparison.Ordinal);
+        Assert.True(strings > 0 && strings < html.IndexOf("main()", StringComparison.Ordinal));
+        Assert.Contains("<title>A &lt;/script&gt; &amp; title</title>", html);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(html, "</script>"), m => m.Index < html.IndexOf("<title>", StringComparison.Ordinal));
+        Assert.Contains("<html lang=\"", html);
     }
 
     [Theory]

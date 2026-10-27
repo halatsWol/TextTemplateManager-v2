@@ -6,7 +6,7 @@
   "description": "Bundled TipTap rich-text editor hosted in the app's WebView2.",
   "scripts": {
     "build": "node build.mjs",
-    "test": "node --test test/"
+    "test": "node --test"
   },
   "dependencies": {
     "@tiptap/core": "^2.6.6",

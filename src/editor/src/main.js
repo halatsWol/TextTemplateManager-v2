@@ -20,6 +20,12 @@ import { TextSelection, EditorState, Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
 import { detectLanguage, FORMAL_LANGUAGES, translateHtml } from './translator/client.js'
 
+// UI text from the app (Strings\<language>\Editor.resw), set before this script runs; a missing key shows itself.
+const STRINGS = window.ttmStrings ?? {}
+const t = (key, ...args) => (STRINGS[key] ?? key).replace(/\{(\d+)\}/g, (m, i) => String(args[i] ?? m))
+// key_One for 1, key_Other otherwise, with the count as {0}.
+const tp = (key, n, ...args) => t(key + (n === 1 ? '_One' : '_Other'), n, ...args)
+
 // Allow any block (incl. headings) inside a list item so heading + list can coexist.
 const RichListItem = ListItem.extend({ content: 'block+' })
 
@@ -140,7 +146,7 @@ const LineNumberCodeBlock = CodeBlockLowlight.extend({
             const langSelect = document.createElement('select')
             langSelect.className = 'code-lang'
             langSelect.contentEditable = 'false'
-            langSelect.title = 'Code language'
+            langSelect.title = t('CodeLanguage')
             for (const { value, label } of LANGUAGES) {
                 const opt = document.createElement('option')
                 opt.value = value
@@ -497,7 +503,7 @@ const editor = new Editor({
     content: '',
     editorProps: {
         // Enable the browser spell checker so WebView2's context menu offers suggestions.
-        attributes: { spellcheck: 'true', role: 'textbox', 'aria-multiline': 'true', 'aria-label': 'Template text' },
+        attributes: { spellcheck: 'true', role: 'textbox', 'aria-multiline': 'true', 'aria-label': t('TemplateText') },
         handleDOMEvents: {
             // Right-click should place the caret under the pointer so the spell-check menu targets
             // the word you clicked. Chromium doesn't move the caret mid-word on right-click inside
@@ -658,6 +664,7 @@ window.editorApi = {
 
 // ---- Toolbar ------------------------------------------------------------------
 const toolbar = document.querySelector('#toolbar')
+toolbar.setAttribute('aria-label', t('ToolbarName'))
 const run = (fn) => { fn(editor.chain().focus()).run() }
 
 // Clean inline SVG icons (feather-style, stroke = currentColor so they follow the theme).
@@ -786,12 +793,12 @@ function popupButton(html, title, buildContent) {
 function addActive(el, fn) { activeChecks.push({ el, fn }); return el }
 
 // Undo / redo
-toolbar.appendChild(button(ICONS.undo, 'Undo', () => run(c => c.undo())))
-toolbar.appendChild(button(ICONS.redo, 'Redo', () => run(c => c.redo())))
+toolbar.appendChild(button(ICONS.undo, t('Undo'), () => run(c => c.undo())))
+toolbar.appendChild(button(ICONS.redo, t('Redo'), () => run(c => c.redo())))
 toolbar.appendChild(sep())
 
 // Format (Normal + Heading 1..6 + Preformat) = 7 text styles + preformat
-popupButton(ICONS.type, 'Text format', (pop, close) => {
+popupButton(ICONS.type, t('TextFormat'), (pop, close) => {
     const item = (label, onClick) => {
         const el = document.createElement('button')
         el.className = 'menu-item'
@@ -800,39 +807,39 @@ popupButton(ICONS.type, 'Text format', (pop, close) => {
         pop.appendChild(el)
     }
     const menuSep = () => { const d = document.createElement('div'); d.className = 'menu-sep'; pop.appendChild(d) }
-    item('Normal', () => run(c => c.setParagraph()))
+    item(t('Normal'), () => run(c => c.setParagraph()))
     menuSep()
-    for (let lvl = 1; lvl <= 6; lvl++) item('Heading ' + lvl, () => run(c => c.toggleHeading({ level: lvl })))
+    for (let lvl = 1; lvl <= 6; lvl++) item(t('Heading', lvl), () => run(c => c.toggleHeading({ level: lvl })))
     menuSep()
-    item('Preformat', () => run(c => c.toggleCodeBlock({ lineNumbers: false })))
+    item(t('Preformat'), () => run(c => c.toggleCodeBlock({ lineNumbers: false })))
 })
 toolbar.appendChild(sep())
 
 // Inline styles
-toolbar.appendChild(addActive(button('<b>B</b>', 'Bold', () => run(c => c.toggleBold())), () => editor.isActive('bold')))
-toolbar.appendChild(addActive(button('<i>I</i>', 'Italic', () => run(c => c.toggleItalic())), () => editor.isActive('italic')))
-toolbar.appendChild(addActive(button('<u>U</u>', 'Underline', () => run(c => c.toggleUnderline())), () => editor.isActive('underline')))
-toolbar.appendChild(addActive(button('<s>S</s>', 'Strikethrough', () => run(c => c.toggleStrike())), () => editor.isActive('strike')))
-toolbar.appendChild(addActive(button(ICONS.code, 'Inline code', () => run(c => c.toggleCode())), () => editor.isActive('code')))
-toolbar.appendChild(addActive(button('<span class="sx">x<sup>2</sup></span>', 'Superscript', () => run(c => c.toggleSuperscript())), () => editor.isActive('superscript')))
-toolbar.appendChild(addActive(button('<span class="sx">x<sub>2</sub></span>', 'Subscript', () => run(c => c.toggleSubscript())), () => editor.isActive('subscript')))
+toolbar.appendChild(addActive(button('<b>B</b>', t('Bold'), () => run(c => c.toggleBold())), () => editor.isActive('bold')))
+toolbar.appendChild(addActive(button('<i>I</i>', t('Italic'), () => run(c => c.toggleItalic())), () => editor.isActive('italic')))
+toolbar.appendChild(addActive(button('<u>U</u>', t('Underline'), () => run(c => c.toggleUnderline())), () => editor.isActive('underline')))
+toolbar.appendChild(addActive(button('<s>S</s>', t('Strikethrough'), () => run(c => c.toggleStrike())), () => editor.isActive('strike')))
+toolbar.appendChild(addActive(button(ICONS.code, t('InlineCode'), () => run(c => c.toggleCode())), () => editor.isActive('code')))
+toolbar.appendChild(addActive(button('<span class="sx">x<sup>2</sup></span>', t('Superscript'), () => run(c => c.toggleSuperscript())), () => editor.isActive('superscript')))
+toolbar.appendChild(addActive(button('<span class="sx">x<sub>2</sub></span>', t('Subscript'), () => run(c => c.toggleSubscript())), () => editor.isActive('subscript')))
 toolbar.appendChild(sep())
 
 // Lists
-toolbar.appendChild(addActive(button(ICONS.bullet, 'Bullet list', () => run(c => c.toggleBulletList())), () => editor.isActive('bulletList')))
-toolbar.appendChild(addActive(button(ICONS.ordered, 'Numbered list', () => run(c => c.toggleOrderedList())), () => editor.isActive('orderedList')))
+toolbar.appendChild(addActive(button(ICONS.bullet, t('BulletList'), () => run(c => c.toggleBulletList())), () => editor.isActive('bulletList')))
+toolbar.appendChild(addActive(button(ICONS.ordered, t('NumberedList'), () => run(c => c.toggleOrderedList())), () => editor.isActive('orderedList')))
 toolbar.appendChild(sep())
 
 // Colors
 const TEXT_COLORS = [
-    ['Black', '#000000'], ['Dark Gray', '#404040'], ['Gray', '#808080'], ['Light Gray', '#c8c8c8'], ['White', '#ffffff'],
-    ['Dark Red', '#8b0000'], ['Red', '#e81123'], ['Orange', '#ff8c00'], ['Amber', '#ffb900'], ['Yellow', '#fff100'],
-    ['Dark Green', '#006400'], ['Green', '#107c10'], ['Teal', '#00b294'], ['Lime', '#00cc6a'], ['Cyan', '#00b7c3'],
-    ['Dark Blue', '#00008b'], ['Blue', '#0078d7'], ['Light Blue', '#69b7eb'], ['Purple', '#881798'], ['Pink', '#e3008c'],
+    [t('ColorBlack'), '#000000'], [t('ColorDarkGray'), '#404040'], [t('ColorGray'), '#808080'], [t('ColorLightGray'), '#c8c8c8'], [t('ColorWhite'), '#ffffff'],
+    [t('ColorDarkRed'), '#8b0000'], [t('ColorRed'), '#e81123'], [t('ColorOrange'), '#ff8c00'], [t('ColorAmber'), '#ffb900'], [t('ColorYellow'), '#fff100'],
+    [t('ColorDarkGreen'), '#006400'], [t('ColorGreen'), '#107c10'], [t('ColorTeal'), '#00b294'], [t('ColorLime'), '#00cc6a'], [t('ColorCyan'), '#00b7c3'],
+    [t('ColorDarkBlue'), '#00008b'], [t('ColorBlue'), '#0078d7'], [t('ColorLightBlue'), '#69b7eb'], [t('ColorPurple'), '#881798'], [t('ColorPink'), '#e3008c'],
 ]
 const HIGHLIGHT_COLORS = [
-    ['Yellow', '#fff100'], ['Green', '#00ff00'], ['Cyan', '#00ffff'], ['Pink', '#ff80ff'], ['Orange', '#ffb900'],
-    ['Red', '#e81123'], ['Gray', '#c0c0c0'], ['Black', '#000000'], ['Blue', '#69b7eb'], ['Lime', '#b6ff00'],
+    [t('HighlightYellow'), '#fff100'], [t('HighlightGreen'), '#00ff00'], [t('HighlightCyan'), '#00ffff'], [t('HighlightPink'), '#ff80ff'], [t('HighlightOrange'), '#ffb900'],
+    [t('HighlightRed'), '#e81123'], [t('HighlightGray'), '#c0c0c0'], [t('HighlightBlack'), '#000000'], [t('HighlightBlue'), '#69b7eb'], [t('HighlightLime'), '#b6ff00'],
 ]
 
 function colorPopup(colors, resetLabel, apply, reset) {
@@ -858,23 +865,23 @@ function colorPopup(colors, resetLabel, apply, reset) {
     }
 }
 
-addActive(popupButton(ICONS.textColor, 'Text color', colorPopup(
-    TEXT_COLORS, 'Automatic',
+addActive(popupButton(ICONS.textColor, t('TextColor'), colorPopup(
+    TEXT_COLORS, t('ColorAutomatic'),
     (hex) => run(c => c.setColor(hex)),
     () => run(c => c.unsetColor()),
 )), () => !!editor.getAttributes('textStyle').color)
-addActive(popupButton(ICONS.highlight, 'Highlight color', colorPopup(
-    HIGHLIGHT_COLORS, 'None',
+addActive(popupButton(ICONS.highlight, t('HighlightColor'), colorPopup(
+    HIGHLIGHT_COLORS, t('HighlightNone'),
     (hex) => run(c => c.setHighlight({ color: hex })),
     () => run(c => c.unsetHighlight()),
 )), () => editor.isActive('highlight'))
 toolbar.appendChild(sep())
 
 // Table: 8x8 hover grid + in-table actions
-popupButton(ICONS.table, 'Insert table', (pop, close) => {
+popupButton(ICONS.table, t('InsertTable'), (pop, close) => {
     const label = document.createElement('div')
     label.className = 'table-label'
-    label.textContent = 'Insert table'
+    label.textContent = t('InsertTable')
     pop.appendChild(label)
 
     const N = 8
@@ -889,7 +896,7 @@ popupButton(ICONS.table, 'Insert table', (pop, close) => {
             const cr = Math.floor(i / N), cc = i % N
             cells[i].classList.toggle('on', cr <= r && cc <= col)
         }
-        label.textContent = (r + 1) + ' × ' + (col + 1) + ' table'
+        label.textContent = t('TableSize', r + 1, col + 1)
     }
     const insert = (r, col) => {
         run(c => c.insertTable({ rows: r + 1, cols: col + 1, withHeaderRow: false }))
@@ -908,7 +915,7 @@ popupButton(ICONS.table, 'Insert table', (pop, close) => {
     label.setAttribute('aria-live', 'polite')
     grid.tabIndex = 0
     grid.setAttribute('role', 'group')
-    grid.setAttribute('aria-label', 'Table size: arrow keys choose rows and columns, Enter inserts')
+    grid.setAttribute('aria-label', t('TableGrid'))
     grid.onfocus = () => show(size.r, size.col)
     grid.onkeydown = (e) => {
         const step = { ArrowRight: [0, 1], ArrowLeft: [0, -1], ArrowDown: [1, 0], ArrowUp: [-1, 0] }[e.key]
@@ -931,11 +938,11 @@ popupButton(ICONS.table, 'Insert table', (pop, close) => {
         el.onclick = (e) => { e.preventDefault(); run(fn); close() }
         actions.appendChild(el)
     }
-    act('+ Row', c => c.addRowAfter())
-    act('+ Column', c => c.addColumnAfter())
-    act('- Row', c => c.deleteRow())
-    act('- Column', c => c.deleteColumn())
-    act('Delete table', c => c.deleteTable())
+    act(t('AddRow'), c => c.addRowAfter())
+    act(t('AddColumn'), c => c.addColumnAfter())
+    act(t('DeleteRow'), c => c.deleteRow())
+    act(t('DeleteColumn'), c => c.deleteColumn())
+    act(t('DeleteTable'), c => c.deleteTable())
     pop.appendChild(actions)
 })
 toolbar.appendChild(sep())
@@ -945,7 +952,7 @@ toolbar.appendChild(sep())
 // href/text. On apply an empty Text field falls back to the URL. Pasting a URL onto a selection
 // still turns it into a link (handled by the Link extension, unchanged).
 ;(function addLinkControl() {
-    const b = button(ICONS.link + '<span class="caret">▾</span>', 'Link', () => {})
+    const b = button(ICONS.link + '<span class="caret">▾</span>', t('Link'), () => {})
     b.dataset.pop = '1'
     b.setAttribute('aria-haspopup', 'true')
     b.setAttribute('aria-expanded', 'false')
@@ -955,7 +962,7 @@ toolbar.appendChild(sep())
     const textInput = document.createElement('input')
     textInput.type = 'text'
     textInput.className = 'link-input'
-    textInput.placeholder = 'Text'
+    textInput.placeholder = t('LinkText')
 
     const urlInput = document.createElement('input')
     urlInput.type = 'text'
@@ -966,10 +973,10 @@ toolbar.appendChild(sep())
     row.className = 'link-actions'
     const applyBtn = document.createElement('button')
     applyBtn.className = 'menu-item'
-    applyBtn.textContent = 'Apply'
+    applyBtn.textContent = t('LinkApply')
     const removeBtn = document.createElement('button')
     removeBtn.className = 'menu-item'
-    removeBtn.textContent = 'Remove'
+    removeBtn.textContent = t('LinkRemove')
     row.appendChild(applyBtn)
     row.appendChild(removeBtn)
     pop.appendChild(textInput)
@@ -1057,13 +1064,13 @@ toolbar.appendChild(sep())
 })()
 
 // Blockquote + code block + horizontal rule
-toolbar.appendChild(addActive(button(ICONS.quote, 'Quote', () => run(c => c.toggleBlockquote())), () => editor.isActive('blockquote')))
-toolbar.appendChild(addActive(button(ICONS.codeBlock, 'Code block', () => run(c => c.toggleCodeBlock({ lineNumbers: true }))), () => editor.isActive('codeBlock')))
-toolbar.appendChild(button(ICONS.hr, 'Divider', () => run(c => c.setHorizontalRule())))
+toolbar.appendChild(addActive(button(ICONS.quote, t('Quote'), () => run(c => c.toggleBlockquote())), () => editor.isActive('blockquote')))
+toolbar.appendChild(addActive(button(ICONS.codeBlock, t('CodeBlock'), () => run(c => c.toggleCodeBlock({ lineNumbers: true }))), () => editor.isActive('codeBlock')))
+toolbar.appendChild(button(ICONS.hr, t('Divider'), () => run(c => c.setHorizontalRule())))
 
 // Callout panels (info / note / success / warning / error). Choosing the active type again
 // removes the panel. Pastes into Jira as a matching panel via the HTML/Jira paste mode.
-popupButton(ICONS.panel, 'Panel', (pop, close) => {
+popupButton(ICONS.panel, t('Panel'), (pop, close) => {
     const item = (label, type) => {
         const el = document.createElement('button')
         el.className = 'menu-item panel-item panel-item-' + type
@@ -1071,16 +1078,16 @@ popupButton(ICONS.panel, 'Panel', (pop, close) => {
         el.onclick = (e) => { e.preventDefault(); run(c => c.togglePanel(type)); close() }
         pop.appendChild(el)
     }
-    item('Info', 'info')
-    item('Note', 'note')
-    item('Success', 'success')
-    item('Warning', 'warning')
-    item('Error', 'error')
+    item(t('PanelInfo'), 'info')
+    item(t('PanelNote'), 'note')
+    item(t('PanelSuccess'), 'success')
+    item(t('PanelWarning'), 'warning')
+    item(t('PanelError'), 'error')
 })
 toolbar.appendChild(sep())
 
 // Text alignment
-popupButton(ICONS.alignLeft, 'Text alignment', (pop, close) => {
+popupButton(ICONS.alignLeft, t('TextAlignment'), (pop, close) => {
     const alignRow = document.createElement('div')
     alignRow.className = 'align-row'
     const opt = (icon, value, title) => {
@@ -1092,26 +1099,26 @@ popupButton(ICONS.alignLeft, 'Text alignment', (pop, close) => {
         el.onclick = (e) => { e.preventDefault(); run(c => c.setTextAlign(value)); close() }
         alignRow.appendChild(el)
     }
-    opt(ICONS.alignLeft, 'left', 'Align left')
-    opt(ICONS.alignCenter, 'center', 'Align center')
-    opt(ICONS.alignRight, 'right', 'Align right')
-    opt(ICONS.alignJustify, 'justify', 'Justify')
+    opt(ICONS.alignLeft, 'left', t('AlignLeft'))
+    opt(ICONS.alignCenter, 'center', t('AlignCenter'))
+    opt(ICONS.alignRight, 'right', t('AlignRight'))
+    opt(ICONS.alignJustify, 'justify', t('Justify'))
     pop.appendChild(alignRow)
 })
 
 // Clear formatting (remove inline marks + reset block type to a normal paragraph)
-toolbar.appendChild(button(ICONS.clear, 'Clear formatting', () => run(c => c.unsetAllMarks().clearNodes())))
+toolbar.appendChild(button(ICONS.clear, t('ClearFormatting'), () => run(c => c.unsetAllMarks().clearNodes())))
 toolbar.appendChild(sep())
 
 // Insert symbol: grid of common glyphs inserted as plain Unicode text (pastes everywhere).
 // Note: Windows' Segoe UI Emoji renders ✔️/✖️/☑️ in PURPLE — avoid them. ✅ (green) and
 // ❌ (red) are the reliably red/green check & cross.
 const SYMBOLS = [
-    ['✅', 'Check'], ['❌', 'Cross'], ['⬜', 'Empty box'], ['⚠️', 'Warning'], ['❗', 'Exclamation'], ['❓', 'Question'], ['ℹ️', 'Info'], ['🟢', 'Green circle'],
-    ['🔴', 'Red circle'], ['🟡', 'Yellow circle'], ['⚡', 'High voltage'], ['🔥', 'Fire'], ['⭐', 'Star'], ['💡', 'Idea'], ['👍', 'Thumbs up'], ['👎', 'Thumbs down'],
+    ['✅', t('SymbolCheck')], ['❌', t('SymbolCross')], ['⬜', t('SymbolEmptyBox')], ['⚠️', t('SymbolWarning')], ['❗', t('SymbolExclamation')], ['❓', t('SymbolQuestion')], ['ℹ️', t('SymbolInfo')], ['🟢', t('SymbolGreenCircle')],
+    ['🔴', t('SymbolRedCircle')], ['🟡', t('SymbolYellowCircle')], ['⚡', t('SymbolHighVoltage')], ['🔥', t('SymbolFire')], ['⭐', t('SymbolStar')], ['💡', t('SymbolIdea')], ['👍', t('SymbolThumbsUp')], ['👎', t('SymbolThumbsDown')],
 ]
 
-popupButton(ICONS.symbol, 'Insert symbol', (pop, close) => {
+popupButton(ICONS.symbol, t('InsertSymbol'), (pop, close) => {
     const grid = document.createElement('div')
     grid.className = 'symbol-grid'
     for (const [ch, name] of SYMBOLS) {
@@ -1126,7 +1133,7 @@ popupButton(ICONS.symbol, 'Insert symbol', (pop, close) => {
 })
 
 // Insert a date/time placeholder that resolves to the ACTUAL current date/time on paste.
-popupButton(ICONS.dateTime, 'Insert date / time', (pop, close) => {
+popupButton(ICONS.dateTime, t('InsertDateTime'), (pop, close) => {
     const item = (label, placeholder) => {
         const el = document.createElement('button')
         el.className = 'menu-item'
@@ -1134,10 +1141,10 @@ popupButton(ICONS.dateTime, 'Insert date / time', (pop, close) => {
         el.onclick = (e) => { e.preventDefault(); run(c => c.insertContent(placeholder)); close() }
         pop.appendChild(el)
     }
-    item('Date (2026-07-10)', '$[DATE(YYYY-MM-DD)]')
-    item('Time (14:30)', '$[TIME(HH:mm)]')
-    item('Date & time', '$[DATE(YYYY-MM-DD)] $[TIME(HH:mm)]')
-    item('Year', '$[YEAR]')
+    item(t('DateItem'), '$[DATE(YYYY-MM-DD)]')
+    item(t('TimeItem'), '$[TIME(HH:mm)]')
+    item(t('DateTimeItem'), '$[DATE(YYYY-MM-DD)] $[TIME(HH:mm)]')
+    item(t('YearItem'), '$[YEAR]')
 })
 
 // Translate: From (Detect or an installed language) and To, then translate the template or the selection in place,
@@ -1145,7 +1152,7 @@ popupButton(ICONS.dateTime, 'Insert date / time', (pop, close) => {
 // Settings show up; the choice is remembered there. The text can't be edited while a translation runs. It sits at
 // the right end of the toolbar, apart from the formatting buttons.
 ;(function addTranslateControl() {
-    const b = button(ICONS.translate + '<span class="caret">▾</span>', 'Translate', () => {})
+    const b = button(ICONS.translate + '<span class="caret">▾</span>', t('Translate'), () => {})
     b.classList.add('tb-end')
     b.dataset.pop = '1'
     b.setAttribute('aria-haspopup', 'true')
@@ -1226,17 +1233,17 @@ popupButton(ICONS.dateTime, 'Insert date / time', (pop, close) => {
     function render() {
         pop.replaceChildren()
         if (state.sources.length === 0 || state.targets.length === 0) {
-            pop.appendChild(el('div', 'translate-note', 'No languages installed.'))
-            item('Download languages…', manage)
+            pop.appendChild(el('div', 'translate-note', t('NoLanguages')))
+            item(t('DownloadLanguages'), manage)
             return
         }
         const detecting = state.from === 'detect' && detected === undefined
-        const detectName = state.from !== 'detect' ? 'Detect'
-            : detecting ? 'Detect (…)'
-            : detected ? `Detect (${nameOf(detected)})` : 'Detect (unsure)'
-        select('From', [{ code: 'detect', name: detectName }, ...state.sources], state.from, (v) => choose({ from: v }))
+        const detectName = state.from !== 'detect' ? t('Detect')
+            : detecting ? t('Detecting')
+            : detected ? t('Detected', nameOf(detected)) : t('DetectUnsure')
+        select(t('From'), [{ code: 'detect', name: detectName }, ...state.sources], state.from, (v) => choose({ from: v }))
         const to = resolvedTo()
-        select('To', state.targets, to, (v) => choose({ to: v }))
+        select(t('To'), state.targets, to, (v) => choose({ to: v }))
         if (FORMAL_LANGUAGES.has(to)) {
             const wrap = el('label', 'translate-check')
             const box = el('input')
@@ -1245,25 +1252,25 @@ popupButton(ICONS.dateTime, 'Insert date / time', (pop, close) => {
             box.disabled = busy
             box.onchange = () => choose({ formal: box.checked })
             wrap.appendChild(box)
-            wrap.appendChild(el('span', null, 'Formal (Sie)'))
+            wrap.appendChild(el('span', null, t('Formal')))
             pop.appendChild(wrap)
-            if (!state.formal) pop.appendChild(el('div', 'translate-note translate-hint', 'Off: informal (du), best effort. About half the sentences can stay with Sie, so the text may mix both.'))
+            if (!state.formal) pop.appendChild(el('div', 'translate-note translate-hint', t('InformalHint')))
         }
 
         const from = resolvedFrom()
         const ready = !!from && !!to && from !== to
         menuSep()
-        item('Replace template', () => translate(false), ready)
-        item('Create new template', () => translate(false, true), ready)
-        if (selectionRange()) item('Replace selection', () => translate(true), ready)
+        item(t('ReplaceTemplate'), () => translate(false), ready)
+        item(t('CreateTemplate'), () => translate(false, true), ready)
+        if (selectionRange()) item(t('ReplaceSelection'), () => translate(true), ready)
         menuSep()
-        item('Manage languages…', manage)
+        item(t('ManageLanguages'), manage)
 
-        const note = busy ? 'Translating…'
+        const note = busy ? t('Translating')
             : message ? message
             : detecting ? ''
-            : !from ? 'The language couldn\'t be told. Choose it under From.'
-            : from === to ? 'From and To are the same language.'
+            : !from ? t('LanguageUnknown')
+            : from === to ? t('SameLanguage')
             : ''
         const status = el('div', 'translate-note', note)
         status.setAttribute('role', 'status')
@@ -1328,13 +1335,13 @@ popupButton(ICONS.dateTime, 'Insert date / time', (pop, close) => {
                 editor.chain().focus().setContent(normalizeBreaks(html), true).run()
             }
             const n = result.missing
-            message = n ? `${n === 1 ? 'A placeholder' : `${n} placeholders`} couldn't be placed and ${n === 1 ? 'was' : 'were'} added at the end.` : ''
+            message = n ? tp('PlaceholdersMoved', n) : ''
             if (!message) closePopup()
         } catch (err) {
             editor.setEditable(wasEditable)
             message = err.missingPair
-                ? `${err.missingPair.split(/-(?=[a-z]{2}(?:-|$))/).map(nameOf).join(' to ')} isn't installed. Download it under Manage languages.`
-                : `The translation failed: ${err.message}`
+                ? t('PairMissing', err.missingPair.split(/-(?=[a-z]{2}(?:-|$))/).map(nameOf).join(t('PairJoin')))
+                : t('TranslationFailed', err.message)
         } finally {
             busy = false
             if (openPopup === pop) render()
