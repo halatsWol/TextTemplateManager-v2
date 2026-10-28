@@ -175,8 +175,10 @@ public partial class LocalizationTests
     [InlineData("it-CH", "it-IT")]
     [InlineData("en-US,hu-HU", "en-US")]
     [InlineData("en-GB", "en-US")]
-    [InlineData("fr-FR", "en-US")]
-    [InlineData("fr-FR,de-CH", "de-DE")]
+    [InlineData("fr-FR", "fr-FR")]
+    [InlineData("fr-CA", "fr-FR")]
+    [InlineData("fr-FR,de-CH", "fr-FR")]
+    [InlineData("pl-PL,de-CH", "de-DE")]
     [InlineData("en-GB,de-DE", "en-US")]
     [InlineData("", "en-US")]
     public void The_windows_language_picks_the_first_shipped_match(string windows, string expected)
