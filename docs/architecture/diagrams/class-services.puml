@@ -37,6 +37,10 @@ package "Services.Platform" {
   class UnexpectedErrorHandler {
     +HandleAsync(exception)
   }
+  class PendingRedirects {
+    +Hold(request) : bool  (until startup is done)
+    +Release() : LaunchRequest[]
+  }
   class LegacyApp <<static>> {
     +CloseRunningAsync(grace)
     +FindUninstaller()

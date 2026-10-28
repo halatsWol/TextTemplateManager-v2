@@ -217,6 +217,9 @@ namespace TextTemplateManager
 
             StartUpdates();
 
+            foreach (var request in _pendingRedirects.Release())
+                ApplyRedirect(request);
+
             // Prewarm the Quick Paste window while idle so the first hotkey open isn't cold (builds its
             // UI + tree and starts the WebView2 preview). It stays hidden until the hotkey is pressed.
             _uiDispatcher.TryEnqueue(DispatcherQueuePriority.Low, () => EnsurePasteWindow().Prewarm());        }
@@ -229,11 +232,19 @@ namespace TextTemplateManager
             if (request.IsAutostart && request.File == null) return;
             _uiDispatcher?.TryEnqueue(() =>
             {
-                ShowMainWindow();
-                if (request.File != null)
-                    (MainWindow.Content as MainPage)?.HandleOpenTtmDataFile(request.File);
+                if (!_pendingRedirects.Hold(request)) ApplyRedirect(request);
             });
         }
+
+        private static void ApplyRedirect(LaunchRequest request)
+        {
+            ShowMainWindow();
+            if (request.File != null)
+                (MainWindow.Content as MainPage)?.HandleOpenTtmDataFile(request.File);
+        }
+
+        // Redirects that arrive while OnLaunched is still loading (before the window exists) wait for its end.
+        private readonly PendingRedirects _pendingRedirects = new();
 
         /// <summary>A notice from the tray icon, for when the app started hidden and has no window to show it in.</summary>
         public void ShowTrayBalloon(string title, string message) => _trayService?.ShowBalloon(title, message);

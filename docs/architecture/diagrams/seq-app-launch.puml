@@ -22,6 +22,7 @@ alt another instance owns the key
   App -> Instance : RedirectActivationToAsync(args)\n(skipped for a redundant hidden autostart)
   App -> App : Environment.Exit(0)
 end
+note over App : redirects from now on (OnRedirected)\nwait in PendingRedirects until startup is done
 opt packaged
   App -> LegacyApp : CloseRunningAsync(5 s)\n(1.x would hold hotkey and port)
 end
@@ -49,5 +50,6 @@ group startup questions (queued dialogs, one at a time)
   App -> MainPage : OfferTour() or ShowWhatsNew()  [StartupGreeting]
 end
 App -> UpdateService : StartUpdates(): EvaluateStartup()\n(last switch worked?), Start() (checks in 2 min,\nthen every 6 h), idle-install timer
+App -> App : PendingRedirects.Release():\nshow the window, open their files
 App -> PasteWindow : (low priority) EnsurePasteWindow().Prewarm()
 @enduml
