@@ -258,6 +258,26 @@ public partial class LocalizationTests
     }
 
     [Fact]
+    public void No_language_leaves_an_english_text_empty()
+    {
+        var empty = new List<string>();
+        foreach (string file in Directory.EnumerateFiles(Path.Combine(StringsDir, "en-US"), "*.resw"))
+        {
+            var english = Read(file);
+            foreach (string dir in Directory.EnumerateDirectories(StringsDir).Where(d => Path.GetFileName(d) != "en-US"))
+            {
+                string other = Path.Combine(dir, Path.GetFileName(file));
+                if (!File.Exists(other)) continue;   // the key test reports a missing file
+                var translated = Read(other);
+                empty.AddRange(english.Where(e => e.Value.Trim().Length > 0
+                        && translated.TryGetValue(e.Key, out var t) && t.Trim().Length == 0)
+                    .Select(e => $"{Path.GetFileName(dir)}/{Path.GetFileName(file)}: {e.Key}"));
+            }
+        }
+        Assert.Empty(empty);
+    }
+
+    [Fact]
     public void Every_language_has_the_english_keys_and_placeholders()
     {
         var problems = new List<string>();
