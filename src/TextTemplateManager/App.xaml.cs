@@ -276,7 +276,7 @@ namespace TextTemplateManager
             string notes = "";
             try
             {
-                if (Tutorial.WhatsNew.NotesFile(System.IO.Path.Combine(AppContext.BaseDirectory, "WhatsNew"), AppInfo.Version) is { } file)
+                if (Tutorial.WhatsNew.NotesFile(System.IO.Path.Combine(AppContext.BaseDirectory, "WhatsNew"), AppInfo.Version, Helpers.UiLanguages.Effective) is { } file)
                     notes = System.IO.File.ReadAllText(file);
             }
             catch { }

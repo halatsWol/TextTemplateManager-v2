@@ -95,9 +95,35 @@ public class TutorialTests
         }
         Directory.CreateDirectory(Path.Combine(root, "vnext", "en-US"));
 
-        Assert.Equal("2.6.0", File.ReadAllText(WhatsNew.NotesFile(root, "2.6.0")!));
-        Assert.Equal("2.10.0", File.ReadAllText(WhatsNew.NotesFile(root, "0.0.0-dev")!));
-        Assert.Null(WhatsNew.NotesFile(Path.Combine(root, "missing"), "2.6.0"));
+        Directory.CreateDirectory(Path.Combine(root, "v2.6.0", "de-DE"));
+        File.WriteAllText(Path.Combine(root, "v2.6.0", "de-DE", "release.md"), "2.6.0 de");
+
+        Assert.Equal("2.6.0", File.ReadAllText(WhatsNew.NotesFile(root, "2.6.0", "en-US")!));
+        Assert.Equal("2.6.0 de", File.ReadAllText(WhatsNew.NotesFile(root, "2.6.0", "de-DE")!));
+        Assert.Equal("2.6.0", File.ReadAllText(WhatsNew.NotesFile(root, "2.6.0", "hu-HU")!));
+        Assert.Equal("2.10.0", File.ReadAllText(WhatsNew.NotesFile(root, "0.0.0-dev", "de-DE")!));
+        Assert.Null(WhatsNew.NotesFile(Path.Combine(root, "missing"), "2.6.0", "en-US"));
+    }
+
+    [Fact]
+    public void A_translated_file_shows_its_only_section()
+    {
+        var blocks = WhatsNew.Parse("### Neuigkeiten in dieser Version\n\nEinleitung.\n\n#### Neu\n\n- **Sprachen:** sechs.\n");
+
+        Assert.Equal(new[] { WhatsNewKind.Paragraph, WhatsNewKind.Heading, WhatsNewKind.Bullet }, blocks.Select(b => b.Kind));
+        Assert.Equal(("Sprachen:", true), blocks[2].Runs[0]);
+    }
+
+    [Fact]
+    public void The_newest_release_has_notes_in_every_ui_language()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir != null && !File.Exists(Path.Combine(dir.FullName, "TextTemplateManager.slnx"))) dir = dir.Parent;
+        string newest = Directory.GetDirectories(Path.Combine(dir!.FullName, "releases"), "v*")
+            .OrderByDescending(d => Version.Parse(Path.GetFileName(d)[1..])).First();
+
+        foreach (string language in TextTemplateManager.Helpers.UiLanguages.Available)
+            Assert.True(File.Exists(Path.Combine(newest, language, "release.md")), $"{Path.GetFileName(newest)}/{language}/release.md is missing");
     }
 
     [Theory]

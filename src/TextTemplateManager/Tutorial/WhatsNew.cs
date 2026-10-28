@@ -15,25 +15,32 @@ public sealed record WhatsNewBlock(WhatsNewKind Kind, IReadOnlyList<(string Text
 /// headings, bullets and paragraphs with bold runs. Links keep their text, code keeps its text without the backticks.</summary>
 public static partial class WhatsNew
 {
-    /// <summary>The release notes shipped in <paramref name="whatsNewDirectory"/> (vX.Y.Z\en-US\release.md): those of
-    /// <paramref name="version"/>, else the newest (a dev build ships every release's notes), or null.</summary>
-    public static string? NotesFile(string whatsNewDirectory, string version)
+    /// <summary>The release notes shipped in <paramref name="whatsNewDirectory"/> (vX.Y.Z\&lt;language&gt;\release.md):
+    /// those of <paramref name="version"/>, else the newest (a dev build ships every release's notes), in
+    /// <paramref name="language"/> or else in English; null if there are none.</summary>
+    public static string? NotesFile(string whatsNewDirectory, string version, string language)
     {
-        string own = Path.Combine(whatsNewDirectory, "v" + version, "en-US", "release.md");
-        if (File.Exists(own)) return own;
-        if (!Directory.Exists(whatsNewDirectory)) return null;
-        return Directory.GetDirectories(whatsNewDirectory, "v*")
-            .Select(d => (Path: Path.Combine(d, "en-US", "release.md"), Version: System.Version.TryParse(Path.GetFileName(d)[1..], out var v) ? v : null))
-            .Where(n => n.Version != null && File.Exists(n.Path))
-            .OrderByDescending(n => n.Version)
-            .Select(n => n.Path)
-            .FirstOrDefault();
+        string own = Path.Combine(whatsNewDirectory, "v" + version);
+        string? release = Directory.Exists(own) ? own : !Directory.Exists(whatsNewDirectory) ? null :
+            Directory.GetDirectories(whatsNewDirectory, "v*")
+                .Select(d => (Dir: d, Version: System.Version.TryParse(Path.GetFileName(d)[1..], out var v) ? v : null))
+                .Where(r => r.Version != null && File.Exists(Path.Combine(r.Dir, "en-US", "release.md")))
+                .OrderByDescending(r => r.Version)
+                .Select(r => r.Dir)
+                .FirstOrDefault();
+        if (release == null) return null;
+        string localized = Path.Combine(release, language, "release.md");
+        if (File.Exists(localized)) return localized;
+        string english = Path.Combine(release, "en-US", "release.md");
+        return File.Exists(english) ? english : null;
     }
 
+    /// <summary>The section headed "### What's new"; a translated file holds only that section, under its own heading.</summary>
     public static IReadOnlyList<WhatsNewBlock> Parse(string releaseNotes)
     {
         var blocks = new List<WhatsNewBlock>();
         bool inSection = false;
+        bool english = releaseNotes.Contains("### What's new", StringComparison.OrdinalIgnoreCase);
         WhatsNewKind? kind = null;
         var text = new StringBuilder();
 
@@ -49,7 +56,7 @@ public static partial class WhatsNew
             string line = raw.Trim();
             if (!inSection)
             {
-                inSection = line.StartsWith("### What's new", StringComparison.OrdinalIgnoreCase);
+                inSection = english ? line.StartsWith("### What's new", StringComparison.OrdinalIgnoreCase) : line.StartsWith("### ");
                 continue;
             }
             if (line.StartsWith("### ") || line.StartsWith("## ") || line == "---") break;

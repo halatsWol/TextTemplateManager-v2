@@ -37,7 +37,7 @@ When you start TextTemplateManager the first time, it offers the tour: right aft
 
 ### What's new
 
-After an update, the first time the window opens it shows what's new in that version, once. Close it with the **X** in its corner or **Esc**.
+After an update, the first time the window opens it shows what's new in that version, once, in the app's language. Close it with the **X** in its corner or **Esc**.
 
 ![What's new after an update.](../../src/TextTemplateManager/Assets/ManualImages/TTM_WhatsNew.png)
 
