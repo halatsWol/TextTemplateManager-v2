@@ -1,4 +1,4 @@
-using TextTemplateManager.Controls;
+﻿using TextTemplateManager.Controls;
 using TextTemplateManager.Models;
 using TextTemplateManager.Tutorial;
 using Windows.Foundation;
@@ -68,15 +68,36 @@ public class TutorialTests
     [Fact]
     public void The_shipped_release_notes_have_a_whats_new_section_the_app_can_show()
     {
-        // The repository's file, not the copy the app build puts next to the test binaries.
+        // The repository's files, not the copies the app build puts next to the test binaries.
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir != null && !File.Exists(Path.Combine(dir.FullName, "TextTemplateManager.slnx"))) dir = dir.Parent;
         Assert.NotNull(dir);
+        var files = Directory.GetFiles(Path.Combine(dir!.FullName, "releases"), "release.md", SearchOption.AllDirectories);
+        Assert.NotEmpty(files);
 
-        var blocks = WhatsNew.Parse(File.ReadAllText(Path.Combine(dir!.FullName, "release.md")));
+        foreach (string file in files)
+        {
+            var blocks = WhatsNew.Parse(File.ReadAllText(file));
 
-        Assert.Contains(blocks, b => b.Kind == WhatsNewKind.Bullet);
-        Assert.DoesNotContain(blocks, b => b.Runs.Any(r => r.Text.Contains("{{") || r.Text.Contains("**")));
+            Assert.Contains(blocks, b => b.Kind == WhatsNewKind.Bullet);
+            Assert.DoesNotContain(blocks, b => b.Runs.Any(r => r.Text.Contains("{{") || r.Text.Contains("**")));
+        }
+    }
+
+    [Fact]
+    public void Whats_new_takes_the_notes_of_its_own_version_else_the_newest()
+    {
+        string root = TestEnvironment.NewScratchDir();
+        foreach (string version in new[] { "2.9.0", "2.10.0", "2.6.0" })
+        {
+            Directory.CreateDirectory(Path.Combine(root, "v" + version, "en-US"));
+            File.WriteAllText(Path.Combine(root, "v" + version, "en-US", "release.md"), version);
+        }
+        Directory.CreateDirectory(Path.Combine(root, "vnext", "en-US"));
+
+        Assert.Equal("2.6.0", File.ReadAllText(WhatsNew.NotesFile(root, "2.6.0")!));
+        Assert.Equal("2.10.0", File.ReadAllText(WhatsNew.NotesFile(root, "0.0.0-dev")!));
+        Assert.Null(WhatsNew.NotesFile(Path.Combine(root, "missing"), "2.6.0"));
     }
 
     [Theory]

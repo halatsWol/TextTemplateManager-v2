@@ -90,7 +90,7 @@ The manuals in `docs/user/` are rendered to PDF by `tools/ManualGen` during the 
 
 ## Releasing
 
-Pushing a version tag runs the release workflow ([`.github/workflows/release.yml`](.github/workflows/release.yml)): tests, the x64 Store package, the manuals as PDFs, a draft GitHub release with notes rendered from [`release.md`](release.md) (published by hand), and the Store submission including its "What's new" text. The tag (without the leading `v`) is the single source of the version. Details, including how to skip the Store submission, are in [Publishing a release](docs/PUBLISHING.md).
+Pushing a version tag runs the release workflow ([`.github/workflows/release.yml`](.github/workflows/release.yml)): tests, the x64 Store package, the manuals as PDFs, a draft GitHub release with notes rendered from the release's [`releases/vX.Y.Z/en-US/release.md`](releases/) (published by hand), and the Store submission including its "What's new" text. The tag (without the leading `v`) is the single source of the version. Details, including how to skip the Store submission, are in [Publishing a release](docs/PUBLISHING.md).
 
 ---
 
@@ -117,6 +117,7 @@ Found a vulnerability? Please report it privately as described in [SECURITY.md](
 | [`build/`](build/) | Release build and release-notes scripts used by the workflow |
 | [`design/logo/`](design/logo/) | The logo as SVG and the script that renders the app's icon and tile images |
 | [`design/store/`](design/store/) | The Store listing images and the scripts that make them |
+| [`releases/`](releases/) | Per release and UI language: release notes (also the in-app What's new), Store listing texts and screenshots |
 | [`.github/`](.github/) | Release, test, CodeQL and Bergamot check workflows; Dependabot configuration |
 | [`docs/user/`](docs/user/) | User manual, admin guide, browser connector API |
 | [`docs/architecture/`](docs/architecture/) | Technical documentation |

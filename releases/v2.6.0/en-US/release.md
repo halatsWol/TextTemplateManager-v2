@@ -12,22 +12,22 @@ Coming from TextTemplateManager 1: your templates and settings are backed up at 
 
 ### What's new in this release
 
-Translate templates on your PC, offline, in over 50 languages (experimental).
+TextTemplateManager now speaks German, Hungarian, Italian, French and Spanish.
 
 #### New
 
-- **Translate** (the button at the right end of the editor toolbar): translate a template or the selected text. **From** detects the language or takes the one you pick, **To** is remembered. **Replace template** and **Replace selection** translate in place; **Create new template** makes a translated copy in the same folder, with the language on the title and the multi-key shortcut (`ANDMSG` becomes `ANDMSGDE`) and no single key. For German, **Formal** picks Sie or du (du is best effort). Placeholders and formatting stay as they were. Machine translation makes mistakes: check every translation.
-- **Settings ▸ Translation** (experimental): download a language once from Mozilla's servers (the Firefox Translations models); from then on translating runs offline, and the text you translate never leaves your PC. Languages can be updated, removed, and exported and imported for a PC without internet access. Optionally the app checks once a day for newer versions of the installed languages and downloads them on its own; otherwise **Update** on a language or **Download all updates** gets them.
+- **The app in six languages:** English, German, Hungarian, Italian, French and Spanish (one Spanish for Spain and Latin America). It starts in your Windows display language, or English if that isn't one of them; **Settings ▸ General ▸ Language** picks another one for this PC, and **Restart now** switches to it. Windows, menus, messages, the guided tour and its sample templates, and the editor are translated; your templates aren't changed.
+- Hungarian, Italian, French and Spanish were translated with the help of AI and haven't been proofread yet. **Settings ▸ General ▸ Report a translation problem** opens a prepared e-mail; we're grateful for every report.
 
 #### Improved
 
-- The editor's toolbar menus open right below their own button, also when the toolbar wraps onto a second line.
-- **Help ▸ About ▸ Third-party notices** lists all bundled components.
+- Dates and weekday names (backups, sync, updates) follow the app's language; numbers keep your region's format.
+- Key names in shortcuts follow the app's language (for example Strg in German), and so do the language names under **Translate** and in **Settings ▸ Translation**.
+- If no e-mail window opens after an e-mail button in **Settings ▸ Support**, the app says what to check: **Open Default apps** goes to the Windows setting for e-mail links, **Step-by-step help** to the instructions on the website. The address is on the clipboard either way.
 
 #### Fixed
 
-- The app could crash right after its window was closed while it was waiting to install an update in idle time.
-- After a version switch, an update could show as ready when it wasn't, and **Restart to update** then installed the version already running; **Download** and **Check for updates** now ask the Store again.
+- The app could crash when it was started a second time (for example from the Start menu or a `.ttmdata` file) while its first start was still under way.
 
 {{CHANGELOG}}
 

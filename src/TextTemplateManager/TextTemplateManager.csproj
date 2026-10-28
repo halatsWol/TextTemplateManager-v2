@@ -103,9 +103,18 @@
     <!-- Help ▸ About displays the LICENSE. -->
     <Content Include="..\..\LICENSE" Link="LICENSE" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\..\THIRD-PARTY-NOTICES.txt" Link="THIRD-PARTY-NOTICES.txt" CopyToOutputDirectory="PreserveNewest" />
-    <!-- What's new after an update shows the release notes' "What's new" section. -->
-    <Content Include="..\..\release.md" Link="release.md" CopyToOutputDirectory="PreserveNewest" />
+    <!-- What's new after an update shows the release notes' "What's new" section (WhatsNew\vX.Y.Z\<language>\release.md):
+         a Store build ships its own version's folder, a dev build all of them. -->
+    <Content Include="..\..\releases\v$(Version)\**\release.md" Condition="'$(StoreBuild)' == 'true'"
+             Link="WhatsNew\v$(Version)\%(RecursiveDir)release.md" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\releases\**\release.md" Condition="'$(StoreBuild)' != 'true'"
+             Link="WhatsNew\%(RecursiveDir)release.md" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+
+  <Target Name="CheckReleaseNotes" BeforeTargets="BeforeBuild" Condition="'$(StoreBuild)' == 'true'">
+    <Error Condition="!Exists('..\..\releases\v$(Version)\en-US\release.md')"
+           Text="No release notes for $(Version): releases\v$(Version)\en-US\release.md is missing." />
+  </Target>
 
   <!-- Regenerate the manual when the markdown changes. ContinueOnError keeps the app build
        working offline / if the tool can't restore — the last generated PDF is used then. -->

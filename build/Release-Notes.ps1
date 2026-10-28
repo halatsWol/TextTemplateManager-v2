@@ -1,4 +1,4 @@
-# Release notes from release.md:
+# Release notes from the release's English folder, releases/vX.Y.Z/en-US:
 #   -GitHubOut  the GitHub release text: release.md with {{VERSION}}, {{TAG}} and {{CHANGELOG}} filled in.
 #   -StoreOut   the Store's "What's new" text: the text block under "## What's new" in store.md, as it is; more than
 #               the Store's 1500 characters fails.
@@ -12,8 +12,11 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$notes = Get-Content (Join-Path (Split-Path $PSScriptRoot -Parent) 'release.md') -Raw
 $tag = "v$Version"
+$folder = Join-Path (Split-Path $PSScriptRoot -Parent) 'releases' $tag 'en-US'
+$file = Join-Path $folder 'release.md'
+if (-not (Test-Path $file)) { throw "No release notes for $tag ($file)." }
+$notes = Get-Content $file -Raw
 
 if ($GitHubOut) {
     if ([string]::IsNullOrWhiteSpace($Changelog)) { $Changelog = 'Initial release.' }
@@ -22,7 +25,7 @@ if ($GitHubOut) {
 }
 
 if ($StoreOut) {
-    $store = Get-Content (Join-Path (Split-Path $PSScriptRoot -Parent) 'store.md') -Raw
+    $store = Get-Content (Join-Path $folder 'store.md') -Raw
     $m = [regex]::Match($store, "(?ms)^## What's new[^\n]*\n.*?^``````text\r?\n(.*?)\r?\n``````")
     if (-not $m.Success) { throw "store.md has no text block under ""## What's new""." }
     $text = ($m.Groups[1].Value -replace "\r\n", "`n").Trim()

@@ -274,7 +274,11 @@ namespace TextTemplateManager
         private void ShowWhatsNew()
         {
             string notes = "";
-            try { notes = System.IO.File.ReadAllText(System.IO.Path.Combine(AppContext.BaseDirectory, "release.md")); }
+            try
+            {
+                if (Tutorial.WhatsNew.NotesFile(System.IO.Path.Combine(AppContext.BaseDirectory, "WhatsNew"), AppInfo.Version) is { } file)
+                    notes = System.IO.File.ReadAllText(file);
+            }
             catch { }
             var blocks = Tutorial.WhatsNew.Parse(notes);
             if (blocks.Count == 0) _store.CurrentSettings.LastRunVersion = AppInfo.Version;

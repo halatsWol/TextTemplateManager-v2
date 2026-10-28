@@ -39,6 +39,7 @@ TextTemplateManager stores reusable text templates (rich text as HTML) in a tree
 | `website/` | The documentation site's own pages and MkDocs settings (see [11](11-platform-build-release.md)) |
 | `design/logo/` | The logo as SVG and the script that renders the icon and tile assets from it |
 | `design/store/` | Store listing images: Photoshop scripts and templates, window captures, the rendered PNGs |
+| `releases/vX.Y.Z/<language>/` | Per release and UI language: `release.md` (release notes, in-app What's new), `store.md` (Store listing and What's new), `screenshots/` (see [11](11-platform-build-release.md)) |
 | `.github/workflows/release.yml`, `publish-when-live.yml`, `pages.yml` | Release workflow, publishing the GitHub release once the Store has the version live, and the documentation website (see [11](11-platform-build-release.md)) |
 | `.github/workflows/tests.yml`, `codeql.yml`, `.github/dependabot.yml` | Tests on pushes and pull requests, code scanning, dependency updates (see [11](11-platform-build-release.md)) |
 

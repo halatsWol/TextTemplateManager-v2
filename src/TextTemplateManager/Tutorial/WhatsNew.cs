@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -13,6 +15,21 @@ public sealed record WhatsNewBlock(WhatsNewKind Kind, IReadOnlyList<(string Text
 /// headings, bullets and paragraphs with bold runs. Links keep their text, code keeps its text without the backticks.</summary>
 public static partial class WhatsNew
 {
+    /// <summary>The release notes shipped in <paramref name="whatsNewDirectory"/> (vX.Y.Z\en-US\release.md): those of
+    /// <paramref name="version"/>, else the newest (a dev build ships every release's notes), or null.</summary>
+    public static string? NotesFile(string whatsNewDirectory, string version)
+    {
+        string own = Path.Combine(whatsNewDirectory, "v" + version, "en-US", "release.md");
+        if (File.Exists(own)) return own;
+        if (!Directory.Exists(whatsNewDirectory)) return null;
+        return Directory.GetDirectories(whatsNewDirectory, "v*")
+            .Select(d => (Path: Path.Combine(d, "en-US", "release.md"), Version: System.Version.TryParse(Path.GetFileName(d)[1..], out var v) ? v : null))
+            .Where(n => n.Version != null && File.Exists(n.Path))
+            .OrderByDescending(n => n.Version)
+            .Select(n => n.Path)
+            .FirstOrDefault();
+    }
+
     public static IReadOnlyList<WhatsNewBlock> Parse(string releaseNotes)
     {
         var blocks = new List<WhatsNewBlock>();

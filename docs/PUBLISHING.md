@@ -6,7 +6,7 @@ How a release is published, and how to renew the Partner Center credentials the 
 
 ## How a release is published
 
-1. Update `release.md`: the "What's new in this release" section lists the changes since the last tag. It becomes the GitHub release text, and the app shows it once after the update. Update the short "What's new" text in [`store.md`](../store.md) too (at most 1500 characters); it is the Store's "What's new".
+1. Create the release's folder `releases/vX.Y.Z/` with a folder per UI language (`en-US`, `de-DE`, …), starting from a copy of the previous release's. In each, `release.md` has the "What's new in this release" section with the changes since the last tag; the app shows the one of its language once after the update (English if that language has none), and the English one is the GitHub release text. `store.md` holds that language's Store listing and its short "What's new" (at most 1500 characters; the English one is sent with the submission), `screenshots/` its Store screenshots. The submission settings that don't depend on the language are in [`store.md`](../store.md) at the root.
 2. Commit and push, then check that **Tests** and **CodeQL** are green for that commit under **Actions**, and that **Security** (Code scanning, Dependabot) shows no open alert you haven't looked at. A merged Dependabot npm update reaches the app only after `npm ci` and `npm run build` in `src/editor` and a commit of the rebuilt bundle.
 3. Create an **annotated** tag and push it:
    ```bash
@@ -21,7 +21,7 @@ Rules:
 
 - The tag is the only version source: `vX.Y.Z` becomes the app version and the package version `X.Y.Z.0`. Plain numbers only; the Store has no beta versions (use a package flight in Partner Center for that).
 - Every release needs a **higher** version than the one live in the Store.
-- The Store's "What's new" comes from `store.md` as it is; a text over 1500 characters fails the build instead of being cut.
+- The Store's "What's new" comes from `releases/vX.Y.Z/en-US/store.md` as it is; a text over 1500 characters fails the build instead of being cut. A Store build without `releases/vX.Y.Z/en-US/release.md` fails.
 
 ### Store submission: store, draft or none
 
@@ -75,7 +75,7 @@ The manuals, a help page and the privacy policy are published at <https://softwa
 The Store API can only update an app that already has a published submission, so the first one goes in by hand:
 
 1. Tag `v2.0.0` with `publish: none` (see above).
-2. Download the `TextTemplateManager-2.0.0` artifact from the run (or build it locally from the same commit: `build/Build-Release.ps1 -Version 2.0.0`, from a short path; it is unsigned, the Store signs it) and upload its `.msixupload` in a new submission in Partner Center, together with the listing, screenshots, age rating and pricing. The texts to paste are in [`store.md`](../store.md); the screenshots (2560x1440, one colour scheme: `amber` or `slate`) and the 300x300 app tile are in [`design/store`](../design/store).
+2. Download the `TextTemplateManager-2.0.0` artifact from the run (or build it locally from the same commit: `build/Build-Release.ps1 -Version 2.0.0`, from a short path; it is unsigned, the Store signs it) and upload its `.msixupload` in a new submission in Partner Center, together with the listing, screenshots, age rating and pricing. The texts to paste are in [`store.md`](../store.md) and, per language, in the release's `releases/vX.Y.Z/<language>/store.md`, with that language's screenshots (2560x1440, one colour scheme: `amber` or `slate`) next to it; the 300x300 app tile and the art without text are in [`design/store`](../design/store).
 3. From then on, tags submit automatically.
 
 ---

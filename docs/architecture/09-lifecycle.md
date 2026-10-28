@@ -28,7 +28,7 @@ The startup dialogs are queued (see [6](06-main-window.md)) in this order: unrea
 
 Last, `StartUpdates` creates the updater, reads what a switch before this start left (`UpdateAttempt`) and starts its checks (see [13](13-updates.md)). After an update Windows starts the app with `--updated` (or `--updated-idle`); the window opens, and What's new shows because `LastRunVersion` is older.
 
-What's new shows the "What's new in this release" section of `release.md`, which ships next to the exe (`WhatsNew.Parse` turns its headings, bullets and bold text into the dialog).
+What's new shows the "What's new in this release" section of the release notes, which ship next to the exe as `WhatsNew\vX.Y.Z\en-US\release.md` (`WhatsNew.NotesFile` finds them, see [11](11-platform-build-release.md); `WhatsNew.Parse` turns their headings, bullets and bold text into the dialog).
 
 ## Exit and sign-out
 

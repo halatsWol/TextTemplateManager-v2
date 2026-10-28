@@ -2,7 +2,7 @@ name: Release
 
 # Tests, then the x64 Store package and the manuals; on a version tag also the GitHub release and the Store submission.
 #
-#   - Push an annotated tag like v2.0.1 -> build, create a draft GitHub release (manuals, notes from release.md), then
+#   - Push an annotated tag like v2.0.1 -> build, create a draft GitHub release (manuals, notes from releases/vX.Y.Z/en-US), then
 #     submit the package to the Microsoft Store; publish-when-live.yml publishes the release once the Store has it live.
 #   - Run manually (workflow_dispatch) -> build and upload the files as artifacts ONLY (never publishes), or, with
 #     "Check Store access", only sign in to Partner Center and read the app (no build, nothing submitted), or, with
