@@ -19,7 +19,7 @@ public sealed class BackupRow
     {
         Info = info;
         if (info.IsValid) Contents = BackupService.ReadContents(info.Path);
-        Title = fromFile ? $"{System.IO.Path.GetFileName(info.Path)} ({info.Created:f})" : info.Created.ToString("f");
+        Title = fromFile ? $"{System.IO.Path.GetFileName(info.Path)} ({info.Created.ToString("f", Loc.Culture)})" : info.Created.ToString("f", Loc.Culture);
         string tier = info.Tier switch
         {
             BackupTier.Recent => Loc.Get("Backups_TierRecent"),

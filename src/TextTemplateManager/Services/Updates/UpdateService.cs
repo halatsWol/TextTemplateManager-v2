@@ -147,7 +147,7 @@ public sealed class UpdateService : IDisposable
     private string At(DateTime utc)
     {
         var local = utc.ToLocalTime();
-        return local.Date == UtcNow().ToLocalTime().Date ? local.ToString("t") : local.ToString("g");
+        return local.ToString(local.Date == UtcNow().ToLocalTime().Date ? "t" : "g", Helpers.Loc.Culture);
     }
 
     /// <summary>For the log: the version, or that the source didn't name it.</summary>

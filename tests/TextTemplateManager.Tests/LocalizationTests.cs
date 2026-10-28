@@ -196,6 +196,26 @@ public partial class LocalizationTests
         Assert.Equal(stored == "None" ? "" : stored, HotkeyText.For(stored));   // the test host reads en-US
     }
 
+    [Theory]
+    [InlineData("en-US", "hu-HU", "2026. október 30., péntek 20:04")]
+    [InlineData("en-US", "de-DE", "Freitag, 30. Oktober 2026 20:04")]
+    [InlineData("en-GB", "en-US", "Friday, 30 October 2026 20:04")]
+    [InlineData("de-AT", "de-DE", "Freitag, 30. Jänner 2026 20:04")]
+    public void Dates_take_the_app_language_unless_the_region_speaks_it(string region, string ui, string shown)
+    {
+        var culture = Loc.CultureFor(new System.Globalization.CultureInfo(region), new System.Globalization.CultureInfo(ui));
+        var date = region == "de-AT" ? new DateTime(2026, 1, 30, 20, 4, 0) : new DateTime(2026, 10, 30, 20, 4, 0);
+        Assert.Equal(shown, date.ToString("f", culture));
+    }
+
+    [Fact]
+    public void Numbers_keep_the_region_when_dates_take_the_app_language()
+    {
+        var culture = Loc.CultureFor(new System.Globalization.CultureInfo("de-DE"), new System.Globalization.CultureInfo("en-US"));
+        Assert.Equal("1,5", 1.5.ToString(culture));
+        Assert.Equal("Friday, October 30, 2026", new DateTime(2026, 10, 30).ToString("D", culture));
+    }
+
     [Fact]
     public void Language_names_follow_the_ui_language()
     {

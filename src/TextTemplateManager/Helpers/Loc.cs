@@ -17,7 +17,22 @@ internal static class Loc
 
     public static string Get(string key) => Loader.Value.GetString(key);
 
-    public static string Format(string key, params object?[] args) => string.Format(CultureInfo.CurrentCulture, Get(key), args);
+    public static string Format(string key, params object?[] args) => string.Format(Culture, Get(key), args);
+
+    private static readonly Lazy<CultureInfo> FormatCulture = new(() => CultureFor(CultureInfo.CurrentCulture, CultureInfo.CurrentUICulture));
+
+    /// <summary>What UI text formats values with: the Windows region, except that dates take the app language's format
+    /// when the region is in another language (a Hungarian app on an English region says "október", not "October").
+    /// Numbers always follow the region.</summary>
+    public static CultureInfo Culture => FormatCulture.Value;
+
+    internal static CultureInfo CultureFor(CultureInfo region, CultureInfo ui)
+    {
+        if (region.TwoLetterISOLanguageName == ui.TwoLetterISOLanguageName || ui.IsNeutralCulture) return region;
+        var culture = (CultureInfo)region.Clone();
+        culture.DateTimeFormat = ui.DateTimeFormat;
+        return culture;
+    }
 
     /// <summary>key_One for a count of 1, key_Other otherwise (English and German need no more forms); {0} is the
     /// count, <paramref name="args"/> follow from {1}.</summary>
@@ -32,7 +47,7 @@ internal static class Loc
 
         public static string Get(string key) => Loader.Value.GetString(key);
 
-        public static string Format(string key, params object?[] args) => string.Format(CultureInfo.CurrentCulture, Get(key), args);
+        public static string Format(string key, params object?[] args) => string.Format(Loc.Culture, Get(key), args);
     }
 
     /// <summary>The editor's and preview's own text, from Strings\&lt;language&gt;\Editor.resw: the page gets all of it
