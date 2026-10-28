@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The editor's and the preview's own text (toolbar, menus, popups, Translate), es-ES (translated from en-US: same keys, same placeholders). The app hands the whole map to
+     the page before it loads (EditorPages); main.js reads it with t('Key') / tp('Key', n), {0} placeholders as in C#. -->
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CodeLanguage" xml:space="preserve">
+    <value>Lenguaje del código</value>
+  </data>
+  <data name="TemplateText" xml:space="preserve">
+    <value>Texto de la plantilla</value>
+  </data>
+  <data name="Undo" xml:space="preserve">
+    <value>Deshacer</value>
+  </data>
+  <data name="Redo" xml:space="preserve">
+    <value>Rehacer</value>
+  </data>
+  <data name="TextFormat" xml:space="preserve">
+    <value>Formato de texto</value>
+  </data>
+  <data name="Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="Heading" xml:space="preserve">
+    <value>Título {0}</value>
+  </data>
+  <data name="Preformat" xml:space="preserve">
+    <value>Preformateado</value>
+  </data>
+  <data name="Bold" xml:space="preserve">
+    <value>Negrita</value>
+  </data>
+  <data name="Italic" xml:space="preserve">
+    <value>Cursiva</value>
+  </data>
+  <data name="Underline" xml:space="preserve">
+    <value>Subrayado</value>
+  </data>
+  <data name="Strikethrough" xml:space="preserve">
+    <value>Tachado</value>
+  </data>
+  <data name="InlineCode" xml:space="preserve">
+    <value>Código en línea</value>
+  </data>
+  <data name="Superscript" xml:space="preserve">
+    <value>Superíndice</value>
+  </data>
+  <data name="Subscript" xml:space="preserve">
+    <value>Subíndice</value>
+  </data>
+  <data name="BulletList" xml:space="preserve">
+    <value>Lista con viñetas</value>
+  </data>
+  <data name="NumberedList" xml:space="preserve">
+    <value>Lista numerada</value>
+  </data>
+  <data name="InsertTable" xml:space="preserve">
+    <value>Insertar tabla</value>
+  </data>
+  <data name="TableSize" xml:space="preserve">
+    <value>Tabla de {0} × {1}</value>
+  </data>
+  <data name="TableGrid" xml:space="preserve">
+    <value>Tamaño de la tabla: las flechas eligen filas y columnas, Entrar inserta</value>
+  </data>
+  <data name="AddRow" xml:space="preserve">
+    <value>+ Fila</value>
+  </data>
+  <data name="AddColumn" xml:space="preserve">
+    <value>+ Columna</value>
+  </data>
+  <data name="DeleteRow" xml:space="preserve">
+    <value>- Fila</value>
+  </data>
+  <data name="DeleteColumn" xml:space="preserve">
+    <value>- Columna</value>
+  </data>
+  <data name="DeleteTable" xml:space="preserve">
+    <value>Eliminar tabla</value>
+  </data>
+  <data name="Link" xml:space="preserve">
+    <value>Vínculo</value>
+  </data>
+  <data name="LinkText" xml:space="preserve">
+    <value>Texto</value>
+  </data>
+  <data name="LinkApply" xml:space="preserve">
+    <value>Aplicar</value>
+  </data>
+  <data name="LinkRemove" xml:space="preserve">
+    <value>Quitar</value>
+  </data>
+  <data name="Quote" xml:space="preserve">
+    <value>Cita</value>
+  </data>
+  <data name="CodeBlock" xml:space="preserve">
+    <value>Bloque de código</value>
+  </data>
+  <data name="Divider" xml:space="preserve">
+    <value>Línea divisoria</value>
+  </data>
+  <data name="Panel" xml:space="preserve">
+    <value>Panel</value>
+  </data>
+  <data name="PanelInfo" xml:space="preserve">
+    <value>Información</value>
+  </data>
+  <data name="PanelNote" xml:space="preserve">
+    <value>Nota</value>
+  </data>
+  <data name="PanelSuccess" xml:space="preserve">
+    <value>Correcto</value>
+  </data>
+  <data name="PanelWarning" xml:space="preserve">
+    <value>Advertencia</value>
+  </data>
+  <data name="PanelError" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="TextAlignment" xml:space="preserve">
+    <value>Alineación del texto</value>
+  </data>
+  <data name="AlignLeft" xml:space="preserve">
+    <value>Alinear a la izquierda</value>
+  </data>
+  <data name="AlignCenter" xml:space="preserve">
+    <value>Centrar</value>
+  </data>
+  <data name="AlignRight" xml:space="preserve">
+    <value>Alinear a la derecha</value>
+  </data>
+  <data name="Justify" xml:space="preserve">
+    <value>Justificar</value>
+  </data>
+  <data name="ClearFormatting" xml:space="preserve">
+    <value>Borrar formato</value>
+  </data>
+  <data name="InsertSymbol" xml:space="preserve">
+    <value>Insertar símbolo</value>
+  </data>
+  <data name="InsertDateTime" xml:space="preserve">
+    <value>Insertar fecha / hora</value>
+  </data>
+  <data name="DateItem" xml:space="preserve">
+    <value>Fecha (2026-07-10)</value>
+  </data>
+  <data name="TimeItem" xml:space="preserve">
+    <value>Hora (14:30)</value>
+  </data>
+  <data name="DateTimeItem" xml:space="preserve">
+    <value>Fecha y hora</value>
+  </data>
+  <data name="YearItem" xml:space="preserve">
+    <value>Año</value>
+  </data>
+  <data name="Translate" xml:space="preserve">
+    <value>Traducir</value>
+  </data>
+  <data name="NoLanguages" xml:space="preserve">
+    <value>No hay idiomas instalados.</value>
+  </data>
+  <data name="DownloadLanguages" xml:space="preserve">
+    <value>Descargar idiomas…</value>
+  </data>
+  <data name="From" xml:space="preserve">
+    <value>De</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>A</value>
+  </data>
+  <data name="Formal" xml:space="preserve">
+    <value>Formal (Sie)</value>
+  </data>
+  <data name="InformalHint" xml:space="preserve">
+    <value>Desactivado: informal (du), en la medida de lo posible. Cerca de la mitad de las frases puede quedarse con Sie, así que el texto puede mezclar ambas formas.</value>
+  </data>
+  <data name="ReplaceTemplate" xml:space="preserve">
+    <value>Reemplazar la plantilla</value>
+  </data>
+  <data name="CreateTemplate" xml:space="preserve">
+    <value>Crear una plantilla nueva</value>
+  </data>
+  <data name="ReplaceSelection" xml:space="preserve">
+    <value>Reemplazar la selección</value>
+  </data>
+  <data name="ManageLanguages" xml:space="preserve">
+    <value>Administrar idiomas…</value>
+  </data>
+  <data name="Translating" xml:space="preserve">
+    <value>Traduciendo…</value>
+  </data>
+  <data name="TextColor" xml:space="preserve">
+    <value>Color del texto</value>
+  </data>
+  <data name="ColorAutomatic" xml:space="preserve">
+    <value>Automático</value>
+  </data>
+  <data name="HighlightColor" xml:space="preserve">
+    <value>Color de resaltado</value>
+  </data>
+  <data name="HighlightNone" xml:space="preserve">
+    <value>Ninguno</value>
+  </data>
+  <data name="Detect" xml:space="preserve">
+    <value>Detectar</value>
+  </data>
+  <data name="Detecting" xml:space="preserve">
+    <value>Detectar (…)</value>
+  </data>
+  <data name="Detected" xml:space="preserve">
+    <value>Detectar ({0})</value>
+  </data>
+  <data name="DetectUnsure" xml:space="preserve">
+    <value>Detectar (no seguro)</value>
+  </data>
+  <data name="LanguageUnknown" xml:space="preserve">
+    <value>No se pudo reconocer el idioma. Elígelo en De.</value>
+  </data>
+  <data name="SameLanguage" xml:space="preserve">
+    <value>De y A son el mismo idioma.</value>
+  </data>
+  <data name="PlaceholdersMoved_One" xml:space="preserve">
+    <value>No se pudo colocar un marcador de posición y se agregó al final.</value>
+  </data>
+  <data name="PlaceholdersMoved_Other" xml:space="preserve">
+    <value>No se pudieron colocar {0} marcadores de posición y se agregaron al final.</value>
+  </data>
+  <data name="PairMissing" xml:space="preserve">
+    <value>No está instalado: {0}. Descárgalo en Administrar idiomas.</value>
+  </data>
+  <data name="PairJoin" xml:space="preserve">
+    <value> → </value>
+  </data>
+  <data name="TranslationFailed" xml:space="preserve">
+    <value>Error en la traducción: {0}</value>
+  </data>
+  <data name="ColorBlack" xml:space="preserve">
+    <value>Negro</value>
+  </data>
+  <data name="ColorDarkGray" xml:space="preserve">
+    <value>Gris oscuro</value>
+  </data>
+  <data name="ColorGray" xml:space="preserve">
+    <value>Gris</value>
+  </data>
+  <data name="ColorLightGray" xml:space="preserve">
+    <value>Gris claro</value>
+  </data>
+  <data name="ColorWhite" xml:space="preserve">
+    <value>Blanco</value>
+  </data>
+  <data name="ColorDarkRed" xml:space="preserve">
+    <value>Rojo oscuro</value>
+  </data>
+  <data name="ColorRed" xml:space="preserve">
+    <value>Rojo</value>
+  </data>
+  <data name="ColorOrange" xml:space="preserve">
+    <value>Naranja</value>
+  </data>
+  <data name="ColorAmber" xml:space="preserve">
+    <value>Ámbar</value>
+  </data>
+  <data name="ColorYellow" xml:space="preserve">
+    <value>Amarillo</value>
+  </data>
+  <data name="ColorDarkGreen" xml:space="preserve">
+    <value>Verde oscuro</value>
+  </data>
+  <data name="ColorGreen" xml:space="preserve">
+    <value>Verde</value>
+  </data>
+  <data name="ColorTeal" xml:space="preserve">
+    <value>Verde azulado</value>
+  </data>
+  <data name="ColorLime" xml:space="preserve">
+    <value>Lima</value>
+  </data>
+  <data name="ColorCyan" xml:space="preserve">
+    <value>Cian</value>
+  </data>
+  <data name="ColorDarkBlue" xml:space="preserve">
+    <value>Azul oscuro</value>
+  </data>
+  <data name="ColorBlue" xml:space="preserve">
+    <value>Azul</value>
+  </data>
+  <data name="ColorLightBlue" xml:space="preserve">
+    <value>Azul claro</value>
+  </data>
+  <data name="ColorPurple" xml:space="preserve">
+    <value>Morado</value>
+  </data>
+  <data name="ColorPink" xml:space="preserve">
+    <value>Rosa</value>
+  </data>
+  <data name="HighlightYellow" xml:space="preserve">
+    <value>Amarillo</value>
+  </data>
+  <data name="HighlightGreen" xml:space="preserve">
+    <value>Verde</value>
+  </data>
+  <data name="HighlightCyan" xml:space="preserve">
+    <value>Cian</value>
+  </data>
+  <data name="HighlightPink" xml:space="preserve">
+    <value>Rosa</value>
+  </data>
+  <data name="HighlightOrange" xml:space="preserve">
+    <value>Naranja</value>
+  </data>
+  <data name="HighlightRed" xml:space="preserve">
+    <value>Rojo</value>
+  </data>
+  <data name="HighlightGray" xml:space="preserve">
+    <value>Gris</value>
+  </data>
+  <data name="HighlightBlack" xml:space="preserve">
+    <value>Negro</value>
+  </data>
+  <data name="HighlightBlue" xml:space="preserve">
+    <value>Azul</value>
+  </data>
+  <data name="HighlightLime" xml:space="preserve">
+    <value>Lima</value>
+  </data>
+  <data name="SymbolCheck" xml:space="preserve">
+    <value>Marca de verificación</value>
+  </data>
+  <data name="SymbolCross" xml:space="preserve">
+    <value>Cruz</value>
+  </data>
+  <data name="SymbolEmptyBox" xml:space="preserve">
+    <value>Casilla vacía</value>
+  </data>
+  <data name="SymbolWarning" xml:space="preserve">
+    <value>Advertencia</value>
+  </data>
+  <data name="SymbolExclamation" xml:space="preserve">
+    <value>Signo de exclamación</value>
+  </data>
+  <data name="SymbolQuestion" xml:space="preserve">
+    <value>Signo de interrogación</value>
+  </data>
+  <data name="SymbolInfo" xml:space="preserve">
+    <value>Información</value>
+  </data>
+  <data name="SymbolGreenCircle" xml:space="preserve">
+    <value>Círculo verde</value>
+  </data>
+  <data name="SymbolRedCircle" xml:space="preserve">
+    <value>Círculo rojo</value>
+  </data>
+  <data name="SymbolYellowCircle" xml:space="preserve">
+    <value>Círculo amarillo</value>
+  </data>
+  <data name="SymbolHighVoltage" xml:space="preserve">
+    <value>Alto voltaje</value>
+  </data>
+  <data name="SymbolFire" xml:space="preserve">
+    <value>Fuego</value>
+  </data>
+  <data name="SymbolStar" xml:space="preserve">
+    <value>Estrella</value>
+  </data>
+  <data name="SymbolIdea" xml:space="preserve">
+    <value>Idea</value>
+  </data>
+  <data name="SymbolThumbsUp" xml:space="preserve">
+    <value>Pulgar arriba</value>
+  </data>
+  <data name="SymbolThumbsDown" xml:space="preserve">
+    <value>Pulgar abajo</value>
+  </data>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Editor de plantillas</value>
+  </data>
+  <data name="PreviewPageTitle" xml:space="preserve">
+    <value>Vista previa de la plantilla</value>
+  </data>
+  <data name="ToolbarName" xml:space="preserve">
+    <value>Formato</value>
+  </data>
+</root>

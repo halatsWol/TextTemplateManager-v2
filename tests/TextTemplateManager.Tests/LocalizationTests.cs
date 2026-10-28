@@ -173,6 +173,9 @@ public partial class LocalizationTests
     [InlineData("de-AT", "de-DE")]
     [InlineData("hu-HU", "hu-HU")]
     [InlineData("it-CH", "it-IT")]
+    [InlineData("es-ES", "es-ES")]
+    [InlineData("es-MX", "es-ES")]
+    [InlineData("es-419", "es-ES")]
     [InlineData("en-US,hu-HU", "en-US")]
     [InlineData("en-GB", "en-US")]
     [InlineData("fr-FR", "fr-FR")]
@@ -242,6 +245,7 @@ public partial class LocalizationTests
     [InlineData("hu-HU", "Magyar")]
     [InlineData("it-IT", "Italiano")]
     [InlineData("fr-FR", "Français")]
+    [InlineData("es-ES", "Español (España y Latinoamérica)")]
     public void Languages_are_named_in_their_own_language(string code, string name)
     {
         Assert.Equal(name, UiLanguages.NameOf(code));

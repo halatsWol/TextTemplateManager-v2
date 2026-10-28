@@ -14,7 +14,7 @@ namespace TextTemplateManager.Helpers;
 /// Windows language too (the shipped language that matches it).</summary>
 public static class UiLanguages
 {
-    public static readonly IReadOnlyList<string> Available = ["en-US", "de-DE", "hu-HU", "it-IT", "fr-FR"];
+    public static readonly IReadOnlyList<string> Available = ["en-US", "de-DE", "hu-HU", "it-IT", "fr-FR", "es-ES"];
 
     /// <summary>The pseudo-language that only Debug builds carry (see build/New-PseudoLoc.ps1).</summary>
     public const string Pseudo = "qps-ploc";
@@ -88,6 +88,7 @@ public static class UiLanguages
     public static string NameOf(string code)
     {
         if (code == Pseudo) return "Pseudo-language (test)";   // Debug builds only
+        if (code == "es-ES") return "Español (España y Latinoamérica)";   // neutral Spanish, for every Spanish Windows
         string name = new CultureInfo(code).Parent.NativeName;
         return name.Length > 0 ? char.ToUpper(name[0], CultureInfo.GetCultureInfo(code)) + name[1..] : code;
     }
