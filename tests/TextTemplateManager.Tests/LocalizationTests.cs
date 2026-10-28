@@ -182,6 +182,34 @@ public partial class LocalizationTests
     }
 
     [Theory]
+    [InlineData("Ctrl+Shift+Space", "Strg+Umschalt+Leertaste")]
+    [InlineData("Shift+Alt+Y", "Umschalt+Alt+Y")]
+    [InlineData("Win+F12", "Win+F12")]
+    [InlineData("None", "")]
+    [InlineData("", "")]
+    public void Hotkeys_show_the_key_names_of_the_ui_language(string stored, string german)
+    {
+        var de = Read(Path.Combine(StringsDir, "de-DE", "Resources.resw"));
+        Assert.Equal(german, HotkeyText.For(stored, k => de.GetValueOrDefault("Key_" + k)));
+        Assert.Equal(stored == "None" ? "" : stored, HotkeyText.For(stored));   // the test host reads en-US
+    }
+
+    [Fact]
+    public void Language_names_follow_the_ui_language()
+    {
+        var before = System.Globalization.CultureInfo.CurrentUICulture;
+        try
+        {
+            System.Globalization.CultureInfo.CurrentUICulture = new("de-DE");
+            Assert.Equal("Französisch", Services.Translation.TranslationLanguage.NameOf("fr"));
+            Assert.Equal("Englisch", Services.Translation.TranslationLanguage.NameOf("en"));
+            System.Globalization.CultureInfo.CurrentUICulture = new("en-US");
+            Assert.Equal("French", Services.Translation.TranslationLanguage.NameOf("fr"));
+        }
+        finally { System.Globalization.CultureInfo.CurrentUICulture = before; }
+    }
+
+    [Theory]
     [InlineData("en-US", "English")]
     [InlineData("de-DE", "Deutsch")]
     [InlineData("fr-FR", "Français")]

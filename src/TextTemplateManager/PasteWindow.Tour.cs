@@ -45,7 +45,7 @@ namespace TextTemplateManager
             return Task.Delay(200);
         }
 
-        private string Hotkey => _store.CurrentSettings.PasteWindowHotkey is { Length: > 0 } key && key != "None" ? key : Loc.Tour.Get("HotkeyFallback");
+        private string Hotkey => HotkeyText.For(_store.CurrentSettings.PasteWindowHotkey) is { Length: > 0 } key ? key : Loc.Tour.Get("HotkeyFallback");
 
         private IReadOnlyList<TourStep> TourSteps() => new List<TourStep>
         {

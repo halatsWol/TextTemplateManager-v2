@@ -314,7 +314,7 @@ namespace TextTemplateManager
 
         private void ReportHotkeyUnavailable(bool startedHidden)
         {
-            string hotkey = _store.CurrentSettings.PasteWindowHotkey;
+            string hotkey = HotkeyText.For(_store.CurrentSettings.PasteWindowHotkey);
             ReportStartupProblem(Loc.Get("App_HotkeyUnavailableTitle"), Loc.Format("App_HotkeyUnavailableText", hotkey), startedHidden);
         }
 

@@ -40,7 +40,14 @@ public static class UiLanguages
         try { ApplicationLanguages.PrimaryLanguageOverride = effective; }
         catch (Exception) { language = ""; }   // the app then follows Windows
         AtStart = language;
+        Effective = effective;
+        // .NET's UI culture names languages (CultureInfo.DisplayName); formats keep following CurrentCulture.
+        try { CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(effective); }
+        catch (CultureNotFoundException) { }
     }
+
+    /// <summary>The language the running app shows (a code, also for the Windows language).</summary>
+    public static string Effective { get; private set; } = "en-US";
 
     /// <summary>The shipped language for the Windows display languages <paramref name="windowsLanguages"/> (in their
     /// order): the first one shipped as it is or in another region (de-AT gets de-DE), else the first shipped one.</summary>

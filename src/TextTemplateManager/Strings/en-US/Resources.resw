@@ -1811,4 +1811,19 @@ Overwrite it: the file gets the backup's copy, for everyone who uses it.</value>
   <data name="General_LanguageWindows" xml:space="preserve">
     <value>Use the Windows language</value>
   </data>
+  <data name="Key_Ctrl" xml:space="preserve">
+    <value>Ctrl</value>
+  </data>
+  <data name="Key_Shift" xml:space="preserve">
+    <value>Shift</value>
+  </data>
+  <data name="Key_Alt" xml:space="preserve">
+    <value>Alt</value>
+  </data>
+  <data name="Key_Win" xml:space="preserve">
+    <value>Win</value>
+  </data>
+  <data name="Key_Space" xml:space="preserve">
+    <value>Space</value>
+  </data>
 </root>

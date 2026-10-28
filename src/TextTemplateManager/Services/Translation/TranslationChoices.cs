@@ -33,6 +33,6 @@ public sealed record TranslationChoices(IReadOnlyList<LanguageChoice> Sources, I
     public string? ToOrDefault(string? remembered) => Targets.FirstOrDefault(t => t.Code == remembered)?.Code;
 
     private static IReadOnlyList<LanguageChoice> Named(IEnumerable<string> codes) =>
-        codes.Distinct().Select(c => new LanguageChoice(c, c == "en" ? "English" : TranslationLanguage.NameOf(c)))
+        codes.Distinct().Select(c => new LanguageChoice(c, TranslationLanguage.NameOf(c)))
             .OrderBy(c => c.Name, StringComparer.CurrentCultureIgnoreCase).ToList();
 }

@@ -32,14 +32,15 @@ public sealed record TranslationLanguage(string Code, string Name, ModelPair? To
     public long DownloadSize => Pairs.Sum(p => p.DownloadSize);
     public long DiskSize => Pairs.Sum(p => p.DiskSize);
 
-    /// <summary>English name of a language code ("zh-Hans": "Chinese (Simplified)"); the code if Windows doesn't know it.</summary>
+    /// <summary>Name of a language code in the app's language ("zh-Hans": "Chinese (Simplified)", "Chinesisch
+    /// (Vereinfacht)"); the code if Windows doesn't know it.</summary>
     public static string NameOf(string code)
     {
         try
         {
             // ICU makes up a culture for codes it doesn't know, named "Unknown language".
-            string name = CultureInfo.GetCultureInfo(code).EnglishName;
-            return name.StartsWith("Unknown", StringComparison.OrdinalIgnoreCase) ? code : name;
+            var culture = CultureInfo.GetCultureInfo(code);
+            return culture.EnglishName.StartsWith("Unknown", StringComparison.OrdinalIgnoreCase) ? code : culture.DisplayName;
         }
         catch (CultureNotFoundException) { return code; }
     }

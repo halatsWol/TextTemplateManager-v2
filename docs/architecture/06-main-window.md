@@ -60,7 +60,7 @@ The editor is TipTap running in a WebView2 (`src/editor/src/main.js`, built into
 | page to app | `{type:"translationChoice", from, to}` | From or To changed; kept in `AppSettings.TranslateFrom` / `TranslateTo` |
 | page to app | `{type:"translationSettings"}` | Manage languages: opens Settings ▸ Translation |
 
-The WebView's context menu is trimmed to editing items; dev tools, the status bar and browser accelerator keys are off.
+The WebView's context menu is trimmed to editing items (the writing-direction submenu is recognised by its shape, a nameless submenu of checkboxes, since its label is in the app's language); dev tools, the status bar and browser accelerator keys are off. The editor and the Quick Paste preview share one WebView2 environment (`WebViewEnvironment`) created in the app's language, so WebView2's own menu and spelling suggestions match the app.
 
 ### Translator
 

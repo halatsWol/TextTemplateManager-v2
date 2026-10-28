@@ -741,7 +741,7 @@ namespace TextTemplateManager
         {
             try
             {
-                await PreviewWebView.EnsureCoreWebView2Async();
+                await PreviewWebView.EnsureCoreWebView2Async(await WebViewEnvironment.GetAsync());
                 if (_previewConfigured) return;
                 _previewConfigured = true;
 

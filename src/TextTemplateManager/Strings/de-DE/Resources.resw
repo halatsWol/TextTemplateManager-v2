@@ -1811,4 +1811,19 @@ Behalten: Der Ordner zeigt die Datei so, wie sie jetzt ist.
   <data name="General_LanguageWindows" xml:space="preserve">
     <value>Windows-Sprache verwenden</value>
   </data>
+  <data name="Key_Ctrl" xml:space="preserve">
+    <value>Strg</value>
+  </data>
+  <data name="Key_Shift" xml:space="preserve">
+    <value>Umschalt</value>
+  </data>
+  <data name="Key_Alt" xml:space="preserve">
+    <value>Alt</value>
+  </data>
+  <data name="Key_Win" xml:space="preserve">
+    <value>Win</value>
+  </data>
+  <data name="Key_Space" xml:space="preserve">
+    <value>Leertaste</value>
+  </data>
 </root>

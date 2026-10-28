@@ -189,8 +189,7 @@ public sealed partial class GeneralSettingsPage : Page
     }
 
     // "None"/empty means no hotkey — show a blank field (the placeholder shows through).
-    private static string FormatHotkey(string? hotkey)
-        => string.IsNullOrEmpty(hotkey) || hotkey == "None" ? "" : hotkey;
+    private static string FormatHotkey(string? hotkey) => HotkeyText.For(hotkey);
 
     // ---- Start with Windows (the package's startup task; Windows owns the on/off state) ----
     private bool _startupLoading;
@@ -252,7 +251,7 @@ public sealed partial class GeneralSettingsPage : Page
         if (IsModifierKey(e.Key))
         {
             // Live feedback: show the modifiers held so far (not yet a valid shortcut).
-            HotkeyTextBox.Text = string.Join("+", mods);   // "Shift", "Shift+Alt", …
+            HotkeyTextBox.Text = HotkeyText.For(string.Join("+", mods));   // "Shift", "Shift+Alt", …
             _hotkeyCommitted = false;
             return;
         }
@@ -261,7 +260,7 @@ public sealed partial class GeneralSettingsPage : Page
 
         mods.Add(e.Key.ToString());
         string hotkey = string.Join("+", mods);
-        HotkeyTextBox.Text = hotkey;
+        HotkeyTextBox.Text = HotkeyText.For(hotkey);
         CommitHotkey(hotkey);
         _hotkeyCommitted = true;
     }

@@ -110,7 +110,7 @@ public sealed partial class TemplateEditor : UserControl
         _initStarted = true;
         try
         {
-            await EditorWebView.EnsureCoreWebView2Async();
+            await EditorWebView.EnsureCoreWebView2Async(await WebViewEnvironment.GetAsync());
             var core = EditorWebView.CoreWebView2;
 
             core.WebMessageReceived += Editor_WebMessageReceived;
@@ -163,18 +163,27 @@ public sealed partial class TemplateEditor : UserControl
         "openImageInNewTab", "saveLinkAs", "copyLinkToText",
     };
 
-    // Entries WebView2 exposes with no stable Name, matched by label instead: the
-    // "Writing Direction" submenu and "Send tab to your devices".
-    private static readonly string[] _hiddenContextLabels = { "writing direction", "to your devices" };
+    // "Send tab to your devices" has no stable Name; matched by its label, which older WebView2 versions show in
+    // English whatever the language.
+    private static readonly string[] _hiddenContextLabels = { "to your devices" };
+
+    // The "Writing direction" submenu has no stable Name and a label in the app's language: a nameless submenu of
+    // checkboxes (Default / Left to right / Right to left).
+    private static bool IsWritingDirection(CoreWebView2ContextMenuItem item) =>
+        item.Kind == CoreWebView2ContextMenuItemKind.Submenu && item.Name == "other" && item.Children.Count > 0
+        && item.Children.All(c => c.Kind == CoreWebView2ContextMenuItemKind.CheckBox);
 
     private void Editor_ContextMenuRequested(CoreWebView2 sender, CoreWebView2ContextMenuRequestedEventArgs args)
     {
         var items = args.MenuItems;
         for (int i = items.Count - 1; i >= 0; i--)
-            if (_hiddenContextItems.Contains(items[i].Name) || HasHiddenLabel(items[i].Label))
+            if (_hiddenContextItems.Contains(items[i].Name) || HasHiddenLabel(items[i].Label) || IsWritingDirection(items[i]))
                 items.RemoveAt(i);
 
-        // Drop separators left dangling at the menu edges after the removals.
+        // Drop separators left dangling at the menu edges or doubled after the removals.
+        for (int i = items.Count - 1; i > 0; i--)
+            if (items[i].Kind == CoreWebView2ContextMenuItemKind.Separator && items[i - 1].Kind == CoreWebView2ContextMenuItemKind.Separator)
+                items.RemoveAt(i);
         while (items.Count > 0 && items[0].Kind == CoreWebView2ContextMenuItemKind.Separator)
             items.RemoveAt(0);
         while (items.Count > 0 && items[^1].Kind == CoreWebView2ContextMenuItemKind.Separator)
