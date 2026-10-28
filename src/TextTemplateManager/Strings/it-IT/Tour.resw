@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The guided tour's steps (StepX_Title / StepX_Text) and its sample templates (SampleX), it-IT (translated from en-US: same keys, same placeholders); read with Loc.Tour.
+     Sample contents are HTML: translate the text and keep the tags and attributes. The shortcuts the steps name
+     (T, S, P, THX ...) are the samples' own and stay as they are. -->
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="StepWelcome_Title" xml:space="preserve">
+    <value>Ti diamo il benvenuto in TextTemplateManager</value>
+  </data>
+  <data name="StepWelcome_Text" xml:space="preserve">
+    <value>Conserva testi riutilizzabili (risposte, frammenti, firme) e inseriscili in qualsiasi app con un tasto. Questo breve tour mostra le parti principali con modelli di esempio; i modelli personali non vengono toccati. Avanti prosegue, ESC salta.</value>
+  </data>
+  <data name="StepTree_Title" xml:space="preserve">
+    <value>Modelli e cartelle</value>
+  </data>
+  <data name="StepTree_Text" xml:space="preserve">
+    <value>I modelli, organizzati in cartelle. Le cartelle sincronizzate (con l'icona) provengono da un file condiviso e restano in alto. La casella di ricerca filtra l'elenco; CTRL+F la raggiunge e ↓ passa all'elenco.</value>
+  </data>
+  <data name="StepOrganizing_Title" xml:space="preserve">
+    <value>Organizzare</value>
+  </data>
+  <data name="StepOrganizing_Text" xml:space="preserve">
+    <value>Aggiungi un modello o una cartella (nella cartella selezionata), elimina la selezione e comprimi o espandi tutte le cartelle. Il trascinamento sposta gli elementi; CTRL+clic, MAIUSC+clic e MAIUSC+frecce ne selezionano più di uno, CTRL+A tutti.</value>
+  </data>
+  <data name="StepEditor_Title" xml:space="preserve">
+    <value>L'editor</value>
+  </data>
+  <data name="StepEditor_Text" xml:space="preserve">
+    <value>Formatta il testo con titoli, elenchi, tabelle, blocchi di codice con evidenziazione della sintassi e pannelli in evidenza come il pannello Info qui.</value>
+  </data>
+  <data name="StepTranslating_Title" xml:space="preserve">
+    <value>Traduzione (sperimentale)</value>
+  </data>
+  <data name="StepTranslating_Text" xml:space="preserve">
+    <value>Il pulsante Traduci all'estremità destra della barra degli strumenti dell'editor traduce un modello su questo PC: sostituisci il testo, solo la selezione, oppure crea una copia tradotta. Il tedesco può essere formale (Sie). Controlla ogni traduzione; la traduzione automatica commette errori.</value>
+  </data>
+  <data name="StepShortcuts_Title" xml:space="preserve">
+    <value>Abbreviazioni e tag</value>
+  </data>
+  <data name="StepShortcuts_Text" xml:space="preserve">
+    <value>Tasto singolo e Sequenza di tasti sono le abbreviazioni del modello in Quick Paste, i tag aiutano a trovarlo e la modalità Incolla predefinita decide il formato in cui viene incollato.</value>
+  </data>
+  <data name="StepPasteModes_Title" xml:space="preserve">
+    <value>Modalità Incolla</value>
+  </data>
+  <data name="StepPasteModes_Text" xml:space="preserve">
+    <value>Automatica sceglie il formato migliore per l'app in cui incolli; HTML/Jira mantiene i pannelli in evidenza per Jira; HTML, RTF, Markdown e Solo testo incollano esattamente quello. Fai clic destro su un modello per copiarlo in un'altra modalità.</value>
+  </data>
+  <data name="StepSaving_Title" xml:space="preserve">
+    <value>Salvataggio</value>
+  </data>
+  <data name="StepSaving_Text" xml:space="preserve">
+    <value>Le modifiche a un modello o a una cartella aspettano Salva qui (o CTRL+S) e, prima di lasciare modifiche non salvate, l'app chiede conferma. Per salvare mentre scrivi, attiva Salvataggio automatico in Impostazioni ▸ Generale.</value>
+  </data>
+  <data name="StepTray_Title" xml:space="preserve">
+    <value>Sempre a portata di mano</value>
+  </data>
+  <data name="StepTray_Text" xml:space="preserve">
+    <value>Chiudendo la finestra, TextTemplateManager continua a funzionare nell'area di notifica, così Quick Paste è sempre pronto. Per uscire, usa File ▸ Esci o l'icona di notifica.</value>
+  </data>
+  <data name="StepImportExport_Title" xml:space="preserve">
+    <value>Importare ed esportare</value>
+  </data>
+  <data name="StepImportExport_Text" xml:space="preserve">
+    <value>File ▸ Esporta salva gli elementi selezionati, o tutti, in un file .ttmdata; File ▸ Importa aggiunge un file del genere all'elenco.</value>
+  </data>
+  <data name="StepSettingsGeneral_Title" xml:space="preserve">
+    <value>Impostazioni ▸ Generale</value>
+  </data>
+  <data name="StepSettingsGeneral_Text" xml:space="preserve">
+    <value>File ▸ Impostazioni: la lingua dell'app, la scelta rapida globale che apre Quick Paste, la modalità Incolla per i nuovi modelli, l'avvio con Windows (anche nascosta nell'area di notifica), il salvataggio automatico e gli aggiornamenti.</value>
+  </data>
+  <data name="StepSettingsIntegrations_Title" xml:space="preserve">
+    <value>Impostazioni ▸ Integrazioni</value>
+  </data>
+  <data name="StepSettingsIntegrations_Text" xml:space="preserve">
+    <value>Browser Connector permette all'estensione del browser TTM-Connect di incollare i modelli nelle pagine web e di salvare il testo selezionato come nuovo modello. Aprire un file .ttmdata (doppio clic in Esplora file) avvia TextTemplateManager e aggiunge il file come cartella sincronizzata; se un'altra app ha preso in carico i file .ttmdata, imposta di nuovo TextTemplateManager in App predefinite.</value>
+  </data>
+  <data name="StepSettingsSync_Title" xml:space="preserve">
+    <value>Impostazioni ▸ Sincronizzazione</value>
+  </data>
+  <data name="StepSettingsSync_Text" xml:space="preserve">
+    <value>Condividi i modelli con il team tramite un file .ttmdata su un'unità condivisa o su OneDrive. Ogni file collegato diventa una cartella sincronizzata; scegli un prefisso per le abbreviazioni, se puoi modificarlo (o solo leggerlo) e collega un altro file se uno manca.</value>
+  </data>
+  <data name="StepSettingsBackups_Title" xml:space="preserve">
+    <value>Impostazioni ▸ Backup</value>
+  </data>
+  <data name="StepSettingsBackups_Text" xml:space="preserve">
+    <value>I backup si creano da soli (dopo le modifiche, ogni due ore e ogni giorno) nella cartella Documenti. Ripristinane uno qualsiasi scegliendo cosa riprendere, esporta un backup per passare a un altro PC o importa da TextTemplateManager 1.</value>
+  </data>
+  <data name="StepSettingsTranslation_Title" xml:space="preserve">
+    <value>Impostazioni ▸ Traduzione</value>
+  </data>
+  <data name="StepSettingsTranslation_Text" xml:space="preserve">
+    <value>Scarica una volta da Mozilla le lingue per il pulsante Traduci; da quel momento la traduzione funziona offline e il testo non lascia mai il PC. Esportazione e importazione le portano su un PC senza accesso a Internet.</value>
+  </data>
+  <data name="StepSettingsSupport_Title" xml:space="preserve">
+    <value>Impostazioni ▸ Supporto</value>
+  </data>
+  <data name="StepSettingsSupport_Text" xml:space="preserve">
+    <value>La guida dal sito web, Esporta log per una segnalazione e come segnalare un problema, suggerire una funzionalità o segnalare una vulnerabilità di sicurezza: via e-mail, con le domande già compilate, o su GitHub (serve un account GitHub).</value>
+  </data>
+  <data name="StepHelp_Title" xml:space="preserve">
+    <value>Guida</value>
+  </data>
+  <data name="StepHelp_Text" xml:space="preserve">
+    <value>Il manuale, di nuovo questo tour (Guida ▸ Avvia il tour guidato) e il sito web con guida online e segnalazioni (Guida ▸ Vai al sito web).</value>
+  </data>
+  <data name="MenuPictureName" xml:space="preserve">
+    <value>Menu {0} (immagine)</value>
+  </data>
+  <data name="StepQuickPaste_Title" xml:space="preserve">
+    <value>Quick Paste</value>
+  </data>
+  <data name="StepQuickPaste_Text" xml:space="preserve">
+    <value>Premi {0} in qualsiasi app: Quick Paste si apre in primo piano e il modello che scegli viene incollato in quell'app. Per il tour è già aperto, con i modelli di esempio, e non incolla nulla.</value>
+  </data>
+  <data name="StepSingleKey_Title" xml:space="preserve">
+    <value>Abbreviazioni a tasto singolo</value>
+  </data>
+  <data name="StepSingleKey_Text" xml:space="preserve">
+    <value>Subito dopo l'apertura, premi il tasto singolo di un modello (T, S o P negli esempi): viene incollato subito. Puoi anche selezionare una riga di questo elenco con ↑ e ↓; INVIO incolla quella selezionata.</value>
+  </data>
+  <data name="StepMultiKey_Title" xml:space="preserve">
+    <value>Abbreviazioni a sequenza di tasti</value>
+  </data>
+  <data name="StepMultiKey_Text" xml:space="preserve">
+    <value>Tieni premuto ALT e digita una sequenza di tasti (ALT + T, H, X): l'elenco si restringe mentre digiti e, al rilascio di ALT, viene incollata l'abbreviazione evidenziata. Anche INVIO incolla la riga selezionata in questo elenco. ALT + BACKSPACE corregge, ALT + ESC annulla.</value>
+  </data>
+  <data name="StepPlainText_Title" xml:space="preserve">
+    <value>Come testo semplice</value>
+  </data>
+  <data name="StepPlainText_Text" xml:space="preserve">
+    <value>Aggiungi _ (ALT + MAIUSC + -) mentre digiti una sequenza di tasti per incollare il modello come testo semplice; questa barra mostra ciò che hai digitato e lo evidenzia.</value>
+  </data>
+  <data name="StepSearch_Title" xml:space="preserve">
+    <value>Cerca</value>
+  </data>
+  <data name="StepSearch_Text" xml:space="preserve">
+    <value>TAB o CTRL + F porta nella casella di ricerca: filtra l'elenco e gli elenchi di abbreviazioni per titolo e tag, o anche per testo con il pulsante filtro. ↓ passa all'elenco.</value>
+  </data>
+  <data name="StepBrowse_Title" xml:space="preserve">
+    <value>Sfoglia e incolla</value>
+  </data>
+  <data name="StepBrowse_Text" xml:space="preserve">
+    <value>Scegli un modello nell'elenco per vederlo nell'anteprima; INVIO o un doppio clic lo incolla. Fai clic destro per Incolla come, per incollarlo in un'altra modalità. ESC chiude Quick Paste.</value>
+  </data>
+  <data name="StepEnd_Title" xml:space="preserve">
+    <value>Ecco fatto</value>
+  </data>
+  <data name="StepEnd_Text" xml:space="preserve">
+    <value>Tutto pronto. Quick Paste ora si chiude; puoi riavviare questo tour in qualsiasi momento da Guida ▸ Avvia il tour guidato.</value>
+  </data>
+  <data name="HotkeyFallback" xml:space="preserve">
+    <value>la scelta rapida globale (Impostazioni ▸ Generale)</value>
+  </data>
+  <data name="SampleTeamName" xml:space="preserve">
+    <value>Team (esempio)</value>
+  </data>
+  <data name="SampleRepliesFolder" xml:space="preserve">
+    <value>Risposte ai clienti</value>
+  </data>
+  <data name="SampleThanksContent" xml:space="preserve">
+    <value>&lt;p&gt;Gentile cliente,&lt;/p&gt;&lt;p&gt;La ringraziamo per il Suo messaggio. Le risponderemo &lt;strong&gt;entro un giorno lavorativo&lt;/strong&gt;.&lt;/p&gt;&lt;p&gt;Cordiali saluti&lt;/p&gt;</value>
+  </data>
+  <data name="SampleReleaseNotesContent" xml:space="preserve">
+    <value>&lt;h2&gt;Novità&lt;/h2&gt;&lt;div class="ttm-panel ak-editor-panel" data-panel-type="info"&gt;&lt;p&gt;Questo aggiornamento viene installato automaticamente.&lt;/p&gt;&lt;/div&gt;&lt;ul&gt;&lt;li&gt;&lt;p&gt;Ricerca più veloce&lt;/p&gt;&lt;/li&gt;&lt;li&gt;&lt;p&gt;Nuove opzioni di esportazione&lt;/p&gt;&lt;/li&gt;&lt;/ul&gt;</value>
+  </data>
+  <data name="SampleCodeFolder" xml:space="preserve">
+    <value>Frammenti di codice</value>
+  </data>
+  <data name="SampleServicesTitle" xml:space="preserve">
+    <value>Elenca i servizi in esecuzione</value>
+  </data>
+  <data name="SampleSignatureTitle" xml:space="preserve">
+    <value>Firma</value>
+  </data>
+  <data name="SampleSignatureContent" xml:space="preserve">
+    <value>&lt;p&gt;Cordiali saluti&lt;br&gt;Alex Esempio&lt;/p&gt;</value>
+  </data>
+  <data name="SampleOutOfOfficeTitle" xml:space="preserve">
+    <value>Fuori ufficio</value>
+  </data>
+  <data name="SampleOutOfOfficeContent" xml:space="preserve">
+    <value>&lt;p&gt;Sono fuori ufficio fino a lunedì e risponderò al mio rientro.&lt;/p&gt;</value>
+  </data>
+  <data name="SampleThanksTitle" xml:space="preserve">
+    <value>Grazie per il messaggio</value>
+  </data>
+  <data name="SampleThanksTags" xml:space="preserve">
+    <value>supporto, risposta</value>
+  </data>
+  <data name="SampleReleaseNotesTitle" xml:space="preserve">
+    <value>Note sulla versione</value>
+  </data>
+  <data name="SampleReleaseNotesTags" xml:space="preserve">
+    <value>versione</value>
+  </data>
+</root>

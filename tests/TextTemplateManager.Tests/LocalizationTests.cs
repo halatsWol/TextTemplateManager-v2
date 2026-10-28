@@ -172,6 +172,7 @@ public partial class LocalizationTests
     [InlineData("de-DE", "de-DE")]
     [InlineData("de-AT", "de-DE")]
     [InlineData("hu-HU", "hu-HU")]
+    [InlineData("it-CH", "it-IT")]
     [InlineData("en-US,hu-HU", "en-US")]
     [InlineData("en-GB", "en-US")]
     [InlineData("fr-FR", "en-US")]
@@ -237,6 +238,7 @@ public partial class LocalizationTests
     [InlineData("en-US", "English")]
     [InlineData("de-DE", "Deutsch")]
     [InlineData("hu-HU", "Magyar")]
+    [InlineData("it-IT", "Italiano")]
     [InlineData("fr-FR", "Français")]
     public void Languages_are_named_in_their_own_language(string code, string name)
     {
