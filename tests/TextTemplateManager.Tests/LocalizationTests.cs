@@ -171,6 +171,8 @@ public partial class LocalizationTests
     [Theory]
     [InlineData("de-DE", "de-DE")]
     [InlineData("de-AT", "de-DE")]
+    [InlineData("hu-HU", "hu-HU")]
+    [InlineData("en-US,hu-HU", "en-US")]
     [InlineData("en-GB", "en-US")]
     [InlineData("fr-FR", "en-US")]
     [InlineData("fr-FR,de-CH", "de-DE")]
@@ -203,6 +205,8 @@ public partial class LocalizationTests
             System.Globalization.CultureInfo.CurrentUICulture = new("de-DE");
             Assert.Equal("Französisch", Services.Translation.TranslationLanguage.NameOf("fr"));
             Assert.Equal("Englisch", Services.Translation.TranslationLanguage.NameOf("en"));
+            System.Globalization.CultureInfo.CurrentUICulture = new("hu-HU");
+            Assert.Equal("Francia", Services.Translation.TranslationLanguage.NameOf("fr"));
             System.Globalization.CultureInfo.CurrentUICulture = new("en-US");
             Assert.Equal("French", Services.Translation.TranslationLanguage.NameOf("fr"));
         }
@@ -212,6 +216,7 @@ public partial class LocalizationTests
     [Theory]
     [InlineData("en-US", "English")]
     [InlineData("de-DE", "Deutsch")]
+    [InlineData("hu-HU", "Magyar")]
     [InlineData("fr-FR", "Français")]
     public void Languages_are_named_in_their_own_language(string code, string name)
     {

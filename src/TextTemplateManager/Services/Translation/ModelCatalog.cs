@@ -40,7 +40,11 @@ public sealed record TranslationLanguage(string Code, string Name, ModelPair? To
         {
             // ICU makes up a culture for codes it doesn't know, named "Unknown language".
             var culture = CultureInfo.GetCultureInfo(code);
-            return culture.EnglishName.StartsWith("Unknown", StringComparison.OrdinalIgnoreCase) ? code : culture.DisplayName;
+            if (culture.EnglishName.StartsWith("Unknown", StringComparison.OrdinalIgnoreCase)) return code;
+            // Some languages write language names in lowercase ("albán"); as a list entry it starts with a capital.
+            string name = culture.DisplayName;
+            if (name.Length == 0 || name.Equals(code, StringComparison.OrdinalIgnoreCase)) return code;
+            return char.ToUpper(name[0], CultureInfo.CurrentUICulture) + name[1..];
         }
         catch (CultureNotFoundException) { return code; }
     }

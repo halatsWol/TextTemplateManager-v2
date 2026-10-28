@@ -14,7 +14,7 @@ namespace TextTemplateManager.Helpers;
 /// Windows language too (the shipped language that matches it).</summary>
 public static class UiLanguages
 {
-    public static readonly IReadOnlyList<string> Available = ["en-US", "de-DE"];
+    public static readonly IReadOnlyList<string> Available = ["en-US", "de-DE", "hu-HU"];
 
     /// <summary>The pseudo-language that only Debug builds carry (see build/New-PseudoLoc.ps1).</summary>
     public const string Pseudo = "qps-ploc";

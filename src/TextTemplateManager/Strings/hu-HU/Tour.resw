@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The guided tour's steps (StepX_Title / StepX_Text) and its sample templates (SampleX), hu-HU (translated from en-US: same keys, same placeholders); read with Loc.Tour.
+     Sample contents are HTML: translate the text and keep the tags and attributes. The shortcuts the steps name
+     (T, S, P, THX ...) are the samples' own and stay as they are. -->
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="StepWelcome_Title" xml:space="preserve">
+    <value>Üdvözöl a TextTemplateManager</value>
+  </data>
+  <data name="StepWelcome_Text" xml:space="preserve">
+    <value>Tárold az újrahasznosítható szövegeket (válaszok, szövegrészek, aláírások), és illeszd be őket egy billentyűleütéssel bármelyik alkalmazásba. Ez a rövid bemutató mintasablonokon mutatja be a fő részeket; a saját sablonokhoz nem nyúl. A Tovább gombbal léphetsz tovább, az Esc kihagyja.</value>
+  </data>
+  <data name="StepTree_Title" xml:space="preserve">
+    <value>Sablonok és mappák</value>
+  </data>
+  <data name="StepTree_Text" xml:space="preserve">
+    <value>A sablonok mappákba rendezve. A szinkronizált mappák (szinkronizálási ikonnal) egy megosztott fájlból jönnek, és felül maradnak. A keresőmező szűri a listát; a Ctrl+F odaugrik, a ↓ továbblép a listába.</value>
+  </data>
+  <data name="StepOrganizing_Title" xml:space="preserve">
+    <value>Rendezés</value>
+  </data>
+  <data name="StepOrganizing_Text" xml:space="preserve">
+    <value>Adj hozzá sablont vagy mappát (a kijelölt mappába), töröld a kijelölést, és csukd össze vagy bontsd ki az összes mappát. Húzással áthelyezheted az elemeket; Ctrl+kattintással, Shift+kattintással és Shift+nyilakkal többet is kijelölhetsz, a Ctrl+A mindet kijelöli.</value>
+  </data>
+  <data name="StepEditor_Title" xml:space="preserve">
+    <value>A szerkesztő</value>
+  </data>
+  <data name="StepEditor_Text" xml:space="preserve">
+    <value>Formázd a szöveget címsorokkal, listákkal, táblázatokkal, szintaxiskiemeléses kódblokkokkal és kiemelő panelekkel, mint az itteni Információ panel.</value>
+  </data>
+  <data name="StepTranslating_Title" xml:space="preserve">
+    <value>Fordítás (kísérleti)</value>
+  </data>
+  <data name="StepTranslating_Text" xml:space="preserve">
+    <value>A szerkesztő eszköztárának jobb végén lévő Fordítás gomb ezen a gépen fordítja le a sablont: lecserélheted a szövegét, csak a kijelölést, vagy létrehozhatsz egy lefordított másolatot. A német szöveg lehet magázó (Sie). Ellenőrizz minden fordítást; a gépi fordítás hibázik.</value>
+  </data>
+  <data name="StepShortcuts_Title" xml:space="preserve">
+    <value>Rövidítések és címkék</value>
+  </data>
+  <data name="StepShortcuts_Text" xml:space="preserve">
+    <value>Az Egy billentyű és a Billentyűsor a sablon rövidítései a Quick Paste-ben, a címkék segítenek megtalálni, az alapértelmezett beillesztési mód pedig meghatározza, milyen formában kerül beillesztésre.</value>
+  </data>
+  <data name="StepPasteModes_Title" xml:space="preserve">
+    <value>Beillesztési módok</value>
+  </data>
+  <data name="StepPasteModes_Text" xml:space="preserve">
+    <value>Az Automatikus a legjobb formátumot választja ahhoz az alkalmazáshoz, amelybe beillesztesz; a HTML/Jira megtartja a kiemelő paneleket a Jirához; a HTML, RTF, Markdown és Csak szöveg pontosan azt illeszti be. Kattints jobb gombbal egy sablonra, ha más módban szeretnéd másolni.</value>
+  </data>
+  <data name="StepSaving_Title" xml:space="preserve">
+    <value>Mentés</value>
+  </data>
+  <data name="StepSaving_Text" xml:space="preserve">
+    <value>A sablonok és mappák módosításai itt a Mentésre várnak (vagy Ctrl+S), és mielőtt nem mentett módosításokat hagynál el, az alkalmazás rákérdez. Ha gépelés közben szeretnél menteni, kapcsold be az Automatikus mentést a Beállítások ▸ Általános részen.</value>
+  </data>
+  <data name="StepTray_Title" xml:space="preserve">
+    <value>Mindig kéznél</value>
+  </data>
+  <data name="StepTray_Text" xml:space="preserve">
+    <value>Ha bezárod az ablakot, a TextTemplateManager tovább fut az értesítési területen, így a Quick Paste mindig készen áll. Kilépéshez használd a Fájl ▸ Kilépés menüpontot vagy az értesítési ikont.</value>
+  </data>
+  <data name="StepImportExport_Title" xml:space="preserve">
+    <value>Importálás és exportálás</value>
+  </data>
+  <data name="StepImportExport_Text" xml:space="preserve">
+    <value>A Fájl ▸ Exportálás a kijelölt elemeket vagy mindet egy .ttmdata fájlba menti; a Fájl ▸ Importálás egy ilyen fájlt ad hozzá a listához.</value>
+  </data>
+  <data name="StepSettingsGeneral_Title" xml:space="preserve">
+    <value>Beállítások ▸ Általános</value>
+  </data>
+  <data name="StepSettingsGeneral_Text" xml:space="preserve">
+    <value>Fájl ▸ Beállítások: az alkalmazás nyelve, a Quick Paste-et megnyitó globális billentyűparancs, az új sablonok beillesztési módja, indítás a Windowszal (akár rejtve az értesítési területen), Automatikus mentés és frissítések.</value>
+  </data>
+  <data name="StepSettingsIntegrations_Title" xml:space="preserve">
+    <value>Beállítások ▸ Integrációk</value>
+  </data>
+  <data name="StepSettingsIntegrations_Text" xml:space="preserve">
+    <value>A Browser Connectorral a TTM-Connect böngészőbővítmény weboldalakon illesztheti be a sablonokat, és a kijelölt szöveget új sablonként mentheti. Egy .ttmdata fájl megnyitása (dupla kattintás az Intézőben) elindítja a TextTemplateManagert, és szinkronizált mappaként adja hozzá a fájlt; ha egy másik alkalmazás átvette a .ttmdata fájlokat, állítsd vissza a TextTemplateManagert az Alapértelmezett alkalmazások között.</value>
+  </data>
+  <data name="StepSettingsSync_Title" xml:space="preserve">
+    <value>Beállítások ▸ Szinkronizálás</value>
+  </data>
+  <data name="StepSettingsSync_Text" xml:space="preserve">
+    <value>Oszd meg a sablonokat a csapattal egy megosztott meghajtón vagy a OneDrive-on lévő .ttmdata fájlon keresztül. Minden csatolt fájlból szinkronizált mappa lesz; válassz rövidítés-előtagot, döntsd el, hogy módosíthatod-e (vagy csak olvashatod), és csatolj másik fájlt, ha egy eltűnik.</value>
+  </data>
+  <data name="StepSettingsBackups_Title" xml:space="preserve">
+    <value>Beállítások ▸ Biztonsági másolatok</value>
+  </data>
+  <data name="StepSettingsBackups_Text" xml:space="preserve">
+    <value>A biztonsági másolatok maguktól készülnek (módosítások után, kétóránként és naponta) a Dokumentumok mappában. Bármelyiket visszaállíthatod, kiválasztva, mit kérsz vissza, exportálhatsz egyet másik gépre költözéshez, vagy importálhatsz a TextTemplateManager 1-ből.</value>
+  </data>
+  <data name="StepSettingsTranslation_Title" xml:space="preserve">
+    <value>Beállítások ▸ Fordítás</value>
+  </data>
+  <data name="StepSettingsTranslation_Text" xml:space="preserve">
+    <value>Töltsd le egyszer a Fordítás gombhoz a nyelveket a Mozillától; utána a fordítás offline is működik, és a szöveg soha nem hagyja el a gépet. Exportálással és importálással internet nélküli gépre is átviheted őket.</value>
+  </data>
+  <data name="StepSettingsSupport_Title" xml:space="preserve">
+    <value>Beállítások ▸ Támogatás</value>
+  </data>
+  <data name="StepSettingsSupport_Text" xml:space="preserve">
+    <value>Súgó a webhelyről, naplóexportálás hibabejelentéshez, valamint hiba bejelentése, funkció javaslása vagy biztonsági rés bejelentése: e-mailben, előre kitöltött kérdésekkel, vagy a GitHubon (GitHub-fiók kell hozzá).</value>
+  </data>
+  <data name="StepHelp_Title" xml:space="preserve">
+    <value>Súgó</value>
+  </data>
+  <data name="StepHelp_Text" xml:space="preserve">
+    <value>A kézikönyv, ez a bemutató újra (Súgó ▸ Bemutató indítása), és a webhely online súgóval és hibabejelentéssel (Súgó ▸ Ugrás a webhelyre).</value>
+  </data>
+  <data name="MenuPictureName" xml:space="preserve">
+    <value>{0} menü (kép)</value>
+  </data>
+  <data name="StepQuickPaste_Title" xml:space="preserve">
+    <value>Quick Paste</value>
+  </data>
+  <data name="StepQuickPaste_Text" xml:space="preserve">
+    <value>Nyomd meg bármelyik alkalmazásban ezt: {0}. A Quick Paste felül nyílik meg, és a kiválasztott sablon abba az alkalmazásba kerül. A bemutatóhoz már nyitva van a mintasablonokkal, és semmit sem illeszt be.</value>
+  </data>
+  <data name="StepSingleKey_Title" xml:space="preserve">
+    <value>Egybillentyűs rövidítések</value>
+  </data>
+  <data name="StepSingleKey_Text" xml:space="preserve">
+    <value>Közvetlenül a megnyitás után nyomd meg egy sablon billentyűjét (a mintákban T, S vagy P): azonnal beillesztődik. Ebben a listában a ↑ és ↓ billentyűvel is kijelölhetsz egy sort; az Enter a kijelöltet illeszti be.</value>
+  </data>
+  <data name="StepMultiKey_Title" xml:space="preserve">
+    <value>Billentyűsoros rövidítések</value>
+  </data>
+  <data name="StepMultiKey_Text" xml:space="preserve">
+    <value>Tartsd lenyomva az Alt billentyűt, és írj be egy billentyűsort (Alt + T, H, X): a lista gépelés közben szűkül, és az Alt felengedésekor a kiemelt rövidítés beillesztődik. Az Enter a listában kijelölt sort is beilleszti. Az Alt + Backspace javít, az Alt + Esc megszakít.</value>
+  </data>
+  <data name="StepPlainText_Title" xml:space="preserve">
+    <value>Egyszerű szövegként</value>
+  </data>
+  <data name="StepPlainText_Text" xml:space="preserve">
+    <value>Billentyűsor gépelése közben írj a végére _ jelet (Alt + Shift + -), ha a sablont egyszerű szövegként szeretnéd beilleszteni; ez a sáv mutatja és jelöli a beírtakat.</value>
+  </data>
+  <data name="StepSearch_Title" xml:space="preserve">
+    <value>Keresés</value>
+  </data>
+  <data name="StepSearch_Text" xml:space="preserve">
+    <value>A Tab vagy a Ctrl + F a keresőmezőbe lép: cím és címkék szerint szűri a listát és a rövidítéslistákat, a szűrőgombbal a szövegben is. A ↓ továbblép a listába.</value>
+  </data>
+  <data name="StepBrowse_Title" xml:space="preserve">
+    <value>Böngészés és beillesztés</value>
+  </data>
+  <data name="StepBrowse_Text" xml:space="preserve">
+    <value>Válassz ki egy sablont a listában, és megjelenik az előnézetben; az Enter vagy a dupla kattintás beilleszti. Jobb gombbal a Beillesztés másként menüpont más beillesztési módot kínál. Az Esc bezárja a Quick Paste-et.</value>
+  </data>
+  <data name="StepEnd_Title" xml:space="preserve">
+    <value>Ennyi volt</value>
+  </data>
+  <data name="StepEnd_Text" xml:space="preserve">
+    <value>Minden készen áll. A Quick Paste most bezárul; ezt a bemutatót bármikor újraindíthatod: Súgó ▸ Bemutató indítása.</value>
+  </data>
+  <data name="HotkeyFallback" xml:space="preserve">
+    <value>a globális billentyűparancs (Beállítások ▸ Általános)</value>
+  </data>
+  <data name="SampleTeamName" xml:space="preserve">
+    <value>Csapat (minta)</value>
+  </data>
+  <data name="SampleRepliesFolder" xml:space="preserve">
+    <value>Válaszok ügyfeleknek</value>
+  </data>
+  <data name="SampleThanksContent" xml:space="preserve">
+    <value>&lt;p&gt;Kedves Ügyfelünk!&lt;/p&gt;&lt;p&gt;Köszönjük üzenetét. &lt;strong&gt;Egy munkanapon belül&lt;/strong&gt; válaszolunk.&lt;/p&gt;&lt;p&gt;Üdvözlettel&lt;/p&gt;</value>
+  </data>
+  <data name="SampleReleaseNotesContent" xml:space="preserve">
+    <value>&lt;h2&gt;Újdonságok&lt;/h2&gt;&lt;div class="ttm-panel ak-editor-panel" data-panel-type="info"&gt;&lt;p&gt;Ez a frissítés automatikusan települ.&lt;/p&gt;&lt;/div&gt;&lt;ul&gt;&lt;li&gt;&lt;p&gt;Gyorsabb keresés&lt;/p&gt;&lt;/li&gt;&lt;li&gt;&lt;p&gt;Új exportálási lehetőségek&lt;/p&gt;&lt;/li&gt;&lt;/ul&gt;</value>
+  </data>
+  <data name="SampleCodeFolder" xml:space="preserve">
+    <value>Kódrészletek</value>
+  </data>
+  <data name="SampleServicesTitle" xml:space="preserve">
+    <value>Futó szolgáltatások listázása</value>
+  </data>
+  <data name="SampleSignatureTitle" xml:space="preserve">
+    <value>Aláírás</value>
+  </data>
+  <data name="SampleSignatureContent" xml:space="preserve">
+    <value>&lt;p&gt;Üdvözlettel&lt;br&gt;Minta Alex&lt;/p&gt;</value>
+  </data>
+  <data name="SampleOutOfOfficeTitle" xml:space="preserve">
+    <value>Házon kívül</value>
+  </data>
+  <data name="SampleOutOfOfficeContent" xml:space="preserve">
+    <value>&lt;p&gt;Hétfőig nem vagyok az irodában, akkor válaszolok.&lt;/p&gt;</value>
+  </data>
+  <data name="SampleThanksTitle" xml:space="preserve">
+    <value>Köszönet az üzenetért</value>
+  </data>
+  <data name="SampleThanksTags" xml:space="preserve">
+    <value>támogatás, válasz</value>
+  </data>
+  <data name="SampleReleaseNotesTitle" xml:space="preserve">
+    <value>Kiadási megjegyzések</value>
+  </data>
+  <data name="SampleReleaseNotesTags" xml:space="preserve">
+    <value>kiadás</value>
+  </data>
+</root>

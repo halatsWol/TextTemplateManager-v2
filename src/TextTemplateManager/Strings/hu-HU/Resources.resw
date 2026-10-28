@@ -1,0 +1,1832 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI text, hu-HU (translated from en-US: same keys, same placeholders). Keys: x:Uid entries are Uid.Property (Page_Element.Text), text set in code is Area_Purpose (Loc.Get, always with the key written out, so the tests find it).
+     Every other language under Strings\ must carry the same keys and the same {0} placeholders (LocalizationTests). -->
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="SupportPage_Title.Text" xml:space="preserve">
+    <value>Támogatás</value>
+  </data>
+  <data name="SupportPage_HelpHeading.Text" xml:space="preserve">
+    <value>Súgó</value>
+  </data>
+  <data name="SupportPage_HelpText.Text" xml:space="preserve">
+    <value>A gyakori kérdésekre (frissítések, Quick Paste, költözés másik gépre) a webhelyen találsz választ, a kézikönyvekkel együtt.</value>
+  </data>
+  <data name="SupportPage_HelpLink.Content" xml:space="preserve">
+    <value>Súgó és hibaelhárítás</value>
+  </data>
+  <data name="SupportPage_LogsHeading.Text" xml:space="preserve">
+    <value>Naplók</value>
+  </data>
+  <data name="SupportPage_LogsText.Text" xml:space="preserve">
+    <value>Ha a telepítéssel, a frissítéssel vagy az alkalmazás indításával van gond, csatold a naplókat a bejelentéshez: az alkalmazás frissítési és összeomlási naplóit, a telepített verziót és a frissítési házirendeket, valamint a Microsoft Store, az alkalmazástelepítés és az alkalmazáshibák elmúlt 14 napos eseményeit a TextTemplateManagerrel kapcsolatban. A sablonok, a beállítások és a szinkronizálási fájlok nincsenek benne; a felhasználónév, a számítógépnév és a fiókazonosító helyett csak helyettesítő szerepel. A .zip minden fájlja egyszerű szöveg, így elküldés előtt elolvashatod.</value>
+  </data>
+  <data name="SupportPage_ExportLogsButton.Content" xml:space="preserve">
+    <value>Naplók exportálása…</value>
+  </data>
+  <data name="SupportPage_ExportLogsStatus.Text" xml:space="preserve">
+    <value>Az eseménynaplók beolvasása folyamatban; ez egy percig is eltarthat.</value>
+  </data>
+  <data name="SupportPage_ShowLogsButton.Content" xml:space="preserve">
+    <value>Megjelenítés a mappában</value>
+  </data>
+  <data name="SupportPage_ProblemHeading.Text" xml:space="preserve">
+    <value>Hiba bejelentése</value>
+  </data>
+  <data name="SupportPage_ProblemText.Text" xml:space="preserve">
+    <value>Írd le a lehető legpontosabban: mikor történt (dátum és idő), mit csináltál közvetlenül előtte, lépésről lépésre, mire számítottál, és mi történt helyette, minden üzenet pontos szövegével. Az e-mail és a GitHub-űrlap mindezt megkérdezi; az e-mail már tartalmazza az alkalmazás és a Windows verzióját.</value>
+  </data>
+  <data name="SupportPage_ProblemMailButton.Content" xml:space="preserve">
+    <value>Bejelentés e-mailben</value>
+  </data>
+  <data name="SupportPage_ProblemGitHubButton.Content" xml:space="preserve">
+    <value>Bejelentés a GitHubon</value>
+  </data>
+  <data name="SupportPage_FeatureHeading.Text" xml:space="preserve">
+    <value>Funkció javaslása</value>
+  </data>
+  <data name="SupportPage_FeatureText.Text" xml:space="preserve">
+    <value>Mit szeretnél elvégezni, hogyan csinálod ma, és hogyan működhetne?</value>
+  </data>
+  <data name="SupportPage_FeatureMailButton.Content" xml:space="preserve">
+    <value>Javaslat e-mailben</value>
+  </data>
+  <data name="SupportPage_FeatureGitHubButton.Content" xml:space="preserve">
+    <value>Javaslat a GitHubon</value>
+  </data>
+  <data name="SupportPage_SecurityHeading.Text" xml:space="preserve">
+    <value>Biztonsági rés bejelentése</value>
+  </data>
+  <data name="SupportPage_SecurityText.Text" xml:space="preserve">
+    <value>Bizalmasan jelentsd be, soha ne nyilvános issue-ként. A bejelentést csak a fejlesztő látja, amíg el nem készül a javítás.</value>
+  </data>
+  <data name="SupportPage_SecurityMailButton.Content" xml:space="preserve">
+    <value>Bejelentés e-mailben</value>
+  </data>
+  <data name="SupportPage_SecurityMailButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Biztonsági rés bejelentése e-mailben</value>
+  </data>
+  <data name="SupportPage_SecurityGitHubButton.Content" xml:space="preserve">
+    <value>Bizalmas bejelentés a GitHubon</value>
+  </data>
+  <data name="SupportPage_GitHubHint.Text" xml:space="preserve">
+    <value>A GitHubhoz GitHub-fiók kell, és az ottani issue-k nyilvánosak: ne tegyél közzé privát szöveget. Az e-mail fiók nélkül is működik.</value>
+  </data>
+  <data name="Support_LogsSaved" xml:space="preserve">
+    <value>Mentve ide: {0}. Csatold a fájlt a bejelentéshez.</value>
+  </data>
+  <data name="Support_LogsSaveFailed" xml:space="preserve">
+    <value>Nem sikerült menteni a naplókat: {0}</value>
+  </data>
+  <data name="Support_MailHint" xml:space="preserve">
+    <value>Ha nem nyílt meg e-mail-ablak, írj erre a címre: {0}; a cím a vágólapon van.</value>
+  </data>
+  <data name="SettingsView_General.Content" xml:space="preserve">
+    <value>Általános</value>
+  </data>
+  <data name="SettingsView_Integrations.Content" xml:space="preserve">
+    <value>Integrációk</value>
+  </data>
+  <data name="SettingsView_Sync.Content" xml:space="preserve">
+    <value>Szinkronizálás</value>
+  </data>
+  <data name="SettingsView_Backups.Content" xml:space="preserve">
+    <value>Biztonsági másolatok</value>
+  </data>
+  <data name="SettingsView_Translation.Content" xml:space="preserve">
+    <value>Fordítás</value>
+  </data>
+  <data name="SettingsView_Support.Content" xml:space="preserve">
+    <value>Támogatás</value>
+  </data>
+  <data name="GeneralPage_Title.Text" xml:space="preserve">
+    <value>Általános beállítások</value>
+  </data>
+  <data name="GeneralPage_QuickPasteHeading.Text" xml:space="preserve">
+    <value>Quick Paste</value>
+  </data>
+  <data name="GeneralPage_HotkeyLabel.Text" xml:space="preserve">
+    <value>Globális billentyűparancs</value>
+  </data>
+  <data name="GeneralPage_HotkeyText.Text" xml:space="preserve">
+    <value>Bárhonnan megnyitja a Quick Paste ablakot.</value>
+  </data>
+  <data name="GeneralPage_HotkeyBox.PlaceholderText" xml:space="preserve">
+    <value>Kattints ide a billentyűparancs beállításához...</value>
+  </data>
+  <data name="GeneralPage_ClearHotkeyButton.Content" xml:space="preserve">
+    <value>Törlés</value>
+  </data>
+  <data name="GeneralPage_HotkeyUnavailableInfo.Message" xml:space="preserve">
+    <value>Ezt a billentyűparancsot már egy másik alkalmazás használja, ezért nem nyitja meg a Quick Paste-et. Válassz másikat.</value>
+  </data>
+  <data name="GeneralPage_PasteModeLabel.Text" xml:space="preserve">
+    <value>Alapértelmezett beillesztési mód</value>
+  </data>
+  <data name="GeneralPage_PasteModeText.Text" xml:space="preserve">
+    <value>Az újonnan létrehozott sablonokra vonatkozik.</value>
+  </data>
+  <data name="GeneralPage_PasteModeCombo.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Alapértelmezett beillesztési mód</value>
+  </data>
+  <data name="GeneralPage_StartupHeading.Text" xml:space="preserve">
+    <value>Indítás</value>
+  </data>
+  <data name="GeneralPage_StartupToggle.Header" xml:space="preserve">
+    <value>Indítás a Windows-bejelentkezéskor</value>
+  </data>
+  <data name="GeneralPage_StartHiddenToggle.Header" xml:space="preserve">
+    <value>Rejtett indítás az értesítési területen</value>
+  </data>
+  <data name="GeneralPage_StartHiddenText.Text" xml:space="preserve">
+    <value>Ha a Windows bejelentkezéskor indítja az alkalmazást, az az értesítési területen marad, és nem nyitja meg az ablakot. A billentyűparancs és az értesítési ikon továbbra is működik.</value>
+  </data>
+  <data name="GeneralPage_EditingHeading.Text" xml:space="preserve">
+    <value>Szerkesztés</value>
+  </data>
+  <data name="GeneralPage_AutosaveToggle.Header" xml:space="preserve">
+    <value>Automatikus mentés</value>
+  </data>
+  <data name="GeneralPage_AutosaveText.Text" xml:space="preserve">
+    <value>A sablonok és mappák módosításait azonnal menti. Ha ki van kapcsolva, a módosítások a Mentésre várnak (Ctrl+S), és mielőtt elhagysz egy nem mentett módosításokat tartalmazó elemet, az alkalmazás rákérdez.</value>
+  </data>
+  <data name="GeneralPage_UpdatesHeading.Text" xml:space="preserve">
+    <value>Frissítések</value>
+  </data>
+  <data name="GeneralPage_CheckUpdatesButton.Content" xml:space="preserve">
+    <value>Frissítések keresése</value>
+  </data>
+  <data name="GeneralPage_AutomaticUpdatesToggle.Header" xml:space="preserve">
+    <value>Frissítések automatikus keresése és letöltése</value>
+  </data>
+  <data name="GeneralPage_AutomaticUpdatesText.Text" xml:space="preserve">
+    <value>Be: az alkalmazás rendszeresen keres új verziókat, és a háttérben letölti őket. Ki: csak akkor keres, ha a Frissítések keresése lehetőséget választod, és a letöltött frissítést csak a Frissítés most választásakor telepíti.</value>
+  </data>
+  <data name="GeneralPage_IdleInstallToggle.Header" xml:space="preserve">
+    <value>Frissítések telepítése, amíg az alkalmazás nincs használatban</value>
+  </data>
+  <data name="GeneralPage_IdleInstallText.Text" xml:space="preserve">
+    <value>Be: a letöltött frissítés akkor települ, ha 10 perce nem használod a gépet, az alkalmazás ablakai zárva vannak, és nincs mentetlen módosítás. Utána az alkalmazás megnyílik, és megmutatja az újdonságokat. Ki: a frissítés akkor települ, ha a Frissítés most lehetőséget választod, vagy kilépsz az alkalmazásból.</value>
+  </data>
+  <data name="GeneralPage_OtherHeading.Text" xml:space="preserve">
+    <value>Egyéb</value>
+  </data>
+  <data name="GeneralPage_HideCrossAreaWarningsToggle.Header" xml:space="preserve">
+    <value>Területek közötti rövidítésütközések elrejtése</value>
+  </data>
+  <data name="GeneralPage_HideCrossAreaWarningsText.Text" xml:space="preserve">
+    <value>Elrejti a figyelmeztetést, ha egy rövidítés több területen is szerepel (helyi + szinkronizált, vagy szinkronizált mappák között). Az azonos területen belüli ismétlődések mindig megjelennek.</value>
+  </data>
+  <data name="IntegrationsPage_Title.Text" xml:space="preserve">
+    <value>Integrációk</value>
+  </data>
+  <data name="IntegrationsPage_BrowserHeading.Text" xml:space="preserve">
+    <value>Böngészőbővítmény</value>
+  </data>
+  <data name="IntegrationsPage_BrowserText.Text" xml:space="preserve">
+    <value>Lehetővé teszi, hogy a hozzá tartozó bővítmény helyi kapcsolaton (127.0.0.1) keresztül listázza és beillessze a sablonokat. Másold az alábbi tokent a bővítménybe az összekapcsoláshoz.</value>
+  </data>
+  <data name="IntegrationsPage_ConnectorToggle.Header" xml:space="preserve">
+    <value>Browser Connector engedélyezése</value>
+  </data>
+  <data name="IntegrationsPage_PortLabel.Text" xml:space="preserve">
+    <value>Port</value>
+  </data>
+  <data name="IntegrationsPage_TokenLabel.Text" xml:space="preserve">
+    <value>Token</value>
+  </data>
+  <data name="IntegrationsPage_CopyTokenButton.Content" xml:space="preserve">
+    <value>Másolás</value>
+  </data>
+  <data name="IntegrationsPage_RegenerateTokenButton.Content" xml:space="preserve">
+    <value>Új token</value>
+  </data>
+  <data name="IntegrationsPage_ConnectorUnavailableInfo.Title" xml:space="preserve">
+    <value>A port nem érhető el</value>
+  </data>
+  <data name="IntegrationsPage_GetExtensionLabel.Text" xml:space="preserve">
+    <value>Szerezd be a bővítményt:</value>
+  </data>
+  <data name="IntegrationsPage_ApiDocLink.Content" xml:space="preserve">
+    <value>API-dokumentáció megtekintése</value>
+  </data>
+  <data name="IntegrationsPage_FileAssociationHeading.Text" xml:space="preserve">
+    <value>Fájltársítás</value>
+  </data>
+  <data name="IntegrationsPage_FileAssociationText.Text" xml:space="preserve">
+    <value>A .ttmdata fájlok a TextTemplateManagerrel nyílnak meg (a megnyitás szinkronizálási forrásként hozzáadja a fájlt). Ha egy másik alkalmazás átvette őket, a Windows Beállítások › Alkalmazások › Alapértelmezett alkalmazások részen válaszd újra a TextTemplateManagert a .ttmdata fájlokhoz.</value>
+  </data>
+  <data name="IntegrationsPage_DefaultAppsLink.Content" xml:space="preserve">
+    <value>Alapértelmezett alkalmazások megnyitása</value>
+  </data>
+  <data name="General_Version" xml:space="preserve">
+    <value>Verzió: {0}</value>
+  </data>
+  <data name="General_UpdateUnavailable" xml:space="preserve">
+    <value>Ez a példány nem a Microsoft Store-ból lett telepítve, ezért nem tudja frissíteni magát.</value>
+  </data>
+  <data name="General_UpdateDisabledByPolicy" xml:space="preserve">
+    <value>Az alkalmazás frissítéseit a szervezet kezeli.</value>
+  </data>
+  <data name="General_UpdateChecking" xml:space="preserve">
+    <value>Frissítések keresése…</value>
+  </data>
+  <data name="General_UpdateAvailable" xml:space="preserve">
+    <value>Elérhető új verzió: {0}. {1}</value>
+  </data>
+  <data name="General_UpdateChooseDownload" xml:space="preserve">
+    <value>A beszerzéshez válaszd a Letöltés lehetőséget.</value>
+  </data>
+  <data name="General_UpdateAvailableManaged" xml:space="preserve">
+    <value>Elérhető új verzió: {0}. A gép frissítéseit a szervezet kezeli.</value>
+  </data>
+  <data name="General_UpdateDownloading" xml:space="preserve">
+    <value>Frissítés letöltése… {0} %</value>
+  </data>
+  <data name="General_UpdateReady" xml:space="preserve">
+    <value>A telepítésre kész verzió: {0}. A Frissítés most mindent ment, és néhány másodperc múlva megnyitja az új verziót.</value>
+  </data>
+  <data name="General_UpdateInstalling" xml:space="preserve">
+    <value>Frissítés telepítése…</value>
+  </data>
+  <data name="General_UpdateFailed" xml:space="preserve">
+    <value>Az utolsó frissítési lépés sikertelen.</value>
+  </data>
+  <data name="General_UpdateManualSteps" xml:space="preserve">
+    <value>Nem sikerült automatikusan telepíteni ezt a verziót: {0}. A befejezéshez lépj ki az alkalmazásból, és indítsd újra a Start menüből.</value>
+  </data>
+  <data name="General_UpToDateCheckedAt" xml:space="preserve">
+    <value>Naprakész (utolsó ellenőrzés: {0:t}).</value>
+  </data>
+  <data name="General_UpToDate" xml:space="preserve">
+    <value>Naprakész.</value>
+  </data>
+  <data name="General_RestartToUpdateButton" xml:space="preserve">
+    <value>Frissítés most</value>
+  </data>
+  <data name="General_DownloadButton" xml:space="preserve">
+    <value>Letöltés</value>
+  </data>
+  <data name="General_TryAgainButton" xml:space="preserve">
+    <value>Újra</value>
+  </data>
+  <data name="General_CheckUpdatesButton" xml:space="preserve">
+    <value>Frissítések keresése</value>
+  </data>
+  <data name="General_SetByOrganization" xml:space="preserve">
+    <value>A szervezet állította be.</value>
+  </data>
+  <data name="General_StorePolicyAppAsks" xml:space="preserve">
+    <value>A Store-alkalmazások automatikus frissítése ki van kapcsolva ezen a gépen. A TextTemplateManager ennek ellenére maga kérdezi meg a Microsoft Store-t a frissítéseiről: magától, ha ez a kapcsoló be van kapcsolva, egyébként a Frissítések keresése választásakor.</value>
+  </data>
+  <data name="General_StorePolicyWindowsUpdate" xml:space="preserve">
+    <value>A Store-alkalmazások automatikus frissítése ki van kapcsolva ezen a gépen. A Windows Update által hozott frissítést a Frissítés most gomb kínálja fel.</value>
+  </data>
+  <data name="General_AutostartNotAvailable" xml:space="preserve">
+    <value>Csak a telepített alkalmazás indulhat a Windowsszal.</value>
+  </data>
+  <data name="General_AutostartOffInWindows" xml:space="preserve">
+    <value>Kikapcsolva a Windows Beállítások › Alkalmazások › Indítás részen; ott kapcsold be.</value>
+  </data>
+  <data name="Integrations_PortUnavailable" xml:space="preserve">
+    <value>Ez a port nem használható: {0}. Ezért a bővítmény nem tud csatlakozni. Egy másik alkalmazás használja (például egy még futó régebbi TextTemplateManager), vagy a Windows lefoglalta. Válassz fent másik portot, és ugyanazt állítsd be a bővítményben is.</value>
+  </data>
+  <data name="SyncPage_Title.Text" xml:space="preserve">
+    <value>Szinkronizálás</value>
+  </data>
+  <data name="SyncPage_SeparatorLabel.Text" xml:space="preserve">
+    <value>Elválasztó az előtag után</value>
+  </data>
+  <data name="SyncPage_SeparatorBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Elválasztó az előtag után</value>
+  </data>
+  <data name="SyncPage_SeparatorNone.Text" xml:space="preserve">
+    <value>nincs</value>
+  </data>
+  <data name="SyncPage_HelpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Gyors súgó</value>
+  </data>
+  <data name="SyncPage_HelpButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Gyors súgó</value>
+  </data>
+  <data name="SyncPage_AddButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Meglévő .ttmdata szinkronizálási fájl csatolása</value>
+  </data>
+  <data name="SyncPage_AddButton.Content" xml:space="preserve">
+    <value>Hozzáadás</value>
+  </data>
+  <data name="SyncPage_CreateButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Új szinkronizálási fájl létrehozása</value>
+  </data>
+  <data name="SyncPage_CreateButton.Content" xml:space="preserve">
+    <value>Létrehozás</value>
+  </data>
+  <data name="SyncPage_HelpTip.Title" xml:space="preserve">
+    <value>Útmutató a szinkronizáláshoz</value>
+  </data>
+  <data name="SyncPage_GuideAddLabel.Text" xml:space="preserve">
+    <value>Forrás hozzáadása:</value>
+  </data>
+  <data name="SyncPage_GuideAddText.Text" xml:space="preserve">
+    <value> csatolj egy meglévő .ttmdata fájlt, vagy hozz létre újat a Létrehozás gombbal (például egy OneDrive-mappában, hogy a gépek között szinkronizálódjon).</value>
+  </data>
+  <data name="SyncPage_GuideActiveLabel.Text" xml:space="preserve">
+    <value>Aktív:</value>
+  </data>
+  <data name="SyncPage_GuideActiveText.Text" xml:space="preserve">
+    <value> a forrást rögzített, legfelső szintű mappaként tölti be. Vedd ki a pipát, ha törlés nélkül el akarod rejteni.</value>
+  </data>
+  <data name="SyncPage_GuideSaveLabel.Text" xml:space="preserve">
+    <value>Mentés:</value>
+  </data>
+  <data name="SyncPage_GuideSaveText.Text" xml:space="preserve">
+    <value> be = szerkeszthető, a módosítások visszaíródnak a fájlba; ki = csak olvasható (újratöltéskor mindig a fájl számít).</value>
+  </data>
+  <data name="SyncPage_GuideNameLabel.Text" xml:space="preserve">
+    <value>Név és előtag:</value>
+  </data>
+  <data name="SyncPage_GuideNameText.Text" xml:space="preserve">
+    <value> a név a mappa helyi címe. Az előtag a mappa billentyűsoraihoz tartozik, például az „and” előtag + „msg” beírva: and-msg.</value>
+  </data>
+  <data name="SyncPage_GuideOrderLabel.Text" xml:space="preserve">
+    <value>Sorrend:</value>
+  </data>
+  <data name="SyncPage_GuideOrderText.Text" xml:space="preserve">
+    <value> a nyilakkal a mappák elsőbbségét állítod be — ha egy billentyű több területen is szerepel, a helyi után az itt első forrás nyer. Azonnal érvényes.</value>
+  </data>
+  <data name="SyncPage_GuideMissingLabel.Text" xml:space="preserve">
+    <value>Hiányzó fájl:</value>
+  </data>
+  <data name="SyncPage_GuideMissingText.Text" xml:space="preserve">
+    <value> figyelmeztető ikon jelenik meg, és a mappa a gyorsítótárazott másolatát mutatja. Kattints az ikonra, ha ebből a másolatból újra létre akarod hozni a fájlt, vagy másik fájlt akarsz csatolni.</value>
+  </data>
+  <data name="SyncPage_GuideSeparatorLabel.Text" xml:space="preserve">
+    <value>Elválasztó:</value>
+  </data>
+  <data name="SyncPage_GuideSeparatorText.Text" xml:space="preserve">
+    <value> az előtagot és a rövidítést összekötő karakter (alapértelmezés: '-'). Választható: '-', '.' vagy nincs (az előtag ekkor közvetlenül a rövidítéshez kapcsolódik, például ANDMSG).</value>
+  </data>
+  <data name="SyncPage_ActiveColumn.Text" xml:space="preserve">
+    <value>Aktív</value>
+  </data>
+  <data name="SyncPage_SaveColumn.Text" xml:space="preserve">
+    <value>Mentés</value>
+  </data>
+  <data name="SyncPage_NameColumn.Text" xml:space="preserve">
+    <value>Név</value>
+  </data>
+  <data name="SyncPage_PrefixColumn.Text" xml:space="preserve">
+    <value>Előtag</value>
+  </data>
+  <data name="SyncPage_FileColumn.Text" xml:space="preserve">
+    <value>Fájl</value>
+  </data>
+  <data name="SyncPage_SourceList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Szinkronizálási források</value>
+  </data>
+  <data name="SyncPage_ActiveBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Aktív</value>
+  </data>
+  <data name="SyncPage_ActiveBox.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Aktív (betöltve a listába)</value>
+  </data>
+  <data name="SyncPage_SaveBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Mentés engedélyezése</value>
+  </data>
+  <data name="SyncPage_SaveBox.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Mentés engedélyezése (szerkeszthető / visszaír)</value>
+  </data>
+  <data name="SyncPage_NameBox.PlaceholderText" xml:space="preserve">
+    <value>Mappa neve</value>
+  </data>
+  <data name="SyncPage_PrefixBox.PlaceholderText" xml:space="preserve">
+    <value>ELŐTAG</value>
+  </data>
+  <data name="SyncPage_MissingFileButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>A fájl nem található — hozd létre újra, vagy csatolj másik fájlt</value>
+  </data>
+  <data name="SyncPage_MissingFileButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>A fájl nem található</value>
+  </data>
+  <data name="SyncPage_RecreateItem.Text" xml:space="preserve">
+    <value>A fájl újbóli létrehozása a gyorsítótárazott másolatból</value>
+  </data>
+  <data name="SyncPage_RelinkItem.Text" xml:space="preserve">
+    <value>Másik fájl csatolása…</value>
+  </data>
+  <data name="SyncPage_MoveUpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Feljebb</value>
+  </data>
+  <data name="SyncPage_MoveUpButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Feljebb</value>
+  </data>
+  <data name="SyncPage_MoveDownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Lejjebb</value>
+  </data>
+  <data name="SyncPage_MoveDownButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Lejjebb</value>
+  </data>
+  <data name="SyncPage_RemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Eltávolítás</value>
+  </data>
+  <data name="SyncPage_RemoveButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Eltávolítás</value>
+  </data>
+  <data name="BackupsPage_Title.Text" xml:space="preserve">
+    <value>Biztonsági másolatok</value>
+  </data>
+  <data name="BackupsPage_AutomaticHeading.Text" xml:space="preserve">
+    <value>Automatikus biztonsági másolatok</value>
+  </data>
+  <data name="BackupsPage_AutomaticText.Text" xml:space="preserve">
+    <value>Maguktól készülnek: 2 perccel egy módosítás után és kilépéskor (az utolsó 3 marad meg), kétóránként, amíg az alkalmazás fut (5 marad meg), és naponta (5 marad meg). Mindegyik tartalmazza a sablonokat, a beállításokat, a szinkronizálási beállításokat és minden megosztott szinkronizálási fájl másolatát.</value>
+  </data>
+  <data name="BackupsPage_OpenFolderButton.Content" xml:space="preserve">
+    <value>A biztonsági másolatok mappájának megnyitása</value>
+  </data>
+  <data name="BackupsPage_ExportButton.Content" xml:space="preserve">
+    <value>Biztonsági másolat exportálása…</value>
+  </data>
+  <data name="BackupsPage_ExportText.Text" xml:space="preserve">
+    <value>Mindenről biztonsági másolatot ment .zip fájlként egy tetszőleges helyre, például másik gépre költözéshez.</value>
+  </data>
+  <data name="BackupsPage_RestoreHeading.Text" xml:space="preserve">
+    <value>Visszaállítás biztonsági másolatból</value>
+  </data>
+  <data name="BackupsPage_RestoreText.Text" xml:space="preserve">
+    <value>Válassz egy biztonsági másolatot, és azt, hogy mit vegyen át belőle az alkalmazás. Előbb az aktuális állapotról készül biztonsági másolat, aztán jön a visszaállítás és az újraindítás.</value>
+  </data>
+  <data name="BackupsPage_BackupList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Biztonsági másolatok</value>
+  </data>
+  <data name="BackupsPage_EmptyText.Text" xml:space="preserve">
+    <value>Még nincs biztonsági másolat. Az első nem sokkal az alkalmazás indulása után készül el.</value>
+  </data>
+  <data name="BackupsPage_RestorePartsLabel.Text" xml:space="preserve">
+    <value>Visszaállítás</value>
+  </data>
+  <data name="BackupsPage_LocalBox.Content" xml:space="preserve">
+    <value>Sablonok és mappák</value>
+  </data>
+  <data name="BackupsPage_SettingsBox.Content" xml:space="preserve">
+    <value>Beállítások</value>
+  </data>
+  <data name="BackupsPage_SyncBox.Content" xml:space="preserve">
+    <value>Szinkronizálás</value>
+  </data>
+  <data name="BackupsPage_SyncSettingsBox.Content" xml:space="preserve">
+    <value>Szinkronizálási beállítások (a csatolt fájlok és azok beállításai)</value>
+  </data>
+  <data name="BackupsPage_SyncedFoldersBox.Content" xml:space="preserve">
+    <value>Szinkronizált sablonok és mappák (a csatolt fájlok utoljára látott állapota)</value>
+  </data>
+  <data name="BackupsPage_RestoreButton.Content" xml:space="preserve">
+    <value>Visszaállítás…</value>
+  </data>
+  <data name="BackupsPage_RestoreFileButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Exportált biztonsági másolat (.zip) visszaállítása bárhonnan, a fent bejelölt részekkel</value>
+  </data>
+  <data name="BackupsPage_RestoreFileButton.Content" xml:space="preserve">
+    <value>Visszaállítás fájlból…</value>
+  </data>
+  <data name="BackupsPage_ImportV1Button.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Az 1-es verzió sablonjainak, beállításainak és szinkronizálási beállításainak átvétele erről a gépről</value>
+  </data>
+  <data name="BackupsPage_ImportV1Button.Content" xml:space="preserve">
+    <value>Importálás a TextTemplateManager 1-ből…</value>
+  </data>
+  <data name="TranslationPage_Title.Text" xml:space="preserve">
+    <value>Fordítás</value>
+  </data>
+  <data name="TranslationPage_ExperimentalBadge.Text" xml:space="preserve">
+    <value>Kísérleti</value>
+  </data>
+  <data name="TranslationPage_CheckInfo.Message" xml:space="preserve">
+    <value>A gépi fordítás hibázik: megváltozhat a jelentés, kimaradhatnak szavak, a formázás rossz szavakra kerülhet. A németben keveredhet a magázó (Sie) és a tegező (du) forma: bekapcsolt Formális beállítással ritkán, nélküle gyakran (a tegezés csak nagyjából sikerül).</value>
+  </data>
+  <data name="TranslationPage_CheckInfo.Title" xml:space="preserve">
+    <value>Ellenőrizz minden fordítást</value>
+  </data>
+  <data name="TranslationPage_IntroText.Text" xml:space="preserve">
+    <value>Fordíts sablonokat a szerkesztőben (a Fordítás gomb az eszköztár végén). A fordítás ezen a gépen fut: egy nyelvet egyszer tölts le, utána a fordítás offline is működik, és semmi sem hagyja el a gépet. Minden nyelv angolról és angolra fordít; más párok, például németről franciára, az angolon keresztül mennek, és mindkét nyelvre szükség van.</value>
+  </data>
+  <data name="TranslationPage_ModelsText.Text" xml:space="preserve">
+    <value>A nyelvek a Mozilla Firefox Translations modelljei, a Mozilla kiszolgálóiról letöltve (Mozilla Public License 2.0).</value>
+  </data>
+  <data name="TranslationPage_AutoCheckBox.Content" xml:space="preserve">
+    <value>A telepített nyelvek újabb verzióinak keresése naponta egyszer</value>
+  </data>
+  <data name="TranslationPage_AutoInstallBox.Content" xml:space="preserve">
+    <value>Automatikus letöltés</value>
+  </data>
+  <data name="TranslationPage_UpdateAllButton.Content" xml:space="preserve">
+    <value>Minden frissítés letöltése</value>
+  </data>
+  <data name="TranslationPage_RetryButton.Content" xml:space="preserve">
+    <value>Újra</value>
+  </data>
+  <data name="TranslationPage_FilterBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Nyelvek keresése</value>
+  </data>
+  <data name="TranslationPage_FilterBox.PlaceholderText" xml:space="preserve">
+    <value>Nyelvek keresése</value>
+  </data>
+  <data name="TranslationPage_LanguageList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Nyelvek</value>
+  </data>
+  <data name="TranslationPage_RowDownloadButton.Content" xml:space="preserve">
+    <value>Letöltés</value>
+  </data>
+  <data name="TranslationPage_RowUpdateButton.Content" xml:space="preserve">
+    <value>Frissítés</value>
+  </data>
+  <data name="TranslationPage_RowRemoveButton.Content" xml:space="preserve">
+    <value>Eltávolítás</value>
+  </data>
+  <data name="TranslationPage_RowCancelButton.Content" xml:space="preserve">
+    <value>Mégse</value>
+  </data>
+  <data name="TranslationPage_OfflineText.Text" xml:space="preserve">
+    <value>Nincs internet ezen a gépen? Exportáld a telepített nyelveket egy másik gépen a TextTemplateManagerrel, és importáld itt a fájlt.</value>
+  </data>
+  <data name="TranslationPage_ExportButton.Content" xml:space="preserve">
+    <value>Telepített nyelvek exportálása…</value>
+  </data>
+  <data name="TranslationPage_ImportButton.Content" xml:space="preserve">
+    <value>Nyelvek importálása…</value>
+  </data>
+  <data name="Common_OkButton" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Sync_NewFileName" xml:space="preserve">
+    <value>Szinkronizálás</value>
+  </data>
+  <data name="Sync_RecreateFailedTitle" xml:space="preserve">
+    <value>Nem sikerült újra létrehozni a fájlt</value>
+  </data>
+  <data name="Sync_RecreateFailedWrite" xml:space="preserve">
+    <value>Nem sikerült írni a fájlt ide: {0}.</value>
+  </data>
+  <data name="Sync_RecreateFailedInactive" xml:space="preserve">
+    <value>Ez a forrás ki van kapcsolva, ezért nincs gyorsítótárazott másolat a mappájáról. Csatolj helyette másik fájlt.</value>
+  </data>
+  <data name="Backups_TierRecent" xml:space="preserve">
+    <value>Legutóbbi</value>
+  </data>
+  <data name="Backups_TierTwoHourly" xml:space="preserve">
+    <value>Kétóránkénti</value>
+  </data>
+  <data name="Backups_TierDaily" xml:space="preserve">
+    <value>Napi</value>
+  </data>
+  <data name="Backups_TierExported" xml:space="preserve">
+    <value>Exportált</value>
+  </data>
+  <data name="Backups_TierV1" xml:space="preserve">
+    <value>A TextTemplateManager v1-ből</value>
+  </data>
+  <data name="Backups_FromFile" xml:space="preserve">
+    <value>Fájlból</value>
+  </data>
+  <data name="Backups_MadeByVersion" xml:space="preserve">
+    <value>verzió: {0}</value>
+  </data>
+  <data name="Backups_Damaged" xml:space="preserve">
+    <value>sérült, nem állítható vissza ({0})</value>
+  </data>
+  <data name="Backups_NoV1Data" xml:space="preserve">
+    <value>Ezen a gépen nincsenek TextTemplateManager 1-adatok.</value>
+  </data>
+  <data name="Backups_V1Unreadable" xml:space="preserve">
+    <value>Nem sikerült beolvasni a TextTemplateManager 1 adatait: {0}</value>
+  </data>
+  <data name="Backups_FolderOpenFailed" xml:space="preserve">
+    <value>Nem sikerült megnyitni a mappát: {0}</value>
+  </data>
+  <data name="Backups_ExportFileName" xml:space="preserve">
+    <value>TextTemplateManager biztonsági másolat {0:yyyy-MM-dd}</value>
+  </data>
+  <data name="Backups_ExportSaved" xml:space="preserve">
+    <value>Mentve ide: {0}</value>
+  </data>
+  <data name="Backups_NothingToBackUp" xml:space="preserve">
+    <value>Még nincs mit menteni.</value>
+  </data>
+  <data name="Backups_NotQuiet" xml:space="preserve">
+    <value>Még folyt a fájlok mentése. Próbáld újra egy kicsit később.</value>
+  </data>
+  <data name="Backups_ExportFailed" xml:space="preserve">
+    <value>Nem sikerült menteni a biztonsági másolatot: {0}</value>
+  </data>
+  <data name="Backups_FileCantRestore" xml:space="preserve">
+    <value>Nem állítható vissza: „{0}” ({1}).</value>
+  </data>
+  <data name="Translation_DownloadName" xml:space="preserve">
+    <value>Letöltés: {0}</value>
+  </data>
+  <data name="Translation_UpdateName" xml:space="preserve">
+    <value>Frissítés: {0}</value>
+  </data>
+  <data name="Translation_RemoveName" xml:space="preserve">
+    <value>Eltávolítás: {0}</value>
+  </data>
+  <data name="Translation_CancelName" xml:space="preserve">
+    <value>Letöltés megszakítása: {0}</value>
+  </data>
+  <data name="Translation_ProgressName" xml:space="preserve">
+    <value>Letöltés folyamatban: {0}</value>
+  </data>
+  <data name="Translation_RowDownloading" xml:space="preserve">
+    <value>Letöltés…</value>
+  </data>
+  <data name="Translation_RowInstalled" xml:space="preserve">
+    <value>Telepítve</value>
+  </data>
+  <data name="Translation_RowUpdateAvailable" xml:space="preserve">
+    <value>frissítés érhető el</value>
+  </data>
+  <data name="Translation_RowUpToDate" xml:space="preserve">
+    <value>naprakész</value>
+  </data>
+  <data name="Translation_RowDownloadSize" xml:space="preserve">
+    <value>letöltés: {0}</value>
+  </data>
+  <data name="Translation_RowDiskSize" xml:space="preserve">
+    <value>lemezen: {0}</value>
+  </data>
+  <data name="Translation_RowOnlyFromEnglish" xml:space="preserve">
+    <value>csak angolról</value>
+  </data>
+  <data name="Translation_RowOnlyToEnglish" xml:space="preserve">
+    <value>csak angolra</value>
+  </data>
+  <data name="Translation_SizeMB" xml:space="preserve">
+    <value>{0} MB</value>
+  </data>
+  <data name="Translation_CatalogLoading" xml:space="preserve">
+    <value>Nyelvek betöltése a Mozillától…</value>
+  </data>
+  <data name="Translation_CatalogFailed" xml:space="preserve">
+    <value>Nem sikerült betölteni a nyelvek listáját a Mozilla kiszolgálójáról. A telepített nyelvek továbbra is működnek.</value>
+  </data>
+  <data name="Translation_NoneInstalled" xml:space="preserve">
+    <value>Nincs telepített nyelv.</value>
+  </data>
+  <data name="Translation_DiskUsage" xml:space="preserve">
+    <value>A telepített nyelvek helyfoglalása: {0}.</value>
+  </data>
+  <data name="Translation_DownloadFailed" xml:space="preserve">
+    <value>Nem sikerült letölteni: {0} ({1})</value>
+  </data>
+  <data name="Translation_ExportFileType" xml:space="preserve">
+    <value>TextTemplateManager-nyelvek</value>
+  </data>
+  <data name="Translation_ExportFileName" xml:space="preserve">
+    <value>TextTemplateManager-nyelvek</value>
+  </data>
+  <data name="Translation_ExportSaved" xml:space="preserve">
+    <value>Mentve ide: {0}.</value>
+  </data>
+  <data name="Translation_ExportFailed" xml:space="preserve">
+    <value>Nem sikerült exportálni a nyelveket: {0}</value>
+  </data>
+  <data name="Translation_Imported" xml:space="preserve">
+    <value>Importálva: {0}.</value>
+  </data>
+  <data name="Translation_ImportFailed" xml:space="preserve">
+    <value>Nem sikerült importálni a fájlt: {0}</value>
+  </data>
+  <data name="MainPage_FolderTemplateTitleBox.Header" xml:space="preserve">
+    <value>Mappa címe</value>
+  </data>
+  <data name="MainPage_FolderTemplateSelected.Text" xml:space="preserve">
+    <value>Mappa kijelölve</value>
+  </data>
+  <data name="MainPage_EmptyTemplateText.Text" xml:space="preserve">
+    <value>Válassz ki egy elemet a részletek megtekintéséhez</value>
+  </data>
+  <data name="MainPage_FileMenu.Title" xml:space="preserve">
+    <value>Fájl</value>
+  </data>
+  <data name="MainPage_ImportItem.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Egy .ttmdata fájl sablonjait és mappáit hozzáadja a helyiekhez</value>
+  </data>
+  <data name="MainPage_ImportItem.Text" xml:space="preserve">
+    <value>Importálás…</value>
+  </data>
+  <data name="MainPage_ExportItem.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>A kijelölt elemeket (vagy ha nincs kijelölés, az összes helyi sablont és mappát) .ttmdata fájlba menti</value>
+  </data>
+  <data name="MainPage_SettingsItem.Text" xml:space="preserve">
+    <value>Beállítások</value>
+  </data>
+  <data name="MainPage_ExitItem.Text" xml:space="preserve">
+    <value>Kilépés</value>
+  </data>
+  <data name="MainPage_HelpMenu.Title" xml:space="preserve">
+    <value>Súgó</value>
+  </data>
+  <data name="MainPage_ManualItem.Text" xml:space="preserve">
+    <value>Kézikönyv megnyitása</value>
+  </data>
+  <data name="MainPage_TutorialItem.Text" xml:space="preserve">
+    <value>Bemutató indítása</value>
+  </data>
+  <data name="MainPage_WebsiteItem.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>software.kmarflow.com: online súgó, hibaelhárítás és hibabejelentés</value>
+  </data>
+  <data name="MainPage_WebsiteItem.Text" xml:space="preserve">
+    <value>Ugrás a webhelyre</value>
+  </data>
+  <data name="MainPage_AboutItem.Text" xml:space="preserve">
+    <value>Névjegy</value>
+  </data>
+  <data name="MainPage_SavedText.Text" xml:space="preserve">
+    <value>Mentve</value>
+  </data>
+  <data name="MainPage_SaveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Mentés</value>
+  </data>
+  <data name="MainPage_SaveButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Módosítások mentése (Ctrl+S)</value>
+  </data>
+  <data name="MainPage_SaveButtonText.Text" xml:space="preserve">
+    <value>Mentés</value>
+  </data>
+  <data name="MainPage_HelpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Gyors súgó</value>
+  </data>
+  <data name="MainPage_HelpButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Gyors súgó</value>
+  </data>
+  <data name="MainPage_UpdateBar.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Frissítés</value>
+  </data>
+  <data name="MainPage_AddTemplateButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Sablon hozzáadása</value>
+  </data>
+  <data name="MainPage_AddTemplateButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Sablon hozzáadása</value>
+  </data>
+  <data name="MainPage_AddFolderButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Mappa hozzáadása</value>
+  </data>
+  <data name="MainPage_AddFolderButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Mappa hozzáadása</value>
+  </data>
+  <data name="MainPage_DeleteButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Elem törlése</value>
+  </data>
+  <data name="MainPage_DeleteButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Elem törlése</value>
+  </data>
+  <data name="MainPage_CollapseAllButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Összes összecsukása</value>
+  </data>
+  <data name="MainPage_CollapseAllButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Összes összecsukása</value>
+  </data>
+  <data name="MainPage_ExpandAllButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Összes kibontása</value>
+  </data>
+  <data name="MainPage_ExpandAllButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Összes kibontása</value>
+  </data>
+  <data name="MainPage_SearchBox.PlaceholderText" xml:space="preserve">
+    <value>Keresés a sablonok között...</value>
+  </data>
+  <data name="MainPage_SyncMissingIcon.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>A szinkronizálási fájl nem található — a gyorsítótárazott másolat látható. Hozd létre újra a fájlt, vagy csatolj másikat a Beállítások › Szinkronizálás részen.</value>
+  </data>
+  <data name="MainPage_Splitter.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>A sablonlista szélességének módosítása</value>
+  </data>
+  <data name="MainPage_TitleBox.Header" xml:space="preserve">
+    <value>Cím</value>
+  </data>
+  <data name="MainPage_SingleKeyLabel.Text" xml:space="preserve">
+    <value>Egy billentyű</value>
+  </data>
+  <data name="MainPage_SingleKeyBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Egy billentyű</value>
+  </data>
+  <data name="MainPage_MultiKeyLabel.Text" xml:space="preserve">
+    <value>Billentyűsor</value>
+  </data>
+  <data name="MainPage_MultiKeyBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Billentyűsor</value>
+  </data>
+  <data name="MainPage_TagsBox.Header" xml:space="preserve">
+    <value>Címkék</value>
+  </data>
+  <data name="MainPage_PasteModeBox.Header" xml:space="preserve">
+    <value>Alapértelmezett beillesztési mód</value>
+  </data>
+  <data name="MainPage_FolderTitleBox.Header" xml:space="preserve">
+    <value>Mappa címe</value>
+  </data>
+  <data name="MainPage_FolderSelected.Text" xml:space="preserve">
+    <value>Mappa kijelölve</value>
+  </data>
+  <data name="MainPage_EmptyText.Text" xml:space="preserve">
+    <value>Válassz ki egy elemet a részletek megtekintéséhez</value>
+  </data>
+  <data name="MainPage_HelpTip.Title" xml:space="preserve">
+    <value>Útmutató a sablonkezelőhöz</value>
+  </data>
+  <data name="MainPage_GuideOrganizeLabel.Text" xml:space="preserve">
+    <value>Rendezés:</value>
+  </data>
+  <data name="MainPage_GuideOrganizeText.Text" xml:space="preserve">
+    <value> adj hozzá elemeket az eszköztárral; húzással rendezheted át vagy ágyazhatod egymásba őket (egy mappa közepére ejtve az elem a mappába kerül, egy sor tetejéhez vagy aljához közel ejtve fölé vagy alá). Kattints egy üres helyre, vagy nyomd meg az Esc billentyűt a kijelölés megszüntetéséhez (az új elemek ekkor a legfelső szintre kerülnek).</value>
+  </data>
+  <data name="MainPage_GuideSyncLabel.Text" xml:space="preserve">
+    <value>Szinkronizált mappák:</value>
+  </data>
+  <data name="MainPage_GuideSyncText.Text" xml:space="preserve">
+    <value> felül rögzítve, szinkronizálási ikonnal. A Beállítások ▸ Szinkronizálás részen állíthatod be őket. A csak olvashatók halványak.</value>
+  </data>
+  <data name="MainPage_GuideShortcutsLabel.Text" xml:space="preserve">
+    <value>Rövidítések:</value>
+  </data>
+  <data name="MainPage_GuideShortcutsText.Text" xml:space="preserve">
+    <value> állíts be sablononként egy billentyűt vagy egy billentyűsort. Ugyanaz a billentyű több területen is szerepelhet; a helyi nyer, utána a szinkronizált mappák sorrendben.</value>
+  </data>
+  <data name="MainPage_GuideConflictsLabel.Text" xml:space="preserve">
+    <value>Ütközések:</value>
+  </data>
+  <data name="MainPage_GuideConflictsText.Text" xml:space="preserve">
+    <value> az azonos területen belül ismétlődő rövidítés le van tiltva (a jobb felső panel listázza); területek között csak figyelmeztetés, amelyet elrejthetsz.</value>
+  </data>
+  <data name="MainPage_GuideRightClickLabel.Text" xml:space="preserve">
+    <value>Jobb gomb:</value>
+  </data>
+  <data name="MainPage_GuideRightClickText.Text" xml:space="preserve">
+    <value> sablonon: Duplikálás / Másolás; sablonon vagy mappán: Exportálás vagy Törlés. Húzz egy elemet a lista alatti üres területre, hogy a legfelső szintre kerüljön.</value>
+  </data>
+  <data name="MainPage_GuideSearchLabel.Text" xml:space="preserve">
+    <value>Keresés:</value>
+  </data>
+  <data name="MainPage_GuideSearchText.Text" xml:space="preserve">
+    <value> cím és címkék szerint szűri a listát; a mellette lévő szűrőgombbal a sablonok szövegében is kereshetsz.</value>
+  </data>
+  <data name="MainPage_GuideEditorLabel.Text" xml:space="preserve">
+    <value>Szerkesztő:</value>
+  </data>
+  <data name="MainPage_GuideEditorText.Text" xml:space="preserve">
+    <value> formázz az eszköztárral — címsorok, listák, táblázatok, színek és Információ/Megjegyzés/Siker/Figyelmeztetés/Hiba panelek. A HTML/Jira beillesztési móddal a paneleket a Jirába is beillesztheted.</value>
+  </data>
+  <data name="MainPage_GuideQuickPasteLabel.Text" xml:space="preserve">
+    <value>Quick Paste:</value>
+  </data>
+  <data name="MainPage_GuideQuickPasteText.Text" xml:space="preserve">
+    <value> nyomd meg bárhol a globális billentyűparancsot (Beállítások ▸ Általános), és a sablon az aktív alkalmazásba kerül.</value>
+  </data>
+  <data name="MainPage_TourHintTip.Subtitle" xml:space="preserve">
+    <value>Bármikor újraindíthatod: Súgó ▸ Bemutató indítása.</value>
+  </data>
+  <data name="MainPage_TourHintTip.Title" xml:space="preserve">
+    <value>Bemutató bezárva</value>
+  </data>
+  <data name="Common_CancelButton" xml:space="preserve">
+    <value>Mégse</value>
+  </data>
+  <data name="Common_CloseButton" xml:space="preserve">
+    <value>Bezárás</value>
+  </data>
+  <data name="PasteMode_Auto" xml:space="preserve">
+    <value>Automatikus</value>
+  </data>
+  <data name="PasteMode_Plaintext" xml:space="preserve">
+    <value>Csak szöveg</value>
+  </data>
+  <data name="Main_TreeName" xml:space="preserve">
+    <value>Sablonok</value>
+  </data>
+  <data name="Main_SyncRootNameTooltip" xml:space="preserve">
+    <value>A szinkronizált mappa nevét a Beállítások ▸ Szinkronizálás részen adhatod meg</value>
+  </data>
+  <data name="Main_UnsavedTitle" xml:space="preserve">
+    <value>Szeretnéd menteni a módosításokat?</value>
+  </data>
+  <data name="Main_UnsavedText" xml:space="preserve">
+    <value>Nem mentett módosítások: „{0}”.</value>
+  </data>
+  <data name="Main_SaveButton" xml:space="preserve">
+    <value>Mentés</value>
+  </data>
+  <data name="Main_DontSaveButton" xml:space="preserve">
+    <value>Nincs mentés</value>
+  </data>
+  <data name="Main_ExportSelection_One" xml:space="preserve">
+    <value>{0} elem exportálása…</value>
+  </data>
+  <data name="Main_ExportSelection_Other" xml:space="preserve">
+    <value>{0} elem exportálása…</value>
+  </data>
+  <data name="Main_DeleteSelection_One" xml:space="preserve">
+    <value>{0} elem törlése</value>
+  </data>
+  <data name="Main_DeleteSelection_Other" xml:space="preserve">
+    <value>{0} elem törlése</value>
+  </data>
+  <data name="Main_DuplicateItem" xml:space="preserve">
+    <value>Duplikálás</value>
+  </data>
+  <data name="Main_CopyItem" xml:space="preserve">
+    <value>Másolás ({0})</value>
+  </data>
+  <data name="Main_CopyAsItem" xml:space="preserve">
+    <value>Másolás másként</value>
+  </data>
+  <data name="Main_ExportItem" xml:space="preserve">
+    <value>Exportálás…</value>
+  </data>
+  <data name="Main_ExportNotAcrossAreas" xml:space="preserve">
+    <value>Exportálás… (területek között nem)</value>
+  </data>
+  <data name="Main_DeleteItem" xml:space="preserve">
+    <value>Törlés</value>
+  </data>
+  <data name="Main_DeleteMany" xml:space="preserve">
+    <value>Szeretnéd törölni a kijelölt elemeket ({0} db)? Ez nem vonható vissza.</value>
+  </data>
+  <data name="Main_DeleteManyWithInside_One" xml:space="preserve">
+    <value>Szeretnéd törölni a kijelölt elemeket ({1} db) és a mappáikban lévő elemet ({0} db)? Ez nem vonható vissza.</value>
+  </data>
+  <data name="Main_DeleteManyWithInside_Other" xml:space="preserve">
+    <value>Szeretnéd törölni a kijelölt elemeket ({1} db) és a mappáikban lévő elemeket ({0} db)? Ez nem vonható vissza.</value>
+  </data>
+  <data name="Main_DeleteSkipped_One" xml:space="preserve">
+    <value>{0} kijelölt elem itt nem törölhető (szinkronizált mappa vagy csak olvasható szinkronizált elem), ezért megmarad.</value>
+  </data>
+  <data name="Main_DeleteSkipped_Other" xml:space="preserve">
+    <value>{0} kijelölt elem itt nem törölhető (szinkronizált mappák vagy csak olvasható szinkronizált elemek), ezért megmaradnak.</value>
+  </data>
+  <data name="Main_DeleteFolder_One" xml:space="preserve">
+    <value>Szeretnéd törölni ezt a mappát és a benne lévő elemet ({0} db)?
+„{1}”
+
+A mappában lévő elem is törlődik. Ez nem vonható vissza.</value>
+  </data>
+  <data name="Main_DeleteFolder_Other" xml:space="preserve">
+    <value>Szeretnéd törölni ezt a mappát és a benne lévő elemeket ({0} db)?
+„{1}”
+
+A mappában lévő összes elem is törlődik. Ez nem vonható vissza.</value>
+  </data>
+  <data name="Main_DeleteTemplate" xml:space="preserve">
+    <value>Szeretnéd törölni ezt a sablont? „{0}”
+Ez nem vonható vissza.</value>
+  </data>
+  <data name="Main_DeleteTitle" xml:space="preserve">
+    <value>Törlés megerősítése</value>
+  </data>
+  <data name="Main_DeleteButton" xml:space="preserve">
+    <value>Törlés</value>
+  </data>
+  <data name="Main_NothingImportedTitle" xml:space="preserve">
+    <value>Nem történt importálás</value>
+  </data>
+  <data name="Main_ImportUnreadable" xml:space="preserve">
+    <value>A fájl nem olvasható be TextTemplateManager-adatként. Semmi sem változott.</value>
+  </data>
+  <data name="Main_ImportEmpty" xml:space="preserve">
+    <value>Nincs benne sablon vagy mappa: „{0}”.</value>
+  </data>
+  <data name="Main_ImportIntoNewFolder" xml:space="preserve">
+    <value>Új mappába: „{0}”</value>
+  </data>
+  <data name="Main_ImportDirectly" xml:space="preserve">
+    <value>Közvetlenül a listába (az azonos nevű mappák összevonódnak)</value>
+  </data>
+  <data name="Main_ImportOverwriteAll" xml:space="preserve">
+    <value>Mindet felülírja</value>
+  </data>
+  <data name="Main_ImportOverwriteOlder" xml:space="preserve">
+    <value>Csak ott írja felül, ahol az importált az újabb</value>
+  </data>
+  <data name="Main_ImportSkip" xml:space="preserve">
+    <value>Kihagyja őket, a meglévők maradnak</value>
+  </data>
+  <data name="Main_ImportConflicts_One" xml:space="preserve">
+    <value>Ezek közül {0} sablon már létezik (ugyanaz a sablon, vagy ugyanaz a cím ugyanabban a mappában):</value>
+  </data>
+  <data name="Main_ImportConflicts_Other" xml:space="preserve">
+    <value>Ezek közül {0} sablon már létezik (ugyanaz a sablon, vagy ugyanaz a cím ugyanabban a mappában):</value>
+  </data>
+  <data name="Main_ImportHolds" xml:space="preserve">
+    <value>„{0}”: {1} {2}. Hová kerüljenek?</value>
+  </data>
+  <data name="Main_ImportTemplates_One" xml:space="preserve">
+    <value>{0} sablon</value>
+  </data>
+  <data name="Main_ImportTemplates_Other" xml:space="preserve">
+    <value>{0} sablon</value>
+  </data>
+  <data name="Main_ImportInFolders_One" xml:space="preserve">
+    <value>{0} mappában</value>
+  </data>
+  <data name="Main_ImportInFolders_Other" xml:space="preserve">
+    <value>{0} mappában</value>
+  </data>
+  <data name="Main_ImportTitle" xml:space="preserve">
+    <value>Importálás</value>
+  </data>
+  <data name="Main_ImportButton" xml:space="preserve">
+    <value>Importálás</value>
+  </data>
+  <data name="Main_NotSyncSourceTitle" xml:space="preserve">
+    <value>Nem lett szinkronizálási forrás</value>
+  </data>
+  <data name="Main_NotSyncSourceText" xml:space="preserve">
+    <value>A hozzáadott fájl az alkalmazás saját adatfájlja, ezért nem csatolható szinkronizálási forrásként.</value>
+  </data>
+  <data name="Main_ManualUnavailableTitle" xml:space="preserve">
+    <value>A kézikönyv nem érhető el</value>
+  </data>
+  <data name="Main_ManualUnavailableText" xml:space="preserve">
+    <value>A kézikönyv PDF-fájlja nem található az alkalmazás mellett. A build során jön létre.</value>
+  </data>
+  <data name="Main_LicenseTitle" xml:space="preserve">
+    <value>Licenc</value>
+  </data>
+  <data name="Main_NoticesTitle" xml:space="preserve">
+    <value>Harmadik féltől származó összetevők</value>
+  </data>
+  <data name="Main_FileNotFound" xml:space="preserve">
+    <value>{0}: a fájl nem található.</value>
+  </data>
+  <data name="Main_UnreadableKept" xml:space="preserve">
+    <value>{0}: nélküle indult el. Az eredeti ezen a néven megmaradt: {1}.</value>
+  </data>
+  <data name="Main_UnreadableLocked" xml:space="preserve">
+    <value>{0}: nem sikerült beolvasni vagy áthelyezni. Az alkalmazás újraindításáig nem változik.</value>
+  </data>
+  <data name="Main_UnreadableTitle" xml:space="preserve">
+    <value>Néhány fájl nem olvasható</value>
+  </data>
+  <data name="Main_UnreadableText" xml:space="preserve">
+    <value>{0}
+
+Mappa: {1}
+
+Az eredeti fájlok nem lettek felülírva.</value>
+  </data>
+  <data name="Main_LegacyTitle" xml:space="preserve">
+    <value>A TextTemplateManager 1 még telepítve van</value>
+  </data>
+  <data name="Main_LegacyText" xml:space="preserve">
+    <value>Ez a verzió felváltja. Az adatai ezen a gépen maradnak, és biztonsági másolatuk megtalálható a Beállítások ▸ Biztonsági másolatok részen.
+
+Szeretnéd most eltávolítani a régi verziót?</value>
+  </data>
+  <data name="Main_LegacyRemoveButton" xml:space="preserve">
+    <value>A TextTemplateManager 1 eltávolítása</value>
+  </data>
+  <data name="Main_LegacyKeepButton" xml:space="preserve">
+    <value>Megtartás</value>
+  </data>
+  <data name="Main_LegacyRemovedTitle" xml:space="preserve">
+    <value>A TextTemplateManager 1 eltávolítva</value>
+  </data>
+  <data name="Main_LegacyRemovedText" xml:space="preserve">
+    <value>A régi verzió el lett távolítva. Az adatmappája megmaradt.</value>
+  </data>
+  <data name="Main_LegacyNotRemovedTitle" xml:space="preserve">
+    <value>A TextTemplateManager 1 nem lett eltávolítva</value>
+  </data>
+  <data name="Main_LegacyNotRemovedText" xml:space="preserve">
+    <value>A régi verziót innen nem sikerült eltávolítani. Távolítsd el a Windows Beállítások ▸ Alkalmazások ▸ Telepített alkalmazások részen.</value>
+  </data>
+  <data name="Main_FirstStartImport" xml:space="preserve">
+    <value>Importálás a TextTemplateManager 1-ből: a sablonok, a beállítások és a szinkronizálási beállítások úgy, ahogy ott hagytad őket. Az alkalmazás utána újraindul.</value>
+  </data>
+  <data name="Main_FirstStartRestore" xml:space="preserve">
+    <value>Biztonsági másolat visszaállítása (a legújabb: {0:f})</value>
+  </data>
+  <data name="Main_FirstStartFresh" xml:space="preserve">
+    <value>Új kezdés</value>
+  </data>
+  <data name="Main_FirstStartQuestion" xml:space="preserve">
+    <value>Hogyan szeretnéd kezdeni?</value>
+  </data>
+  <data name="Main_FirstStartTitle" xml:space="preserve">
+    <value>Üdvözöl a TextTemplateManager</value>
+  </data>
+  <data name="Main_ContinueButton" xml:space="preserve">
+    <value>Tovább</value>
+  </data>
+  <data name="Main_ImportV1FailedTitle" xml:space="preserve">
+    <value>Az importálás a TextTemplateManager 1-ből nem sikerült</value>
+  </data>
+  <data name="Main_ImportV1FailedText" xml:space="preserve">
+    <value>{0}
+
+Újra megpróbálhatod itt: Beállítások ▸ Biztonsági másolatok ▸ Importálás a TextTemplateManager 1-ből.</value>
+  </data>
+  <data name="Main_TourOfferTitle" xml:space="preserve">
+    <value>Szeretnéd megnézni a bemutatót?</value>
+  </data>
+  <data name="Main_TourOfferText" xml:space="preserve">
+    <value>Egy rövid bemutató mintasablonokon mutatja be a főablakot, a beállításokat és a Quick Paste-et; a saját sablonokhoz nem nyúl. Bármikor elindíthatod a Súgó ▸ Bemutató indítása menüpontból is.</value>
+  </data>
+  <data name="Main_TourOfferTakeButton" xml:space="preserve">
+    <value>Bemutató indítása</value>
+  </data>
+  <data name="Main_TourOfferLaterButton" xml:space="preserve">
+    <value>Később</value>
+  </data>
+  <data name="Main_TourOfferNeverButton" xml:space="preserve">
+    <value>Ne jelenjen meg többé</value>
+  </data>
+  <data name="Main_WhatsNewTitle" xml:space="preserve">
+    <value>Újdonságok – {0}</value>
+  </data>
+  <data name="Main_ErrorTitle" xml:space="preserve">
+    <value>Hiba történt</value>
+  </data>
+  <data name="Main_ErrorSaved" xml:space="preserve">
+    <value>Váratlan hiba történt. A módosítások mentve lettek. A biztonság kedvéért lépj ki a TextTemplateManagerből, és indítsd újra.
+
+Részletek: {0}</value>
+  </data>
+  <data name="Main_ErrorUnsaved" xml:space="preserve">
+    <value>Váratlan hiba történt, és lehet, hogy a legutóbbi módosítások nem lettek mentve. A biztonság kedvéért lépj ki a TextTemplateManagerből, és indítsd újra.
+
+Részletek: {0}</value>
+  </data>
+  <data name="Main_QuitButton" xml:space="preserve">
+    <value>Kilépés</value>
+  </data>
+  <data name="Main_KeepRunningButton" xml:space="preserve">
+    <value>Futás folytatása</value>
+  </data>
+  <data name="Main_SavingTitle" xml:space="preserve">
+    <value>Módosítások mentése…</value>
+  </data>
+  <data name="Main_StillSavingTitle" xml:space="preserve">
+    <value>A mentés még tart</value>
+  </data>
+  <data name="Main_StillSavingText" xml:space="preserve">
+    <value>A legutóbbi módosítások mentése még nem fejeződött be (lehet, hogy egy szinkronizált fájl foglalt). Ha most kilépsz, elveszhetnek.</value>
+  </data>
+  <data name="Main_KeepWaitingButton" xml:space="preserve">
+    <value>Várakozás tovább</value>
+  </data>
+  <data name="Main_QuitAnywayButton" xml:space="preserve">
+    <value>Kilépés mindenképp</value>
+  </data>
+  <data name="Main_DownloadingTitle" xml:space="preserve">
+    <value>Egy nyelv letöltése még folyamatban van</value>
+  </data>
+  <data name="Main_DownloadingText" xml:space="preserve">
+    <value>Egy fordítási nyelv letöltése még folyamatban van. Várd meg, amíg befejeződik, és utána lépj ki, vagy állítsd le, és lépj ki most; később újra letöltheted a Beállítások ▸ Fordítás részen.</value>
+  </data>
+  <data name="Main_WaitThenExitButton" xml:space="preserve">
+    <value>Várakozás, aztán kilépés</value>
+  </data>
+  <data name="Main_StopAndExitButton" xml:space="preserve">
+    <value>Leállítás és kilépés</value>
+  </data>
+  <data name="Main_DownloadProgressName" xml:space="preserve">
+    <value>Letöltés állapota</value>
+  </data>
+  <data name="Main_FinishingDownloadTitle" xml:space="preserve">
+    <value>A letöltés befejezése…</value>
+  </data>
+  <data name="Main_DropEnd_One" xml:space="preserve">
+    <value>Áthelyezés a végére</value>
+  </data>
+  <data name="Main_DropEnd_Other" xml:space="preserve">
+    <value>{0} elem áthelyezése a végére</value>
+  </data>
+  <data name="Main_DropInto_One" xml:space="preserve">
+    <value>Áthelyezés ebbe: „{1}”</value>
+  </data>
+  <data name="Main_DropInto_Other" xml:space="preserve">
+    <value>{0} elem áthelyezése ebbe: „{1}”</value>
+  </data>
+  <data name="Main_DropAbove_One" xml:space="preserve">
+    <value>Áthelyezés e fölé: „{1}”</value>
+  </data>
+  <data name="Main_DropAbove_Other" xml:space="preserve">
+    <value>{0} elem áthelyezése e fölé: „{1}”</value>
+  </data>
+  <data name="Main_DropBelow_One" xml:space="preserve">
+    <value>Áthelyezés e alá: „{1}”</value>
+  </data>
+  <data name="Main_DropBelow_Other" xml:space="preserve">
+    <value>{0} elem áthelyezése e alá: „{1}”</value>
+  </data>
+  <data name="Updates_DownloadingTitle" xml:space="preserve">
+    <value>Frissítés letöltése</value>
+  </data>
+  <data name="Updates_DownloadingText" xml:space="preserve">
+    <value>A frissítés letöltése a háttérben folyik. Közben nyugodtan dolgozhatsz.</value>
+  </data>
+  <data name="Updates_ReadyTitle" xml:space="preserve">
+    <value>A frissítés kész</value>
+  </data>
+  <data name="Updates_ReadyText" xml:space="preserve">
+    <value>A frissítés telepítésre kész. A Frissítés most mindent ment, és néhány másodperc múlva megnyitja az új verziót.</value>
+  </data>
+  <data name="Updates_InstallingTitle" xml:space="preserve">
+    <value>Frissítés telepítése</value>
+  </data>
+  <data name="Updates_InstallingVersion" xml:space="preserve">
+    <value>A TextTemplateManager mindjárt újraindul ezzel a verzióval: {0}.</value>
+  </data>
+  <data name="Updates_InstallingNew" xml:space="preserve">
+    <value>A TextTemplateManager mindjárt újraindul az új verzióval.</value>
+  </data>
+  <data name="Updates_AvailableTitle" xml:space="preserve">
+    <value>Frissítés érhető el</value>
+  </data>
+  <data name="Updates_Available" xml:space="preserve">
+    <value>Elérhető új verzió: {0}.</value>
+  </data>
+  <data name="Updates_StoreBlocked" xml:space="preserve">
+    <value>A Store-alkalmazások automatikus frissítése ki van kapcsolva ezen a gépen. A beszerzéshez válaszd a Letöltés lehetőséget.</value>
+  </data>
+  <data name="Updates_AvailableManaged" xml:space="preserve">
+    <value>Elérhető új verzió: {0}. A gép frissítéseit a szervezet kezeli: fordulj az informatikai részleghez, vagy ha szabad, frissítsd az alkalmazást a Microsoft Store-ban.</value>
+  </data>
+  <data name="Updates_FailedTitle" xml:space="preserve">
+    <value>Frissítési hiba</value>
+  </data>
+  <data name="Updates_FailedText" xml:space="preserve">
+    <value>A frissítés sikertelen.</value>
+  </data>
+  <data name="Updates_ManualStepsTitle" xml:space="preserve">
+    <value>Nem sikerült telepíteni a frissítést</value>
+  </data>
+  <data name="Updates_ManualStepsText" xml:space="preserve">
+    <value>A frissítés le van töltve, de az alkalmazás nem tudott átváltani rá. Lépj ki az alkalmazásból (Fájl ▸ Kilépés), és indítsd újra a Start menüből. Ha a Súgó ▸ Névjegy ezután is a régi verziót mutatja, frissítsd az alkalmazást a Microsoft Store-ban.</value>
+  </data>
+  <data name="Updates_NewVersion" xml:space="preserve">
+    <value>Új verzió</value>
+  </data>
+  <data name="Updates_NotInstalledTitle" xml:space="preserve">
+    <value>A frissítés nem lett telepítve</value>
+  </data>
+  <data name="Updates_NotInstalledText" xml:space="preserve">
+    <value>{0}
+
+A sablonokat ez nem érintette. A frissítés készen áll; újra megpróbálhatod.</value>
+  </data>
+  <data name="Updates_WindowsUpdateHint" xml:space="preserve">
+    <value>A Windows Update általában magától hozza; a Frissítés most gomb megjelenik, amint letöltődött.</value>
+  </data>
+  <data name="Updates_UpToDateNextCheck" xml:space="preserve">
+    <value>Naprakész (utolsó ellenőrzés: {0:t}). A Microsoft Store legközelebb ekkortól enged ellenőrzést: {1}.</value>
+  </data>
+  <data name="Updates_NextCheck" xml:space="preserve">
+    <value>A Microsoft Store legközelebb ekkortól enged ellenőrzést: {0}.</value>
+  </data>
+  <data name="Updates_CheckFailed" xml:space="preserve">
+    <value>A frissítések keresése sikertelen ({0}, hiba: {1}).</value>
+  </data>
+  <data name="Updates_CheckRefused" xml:space="preserve">
+    <value>A Microsoft Store kihagyta ezt az ellenőrzést, mert korlátozza, milyen gyakran kereshet egy alkalmazás. Próbáld újra ekkortól: {0}.</value>
+  </data>
+  <data name="Updates_StoreNotDownloaded" xml:space="preserve">
+    <value>A Microsoft Store még nem töltötte le. {0}</value>
+  </data>
+  <data name="Updates_NotStagedYet" xml:space="preserve">
+    <value>A letöltés kész, de a Windows még nem készítette elő a frissítést. Az alkalmazás később újra ellenőrzi.</value>
+  </data>
+  <data name="Updates_DownloadFailedCode" xml:space="preserve">
+    <value>Nem sikerült letölteni a frissítést ({0}, hiba: {1}).</value>
+  </data>
+  <data name="Updates_DownloadFailedDetail" xml:space="preserve">
+    <value>Nem sikerült letölteni a frissítést: {0}.</value>
+  </data>
+  <data name="Updates_NoneReady" xml:space="preserve">
+    <value>Nincs telepítésre kész frissítés.</value>
+  </data>
+  <data name="Updates_ManagedByOrganization" xml:space="preserve">
+    <value>A gép frissítéseit a szervezet kezeli.</value>
+  </data>
+  <data name="Updates_Busy" xml:space="preserve">
+    <value>Egy frissítési lépés már folyamatban van.</value>
+  </data>
+  <data name="Updates_NoLongerStaged" xml:space="preserve">
+    <value>A letöltött frissítés már nincs meg (lehet, hogy a Windows eltávolította). Az alkalmazás a következő ellenőrzéskor újra letölti.</value>
+  </data>
+  <data name="Updates_SwitchFailedCode" xml:space="preserve">
+    <value>Nem sikerült átváltani az új verzióra (hiba: {0}).</value>
+  </data>
+  <data name="Updates_SwitchFailed" xml:space="preserve">
+    <value>Nem sikerült átváltani az új verzióra.</value>
+  </data>
+  <data name="Updates_LastAttemptFailedWith" xml:space="preserve">
+    <value>A legutóbbi telepítési kísérlet sikertelen. {0}</value>
+  </data>
+  <data name="Updates_LastAttemptFailed" xml:space="preserve">
+    <value>A legutóbbi telepítési kísérlet sikertelen.</value>
+  </data>
+  <data name="Main_NewTemplateTitle" xml:space="preserve">
+    <value>Új sablon</value>
+  </data>
+  <data name="Main_NewFolderTitle" xml:space="preserve">
+    <value>Új mappa</value>
+  </data>
+  <data name="Main_CopyTitle" xml:space="preserve">
+    <value>{0} (másolat)</value>
+  </data>
+  <data name="Main_ExportFileName" xml:space="preserve">
+    <value>Sablonok_{0:yyyyMMdd}</value>
+  </data>
+  <data name="Conflicts_SingleKeyHeading" xml:space="preserve">
+    <value>Ütközések: egy billentyű</value>
+  </data>
+  <data name="Conflicts_MultiKeyHeading" xml:space="preserve">
+    <value>Ütközések: billentyűsor</value>
+  </data>
+  <data name="Conflicts_SingleKeyNote" xml:space="preserve">
+    <value>Megjegyzés — ugyanaz a billentyű különböző területeken (engedélyezett; a helyi nyer, utána a szinkronizálási sorrend):</value>
+  </data>
+  <data name="Conflicts_MultiKeyNote" xml:space="preserve">
+    <value>Megjegyzés — ugyanaz a billentyűsor különböző területeken (engedélyezett; a helyi nyer, utána a szinkronizálási sorrend):</value>
+  </data>
+  <data name="Conflicts_Shortcut" xml:space="preserve">
+    <value>Rövidítés: {0}</value>
+  </data>
+  <data name="QuickPaste_RowName" xml:space="preserve">
+    <value>{0}, rövidítés: {1}, {2}</value>
+  </data>
+  <data name="QuickPaste_LocalSource" xml:space="preserve">
+    <value>helyi</value>
+  </data>
+  <data name="AboutDialog.CloseButtonText" xml:space="preserve">
+    <value>Bezárás</value>
+  </data>
+  <data name="AboutDialog.SecondaryButtonText" xml:space="preserve">
+    <value>Harmadik féltől származó összetevők</value>
+  </data>
+  <data name="AboutDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Licenc megtekintése</value>
+  </data>
+  <data name="AboutDialog.Title" xml:space="preserve">
+    <value>Névjegy</value>
+  </data>
+  <data name="AboutDialog_Tagline.Text" xml:space="preserve">
+    <value>Szövegsablonok beillesztése billentyűparanccsal.</value>
+  </data>
+  <data name="AboutDialog_WebsiteLink.Content" xml:space="preserve">
+    <value>Webhely és online súgó</value>
+  </data>
+  <data name="AboutDialog_CopiedHint.Text" xml:space="preserve">
+    <value>A cím a vágólapra került</value>
+  </data>
+  <data name="ConflictPanel_Title.Text" xml:space="preserve">
+    <value>⚠ Rövidítésütközések</value>
+  </data>
+  <data name="ConflictPanel_DismissButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Elrejtés</value>
+  </data>
+  <data name="ConflictPanel_DismissButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Elrejtés</value>
+  </data>
+  <data name="SearchOptions_Button.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Keresési beállítások</value>
+  </data>
+  <data name="SearchOptions_Button.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Keresési beállítások</value>
+  </data>
+  <data name="SearchOptions_ContentItem.Text" xml:space="preserve">
+    <value>Keresés a sablonok szövegében is</value>
+  </data>
+  <data name="SearchOptions_StrictItem.Text" xml:space="preserve">
+    <value>Pontos keresés: pontosan a beírt szöveg, * tetszőleges karakterek, . egy karakter</value>
+  </data>
+  <data name="TemplateEditor_WebView.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Sablonszerkesztő</value>
+  </data>
+  <data name="Tour_Card.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Bemutató</value>
+  </data>
+  <data name="Tour_CloseButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Bemutató bezárása</value>
+  </data>
+  <data name="Tour_CloseButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Bemutató bezárása (Esc)</value>
+  </data>
+  <data name="Tour_SkipButton.Content" xml:space="preserve">
+    <value>Bemutató kihagyása</value>
+  </data>
+  <data name="Tour_BackButton.Content" xml:space="preserve">
+    <value>Vissza</value>
+  </data>
+  <data name="Tour_NextButton.Content" xml:space="preserve">
+    <value>Tovább</value>
+  </data>
+  <data name="SearchOptions_TooltipStrictContent" xml:space="preserve">
+    <value>Keresési beállítások (pontos, a sablonok szövegében is)</value>
+  </data>
+  <data name="SearchOptions_TooltipContent" xml:space="preserve">
+    <value>Keresési beállítások (a sablonok szövegében is)</value>
+  </data>
+  <data name="SearchOptions_TooltipStrict" xml:space="preserve">
+    <value>Keresési beállítások (pontos keresés)</value>
+  </data>
+  <data name="SearchOptions_Tooltip" xml:space="preserve">
+    <value>Keresési beállítások</value>
+  </data>
+  <data name="About_Released" xml:space="preserve">
+    <value>Kiadva: {0}</value>
+  </data>
+  <data name="About_DevBuild" xml:space="preserve">
+    <value>Kiadva: fejlesztői build</value>
+  </data>
+  <data name="About_Protocol" xml:space="preserve">
+    <value>Connector API protokoll: {0}</value>
+  </data>
+  <data name="Tour_DoneButton" xml:space="preserve">
+    <value>Kész</value>
+  </data>
+  <data name="Tour_NextButtonText" xml:space="preserve">
+    <value>Tovább</value>
+  </data>
+  <data name="Tour_Announcement" xml:space="preserve">
+    <value>{0}: {1}. {2}</value>
+  </data>
+  <data name="QuickPaste_PasteItem.Text" xml:space="preserve">
+    <value>Beillesztés</value>
+  </data>
+  <data name="QuickPaste_PasteAsItem.Text" xml:space="preserve">
+    <value>Beillesztés másként</value>
+  </data>
+  <data name="QuickPaste_PasteAsAuto.Text" xml:space="preserve">
+    <value>Automatikus</value>
+  </data>
+  <data name="QuickPaste_PasteAsPlaintext.Text" xml:space="preserve">
+    <value>Csak szöveg</value>
+  </data>
+  <data name="QuickPaste_HelpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Használati útmutató</value>
+  </data>
+  <data name="QuickPaste_HelpButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Használati útmutató</value>
+  </data>
+  <data name="QuickPaste_SearchBox.PlaceholderText" xml:space="preserve">
+    <value>Keresés...</value>
+  </data>
+  <data name="QuickPaste_TreeSplitter.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>A sablonlista szélességének módosítása</value>
+  </data>
+  <data name="QuickPaste_PreviewHeading.Text" xml:space="preserve">
+    <value>Tartalom előnézete</value>
+  </data>
+  <data name="QuickPaste_PreviewWebView.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Sablon előnézete</value>
+  </data>
+  <data name="QuickPaste_PreviewSplitter.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Az előnézet méretének módosítása</value>
+  </data>
+  <data name="QuickPaste_ShortcutLabel.Text" xml:space="preserve">
+    <value>RÖVIDÍTÉS:</value>
+  </data>
+  <data name="QuickPaste_PlaintextBadge.Text" xml:space="preserve">
+    <value>CSAK SZÖVEG</value>
+  </data>
+  <data name="QuickPaste_ShortcutTabs.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Rövidítéslisták</value>
+  </data>
+  <data name="QuickPaste_TabSingle.Text" xml:space="preserve">
+    <value>Egy billentyű</value>
+  </data>
+  <data name="QuickPaste_TabMulti.Text" xml:space="preserve">
+    <value>Billentyűsor</value>
+  </data>
+  <data name="QuickPaste_SingleKeyList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Egybillentyűs rövidítések</value>
+  </data>
+  <data name="QuickPaste_MultiKeyList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Billentyűsoros rövidítések</value>
+  </data>
+  <data name="QuickPaste_HelpTip.Title" xml:space="preserve">
+    <value>Útmutató a Quick Paste-hez</value>
+  </data>
+  <data name="QuickPaste_GuideSingleLabel.Text" xml:space="preserve">
+    <value>Egy billentyű:</value>
+  </data>
+  <data name="QuickPaste_GuideSingleText.Text" xml:space="preserve">
+    <value> nyomj meg egy billentyűt az azonnali beillesztéshez (ha üres a keresés), vagy válassz a listából a ↑/↓ és az Enter billentyűvel. Ha ugyanaz a billentyű több területen is szerepel, a helyi nyer, utána a szinkronizált mappák sorrendben.</value>
+  </data>
+  <data name="QuickPaste_GuideMultiLabel.Text" xml:space="preserve">
+    <value>Billentyűsor:</value>
+  </data>
+  <data name="QuickPaste_GuideMultiText.Text" xml:space="preserve">
+    <value> tartsd lenyomva az ALT billentyűt, és írd be a rövidítést (a szinkronizáltaknak előtagjuk van, például and-msg; elválasztó: - _ .). Az ALT felengedésekor a kiemelt találat beillesztődik — elég a rövidítés egy része. A ↑/↓ mozgatja a kiemelést, az Enter beilleszti.</value>
+  </data>
+  <data name="QuickPaste_GuidePlaintextLabel.Text" xml:space="preserve">
+    <value>Csak szöveg:</value>
+  </data>
+  <data name="QuickPaste_GuidePlaintextText.Text" xml:space="preserve">
+    <value> zárd Shift+'-' ('_') billentyűvel, ha egyszerű szövegként akarod beilleszteni.</value>
+  </data>
+  <data name="QuickPaste_GuideBackspaceLabel.Text" xml:space="preserve">
+    <value>Backspace:</value>
+  </data>
+  <data name="QuickPaste_GuideBackspaceText.Text" xml:space="preserve">
+    <value> javíts egy elgépelést, miközben lenyomva tartod az ALT billentyűt.</value>
+  </data>
+  <data name="QuickPaste_GuideDoubleClickLabel.Text" xml:space="preserve">
+    <value>Dupla kattintás:</value>
+  </data>
+  <data name="QuickPaste_GuideDoubleClickText.Text" xml:space="preserve">
+    <value> illessz be egy sablont a listából vagy egy rövidítéslistából.</value>
+  </data>
+  <data name="QuickPaste_GuideRightClickLabel.Text" xml:space="preserve">
+    <value>Jobb gomb:</value>
+  </data>
+  <data name="QuickPaste_GuideRightClickText.Text" xml:space="preserve">
+    <value> Beillesztés vagy Beillesztés másként — Csak szöveg, Markdown, RTF, HTML, HTML/Jira vagy Automatikus.</value>
+  </data>
+  <data name="QuickPaste_GuideSearchLabel.Text" xml:space="preserve">
+    <value>Keresés:</value>
+  </data>
+  <data name="QuickPaste_GuideSearchText.Text" xml:space="preserve">
+    <value> a mappákat is figyelembe veszi; a találatok mutatják a szülőmappa elérési útját. A mellette lévő szűrőgombbal a sablonok szövegében is kereshetsz. A ↑/↓ mozgatja a kurzort; a ↓ a végén átlép a listába.</value>
+  </data>
+  <data name="QuickPaste_GuideEscLabel.Text" xml:space="preserve">
+    <value>Esc:</value>
+  </data>
+  <data name="QuickPaste_GuideEscText.Text" xml:space="preserve">
+    <value> bezárja a Quick Paste ablakot.</value>
+  </data>
+  <data name="QuickPaste_WindowTitle" xml:space="preserve">
+    <value>Quick Paste</value>
+  </data>
+  <data name="App_ConnectorUnavailableTitle" xml:space="preserve">
+    <value>A Browser Connector nem érhető el</value>
+  </data>
+  <data name="App_ConnectorUnavailableText" xml:space="preserve">
+    <value>Ez a port nem használható: {0}. Ezért a böngészőbővítmény nem tud csatlakozni. Egy másik alkalmazás használja (például egy még futó régebbi TextTemplateManager), vagy a Windows lefoglalta. Válassz másik portot a Beállítások › Integrációk részen, és ugyanazt állítsd be a bővítményben is.</value>
+  </data>
+  <data name="App_HotkeyUnavailableTitle" xml:space="preserve">
+    <value>A Quick Paste billentyűparancsa nem érhető el</value>
+  </data>
+  <data name="App_HotkeyUnavailableText" xml:space="preserve">
+    <value>A Quick Paste billentyűparancsát ({0}) már egy másik alkalmazás használja, ezért nem nyitja meg a Quick Paste-et. Válassz másik billentyűparancsot a Beállítások › Általános részen.</value>
+  </data>
+  <data name="App_RestoreNoRestart" xml:space="preserve">
+    <value>A biztonsági másolat vissza lett állítva, de az alkalmazás nem tudta újraindítani magát. Indítsd el újra a visszaállított adatok betöltéséhez.</value>
+  </data>
+  <data name="App_UpdateReadyBalloon" xml:space="preserve">
+    <value>A frissítés telepítésre kész. Válaszd a Frissítés most lehetőséget az értesítési ikon menüjében.</value>
+  </data>
+  <data name="Tray_OpenItem" xml:space="preserve">
+    <value>Megnyitás</value>
+  </data>
+  <data name="Tray_ExitItem" xml:space="preserve">
+    <value>Kilépés az alkalmazásból</value>
+  </data>
+  <data name="Restore_LeaveMissingButton" xml:space="preserve">
+    <value>Maradjon hiányzó</value>
+  </data>
+  <data name="Restore_Failed" xml:space="preserve">
+    <value>A visszaállítás sikertelen, semmi sem változott.</value>
+  </data>
+  <data name="Restore_FailedWith" xml:space="preserve">
+    <value>A visszaállítás sikertelen, semmi sem változott: {0}</value>
+  </data>
+  <data name="Restore_RestoredTitle" xml:space="preserve">
+    <value>A biztonsági másolat visszaállítva</value>
+  </data>
+  <data name="Restore_PartLocal" xml:space="preserve">
+    <value>sablonok és mappák</value>
+  </data>
+  <data name="Restore_PartSettings" xml:space="preserve">
+    <value>beállítások</value>
+  </data>
+  <data name="Restore_PartSyncSettings" xml:space="preserve">
+    <value>szinkronizálási beállítások</value>
+  </data>
+  <data name="Restore_PartSyncedFolders" xml:space="preserve">
+    <value>szinkronizált sablonok és mappák</value>
+  </data>
+  <data name="Restore_ListAnd" xml:space="preserve">
+    <value>{0} és {1}</value>
+  </data>
+  <data name="Restore_ConfirmReplace" xml:space="preserve">
+    <value>Ezek cserélődnek a biztonsági másolatban lévőkre: {0}. Biztonsági másolat: {1}.</value>
+  </data>
+  <data name="Restore_ConfirmIntoFiles" xml:space="preserve">
+    <value>A szinkronizálási beállítások nélkül a szinkronizált sablonok és mappák a szinkronizálási fájljaikba állnak vissza. A következő lépésben minden szinkronizált mappára rákérdez az alkalmazás.</value>
+  </data>
+  <data name="Restore_ConfirmLinkAsIs" xml:space="preserve">
+    <value>A meglévő megosztott szinkronizálási fájl változatlanul csatolódik; hiányzó fájl esetén az alkalmazás rákérdez. Ha a szinkronizált sablonokat és mappákat a fájlokba is vissza akarod állítani, jelöld be a „Szinkronizált sablonok és mappák” lehetőséget is.</value>
+  </data>
+  <data name="Restore_ConfirmFilesStay" xml:space="preserve">
+    <value>A még meglévő megosztott szinkronizálási fájl változatlan marad, hacsak felül nem írod; a hiányzó fájl mappája a biztonsági másolatban lévő másolatot mutatja.</value>
+  </data>
+  <data name="Restore_ConfirmChanged_One" xml:space="preserve">
+    <value>Egy megosztott szinkronizálási fájl megváltozott a biztonsági másolat óta. A következő lépésben eldöntheted, hogy felülírod vagy megtartod.</value>
+  </data>
+  <data name="Restore_ConfirmChanged_Other" xml:space="preserve">
+    <value>{0} megosztott szinkronizálási fájl megváltozott a biztonsági másolat óta. A következő lépésben mindegyikről eldöntheted, hogy felülírod vagy megtartod.</value>
+  </data>
+  <data name="Restore_ConfirmMissing_One" xml:space="preserve">
+    <value>A biztonsági másolat egyik szinkronizálási fájlja nincs ezen a gépen. A következő lépésben eldöntheted, mi legyen vele.</value>
+  </data>
+  <data name="Restore_ConfirmMissing_Other" xml:space="preserve">
+    <value>A biztonsági másolat {0} szinkronizálási fájlja nincs ezen a gépen. A következő lépésben mindegyikről eldöntheted, mi legyen vele.</value>
+  </data>
+  <data name="Restore_ConfirmBackupFirst" xml:space="preserve">
+    <value>Előbb az aktuális állapotról készül biztonsági másolat, aztán az alkalmazás újraindul.</value>
+  </data>
+  <data name="Restore_ConfirmTitle" xml:space="preserve">
+    <value>Szeretnéd visszaállítani ezt a biztonsági másolatot?</value>
+  </data>
+  <data name="Restore_RestoreButton" xml:space="preserve">
+    <value>Visszaállítás</value>
+  </data>
+  <data name="Restore_ChangedTitle" xml:space="preserve">
+    <value>A szinkronizálási fájl megváltozott: „{0}”</value>
+  </data>
+  <data name="Restore_ChangedText" xml:space="preserve">
+    <value>{0}
+
+A fájl utolsó módosítása: {1:f}, és eltér a biztonsági másolatban lévő példánytól ({2}).
+
+Megtartás: a mappa a fájlt a mostani állapotában mutatja.
+Felülírás: a fájl a biztonsági másolatban lévő példányt kapja meg, mindenki számára, aki használja.</value>
+  </data>
+  <data name="Restore_OverwriteButton" xml:space="preserve">
+    <value>Felülírás a biztonsági másolat példányával</value>
+  </data>
+  <data name="Restore_KeepFileButton" xml:space="preserve">
+    <value>A fájl megtartása</value>
+  </data>
+  <data name="Restore_NoFileKnown" xml:space="preserve">
+    <value>Nem ismert hozzá szinkronizálási fájl, sem az aktuális szinkronizálási beállításokban, sem a biztonsági másolatéban.</value>
+  </data>
+  <data name="Restore_FileMissing" xml:space="preserve">
+    <value>A fájl már nincs meg.</value>
+  </data>
+  <data name="Restore_FolderMissing" xml:space="preserve">
+    <value>A mappája nem létezik ezen a gépen:
+{0}</value>
+  </data>
+  <data name="Restore_FileUnreadable" xml:space="preserve">
+    <value>Van ott egy fájl, de nem érvényes szinkronizálási fájl, ezért nem lesz felülírva.</value>
+  </data>
+  <data name="Restore_LocationImpossible" xml:space="preserve">
+    <value>Ez a hely nem létezhet ezen a gépen, például mert hiányzik a meghajtó vagy a hálózati megosztás.</value>
+  </data>
+  <data name="Restore_HasCopy" xml:space="preserve">
+    <value>A biztonsági másolat tartalmazza a sablonjainak és mappáinak másolatát.</value>
+  </data>
+  <data name="Restore_NoCopy" xml:space="preserve">
+    <value>A biztonsági másolat nem tartalmaz róla másolatot, ezért helyette csak meglévő fájlt csatolhatsz.</value>
+  </data>
+  <data name="Restore_RecreateButton" xml:space="preserve">
+    <value>Újbóli létrehozás ott</value>
+  </data>
+  <data name="Restore_CreateFolderButton" xml:space="preserve">
+    <value>A mappa és a fájl létrehozása</value>
+  </data>
+  <data name="Restore_UnreadableTitle" xml:space="preserve">
+    <value>A szinkronizálási fájl nem olvasható: „{0}”</value>
+  </data>
+  <data name="Restore_MissingTitle" xml:space="preserve">
+    <value>A szinkronizálási fájl hiányzik: „{0}”</value>
+  </data>
+  <data name="Restore_ChooseLocationButton" xml:space="preserve">
+    <value>Hely kiválasztása…</value>
+  </data>
+  <data name="Restore_LinkAnotherButton" xml:space="preserve">
+    <value>Másik fájl csatolása…</value>
+  </data>
+  <data name="Restore_SkipFolderButton" xml:space="preserve">
+    <value>A mappa kihagyása</value>
+  </data>
+  <data name="Restore_OverwriteOlder" xml:space="preserve">
+    <value>Csak ott írja felül, ahol a biztonsági másolatban lévő az újabb</value>
+  </data>
+  <data name="Restore_SkipThem" xml:space="preserve">
+    <value>Kihagyja őket, a fájlban lévők maradnak</value>
+  </data>
+  <data name="Restore_CopyHolds_One" xml:space="preserve">
+    <value>A biztonsági másolat példánya {0} sablont tartalmaz. Az azonos nevű mappák összevonódnak.</value>
+  </data>
+  <data name="Restore_CopyHolds_Other" xml:space="preserve">
+    <value>A biztonsági másolat példánya {0} sablont tartalmaz. Az azonos nevű mappák összevonódnak.</value>
+  </data>
+  <data name="Restore_CopyConflicts_One" xml:space="preserve">
+    <value>Ezek közül {0} sablon már megvan a fájlban (ugyanaz a sablon, vagy ugyanaz a cím ugyanabban a mappában):</value>
+  </data>
+  <data name="Restore_CopyConflicts_Other" xml:space="preserve">
+    <value>Ezek közül {0} sablon már megvan a fájlban (ugyanaz a sablon, vagy ugyanaz a cím ugyanabban a mappában):</value>
+  </data>
+  <data name="Restore_RelinkedNote" xml:space="preserve">
+    <value>A fájl nincs csatolva az aktuális szinkronizálási beállításokban; újra csatolódik.</value>
+  </data>
+  <data name="Restore_IntoFileTitle" xml:space="preserve">
+    <value>Szeretnéd visszaállítani a szinkronizálási fájljába? „{0}”</value>
+  </data>
+  <data name="Restore_IntoFileButton" xml:space="preserve">
+    <value>Visszaállítás a fájlba</value>
+  </data>
+  <data name="Restore_BackupUnusable" xml:space="preserve">
+    <value>A biztonsági másolat nem használható: {0}.</value>
+  </data>
+  <data name="Restore_NoneOfTheParts" xml:space="preserve">
+    <value>A biztonsági másolat a kiválasztott részek egyikét sem tartalmazza.</value>
+  </data>
+  <data name="Backups_ProblemNoManifest" xml:space="preserve">
+    <value>nincs manifest</value>
+  </data>
+  <data name="Backups_ProblemUnreadableManifest" xml:space="preserve">
+    <value>olvashatatlan manifest</value>
+  </data>
+  <data name="Backups_ProblemNewerVersion" xml:space="preserve">
+    <value>újabb verzió készítette</value>
+  </data>
+  <data name="Backups_ProblemNoData" xml:space="preserve">
+    <value>nincsenek sablonadatok</value>
+  </data>
+  <data name="Backups_ProblemFileMissing" xml:space="preserve">
+    <value>hiányzik: {0}</value>
+  </data>
+  <data name="Backups_ProblemFileDamaged" xml:space="preserve">
+    <value>sérült: {0}</value>
+  </data>
+  <data name="Backups_ProblemFileUnloadable" xml:space="preserve">
+    <value>nem tölthető be: {0}</value>
+  </data>
+  <data name="Backups_ProblemNotZip" xml:space="preserve">
+    <value>nem olvasható zip-fájl</value>
+  </data>
+  <data name="Sync_WriteProblem" xml:space="preserve">
+    <value>Nem sikerült menteni a szinkronizálási fájlba: {0} A módosítások itt megmaradnak, és a fájlba kerülnek, amint az írható lesz.</value>
+  </data>
+  <data name="Translation_ImportEmpty" xml:space="preserve">
+    <value>A fájl nem tartalmaz fordítási modelleket.</value>
+  </data>
+  <data name="Translation_DownloadDamaged" xml:space="preserve">
+    <value>Sérülten érkezett: {0}.</value>
+  </data>
+  <data name="Translation_UpdatesTitle" xml:space="preserve">
+    <value>Fordítási frissítések</value>
+  </data>
+  <data name="Translation_UpdatesText" xml:space="preserve">
+    <value>Újabb verziók érhetők el: {0}. Telepítsd őket a Beállítások ▸ Fordítás részen.</value>
+  </data>
+  <data name="Picker_DataFileType" xml:space="preserve">
+    <value>TextTemplateManager-adatok</value>
+  </data>
+  <data name="Picker_BackupFileType" xml:space="preserve">
+    <value>TextTemplateManager biztonsági másolat</value>
+  </data>
+  <data name="Picker_LogsFileType" xml:space="preserve">
+    <value>Naplók hibabejelentéshez</value>
+  </data>
+  <data name="GeneralPage_LanguageHeading.Text" xml:space="preserve">
+    <value>Nyelv</value>
+  </data>
+  <data name="GeneralPage_LanguageText.Text" xml:space="preserve">
+    <value>Az alkalmazás ablakainak, menüinek és üzeneteinek nyelve. A sablonok nem változnak.</value>
+  </data>
+  <data name="GeneralPage_LanguageCombo.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Az alkalmazás nyelve</value>
+  </data>
+  <data name="GeneralPage_LanguageRestartInfo.Message" xml:space="preserve">
+    <value>Az alkalmazás a következő indításkor vált az új nyelvre.</value>
+  </data>
+  <data name="GeneralPage_LanguageRestartButton.Content" xml:space="preserve">
+    <value>Újraindítás most</value>
+  </data>
+  <data name="General_LanguageWindows" xml:space="preserve">
+    <value>A Windows nyelvének használata</value>
+  </data>
+  <data name="Key_Ctrl" xml:space="preserve">
+    <value>Ctrl</value>
+  </data>
+  <data name="Key_Shift" xml:space="preserve">
+    <value>Shift</value>
+  </data>
+  <data name="Key_Alt" xml:space="preserve">
+    <value>Alt</value>
+  </data>
+  <data name="Key_Win" xml:space="preserve">
+    <value>Win</value>
+  </data>
+  <data name="Key_Space" xml:space="preserve">
+    <value>Szóköz</value>
+  </data>
+</root>

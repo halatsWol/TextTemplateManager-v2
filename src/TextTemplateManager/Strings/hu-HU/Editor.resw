@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The editor's and the preview's own text (toolbar, menus, popups, Translate), hu-HU (translated from en-US: same keys, same placeholders). The app hands the whole map to
+     the page before it loads (EditorPages); main.js reads it with t('Key') / tp('Key', n), {0} placeholders as in C#. -->
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CodeLanguage" xml:space="preserve">
+    <value>Kódnyelv</value>
+  </data>
+  <data name="TemplateText" xml:space="preserve">
+    <value>Sablonszöveg</value>
+  </data>
+  <data name="Undo" xml:space="preserve">
+    <value>Visszavonás</value>
+  </data>
+  <data name="Redo" xml:space="preserve">
+    <value>Ismétlés</value>
+  </data>
+  <data name="TextFormat" xml:space="preserve">
+    <value>Szövegformátum</value>
+  </data>
+  <data name="Normal" xml:space="preserve">
+    <value>Normál</value>
+  </data>
+  <data name="Heading" xml:space="preserve">
+    <value>{0}. címsor</value>
+  </data>
+  <data name="Preformat" xml:space="preserve">
+    <value>Előformázott</value>
+  </data>
+  <data name="Bold" xml:space="preserve">
+    <value>Félkövér</value>
+  </data>
+  <data name="Italic" xml:space="preserve">
+    <value>Dőlt</value>
+  </data>
+  <data name="Underline" xml:space="preserve">
+    <value>Aláhúzott</value>
+  </data>
+  <data name="Strikethrough" xml:space="preserve">
+    <value>Áthúzott</value>
+  </data>
+  <data name="InlineCode" xml:space="preserve">
+    <value>Szövegközi kód</value>
+  </data>
+  <data name="Superscript" xml:space="preserve">
+    <value>Felső index</value>
+  </data>
+  <data name="Subscript" xml:space="preserve">
+    <value>Alsó index</value>
+  </data>
+  <data name="BulletList" xml:space="preserve">
+    <value>Felsorolás</value>
+  </data>
+  <data name="NumberedList" xml:space="preserve">
+    <value>Számozott lista</value>
+  </data>
+  <data name="InsertTable" xml:space="preserve">
+    <value>Táblázat beszúrása</value>
+  </data>
+  <data name="TableSize" xml:space="preserve">
+    <value>{0} × {1} táblázat</value>
+  </data>
+  <data name="TableGrid" xml:space="preserve">
+    <value>Táblázat mérete: a nyilakkal választhatsz sorokat és oszlopokat, az Enter beszúrja</value>
+  </data>
+  <data name="AddRow" xml:space="preserve">
+    <value>+ Sor</value>
+  </data>
+  <data name="AddColumn" xml:space="preserve">
+    <value>+ Oszlop</value>
+  </data>
+  <data name="DeleteRow" xml:space="preserve">
+    <value>- Sor</value>
+  </data>
+  <data name="DeleteColumn" xml:space="preserve">
+    <value>- Oszlop</value>
+  </data>
+  <data name="DeleteTable" xml:space="preserve">
+    <value>Táblázat törlése</value>
+  </data>
+  <data name="Link" xml:space="preserve">
+    <value>Hivatkozás</value>
+  </data>
+  <data name="LinkText" xml:space="preserve">
+    <value>Szöveg</value>
+  </data>
+  <data name="LinkApply" xml:space="preserve">
+    <value>Alkalmaz</value>
+  </data>
+  <data name="LinkRemove" xml:space="preserve">
+    <value>Eltávolítás</value>
+  </data>
+  <data name="Quote" xml:space="preserve">
+    <value>Idézet</value>
+  </data>
+  <data name="CodeBlock" xml:space="preserve">
+    <value>Kódblokk</value>
+  </data>
+  <data name="Divider" xml:space="preserve">
+    <value>Elválasztó vonal</value>
+  </data>
+  <data name="Panel" xml:space="preserve">
+    <value>Panel</value>
+  </data>
+  <data name="PanelInfo" xml:space="preserve">
+    <value>Információ</value>
+  </data>
+  <data name="PanelNote" xml:space="preserve">
+    <value>Megjegyzés</value>
+  </data>
+  <data name="PanelSuccess" xml:space="preserve">
+    <value>Siker</value>
+  </data>
+  <data name="PanelWarning" xml:space="preserve">
+    <value>Figyelmeztetés</value>
+  </data>
+  <data name="PanelError" xml:space="preserve">
+    <value>Hiba</value>
+  </data>
+  <data name="TextAlignment" xml:space="preserve">
+    <value>Szövegigazítás</value>
+  </data>
+  <data name="AlignLeft" xml:space="preserve">
+    <value>Balra igazítás</value>
+  </data>
+  <data name="AlignCenter" xml:space="preserve">
+    <value>Középre igazítás</value>
+  </data>
+  <data name="AlignRight" xml:space="preserve">
+    <value>Jobbra igazítás</value>
+  </data>
+  <data name="Justify" xml:space="preserve">
+    <value>Sorkizárás</value>
+  </data>
+  <data name="ClearFormatting" xml:space="preserve">
+    <value>Formázás törlése</value>
+  </data>
+  <data name="InsertSymbol" xml:space="preserve">
+    <value>Szimbólum beszúrása</value>
+  </data>
+  <data name="InsertDateTime" xml:space="preserve">
+    <value>Dátum / idő beszúrása</value>
+  </data>
+  <data name="DateItem" xml:space="preserve">
+    <value>Dátum (2026-07-10)</value>
+  </data>
+  <data name="TimeItem" xml:space="preserve">
+    <value>Idő (14:30)</value>
+  </data>
+  <data name="DateTimeItem" xml:space="preserve">
+    <value>Dátum és idő</value>
+  </data>
+  <data name="YearItem" xml:space="preserve">
+    <value>Év</value>
+  </data>
+  <data name="Translate" xml:space="preserve">
+    <value>Fordítás</value>
+  </data>
+  <data name="NoLanguages" xml:space="preserve">
+    <value>Nincs telepített nyelv.</value>
+  </data>
+  <data name="DownloadLanguages" xml:space="preserve">
+    <value>Nyelvek letöltése…</value>
+  </data>
+  <data name="From" xml:space="preserve">
+    <value>Forrás</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>Cél</value>
+  </data>
+  <data name="Formal" xml:space="preserve">
+    <value>Magázó (Sie)</value>
+  </data>
+  <data name="InformalHint" xml:space="preserve">
+    <value>Ki: tegező (du), amennyire lehet. A mondatok nagyjából fele magázó maradhat, így a szöveg keverheti a kettőt.</value>
+  </data>
+  <data name="ReplaceTemplate" xml:space="preserve">
+    <value>Sablon cseréje</value>
+  </data>
+  <data name="CreateTemplate" xml:space="preserve">
+    <value>Új sablon létrehozása</value>
+  </data>
+  <data name="ReplaceSelection" xml:space="preserve">
+    <value>Kijelölés cseréje</value>
+  </data>
+  <data name="ManageLanguages" xml:space="preserve">
+    <value>Nyelvek kezelése…</value>
+  </data>
+  <data name="Translating" xml:space="preserve">
+    <value>Fordítás folyamatban…</value>
+  </data>
+  <data name="TextColor" xml:space="preserve">
+    <value>Szövegszín</value>
+  </data>
+  <data name="ColorAutomatic" xml:space="preserve">
+    <value>Automatikus</value>
+  </data>
+  <data name="HighlightColor" xml:space="preserve">
+    <value>Kiemelés színe</value>
+  </data>
+  <data name="HighlightNone" xml:space="preserve">
+    <value>Nincs</value>
+  </data>
+  <data name="Detect" xml:space="preserve">
+    <value>Felismerés</value>
+  </data>
+  <data name="Detecting" xml:space="preserve">
+    <value>Felismerés (…)</value>
+  </data>
+  <data name="Detected" xml:space="preserve">
+    <value>Felismerés ({0})</value>
+  </data>
+  <data name="DetectUnsure" xml:space="preserve">
+    <value>Felismerés (bizonytalan)</value>
+  </data>
+  <data name="LanguageUnknown" xml:space="preserve">
+    <value>A nyelv nem ismerhető fel. Válaszd ki a Forrás listában.</value>
+  </data>
+  <data name="SameLanguage" xml:space="preserve">
+    <value>A Forrás és a Cél ugyanaz a nyelv.</value>
+  </data>
+  <data name="PlaceholdersMoved_One" xml:space="preserve">
+    <value>Egy helyőrzőt nem sikerült elhelyezni, ezért a végére került.</value>
+  </data>
+  <data name="PlaceholdersMoved_Other" xml:space="preserve">
+    <value>{0} helyőrzőt nem sikerült elhelyezni, ezért a végére kerültek.</value>
+  </data>
+  <data name="PairMissing" xml:space="preserve">
+    <value>Nincs telepítve: {0}. Töltsd le a Nyelvek kezelése részen.</value>
+  </data>
+  <data name="PairJoin" xml:space="preserve">
+    <value> → </value>
+  </data>
+  <data name="TranslationFailed" xml:space="preserve">
+    <value>A fordítás sikertelen: {0}</value>
+  </data>
+  <data name="ColorBlack" xml:space="preserve">
+    <value>Fekete</value>
+  </data>
+  <data name="ColorDarkGray" xml:space="preserve">
+    <value>Sötétszürke</value>
+  </data>
+  <data name="ColorGray" xml:space="preserve">
+    <value>Szürke</value>
+  </data>
+  <data name="ColorLightGray" xml:space="preserve">
+    <value>Világosszürke</value>
+  </data>
+  <data name="ColorWhite" xml:space="preserve">
+    <value>Fehér</value>
+  </data>
+  <data name="ColorDarkRed" xml:space="preserve">
+    <value>Sötétvörös</value>
+  </data>
+  <data name="ColorRed" xml:space="preserve">
+    <value>Piros</value>
+  </data>
+  <data name="ColorOrange" xml:space="preserve">
+    <value>Narancs</value>
+  </data>
+  <data name="ColorAmber" xml:space="preserve">
+    <value>Borostyán</value>
+  </data>
+  <data name="ColorYellow" xml:space="preserve">
+    <value>Sárga</value>
+  </data>
+  <data name="ColorDarkGreen" xml:space="preserve">
+    <value>Sötétzöld</value>
+  </data>
+  <data name="ColorGreen" xml:space="preserve">
+    <value>Zöld</value>
+  </data>
+  <data name="ColorTeal" xml:space="preserve">
+    <value>Kékeszöld</value>
+  </data>
+  <data name="ColorLime" xml:space="preserve">
+    <value>Citromzöld</value>
+  </data>
+  <data name="ColorCyan" xml:space="preserve">
+    <value>Ciánkék</value>
+  </data>
+  <data name="ColorDarkBlue" xml:space="preserve">
+    <value>Sötétkék</value>
+  </data>
+  <data name="ColorBlue" xml:space="preserve">
+    <value>Kék</value>
+  </data>
+  <data name="ColorLightBlue" xml:space="preserve">
+    <value>Világoskék</value>
+  </data>
+  <data name="ColorPurple" xml:space="preserve">
+    <value>Lila</value>
+  </data>
+  <data name="ColorPink" xml:space="preserve">
+    <value>Rózsaszín</value>
+  </data>
+  <data name="HighlightYellow" xml:space="preserve">
+    <value>Sárga</value>
+  </data>
+  <data name="HighlightGreen" xml:space="preserve">
+    <value>Zöld</value>
+  </data>
+  <data name="HighlightCyan" xml:space="preserve">
+    <value>Ciánkék</value>
+  </data>
+  <data name="HighlightPink" xml:space="preserve">
+    <value>Rózsaszín</value>
+  </data>
+  <data name="HighlightOrange" xml:space="preserve">
+    <value>Narancs</value>
+  </data>
+  <data name="HighlightRed" xml:space="preserve">
+    <value>Piros</value>
+  </data>
+  <data name="HighlightGray" xml:space="preserve">
+    <value>Szürke</value>
+  </data>
+  <data name="HighlightBlack" xml:space="preserve">
+    <value>Fekete</value>
+  </data>
+  <data name="HighlightBlue" xml:space="preserve">
+    <value>Kék</value>
+  </data>
+  <data name="HighlightLime" xml:space="preserve">
+    <value>Citromzöld</value>
+  </data>
+  <data name="SymbolCheck" xml:space="preserve">
+    <value>Pipa</value>
+  </data>
+  <data name="SymbolCross" xml:space="preserve">
+    <value>Kereszt</value>
+  </data>
+  <data name="SymbolEmptyBox" xml:space="preserve">
+    <value>Üres négyzet</value>
+  </data>
+  <data name="SymbolWarning" xml:space="preserve">
+    <value>Figyelmeztetés</value>
+  </data>
+  <data name="SymbolExclamation" xml:space="preserve">
+    <value>Felkiáltójel</value>
+  </data>
+  <data name="SymbolQuestion" xml:space="preserve">
+    <value>Kérdőjel</value>
+  </data>
+  <data name="SymbolInfo" xml:space="preserve">
+    <value>Információ</value>
+  </data>
+  <data name="SymbolGreenCircle" xml:space="preserve">
+    <value>Zöld kör</value>
+  </data>
+  <data name="SymbolRedCircle" xml:space="preserve">
+    <value>Piros kör</value>
+  </data>
+  <data name="SymbolYellowCircle" xml:space="preserve">
+    <value>Sárga kör</value>
+  </data>
+  <data name="SymbolHighVoltage" xml:space="preserve">
+    <value>Nagyfeszültség</value>
+  </data>
+  <data name="SymbolFire" xml:space="preserve">
+    <value>Tűz</value>
+  </data>
+  <data name="SymbolStar" xml:space="preserve">
+    <value>Csillag</value>
+  </data>
+  <data name="SymbolIdea" xml:space="preserve">
+    <value>Ötlet</value>
+  </data>
+  <data name="SymbolThumbsUp" xml:space="preserve">
+    <value>Felfelé mutató hüvelykujj</value>
+  </data>
+  <data name="SymbolThumbsDown" xml:space="preserve">
+    <value>Lefelé mutató hüvelykujj</value>
+  </data>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Sablonszerkesztő</value>
+  </data>
+  <data name="PreviewPageTitle" xml:space="preserve">
+    <value>Sablon előnézete</value>
+  </data>
+  <data name="ToolbarName" xml:space="preserve">
+    <value>Formázás</value>
+  </data>
+</root>
