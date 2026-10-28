@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The guided tour's steps (StepX_Title / StepX_Text) and its sample templates (SampleX), de-DE (translated from en-US: same keys, same placeholders); read with Loc.Tour.
+     Sample contents are HTML: translate the text and keep the tags and attributes. The shortcuts the steps name
+     (T, S, P, THX ...) are the samples' own and stay as they are. -->
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="StepWelcome_Title" xml:space="preserve">
+    <value>Willkommen bei TextTemplateManager</value>
+  </data>
+  <data name="StepWelcome_Text" xml:space="preserve">
+    <value>Bewahre wiederverwendbare Texte (Antworten, Bausteine, Signaturen) auf und füge sie mit einem Tastendruck in jede App ein. Diese kurze Tour zeigt die wichtigsten Teile an Beispielvorlagen; die eigenen Vorlagen bleiben unberührt. Mit Weiter geht es zum nächsten Schritt, Esc überspringt.</value>
+  </data>
+  <data name="StepTree_Title" xml:space="preserve">
+    <value>Vorlagen und Ordner</value>
+  </data>
+  <data name="StepTree_Text" xml:space="preserve">
+    <value>Die Vorlagen, in Ordnern. Synchronisierte Ordner (mit dem Sync-Symbol) kommen aus einer gemeinsamen Datei und bleiben oben. Das Suchfeld filtert die Liste; Strg+F springt hinein, ↓ geht weiter in die Liste.</value>
+  </data>
+  <data name="StepOrganizing_Title" xml:space="preserve">
+    <value>Ordnen</value>
+  </data>
+  <data name="StepOrganizing_Text" xml:space="preserve">
+    <value>Füge eine Vorlage oder einen Ordner hinzu (in den ausgewählten Ordner), lösche die Auswahl und klapp alle Ordner zu oder auf. Ziehen und Ablegen verschiebt Elemente; Strg+Klick, Umschalt+Klick und Umschalt+Pfeiltasten wählen mehrere aus, Strg+A alle.</value>
+  </data>
+  <data name="StepEditor_Title" xml:space="preserve">
+    <value>Der Editor</value>
+  </data>
+  <data name="StepEditor_Text" xml:space="preserve">
+    <value>Formatiere Text mit Überschriften, Listen, Tabellen, Codeblöcken mit Syntaxhervorhebung und Hinweisfeldern wie dem Info-Feld hier.</value>
+  </data>
+  <data name="StepTranslating_Title" xml:space="preserve">
+    <value>Übersetzen (experimentell)</value>
+  </data>
+  <data name="StepTranslating_Text" xml:space="preserve">
+    <value>Die Schaltfläche Übersetzen am rechten Ende der Editor-Symbolleiste übersetzt eine Vorlage auf diesem PC: Ersetze ihren Text, nur die Auswahl oder erstelle eine übersetzte Kopie. Deutsch kann förmlich sein (Sie). Prüf jede Übersetzung; maschinelle Übersetzung macht Fehler.</value>
+  </data>
+  <data name="StepShortcuts_Title" xml:space="preserve">
+    <value>Kürzel und Tags</value>
+  </data>
+  <data name="StepShortcuts_Text" xml:space="preserve">
+    <value>Einzeltaste und Tastenfolge sind die Kürzel der Vorlage in Quick Paste, Tags helfen beim Finden, und der Standard-Einfügemodus bestimmt das Format, in dem sie eingefügt wird.</value>
+  </data>
+  <data name="StepPasteModes_Title" xml:space="preserve">
+    <value>Einfügemodi</value>
+  </data>
+  <data name="StepPasteModes_Text" xml:space="preserve">
+    <value>Automatisch wählt das beste Format für die App, in die du einfügst; HTML/Jira behält Hinweisfelder für Jira; HTML, RTF, Markdown und Nur Text fügen genau das ein. Klick mit der rechten Maustaste auf eine Vorlage, um sie in einem anderen Modus zu kopieren.</value>
+  </data>
+  <data name="StepSaving_Title" xml:space="preserve">
+    <value>Speichern</value>
+  </data>
+  <data name="StepSaving_Text" xml:space="preserve">
+    <value>Änderungen an einer Vorlage oder einem Ordner warten hier auf Speichern (oder Strg+S), und bevor du ungespeicherte Änderungen verlässt, wirst du gefragt. Um beim Tippen zu speichern, schalte Automatisch speichern in Einstellungen ▸ Allgemein ein.</value>
+  </data>
+  <data name="StepTray_Title" xml:space="preserve">
+    <value>Immer zur Hand</value>
+  </data>
+  <data name="StepTray_Text" xml:space="preserve">
+    <value>Wenn du das Fenster schließt, läuft TextTemplateManager im Infobereich weiter, damit Quick Paste immer bereit ist. Zum Beenden wähle Datei ▸ Beenden oder nutze das Infobereichssymbol.</value>
+  </data>
+  <data name="StepImportExport_Title" xml:space="preserve">
+    <value>Import und Export</value>
+  </data>
+  <data name="StepImportExport_Text" xml:space="preserve">
+    <value>Datei ▸ Exportieren speichert die ausgewählten Elemente oder alle in einer .ttmdata-Datei; Datei ▸ Importieren fügt eine solche Datei zur Liste hinzu.</value>
+  </data>
+  <data name="StepSettingsGeneral_Title" xml:space="preserve">
+    <value>Einstellungen ▸ Allgemein</value>
+  </data>
+  <data name="StepSettingsGeneral_Text" xml:space="preserve">
+    <value>Datei ▸ Einstellungen: die Sprache der App, die globale Tastenkombination für Quick Paste, der Einfügemodus für neue Vorlagen, der Start mit Windows (auf Wunsch ausgeblendet im Infobereich), Automatisch speichern und Updates.</value>
+  </data>
+  <data name="StepSettingsIntegrations_Title" xml:space="preserve">
+    <value>Einstellungen ▸ Integrationen</value>
+  </data>
+  <data name="StepSettingsIntegrations_Text" xml:space="preserve">
+    <value>Mit dem Browser-Connector fügt die Browsererweiterung TTM-Connect die Vorlagen auf Webseiten ein und speichert markierten Text als neue Vorlage. Das Öffnen einer .ttmdata-Datei (Doppelklick im Explorer) startet TextTemplateManager und fügt die Datei als synchronisierten Ordner hinzu; hat eine andere App .ttmdata-Dateien übernommen, leg in Standard-Apps wieder TextTemplateManager fest.</value>
+  </data>
+  <data name="StepSettingsSync_Title" xml:space="preserve">
+    <value>Einstellungen ▸ Sync</value>
+  </data>
+  <data name="StepSettingsSync_Text" xml:space="preserve">
+    <value>Teile Vorlagen mit dem Team, über eine .ttmdata-Datei auf einem freigegebenen Laufwerk oder in OneDrive. Jede verknüpfte Datei wird zu einem synchronisierten Ordner; wähle ein Kürzel-Präfix, leg fest, ob Änderungen erlaubt sind (oder nur Lesen), und verknüpfe eine andere Datei, falls eine fehlt.</value>
+  </data>
+  <data name="StepSettingsBackups_Title" xml:space="preserve">
+    <value>Einstellungen ▸ Sicherungen</value>
+  </data>
+  <data name="StepSettingsBackups_Text" xml:space="preserve">
+    <value>Sicherungen entstehen von selbst (nach Änderungen, alle zwei Stunden und täglich) im Ordner Dokumente. Stell jede davon wieder her und wähle, was zurückgeholt wird, exportiere eine Sicherung für den Umzug auf einen anderen PC oder importiere aus TextTemplateManager 1.</value>
+  </data>
+  <data name="StepSettingsTranslation_Title" xml:space="preserve">
+    <value>Einstellungen ▸ Übersetzung</value>
+  </data>
+  <data name="StepSettingsTranslation_Text" xml:space="preserve">
+    <value>Lade die Sprachen für die Schaltfläche Übersetzen einmal von Mozilla herunter; danach funktioniert das Übersetzen offline, und kein Text verlässt den PC. Export und Import bringen sie auf einen PC ohne Internet.</value>
+  </data>
+  <data name="StepSettingsSupport_Title" xml:space="preserve">
+    <value>Einstellungen ▸ Support</value>
+  </data>
+  <data name="StepSettingsSupport_Text" xml:space="preserve">
+    <value>Hilfe von der Website, Protokolle exportieren für eine Problemmeldung und die Wege, ein Problem zu melden, eine Funktion vorzuschlagen oder eine Sicherheitslücke zu melden: per E-Mail, mit den Fragen schon vorausgefüllt, oder auf GitHub (braucht ein GitHub-Konto).</value>
+  </data>
+  <data name="StepHelp_Title" xml:space="preserve">
+    <value>Hilfe</value>
+  </data>
+  <data name="StepHelp_Text" xml:space="preserve">
+    <value>Das Handbuch, diese Tour noch einmal (Hilfe ▸ Tour starten) und die Website mit Online-Hilfe und Problemmeldungen (Hilfe ▸ Zur Website).</value>
+  </data>
+  <data name="MenuPictureName" xml:space="preserve">
+    <value>Menü {0} (Bild)</value>
+  </data>
+  <data name="StepQuickPaste_Title" xml:space="preserve">
+    <value>Quick Paste</value>
+  </data>
+  <data name="StepQuickPaste_Text" xml:space="preserve">
+    <value>Drück in einer beliebigen App {0}: Quick Paste öffnet sich im Vordergrund, und die gewählte Vorlage wird in diese App eingefügt. Für die Tour ist es schon offen, mit den Beispielvorlagen, und fügt nichts ein.</value>
+  </data>
+  <data name="StepSingleKey_Title" xml:space="preserve">
+    <value>Kürzel mit Einzeltaste</value>
+  </data>
+  <data name="StepSingleKey_Text" xml:space="preserve">
+    <value>Drück direkt nach dem Öffnen die Einzeltaste einer Vorlage (T, S oder P bei den Beispielen): Sie wird sofort eingefügt. Mit ↑ und ↓ kannst du auch eine Zeile in dieser Liste auswählen; Eingabe fügt die ausgewählte ein.</value>
+  </data>
+  <data name="StepMultiKey_Title" xml:space="preserve">
+    <value>Kürzel mit Tastenfolge</value>
+  </data>
+  <data name="StepMultiKey_Text" xml:space="preserve">
+    <value>Halte Alt gedrückt und tippe eine Tastenfolge (Alt + T, H, X): Die Liste wird beim Tippen kürzer, und wenn du Alt loslässt, wird das markierte Kürzel eingefügt. Eingabe fügt ebenfalls die in dieser Liste ausgewählte Zeile ein. Alt + Rücktaste korrigiert, Alt + Esc bricht ab.</value>
+  </data>
+  <data name="StepPlainText_Title" xml:space="preserve">
+    <value>Als reiner Text</value>
+  </data>
+  <data name="StepPlainText_Text" xml:space="preserve">
+    <value>Häng beim Tippen einer Tastenfolge _ (Alt + Umschalt + -) an, um die Vorlage als reinen Text einzufügen; diese Leiste zeigt die Eingabe und markiert sie.</value>
+  </data>
+  <data name="StepSearch_Title" xml:space="preserve">
+    <value>Suche</value>
+  </data>
+  <data name="StepSearch_Text" xml:space="preserve">
+    <value>Tab oder Strg + F wechselt ins Suchfeld: Es filtert die Liste und die Kürzellisten nach Titel und Tags, mit der Filterschaltfläche auch nach dem Text. ↓ geht weiter in die Liste.</value>
+  </data>
+  <data name="StepBrowse_Title" xml:space="preserve">
+    <value>Durchsuchen und einfügen</value>
+  </data>
+  <data name="StepBrowse_Text" xml:space="preserve">
+    <value>Wähle eine Vorlage in der Liste aus, um sie in der Vorschau zu sehen; Eingabe oder Doppelklick fügt sie ein. Klick mit der rechten Maustaste für Einfügen als, um sie in einem anderen Einfügemodus einzufügen. Esc schließt Quick Paste.</value>
+  </data>
+  <data name="StepEnd_Title" xml:space="preserve">
+    <value>Das war's</value>
+  </data>
+  <data name="StepEnd_Text" xml:space="preserve">
+    <value>Alles bereit. Quick Paste schließt sich jetzt; du kannst diese Tour jederzeit über Hilfe ▸ Tour starten wiederholen.</value>
+  </data>
+  <data name="HotkeyFallback" xml:space="preserve">
+    <value>die globale Tastenkombination (Einstellungen ▸ Allgemein)</value>
+  </data>
+  <data name="SampleTeamName" xml:space="preserve">
+    <value>Team (Beispiel)</value>
+  </data>
+  <data name="SampleRepliesFolder" xml:space="preserve">
+    <value>Kundenantworten</value>
+  </data>
+  <data name="SampleThanksContent" xml:space="preserve">
+    <value>&lt;p&gt;Hallo,&lt;/p&gt;&lt;p&gt;vielen Dank für Ihre Nachricht. Wir melden uns &lt;strong&gt;innerhalb eines Arbeitstags&lt;/strong&gt;.&lt;/p&gt;&lt;p&gt;Viele Grüße&lt;/p&gt;</value>
+  </data>
+  <data name="SampleReleaseNotesContent" xml:space="preserve">
+    <value>&lt;h2&gt;Neuigkeiten&lt;/h2&gt;&lt;div class="ttm-panel ak-editor-panel" data-panel-type="info"&gt;&lt;p&gt;Dieses Update wird automatisch installiert.&lt;/p&gt;&lt;/div&gt;&lt;ul&gt;&lt;li&gt;&lt;p&gt;Schnellere Suche&lt;/p&gt;&lt;/li&gt;&lt;li&gt;&lt;p&gt;Neue Exportoptionen&lt;/p&gt;&lt;/li&gt;&lt;/ul&gt;</value>
+  </data>
+  <data name="SampleCodeFolder" xml:space="preserve">
+    <value>Codeschnipsel</value>
+  </data>
+  <data name="SampleServicesTitle" xml:space="preserve">
+    <value>Laufende Dienste auflisten</value>
+  </data>
+  <data name="SampleSignatureTitle" xml:space="preserve">
+    <value>Signatur</value>
+  </data>
+  <data name="SampleSignatureContent" xml:space="preserve">
+    <value>&lt;p&gt;Viele Grüße&lt;br&gt;Alex Beispiel&lt;/p&gt;</value>
+  </data>
+  <data name="SampleOutOfOfficeTitle" xml:space="preserve">
+    <value>Abwesenheit</value>
+  </data>
+  <data name="SampleOutOfOfficeContent" xml:space="preserve">
+    <value>&lt;p&gt;Ich bin bis Montag nicht im Büro und antworte dann.&lt;/p&gt;</value>
+  </data>
+  <data name="SampleThanksTitle" xml:space="preserve">
+    <value>Danke für die Nachricht</value>
+  </data>
+  <data name="SampleThanksTags" xml:space="preserve">
+    <value>support, antwort</value>
+  </data>
+  <data name="SampleReleaseNotesTitle" xml:space="preserve">
+    <value>Versionshinweise</value>
+  </data>
+  <data name="SampleReleaseNotesTags" xml:space="preserve">
+    <value>release</value>
+  </data>
+</root>

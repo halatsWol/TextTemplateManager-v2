@@ -282,7 +282,7 @@ Open settings from **File ▸ Settings**. It has a **General**, an **Integration
 
 **Language**
 
-- **App language** — the language of the app's windows, menus and messages: **Use the Windows language** (the default) or one of the languages the app comes in. Your templates aren't changed. The new language shows when the app starts again; **Restart now** in the note below the list does that right away (unsaved changes are asked about first, as when you exit). The choice belongs to this PC: it isn't synced or part of a backup.
+- **App language** — the language of the app's windows, menus and messages: **Use the Windows language** (the default), **English** or **Deutsch**. With the Windows language, a Windows in German shows the app in German and any other language in English. Your templates aren't changed. The new language shows when the app starts again; **Restart now** in the note below the list does that right away (unsaved changes are asked about first, as when you exit). The choice belongs to this PC: it isn't synced or part of a backup.
 
 **Quick Paste**
 

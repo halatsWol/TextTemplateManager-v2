@@ -169,6 +169,19 @@ public partial class LocalizationTests
     }
 
     [Theory]
+    [InlineData("de-DE", "de-DE")]
+    [InlineData("de-AT", "de-DE")]
+    [InlineData("en-GB", "en-US")]
+    [InlineData("fr-FR", "en-US")]
+    [InlineData("fr-FR,de-CH", "de-DE")]
+    [InlineData("en-GB,de-DE", "en-US")]
+    [InlineData("", "en-US")]
+    public void The_windows_language_picks_the_first_shipped_match(string windows, string expected)
+    {
+        Assert.Equal(expected, UiLanguages.ForWindows(windows.Split(',', StringSplitOptions.RemoveEmptyEntries)));
+    }
+
+    [Theory]
     [InlineData("en-US", "English")]
     [InlineData("de-DE", "Deutsch")]
     [InlineData("fr-FR", "Français")]

@@ -1,0 +1,1814 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI text, de-DE (translated from en-US: same keys, same placeholders). Keys: x:Uid entries are Uid.Property (Page_Element.Text), text set in code is Area_Purpose (Loc.Get, always with the key written out, so the tests find it).
+     Every other language under Strings\ must carry the same keys and the same {0} placeholders (LocalizationTests). -->
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="SupportPage_Title.Text" xml:space="preserve">
+    <value>Support</value>
+  </data>
+  <data name="SupportPage_HelpHeading.Text" xml:space="preserve">
+    <value>Hilfe</value>
+  </data>
+  <data name="SupportPage_HelpText.Text" xml:space="preserve">
+    <value>Antworten auf häufige Fragen (Updates, Quick Paste, Umzug auf einen anderen PC) gibt es auf der Website, zusammen mit den Handbüchern.</value>
+  </data>
+  <data name="SupportPage_HelpLink.Content" xml:space="preserve">
+    <value>Hilfe &amp; Fehlerbehebung</value>
+  </data>
+  <data name="SupportPage_LogsHeading.Text" xml:space="preserve">
+    <value>Protokolle</value>
+  </data>
+  <data name="SupportPage_LogsText.Text" xml:space="preserve">
+    <value>Bei Problemen mit Installation, Update oder Start der App hängst du die Protokolle an die Meldung an: die Update- und Absturzprotokolle der App, die installierte Version und die Update-Richtlinien sowie die Ereignisse der letzten 14 Tage aus Microsoft Store, App-Installation und App-Fehlern zu TextTemplateManager. Vorlagen, Einstellungen und Sync-Dateien sind nicht enthalten; Benutzername, Computername und Konto-ID werden ersetzt. Jede Datei in der .zip ist reiner Text, du kannst sie also vor dem Senden lesen.</value>
+  </data>
+  <data name="SupportPage_ExportLogsButton.Content" xml:space="preserve">
+    <value>Protokolle exportieren…</value>
+  </data>
+  <data name="SupportPage_ExportLogsStatus.Text" xml:space="preserve">
+    <value>Die Ereignisprotokolle werden gelesen; das kann eine Minute dauern.</value>
+  </data>
+  <data name="SupportPage_ShowLogsButton.Content" xml:space="preserve">
+    <value>Im Ordner anzeigen</value>
+  </data>
+  <data name="SupportPage_ProblemHeading.Text" xml:space="preserve">
+    <value>Problem melden</value>
+  </data>
+  <data name="SupportPage_ProblemText.Text" xml:space="preserve">
+    <value>Beschreib es so genau wie möglich: wann es passiert ist (Datum und Uhrzeit), was du direkt davor getan hast, Schritt für Schritt, was du erwartet hast und was stattdessen passiert ist, mit dem genauen Wortlaut jeder Meldung. Die E-Mail und das GitHub-Formular fragen all das ab; die E-Mail enthält bereits die Version der App und von Windows.</value>
+  </data>
+  <data name="SupportPage_ProblemMailButton.Content" xml:space="preserve">
+    <value>Per E-Mail melden</value>
+  </data>
+  <data name="SupportPage_ProblemGitHubButton.Content" xml:space="preserve">
+    <value>Auf GitHub melden</value>
+  </data>
+  <data name="SupportPage_FeatureHeading.Text" xml:space="preserve">
+    <value>Funktion vorschlagen</value>
+  </data>
+  <data name="SupportPage_FeatureText.Text" xml:space="preserve">
+    <value>Was möchtest du erledigen, wie machst du es heute, und wie könnte es funktionieren?</value>
+  </data>
+  <data name="SupportPage_FeatureMailButton.Content" xml:space="preserve">
+    <value>Per E-Mail vorschlagen</value>
+  </data>
+  <data name="SupportPage_FeatureGitHubButton.Content" xml:space="preserve">
+    <value>Auf GitHub vorschlagen</value>
+  </data>
+  <data name="SupportPage_SecurityHeading.Text" xml:space="preserve">
+    <value>Sicherheitslücke melden</value>
+  </data>
+  <data name="SupportPage_SecurityText.Text" xml:space="preserve">
+    <value>Melde sie vertraulich, nie als öffentliches Issue. Nur der Entwickler sieht die Meldung, bis eine Korrektur veröffentlicht ist.</value>
+  </data>
+  <data name="SupportPage_SecurityMailButton.Content" xml:space="preserve">
+    <value>Per E-Mail melden</value>
+  </data>
+  <data name="SupportPage_SecurityMailButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Sicherheitslücke per E-Mail melden</value>
+  </data>
+  <data name="SupportPage_SecurityGitHubButton.Content" xml:space="preserve">
+    <value>Vertraulich auf GitHub melden</value>
+  </data>
+  <data name="SupportPage_GitHubHint.Text" xml:space="preserve">
+    <value>GitHub braucht ein GitHub-Konto, und Issues dort sind öffentlich: Poste keine privaten Texte. E-Mail funktioniert ohne Konto.</value>
+  </data>
+  <data name="Support_LogsSaved" xml:space="preserve">
+    <value>Gespeichert unter {0}. Häng die Datei an die Meldung an.</value>
+  </data>
+  <data name="Support_LogsSaveFailed" xml:space="preserve">
+    <value>Protokolle konnten nicht gespeichert werden: {0}</value>
+  </data>
+  <data name="Support_MailHint" xml:space="preserve">
+    <value>Falls sich kein E-Mail-Fenster geöffnet hat, schreib an {0}; die Adresse ist in der Zwischenablage.</value>
+  </data>
+  <data name="SettingsView_General.Content" xml:space="preserve">
+    <value>Allgemein</value>
+  </data>
+  <data name="SettingsView_Integrations.Content" xml:space="preserve">
+    <value>Integrationen</value>
+  </data>
+  <data name="SettingsView_Sync.Content" xml:space="preserve">
+    <value>Sync</value>
+  </data>
+  <data name="SettingsView_Backups.Content" xml:space="preserve">
+    <value>Sicherungen</value>
+  </data>
+  <data name="SettingsView_Translation.Content" xml:space="preserve">
+    <value>Übersetzung</value>
+  </data>
+  <data name="SettingsView_Support.Content" xml:space="preserve">
+    <value>Support</value>
+  </data>
+  <data name="GeneralPage_Title.Text" xml:space="preserve">
+    <value>Allgemeine Einstellungen</value>
+  </data>
+  <data name="GeneralPage_QuickPasteHeading.Text" xml:space="preserve">
+    <value>Quick Paste</value>
+  </data>
+  <data name="GeneralPage_HotkeyLabel.Text" xml:space="preserve">
+    <value>Globale Tastenkombination</value>
+  </data>
+  <data name="GeneralPage_HotkeyText.Text" xml:space="preserve">
+    <value>Öffnet das Quick-Paste-Fenster von überall.</value>
+  </data>
+  <data name="GeneralPage_HotkeyBox.PlaceholderText" xml:space="preserve">
+    <value>Klicke hier, um die Tastenkombination festzulegen...</value>
+  </data>
+  <data name="GeneralPage_ClearHotkeyButton.Content" xml:space="preserve">
+    <value>Entfernen</value>
+  </data>
+  <data name="GeneralPage_HotkeyUnavailableInfo.Message" xml:space="preserve">
+    <value>Eine andere App verwendet diese Tastenkombination bereits, daher öffnet sie Quick Paste nicht. Wähle eine andere.</value>
+  </data>
+  <data name="GeneralPage_PasteModeLabel.Text" xml:space="preserve">
+    <value>Standard-Einfügemodus</value>
+  </data>
+  <data name="GeneralPage_PasteModeText.Text" xml:space="preserve">
+    <value>Gilt für neu erstellte Vorlagen.</value>
+  </data>
+  <data name="GeneralPage_PasteModeCombo.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Standard-Einfügemodus</value>
+  </data>
+  <data name="GeneralPage_StartupHeading.Text" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="GeneralPage_StartupToggle.Header" xml:space="preserve">
+    <value>Bei der Windows-Anmeldung starten</value>
+  </data>
+  <data name="GeneralPage_StartHiddenToggle.Header" xml:space="preserve">
+    <value>Ausgeblendet im Infobereich starten</value>
+  </data>
+  <data name="GeneralPage_StartHiddenText.Text" xml:space="preserve">
+    <value>Startet Windows die App bei der Anmeldung, bleibt sie im Infobereich, statt das Fenster zu öffnen. Tastenkombination und Infobereichssymbol funktionieren weiterhin.</value>
+  </data>
+  <data name="GeneralPage_EditingHeading.Text" xml:space="preserve">
+    <value>Bearbeiten</value>
+  </data>
+  <data name="GeneralPage_AutosaveToggle.Header" xml:space="preserve">
+    <value>Automatisch speichern</value>
+  </data>
+  <data name="GeneralPage_AutosaveText.Text" xml:space="preserve">
+    <value>Speichert Änderungen an einer Vorlage oder einem Ordner sofort. Wenn aus, warten Änderungen auf Speichern (Strg+S), und bevor du ein Element mit ungespeicherten Änderungen verlässt, wirst du gefragt.</value>
+  </data>
+  <data name="GeneralPage_UpdatesHeading.Text" xml:space="preserve">
+    <value>Updates</value>
+  </data>
+  <data name="GeneralPage_CheckUpdatesButton.Content" xml:space="preserve">
+    <value>Nach Updates suchen</value>
+  </data>
+  <data name="GeneralPage_AutomaticUpdatesToggle.Header" xml:space="preserve">
+    <value>Automatisch nach Updates suchen und herunterladen</value>
+  </data>
+  <data name="GeneralPage_AutomaticUpdatesText.Text" xml:space="preserve">
+    <value>Ein: Die App sucht regelmäßig nach neuen Versionen und lädt sie im Hintergrund herunter. Aus: Sie sucht nur, wenn du Nach Updates suchen wählst, und installiert ein heruntergeladenes Update nur, wenn du Jetzt aktualisieren wählst.</value>
+  </data>
+  <data name="GeneralPage_IdleInstallToggle.Header" xml:space="preserve">
+    <value>Updates installieren, während die App nicht verwendet wird</value>
+  </data>
+  <data name="GeneralPage_IdleInstallText.Text" xml:space="preserve">
+    <value>Ein: Ein heruntergeladenes Update wird installiert, sobald du 10 Minuten nicht am PC warst, die Fenster der App geschlossen sind und nichts ungespeichert ist. Die App öffnet sich danach und zeigt die Neuigkeiten. Aus: Das Update wird installiert, wenn du Jetzt aktualisieren wählst oder die App beendest.</value>
+  </data>
+  <data name="GeneralPage_OtherHeading.Text" xml:space="preserve">
+    <value>Sonstiges</value>
+  </data>
+  <data name="GeneralPage_HideCrossAreaWarningsToggle.Header" xml:space="preserve">
+    <value>Hinweise auf bereichsübergreifende Kürzel ausblenden</value>
+  </data>
+  <data name="GeneralPage_HideCrossAreaWarningsText.Text" xml:space="preserve">
+    <value>Blendet den Hinweis aus, wenn ein Kürzel in mehreren Bereichen vorkommt (lokal + Sync oder zwischen synchronisierten Ordnern). Doppelte Kürzel im selben Bereich werden immer angezeigt.</value>
+  </data>
+  <data name="IntegrationsPage_Title.Text" xml:space="preserve">
+    <value>Integrationen</value>
+  </data>
+  <data name="IntegrationsPage_BrowserHeading.Text" xml:space="preserve">
+    <value>Browsererweiterung</value>
+  </data>
+  <data name="IntegrationsPage_BrowserText.Text" xml:space="preserve">
+    <value>Damit kann die zugehörige Erweiterung die Vorlagen über eine lokale Verbindung (127.0.0.1) auflisten und einfügen. Füge das Token unten in die Erweiterung ein, um sie zu verbinden.</value>
+  </data>
+  <data name="IntegrationsPage_ConnectorToggle.Header" xml:space="preserve">
+    <value>Browser-Connector aktivieren</value>
+  </data>
+  <data name="IntegrationsPage_PortLabel.Text" xml:space="preserve">
+    <value>Port</value>
+  </data>
+  <data name="IntegrationsPage_TokenLabel.Text" xml:space="preserve">
+    <value>Token</value>
+  </data>
+  <data name="IntegrationsPage_CopyTokenButton.Content" xml:space="preserve">
+    <value>Kopieren</value>
+  </data>
+  <data name="IntegrationsPage_RegenerateTokenButton.Content" xml:space="preserve">
+    <value>Neu erzeugen</value>
+  </data>
+  <data name="IntegrationsPage_ConnectorUnavailableInfo.Title" xml:space="preserve">
+    <value>Port nicht verfügbar</value>
+  </data>
+  <data name="IntegrationsPage_GetExtensionLabel.Text" xml:space="preserve">
+    <value>Hol dir die Erweiterung:</value>
+  </data>
+  <data name="IntegrationsPage_ApiDocLink.Content" xml:space="preserve">
+    <value>API-Dokumentation anzeigen</value>
+  </data>
+  <data name="IntegrationsPage_FileAssociationHeading.Text" xml:space="preserve">
+    <value>Dateizuordnung</value>
+  </data>
+  <data name="IntegrationsPage_FileAssociationText.Text" xml:space="preserve">
+    <value>.ttmdata-Dateien öffnen sich mit TextTemplateManager (das Öffnen fügt die Datei als Sync-Quelle hinzu). Hat eine andere App sie übernommen, wähle in den Windows-Einstellungen › Apps › Standard-Apps wieder TextTemplateManager für .ttmdata.</value>
+  </data>
+  <data name="IntegrationsPage_DefaultAppsLink.Content" xml:space="preserve">
+    <value>Standard-Apps öffnen</value>
+  </data>
+  <data name="General_Version" xml:space="preserve">
+    <value>Version {0}</value>
+  </data>
+  <data name="General_UpdateUnavailable" xml:space="preserve">
+    <value>Diese Kopie wurde nicht aus dem Microsoft Store installiert und kann sich daher nicht selbst aktualisieren.</value>
+  </data>
+  <data name="General_UpdateDisabledByPolicy" xml:space="preserve">
+    <value>Die Updates dieser App werden von der Organisation verwaltet.</value>
+  </data>
+  <data name="General_UpdateChecking" xml:space="preserve">
+    <value>Suche nach Updates…</value>
+  </data>
+  <data name="General_UpdateAvailable" xml:space="preserve">
+    <value>{0} ist verfügbar. {1}</value>
+  </data>
+  <data name="General_UpdateChooseDownload" xml:space="preserve">
+    <value>Wähle Herunterladen, um es zu holen.</value>
+  </data>
+  <data name="General_UpdateAvailableManaged" xml:space="preserve">
+    <value>{0} ist verfügbar. Die Updates auf diesem PC werden von der Organisation verwaltet.</value>
+  </data>
+  <data name="General_UpdateDownloading" xml:space="preserve">
+    <value>Update wird heruntergeladen… {0} %</value>
+  </data>
+  <data name="General_UpdateReady" xml:space="preserve">
+    <value>{0} ist bereit zur Installation. Jetzt aktualisieren speichert alles und öffnet die neue Version in wenigen Sekunden.</value>
+  </data>
+  <data name="General_UpdateInstalling" xml:space="preserve">
+    <value>Update wird installiert…</value>
+  </data>
+  <data name="General_UpdateFailed" xml:space="preserve">
+    <value>Letzter Update-Schritt fehlgeschlagen.</value>
+  </data>
+  <data name="General_UpdateManualSteps" xml:space="preserve">
+    <value>{0} konnte nicht automatisch installiert werden. Beende die App zum Abschließen und starte sie über das Startmenü neu.</value>
+  </data>
+  <data name="General_UpToDateCheckedAt" xml:space="preserve">
+    <value>Auf dem neuesten Stand (zuletzt geprüft um {0:t}).</value>
+  </data>
+  <data name="General_UpToDate" xml:space="preserve">
+    <value>Auf dem neuesten Stand.</value>
+  </data>
+  <data name="General_RestartToUpdateButton" xml:space="preserve">
+    <value>Jetzt aktualisieren</value>
+  </data>
+  <data name="General_DownloadButton" xml:space="preserve">
+    <value>Herunterladen</value>
+  </data>
+  <data name="General_TryAgainButton" xml:space="preserve">
+    <value>Erneut versuchen</value>
+  </data>
+  <data name="General_CheckUpdatesButton" xml:space="preserve">
+    <value>Nach Updates suchen</value>
+  </data>
+  <data name="General_SetByOrganization" xml:space="preserve">
+    <value>Von der Organisation festgelegt.</value>
+  </data>
+  <data name="General_StorePolicyAppAsks" xml:space="preserve">
+    <value>Automatische Updates für Store-Apps sind auf diesem PC ausgeschaltet. TextTemplateManager fragt den Microsoft Store trotzdem selbst nach seinen Updates: von sich aus, wenn dieser Schalter an ist, sonst wenn du Nach Updates suchen wählst.</value>
+  </data>
+  <data name="General_StorePolicyWindowsUpdate" xml:space="preserve">
+    <value>Automatische Updates für Store-Apps sind auf diesem PC ausgeschaltet. Ein Update, das Windows Update bringt, wird mit Jetzt aktualisieren angeboten.</value>
+  </data>
+  <data name="General_AutostartNotAvailable" xml:space="preserve">
+    <value>Nur die installierte App kann mit Windows starten.</value>
+  </data>
+  <data name="General_AutostartOffInWindows" xml:space="preserve">
+    <value>In den Windows-Einstellungen › Apps › Autostart ausgeschaltet; schalte es dort ein.</value>
+  </data>
+  <data name="Integrations_PortUnavailable" xml:space="preserve">
+    <value>Port {0} kann nicht verwendet werden, daher kann sich die Erweiterung nicht verbinden. Eine andere App verwendet ihn (zum Beispiel ein älteres TextTemplateManager, das noch läuft), oder Windows hat ihn reserviert. Wähle oben einen anderen Port und stell denselben Port in der Erweiterung ein.</value>
+  </data>
+  <data name="SyncPage_Title.Text" xml:space="preserve">
+    <value>Sync</value>
+  </data>
+  <data name="SyncPage_SeparatorLabel.Text" xml:space="preserve">
+    <value>Trennzeichen nach dem Präfix</value>
+  </data>
+  <data name="SyncPage_SeparatorBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Trennzeichen nach dem Präfix</value>
+  </data>
+  <data name="SyncPage_SeparatorNone.Text" xml:space="preserve">
+    <value>keins</value>
+  </data>
+  <data name="SyncPage_HelpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Schnellhilfe</value>
+  </data>
+  <data name="SyncPage_HelpButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Schnellhilfe</value>
+  </data>
+  <data name="SyncPage_AddButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Vorhandene .ttmdata-Sync-Datei verknüpfen</value>
+  </data>
+  <data name="SyncPage_AddButton.Content" xml:space="preserve">
+    <value>Hinzufügen</value>
+  </data>
+  <data name="SyncPage_CreateButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Neue Sync-Datei erstellen</value>
+  </data>
+  <data name="SyncPage_CreateButton.Content" xml:space="preserve">
+    <value>Erstellen</value>
+  </data>
+  <data name="SyncPage_HelpTip.Title" xml:space="preserve">
+    <value>Anleitung Sync</value>
+  </data>
+  <data name="SyncPage_GuideAddLabel.Text" xml:space="preserve">
+    <value>Quelle hinzufügen:</value>
+  </data>
+  <data name="SyncPage_GuideAddText.Text" xml:space="preserve">
+    <value> verknüpfe eine vorhandene .ttmdata-Datei oder leg mit Erstellen eine neue an (z. B. in einem OneDrive-Ordner, um sie zwischen PCs zu synchronisieren).</value>
+  </data>
+  <data name="SyncPage_GuideActiveLabel.Text" xml:space="preserve">
+    <value>Aktiv:</value>
+  </data>
+  <data name="SyncPage_GuideActiveText.Text" xml:space="preserve">
+    <value> lädt die Quelle als angehefteten Ordner der obersten Ebene. Entferne den Haken, um sie auszublenden, ohne sie zu löschen.</value>
+  </data>
+  <data name="SyncPage_GuideSaveLabel.Text" xml:space="preserve">
+    <value>Speichern:</value>
+  </data>
+  <data name="SyncPage_GuideSaveText.Text" xml:space="preserve">
+    <value> ein = bearbeitbar, Änderungen werden in die Datei zurückgeschrieben; aus = schreibgeschützt (beim Neuladen gilt immer die Datei).</value>
+  </data>
+  <data name="SyncPage_GuideNameLabel.Text" xml:space="preserve">
+    <value>Name &amp; Präfix:</value>
+  </data>
+  <data name="SyncPage_GuideNameText.Text" xml:space="preserve">
+    <value> Name ist der lokale Titel des Ordners. Das Präfix stellt seinen Tastenfolgen einen Namensraum voran, z. B. wird Präfix 'and' + 'msg' als and-msg eingegeben.</value>
+  </data>
+  <data name="SyncPage_GuideOrderLabel.Text" xml:space="preserve">
+    <value>Reihenfolge:</value>
+  </data>
+  <data name="SyncPage_GuideOrderText.Text" xml:space="preserve">
+    <value> die Pfeile legen den Vorrang der Ordner fest — bei einer Einzeltaste, die in mehreren Bereichen vorkommt, gewinnt nach lokal die erste Quelle hier. Gilt sofort.</value>
+  </data>
+  <data name="SyncPage_GuideMissingLabel.Text" xml:space="preserve">
+    <value>Fehlende Datei:</value>
+  </data>
+  <data name="SyncPage_GuideMissingText.Text" xml:space="preserve">
+    <value> ein Warnsymbol erscheint, und der Ordner zeigt seine zwischengespeicherte Kopie. Klick auf das Symbol, um die Datei aus dieser Kopie neu zu erstellen oder eine andere Datei zu verknüpfen.</value>
+  </data>
+  <data name="SyncPage_GuideSeparatorLabel.Text" xml:space="preserve">
+    <value>Trennzeichen:</value>
+  </data>
+  <data name="SyncPage_GuideSeparatorText.Text" xml:space="preserve">
+    <value> das Zeichen zwischen Präfix und Kürzel (Standard '-'). Wähle '-', '.' oder keins (das Präfix geht dann direkt in das Kürzel über, z. B. ANDMSG).</value>
+  </data>
+  <data name="SyncPage_ActiveColumn.Text" xml:space="preserve">
+    <value>Aktiv</value>
+  </data>
+  <data name="SyncPage_SaveColumn.Text" xml:space="preserve">
+    <value>Speichern</value>
+  </data>
+  <data name="SyncPage_NameColumn.Text" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="SyncPage_PrefixColumn.Text" xml:space="preserve">
+    <value>Präfix</value>
+  </data>
+  <data name="SyncPage_FileColumn.Text" xml:space="preserve">
+    <value>Datei</value>
+  </data>
+  <data name="SyncPage_SourceList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Sync-Quellen</value>
+  </data>
+  <data name="SyncPage_ActiveBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Aktiv</value>
+  </data>
+  <data name="SyncPage_ActiveBox.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Aktiv (in die Liste geladen)</value>
+  </data>
+  <data name="SyncPage_SaveBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Speichern erlauben</value>
+  </data>
+  <data name="SyncPage_SaveBox.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Speichern erlauben (bearbeitbar / schreibt zurück)</value>
+  </data>
+  <data name="SyncPage_NameBox.PlaceholderText" xml:space="preserve">
+    <value>Ordnername</value>
+  </data>
+  <data name="SyncPage_PrefixBox.PlaceholderText" xml:space="preserve">
+    <value>PRÄFIX</value>
+  </data>
+  <data name="SyncPage_MissingFileButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Datei nicht gefunden — neu erstellen oder eine andere Datei verknüpfen</value>
+  </data>
+  <data name="SyncPage_MissingFileButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Datei nicht gefunden</value>
+  </data>
+  <data name="SyncPage_RecreateItem.Text" xml:space="preserve">
+    <value>Datei aus der zwischengespeicherten Kopie neu erstellen</value>
+  </data>
+  <data name="SyncPage_RelinkItem.Text" xml:space="preserve">
+    <value>Andere Datei verknüpfen…</value>
+  </data>
+  <data name="SyncPage_MoveUpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Nach oben</value>
+  </data>
+  <data name="SyncPage_MoveUpButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Nach oben</value>
+  </data>
+  <data name="SyncPage_MoveDownButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Nach unten</value>
+  </data>
+  <data name="SyncPage_MoveDownButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Nach unten</value>
+  </data>
+  <data name="SyncPage_RemoveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Entfernen</value>
+  </data>
+  <data name="SyncPage_RemoveButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Entfernen</value>
+  </data>
+  <data name="BackupsPage_Title.Text" xml:space="preserve">
+    <value>Sicherungen</value>
+  </data>
+  <data name="BackupsPage_AutomaticHeading.Text" xml:space="preserve">
+    <value>Automatische Sicherungen</value>
+  </data>
+  <data name="BackupsPage_AutomaticText.Text" xml:space="preserve">
+    <value>Entstehen von selbst: 2 Minuten nach einer Änderung und beim Beenden (die letzten 3 bleiben), alle 2 Stunden, solange die App läuft (5 bleiben), und täglich (5 bleiben). Jede enthält die Vorlagen, Einstellungen, Sync-Einstellungen und eine Kopie jeder gemeinsamen Sync-Datei.</value>
+  </data>
+  <data name="BackupsPage_OpenFolderButton.Content" xml:space="preserve">
+    <value>Sicherungsordner öffnen</value>
+  </data>
+  <data name="BackupsPage_ExportButton.Content" xml:space="preserve">
+    <value>Sicherung exportieren…</value>
+  </data>
+  <data name="BackupsPage_ExportText.Text" xml:space="preserve">
+    <value>Speichert eine Sicherung von allem als .zip-Datei an einem beliebigen Ort, z. B. für den Umzug auf einen anderen PC.</value>
+  </data>
+  <data name="BackupsPage_RestoreHeading.Text" xml:space="preserve">
+    <value>Aus einer Sicherung wiederherstellen</value>
+  </data>
+  <data name="BackupsPage_RestoreText.Text" xml:space="preserve">
+    <value>Wähle eine Sicherung und was daraus übernommen werden soll. Die App sichert zuerst den aktuellen Stand, stellt dann wieder her und startet neu.</value>
+  </data>
+  <data name="BackupsPage_BackupList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Sicherungen</value>
+  </data>
+  <data name="BackupsPage_EmptyText.Text" xml:space="preserve">
+    <value>Noch keine Sicherungen. Die erste entsteht kurz nach dem Start der App.</value>
+  </data>
+  <data name="BackupsPage_RestorePartsLabel.Text" xml:space="preserve">
+    <value>Wiederherstellen</value>
+  </data>
+  <data name="BackupsPage_LocalBox.Content" xml:space="preserve">
+    <value>Vorlagen und Ordner</value>
+  </data>
+  <data name="BackupsPage_SettingsBox.Content" xml:space="preserve">
+    <value>Einstellungen</value>
+  </data>
+  <data name="BackupsPage_SyncBox.Content" xml:space="preserve">
+    <value>Sync</value>
+  </data>
+  <data name="BackupsPage_SyncSettingsBox.Content" xml:space="preserve">
+    <value>Sync-Einstellungen (die verknüpften Dateien und ihre Optionen)</value>
+  </data>
+  <data name="BackupsPage_SyncedFoldersBox.Content" xml:space="preserve">
+    <value>Synchronisierte Vorlagen und Ordner (Stand der verknüpften Dateien beim letzten Lesen)</value>
+  </data>
+  <data name="BackupsPage_RestoreButton.Content" xml:space="preserve">
+    <value>Wiederherstellen…</value>
+  </data>
+  <data name="BackupsPage_RestoreFileButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Exportierte Sicherung (.zip) von beliebigem Ort wiederherstellen, mit den oben angehakten Teilen</value>
+  </data>
+  <data name="BackupsPage_RestoreFileButton.Content" xml:space="preserve">
+    <value>Aus Datei wiederherstellen…</value>
+  </data>
+  <data name="BackupsPage_ImportV1Button.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Vorlagen, Einstellungen und Sync-Einstellungen von Version 1 auf diesem PC übernehmen</value>
+  </data>
+  <data name="BackupsPage_ImportV1Button.Content" xml:space="preserve">
+    <value>Aus TextTemplateManager 1 importieren…</value>
+  </data>
+  <data name="TranslationPage_Title.Text" xml:space="preserve">
+    <value>Übersetzung</value>
+  </data>
+  <data name="TranslationPage_ExperimentalBadge.Text" xml:space="preserve">
+    <value>Experimentell</value>
+  </data>
+  <data name="TranslationPage_CheckInfo.Message" xml:space="preserve">
+    <value>Maschinelle Übersetzung macht Fehler: Die Bedeutung kann sich ändern, Wörter können fehlen, Formatierung kann auf den falschen Wörtern landen. Deutsch kann die förmliche (Sie) und die informelle (du) Form mischen: selten mit Förmlich an, oft ohne (informell klappt nur so gut es geht).</value>
+  </data>
+  <data name="TranslationPage_CheckInfo.Title" xml:space="preserve">
+    <value>Jede Übersetzung prüfen</value>
+  </data>
+  <data name="TranslationPage_IntroText.Text" xml:space="preserve">
+    <value>Übersetze Vorlagen im Editor (die Schaltfläche Übersetzen am Ende der Symbolleiste). Die Übersetzung läuft auf diesem PC: Lade eine Sprache einmal herunter, danach funktioniert das Übersetzen offline, und nichts, was du übersetzt, verlässt den PC. Jede Sprache übersetzt von und nach Englisch; andere Paare, etwa Deutsch nach Französisch, laufen über Englisch und brauchen beide Sprachen.</value>
+  </data>
+  <data name="TranslationPage_ModelsText.Text" xml:space="preserve">
+    <value>Die Sprachen sind Firefox-Translations-Modelle von Mozilla, heruntergeladen von Mozillas Servern (Mozilla Public License 2.0).</value>
+  </data>
+  <data name="TranslationPage_AutoCheckBox.Content" xml:space="preserve">
+    <value>Einmal täglich nach neueren Versionen der installierten Sprachen suchen</value>
+  </data>
+  <data name="TranslationPage_AutoInstallBox.Content" xml:space="preserve">
+    <value>Automatisch herunterladen</value>
+  </data>
+  <data name="TranslationPage_UpdateAllButton.Content" xml:space="preserve">
+    <value>Alle Updates herunterladen</value>
+  </data>
+  <data name="TranslationPage_RetryButton.Content" xml:space="preserve">
+    <value>Erneut versuchen</value>
+  </data>
+  <data name="TranslationPage_FilterBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Sprachen suchen</value>
+  </data>
+  <data name="TranslationPage_FilterBox.PlaceholderText" xml:space="preserve">
+    <value>Sprachen suchen</value>
+  </data>
+  <data name="TranslationPage_LanguageList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Sprachen</value>
+  </data>
+  <data name="TranslationPage_RowDownloadButton.Content" xml:space="preserve">
+    <value>Herunterladen</value>
+  </data>
+  <data name="TranslationPage_RowUpdateButton.Content" xml:space="preserve">
+    <value>Aktualisieren</value>
+  </data>
+  <data name="TranslationPage_RowRemoveButton.Content" xml:space="preserve">
+    <value>Entfernen</value>
+  </data>
+  <data name="TranslationPage_RowCancelButton.Content" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="TranslationPage_OfflineText.Text" xml:space="preserve">
+    <value>Kein Internet auf diesem PC? Exportiere die installierten Sprachen auf einem anderen PC mit TextTemplateManager und importiere die Datei hier.</value>
+  </data>
+  <data name="TranslationPage_ExportButton.Content" xml:space="preserve">
+    <value>Installierte Sprachen exportieren…</value>
+  </data>
+  <data name="TranslationPage_ImportButton.Content" xml:space="preserve">
+    <value>Sprachen importieren…</value>
+  </data>
+  <data name="Common_OkButton" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Sync_NewFileName" xml:space="preserve">
+    <value>Sync</value>
+  </data>
+  <data name="Sync_RecreateFailedTitle" xml:space="preserve">
+    <value>Datei konnte nicht neu erstellt werden</value>
+  </data>
+  <data name="Sync_RecreateFailedWrite" xml:space="preserve">
+    <value>Datei konnte nicht nach {0} geschrieben werden.</value>
+  </data>
+  <data name="Sync_RecreateFailedInactive" xml:space="preserve">
+    <value>Diese Quelle ist ausgeschaltet, daher gibt es keine zwischengespeicherte Kopie ihres Ordners. Verknüpfe stattdessen eine andere Datei.</value>
+  </data>
+  <data name="Backups_TierRecent" xml:space="preserve">
+    <value>Zuletzt</value>
+  </data>
+  <data name="Backups_TierTwoHourly" xml:space="preserve">
+    <value>Alle 2 Stunden</value>
+  </data>
+  <data name="Backups_TierDaily" xml:space="preserve">
+    <value>Täglich</value>
+  </data>
+  <data name="Backups_TierExported" xml:space="preserve">
+    <value>Exportiert</value>
+  </data>
+  <data name="Backups_TierV1" xml:space="preserve">
+    <value>Aus TextTemplateManager v1</value>
+  </data>
+  <data name="Backups_FromFile" xml:space="preserve">
+    <value>Aus einer Datei</value>
+  </data>
+  <data name="Backups_MadeByVersion" xml:space="preserve">
+    <value>erstellt von Version {0}</value>
+  </data>
+  <data name="Backups_Damaged" xml:space="preserve">
+    <value>beschädigt, kann nicht wiederhergestellt werden ({0})</value>
+  </data>
+  <data name="Backups_NoV1Data" xml:space="preserve">
+    <value>Auf diesem PC gibt es keine Daten von TextTemplateManager 1.</value>
+  </data>
+  <data name="Backups_V1Unreadable" xml:space="preserve">
+    <value>Daten von TextTemplateManager 1 konnten nicht gelesen werden: {0}</value>
+  </data>
+  <data name="Backups_FolderOpenFailed" xml:space="preserve">
+    <value>Ordner konnte nicht geöffnet werden: {0}</value>
+  </data>
+  <data name="Backups_ExportFileName" xml:space="preserve">
+    <value>TextTemplateManager-Sicherung {0:yyyy-MM-dd}</value>
+  </data>
+  <data name="Backups_ExportSaved" xml:space="preserve">
+    <value>Gespeichert unter {0}</value>
+  </data>
+  <data name="Backups_NothingToBackUp" xml:space="preserve">
+    <value>Es gibt noch nichts zu sichern.</value>
+  </data>
+  <data name="Backups_NotQuiet" xml:space="preserve">
+    <value>Es wurden noch Dateien gespeichert. Versuch es gleich noch einmal.</value>
+  </data>
+  <data name="Backups_ExportFailed" xml:space="preserve">
+    <value>Sicherung konnte nicht gespeichert werden: {0}</value>
+  </data>
+  <data name="Backups_FileCantRestore" xml:space="preserve">
+    <value>„{0}“ kann nicht wiederhergestellt werden: {1}.</value>
+  </data>
+  <data name="Translation_DownloadName" xml:space="preserve">
+    <value>{0} herunterladen</value>
+  </data>
+  <data name="Translation_UpdateName" xml:space="preserve">
+    <value>{0} aktualisieren</value>
+  </data>
+  <data name="Translation_RemoveName" xml:space="preserve">
+    <value>{0} entfernen</value>
+  </data>
+  <data name="Translation_CancelName" xml:space="preserve">
+    <value>Download von {0} abbrechen</value>
+  </data>
+  <data name="Translation_ProgressName" xml:space="preserve">
+    <value>{0} wird heruntergeladen</value>
+  </data>
+  <data name="Translation_RowDownloading" xml:space="preserve">
+    <value>Wird heruntergeladen…</value>
+  </data>
+  <data name="Translation_RowInstalled" xml:space="preserve">
+    <value>Installiert</value>
+  </data>
+  <data name="Translation_RowUpdateAvailable" xml:space="preserve">
+    <value>Update verfügbar</value>
+  </data>
+  <data name="Translation_RowUpToDate" xml:space="preserve">
+    <value>aktuell</value>
+  </data>
+  <data name="Translation_RowDownloadSize" xml:space="preserve">
+    <value>{0} Download</value>
+  </data>
+  <data name="Translation_RowDiskSize" xml:space="preserve">
+    <value>{0} auf dem Datenträger</value>
+  </data>
+  <data name="Translation_RowOnlyFromEnglish" xml:space="preserve">
+    <value>nur aus dem Englischen</value>
+  </data>
+  <data name="Translation_RowOnlyToEnglish" xml:space="preserve">
+    <value>nur ins Englische</value>
+  </data>
+  <data name="Translation_SizeMB" xml:space="preserve">
+    <value>{0} MB</value>
+  </data>
+  <data name="Translation_CatalogLoading" xml:space="preserve">
+    <value>Sprachen werden von Mozilla geladen…</value>
+  </data>
+  <data name="Translation_CatalogFailed" xml:space="preserve">
+    <value>Sprachliste konnte nicht von Mozillas Server geladen werden. Installierte Sprachen funktionieren weiterhin.</value>
+  </data>
+  <data name="Translation_NoneInstalled" xml:space="preserve">
+    <value>Keine Sprachen installiert.</value>
+  </data>
+  <data name="Translation_DiskUsage" xml:space="preserve">
+    <value>Installierte Sprachen belegen {0}.</value>
+  </data>
+  <data name="Translation_DownloadFailed" xml:space="preserve">
+    <value>{0} konnte nicht heruntergeladen werden: {1}</value>
+  </data>
+  <data name="Translation_ExportFileType" xml:space="preserve">
+    <value>TextTemplateManager-Sprachen</value>
+  </data>
+  <data name="Translation_ExportFileName" xml:space="preserve">
+    <value>TextTemplateManager-Sprachen</value>
+  </data>
+  <data name="Translation_ExportSaved" xml:space="preserve">
+    <value>Gespeichert unter {0}.</value>
+  </data>
+  <data name="Translation_ExportFailed" xml:space="preserve">
+    <value>Sprachen konnten nicht exportiert werden: {0}</value>
+  </data>
+  <data name="Translation_Imported" xml:space="preserve">
+    <value>Importiert: {0}.</value>
+  </data>
+  <data name="Translation_ImportFailed" xml:space="preserve">
+    <value>Datei konnte nicht importiert werden: {0}</value>
+  </data>
+  <data name="MainPage_FolderTemplateTitleBox.Header" xml:space="preserve">
+    <value>Ordnertitel</value>
+  </data>
+  <data name="MainPage_FolderTemplateSelected.Text" xml:space="preserve">
+    <value>Ordner ausgewählt</value>
+  </data>
+  <data name="MainPage_EmptyTemplateText.Text" xml:space="preserve">
+    <value>Wähle ein Element aus, um Details zu sehen</value>
+  </data>
+  <data name="MainPage_FileMenu.Title" xml:space="preserve">
+    <value>Datei</value>
+  </data>
+  <data name="MainPage_ImportItem.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Fügt die Vorlagen und Ordner einer .ttmdata-Datei zu den lokalen hinzu</value>
+  </data>
+  <data name="MainPage_ImportItem.Text" xml:space="preserve">
+    <value>Importieren…</value>
+  </data>
+  <data name="MainPage_ExportItem.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Speichert die ausgewählten Elemente (oder, wenn nichts ausgewählt ist, alle lokalen Vorlagen und Ordner) in einer .ttmdata-Datei</value>
+  </data>
+  <data name="MainPage_SettingsItem.Text" xml:space="preserve">
+    <value>Einstellungen</value>
+  </data>
+  <data name="MainPage_ExitItem.Text" xml:space="preserve">
+    <value>Beenden</value>
+  </data>
+  <data name="MainPage_HelpMenu.Title" xml:space="preserve">
+    <value>Hilfe</value>
+  </data>
+  <data name="MainPage_ManualItem.Text" xml:space="preserve">
+    <value>Handbuch öffnen</value>
+  </data>
+  <data name="MainPage_TutorialItem.Text" xml:space="preserve">
+    <value>Tour starten</value>
+  </data>
+  <data name="MainPage_WebsiteItem.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>software.kmarflow.com: Online-Hilfe, Fehlerbehebung und Problemmeldungen</value>
+  </data>
+  <data name="MainPage_WebsiteItem.Text" xml:space="preserve">
+    <value>Zur Website</value>
+  </data>
+  <data name="MainPage_AboutItem.Text" xml:space="preserve">
+    <value>Über</value>
+  </data>
+  <data name="MainPage_SavedText.Text" xml:space="preserve">
+    <value>Gespeichert</value>
+  </data>
+  <data name="MainPage_SaveButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Speichern</value>
+  </data>
+  <data name="MainPage_SaveButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Änderungen speichern (Strg+S)</value>
+  </data>
+  <data name="MainPage_SaveButtonText.Text" xml:space="preserve">
+    <value>Speichern</value>
+  </data>
+  <data name="MainPage_HelpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Schnellhilfe</value>
+  </data>
+  <data name="MainPage_HelpButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Schnellhilfe</value>
+  </data>
+  <data name="MainPage_UpdateBar.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="MainPage_AddTemplateButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Vorlage hinzufügen</value>
+  </data>
+  <data name="MainPage_AddTemplateButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Vorlage hinzufügen</value>
+  </data>
+  <data name="MainPage_AddFolderButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Ordner hinzufügen</value>
+  </data>
+  <data name="MainPage_AddFolderButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Ordner hinzufügen</value>
+  </data>
+  <data name="MainPage_DeleteButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Element löschen</value>
+  </data>
+  <data name="MainPage_DeleteButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Element löschen</value>
+  </data>
+  <data name="MainPage_CollapseAllButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Alle zuklappen</value>
+  </data>
+  <data name="MainPage_CollapseAllButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Alle zuklappen</value>
+  </data>
+  <data name="MainPage_ExpandAllButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Alle aufklappen</value>
+  </data>
+  <data name="MainPage_ExpandAllButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Alle aufklappen</value>
+  </data>
+  <data name="MainPage_SearchBox.PlaceholderText" xml:space="preserve">
+    <value>Vorlagen durchsuchen...</value>
+  </data>
+  <data name="MainPage_SyncMissingIcon.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Sync-Datei nicht gefunden — die zwischengespeicherte Kopie wird angezeigt. Erstelle die Datei in Einstellungen › Sync neu oder verknüpfe eine andere.</value>
+  </data>
+  <data name="MainPage_Splitter.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Breite der Vorlagenliste ändern</value>
+  </data>
+  <data name="MainPage_TitleBox.Header" xml:space="preserve">
+    <value>Titel</value>
+  </data>
+  <data name="MainPage_SingleKeyLabel.Text" xml:space="preserve">
+    <value>Einzeltaste</value>
+  </data>
+  <data name="MainPage_SingleKeyBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Einzeltaste</value>
+  </data>
+  <data name="MainPage_MultiKeyLabel.Text" xml:space="preserve">
+    <value>Tastenfolge</value>
+  </data>
+  <data name="MainPage_MultiKeyBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Tastenfolge</value>
+  </data>
+  <data name="MainPage_TagsBox.Header" xml:space="preserve">
+    <value>Tags</value>
+  </data>
+  <data name="MainPage_PasteModeBox.Header" xml:space="preserve">
+    <value>Standard-Einfügemodus</value>
+  </data>
+  <data name="MainPage_FolderTitleBox.Header" xml:space="preserve">
+    <value>Ordnertitel</value>
+  </data>
+  <data name="MainPage_FolderSelected.Text" xml:space="preserve">
+    <value>Ordner ausgewählt</value>
+  </data>
+  <data name="MainPage_EmptyText.Text" xml:space="preserve">
+    <value>Wähle ein Element aus, um Details zu sehen</value>
+  </data>
+  <data name="MainPage_HelpTip.Title" xml:space="preserve">
+    <value>Anleitung Vorlagenverwaltung</value>
+  </data>
+  <data name="MainPage_GuideOrganizeLabel.Text" xml:space="preserve">
+    <value>Ordnen:</value>
+  </data>
+  <data name="MainPage_GuideOrganizeText.Text" xml:space="preserve">
+    <value> füge über die Symbolleiste hinzu; zieh Elemente, um sie umzusortieren oder zu verschachteln (leg sie in der Mitte eines Ordners ab, um sie hineinzulegen, nahe dem oberen oder unteren Rand einer Zeile, um sie darüber oder darunter zu platzieren). Klick auf eine freie Stelle oder drück Esc, um die Auswahl aufzuheben (neue Elemente landen dann auf der obersten Ebene).</value>
+  </data>
+  <data name="MainPage_GuideSyncLabel.Text" xml:space="preserve">
+    <value>Sync-Ordner:</value>
+  </data>
+  <data name="MainPage_GuideSyncText.Text" xml:space="preserve">
+    <value> oben angeheftet, mit Sync-Symbol. Richte sie unter Einstellungen ▸ Sync ein. Schreibgeschützte sind abgeblendet.</value>
+  </data>
+  <data name="MainPage_GuideShortcutsLabel.Text" xml:space="preserve">
+    <value>Kürzel:</value>
+  </data>
+  <data name="MainPage_GuideShortcutsText.Text" xml:space="preserve">
+    <value> leg pro Vorlage eine Einzeltaste oder eine Tastenfolge fest. Dieselbe Taste darf in mehreren Bereichen vorkommen; die lokale gewinnt, danach die Sync-Ordner der Reihe nach.</value>
+  </data>
+  <data name="MainPage_GuideConflictsLabel.Text" xml:space="preserve">
+    <value>Konflikte:</value>
+  </data>
+  <data name="MainPage_GuideConflictsText.Text" xml:space="preserve">
+    <value> ein doppeltes Kürzel im selben Bereich wird blockiert (ein Feld oben rechts listet es auf); über Bereiche hinweg ist es nur ein Hinweis, den du ausblenden kannst.</value>
+  </data>
+  <data name="MainPage_GuideRightClickLabel.Text" xml:space="preserve">
+    <value>Rechtsklick:</value>
+  </data>
+  <data name="MainPage_GuideRightClickText.Text" xml:space="preserve">
+    <value> auf eine Vorlage zum Duplizieren / Kopieren; auf eine Vorlage oder einen Ordner zum Exportieren oder Löschen. Zieh ein Element auf die freie Fläche unter der Liste, um es auf die oberste Ebene zu verschieben.</value>
+  </data>
+  <data name="MainPage_GuideSearchLabel.Text" xml:space="preserve">
+    <value>Suche:</value>
+  </data>
+  <data name="MainPage_GuideSearchText.Text" xml:space="preserve">
+    <value> filtert die Liste nach Titel und Tags; die Filterschaltfläche daneben kann auch den Vorlagentext durchsuchen.</value>
+  </data>
+  <data name="MainPage_GuideEditorLabel.Text" xml:space="preserve">
+    <value>Editor:</value>
+  </data>
+  <data name="MainPage_GuideEditorText.Text" xml:space="preserve">
+    <value> formatiere mit der Symbolleiste — Überschriften, Listen, Tabellen, Farben und die Felder Info/Hinweis/Erfolg/Warnung/Fehler. Mit dem Einfügemodus HTML/Jira fügst du Felder in Jira ein.</value>
+  </data>
+  <data name="MainPage_GuideQuickPasteLabel.Text" xml:space="preserve">
+    <value>Quick Paste:</value>
+  </data>
+  <data name="MainPage_GuideQuickPasteText.Text" xml:space="preserve">
+    <value> drück überall die globale Tastenkombination (Einstellungen ▸ Allgemein), um eine Vorlage in die aktive App einzufügen.</value>
+  </data>
+  <data name="MainPage_TourHintTip.Subtitle" xml:space="preserve">
+    <value>Starte sie jederzeit wieder über Hilfe ▸ Tour starten.</value>
+  </data>
+  <data name="MainPage_TourHintTip.Title" xml:space="preserve">
+    <value>Tour beendet</value>
+  </data>
+  <data name="Common_CancelButton" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="Common_CloseButton" xml:space="preserve">
+    <value>Schließen</value>
+  </data>
+  <data name="PasteMode_Auto" xml:space="preserve">
+    <value>Automatisch</value>
+  </data>
+  <data name="PasteMode_Plaintext" xml:space="preserve">
+    <value>Nur Text</value>
+  </data>
+  <data name="Main_TreeName" xml:space="preserve">
+    <value>Vorlagen</value>
+  </data>
+  <data name="Main_SyncRootNameTooltip" xml:space="preserve">
+    <value>Der Name des Sync-Ordners wird in Einstellungen ▸ Sync festgelegt</value>
+  </data>
+  <data name="Main_UnsavedTitle" xml:space="preserve">
+    <value>Möchtest du die Änderungen speichern?</value>
+  </data>
+  <data name="Main_UnsavedText" xml:space="preserve">
+    <value>„{0}“ hat ungespeicherte Änderungen.</value>
+  </data>
+  <data name="Main_SaveButton" xml:space="preserve">
+    <value>Speichern</value>
+  </data>
+  <data name="Main_DontSaveButton" xml:space="preserve">
+    <value>Nicht speichern</value>
+  </data>
+  <data name="Main_ExportSelection_One" xml:space="preserve">
+    <value>{0} Element exportieren…</value>
+  </data>
+  <data name="Main_ExportSelection_Other" xml:space="preserve">
+    <value>{0} Elemente exportieren…</value>
+  </data>
+  <data name="Main_DeleteSelection_One" xml:space="preserve">
+    <value>{0} Element löschen</value>
+  </data>
+  <data name="Main_DeleteSelection_Other" xml:space="preserve">
+    <value>{0} Elemente löschen</value>
+  </data>
+  <data name="Main_DuplicateItem" xml:space="preserve">
+    <value>Duplizieren</value>
+  </data>
+  <data name="Main_CopyItem" xml:space="preserve">
+    <value>Kopieren ({0})</value>
+  </data>
+  <data name="Main_CopyAsItem" xml:space="preserve">
+    <value>Kopieren als</value>
+  </data>
+  <data name="Main_ExportItem" xml:space="preserve">
+    <value>Exportieren…</value>
+  </data>
+  <data name="Main_ExportNotAcrossAreas" xml:space="preserve">
+    <value>Exportieren… (nicht bereichsübergreifend)</value>
+  </data>
+  <data name="Main_DeleteItem" xml:space="preserve">
+    <value>Löschen</value>
+  </data>
+  <data name="Main_DeleteMany" xml:space="preserve">
+    <value>Möchtest du diese {0} Elemente löschen? Das lässt sich nicht rückgängig machen.</value>
+  </data>
+  <data name="Main_DeleteManyWithInside_One" xml:space="preserve">
+    <value>Möchtest du diese {1} Elemente und das {0} Element in ihren Ordnern löschen? Das lässt sich nicht rückgängig machen.</value>
+  </data>
+  <data name="Main_DeleteManyWithInside_Other" xml:space="preserve">
+    <value>Möchtest du diese {1} Elemente und die {0} Elemente in ihren Ordnern löschen? Das lässt sich nicht rückgängig machen.</value>
+  </data>
+  <data name="Main_DeleteSkipped_One" xml:space="preserve">
+    <value>{0} ausgewähltes Element kann hier nicht gelöscht werden (synchronisierte Ordner oder schreibgeschützte Sync-Elemente) und bleibt.</value>
+  </data>
+  <data name="Main_DeleteSkipped_Other" xml:space="preserve">
+    <value>{0} ausgewählte Elemente können hier nicht gelöscht werden (synchronisierte Ordner oder schreibgeschützte Sync-Elemente) und bleiben.</value>
+  </data>
+  <data name="Main_DeleteFolder_One" xml:space="preserve">
+    <value>Möchtest du den Ordner „{1}“ und sein {0} Element löschen?
+
+Das Element in diesem Ordner wird ebenfalls gelöscht. Das lässt sich nicht rückgängig machen.</value>
+  </data>
+  <data name="Main_DeleteFolder_Other" xml:space="preserve">
+    <value>Möchtest du den Ordner „{1}“ und seine {0} Elemente löschen?
+
+Alle Elemente in diesem Ordner werden ebenfalls gelöscht. Das lässt sich nicht rückgängig machen.</value>
+  </data>
+  <data name="Main_DeleteTemplate" xml:space="preserve">
+    <value>Möchtest du die Vorlage „{0}“ löschen? Das lässt sich nicht rückgängig machen.</value>
+  </data>
+  <data name="Main_DeleteTitle" xml:space="preserve">
+    <value>Löschen bestätigen</value>
+  </data>
+  <data name="Main_DeleteButton" xml:space="preserve">
+    <value>Löschen</value>
+  </data>
+  <data name="Main_NothingImportedTitle" xml:space="preserve">
+    <value>Nichts importiert</value>
+  </data>
+  <data name="Main_ImportUnreadable" xml:space="preserve">
+    <value>Datei konnte nicht als TextTemplateManager-Daten gelesen werden. Es wurde nichts geändert.</value>
+  </data>
+  <data name="Main_ImportEmpty" xml:space="preserve">
+    <value>„{0}“ enthält keine Vorlagen oder Ordner.</value>
+  </data>
+  <data name="Main_ImportIntoNewFolder" xml:space="preserve">
+    <value>In einen neuen Ordner „{0}“</value>
+  </data>
+  <data name="Main_ImportDirectly" xml:space="preserve">
+    <value>Direkt in die Liste (Ordner mit demselben Namen werden zusammengeführt)</value>
+  </data>
+  <data name="Main_ImportOverwriteAll" xml:space="preserve">
+    <value>Alle überschreiben</value>
+  </data>
+  <data name="Main_ImportOverwriteOlder" xml:space="preserve">
+    <value>Nur überschreiben, wo die importierte neuer ist</value>
+  </data>
+  <data name="Main_ImportSkip" xml:space="preserve">
+    <value>Überspringen, die vorhandenen behalten</value>
+  </data>
+  <data name="Main_ImportConflicts_One" xml:space="preserve">
+    <value>{0} dieser Vorlagen ist bereits vorhanden (dieselbe Vorlage oder derselbe Titel im selben Ordner):</value>
+  </data>
+  <data name="Main_ImportConflicts_Other" xml:space="preserve">
+    <value>{0} dieser Vorlagen sind bereits vorhanden (dieselbe Vorlage oder derselbe Titel im selben Ordner):</value>
+  </data>
+  <data name="Main_ImportHolds" xml:space="preserve">
+    <value>„{0}“ enthält {1} {2}. Wohin sollen sie?</value>
+  </data>
+  <data name="Main_ImportTemplates_One" xml:space="preserve">
+    <value>{0} Vorlage</value>
+  </data>
+  <data name="Main_ImportTemplates_Other" xml:space="preserve">
+    <value>{0} Vorlagen</value>
+  </data>
+  <data name="Main_ImportInFolders_One" xml:space="preserve">
+    <value>in {0} Ordner</value>
+  </data>
+  <data name="Main_ImportInFolders_Other" xml:space="preserve">
+    <value>in {0} Ordnern</value>
+  </data>
+  <data name="Main_ImportTitle" xml:space="preserve">
+    <value>Importieren</value>
+  </data>
+  <data name="Main_ImportButton" xml:space="preserve">
+    <value>Importieren</value>
+  </data>
+  <data name="Main_NotSyncSourceTitle" xml:space="preserve">
+    <value>Nicht als Sync-Quelle hinzugefügt</value>
+  </data>
+  <data name="Main_NotSyncSourceText" xml:space="preserve">
+    <value>Die hinzugefügte Datei ist die eigene Datendatei dieser App und kann daher nicht als Sync-Quelle verknüpft werden.</value>
+  </data>
+  <data name="Main_ManualUnavailableTitle" xml:space="preserve">
+    <value>Handbuch nicht verfügbar</value>
+  </data>
+  <data name="Main_ManualUnavailableText" xml:space="preserve">
+    <value>Das Handbuch-PDF wurde neben der App nicht gefunden. Es wird beim Build erzeugt.</value>
+  </data>
+  <data name="Main_LicenseTitle" xml:space="preserve">
+    <value>Lizenz</value>
+  </data>
+  <data name="Main_NoticesTitle" xml:space="preserve">
+    <value>Hinweise zu Drittanbietern</value>
+  </data>
+  <data name="Main_FileNotFound" xml:space="preserve">
+    <value>{0}: Datei nicht gefunden.</value>
+  </data>
+  <data name="Main_UnreadableKept" xml:space="preserve">
+    <value>{0}: ohne sie gestartet. Das Original wurde als {1} aufbewahrt.</value>
+  </data>
+  <data name="Main_UnreadableLocked" xml:space="preserve">
+    <value>{0}: konnte weder gelesen noch verschoben werden. Sie bleibt unverändert, bis die App neu gestartet wird.</value>
+  </data>
+  <data name="Main_UnreadableTitle" xml:space="preserve">
+    <value>Einige Dateien konnten nicht gelesen werden</value>
+  </data>
+  <data name="Main_UnreadableText" xml:space="preserve">
+    <value>{0}
+
+Ordner: {1}
+
+Die Originaldateien wurden nicht überschrieben.</value>
+  </data>
+  <data name="Main_LegacyTitle" xml:space="preserve">
+    <value>TextTemplateManager 1 ist noch installiert</value>
+  </data>
+  <data name="Main_LegacyText" xml:space="preserve">
+    <value>Diese Version ersetzt sie. Ihre Daten bleiben auf diesem PC, und eine Sicherung davon steht in Einstellungen ▸ Sicherungen.
+
+Möchtest du die alte Version jetzt entfernen?</value>
+  </data>
+  <data name="Main_LegacyRemoveButton" xml:space="preserve">
+    <value>TextTemplateManager 1 entfernen</value>
+  </data>
+  <data name="Main_LegacyKeepButton" xml:space="preserve">
+    <value>Behalten</value>
+  </data>
+  <data name="Main_LegacyRemovedTitle" xml:space="preserve">
+    <value>TextTemplateManager 1 entfernt</value>
+  </data>
+  <data name="Main_LegacyRemovedText" xml:space="preserve">
+    <value>Die alte Version wurde entfernt. Ihr Datenordner wurde behalten.</value>
+  </data>
+  <data name="Main_LegacyNotRemovedTitle" xml:space="preserve">
+    <value>TextTemplateManager 1 wurde nicht entfernt</value>
+  </data>
+  <data name="Main_LegacyNotRemovedText" xml:space="preserve">
+    <value>Die alte Version konnte von hier aus nicht entfernt werden. Entferne sie in den Windows-Einstellungen ▸ Apps ▸ Installierte Apps.</value>
+  </data>
+  <data name="Main_FirstStartImport" xml:space="preserve">
+    <value>Aus TextTemplateManager 1 importieren: Vorlagen, Einstellungen und Sync-Einstellungen so, wie du sie dort verlassen hast. Die App startet danach neu.</value>
+  </data>
+  <data name="Main_FirstStartRestore" xml:space="preserve">
+    <value>Eine Sicherung wiederherstellen (die neueste ist vom {0:f})</value>
+  </data>
+  <data name="Main_FirstStartFresh" xml:space="preserve">
+    <value>Neu beginnen</value>
+  </data>
+  <data name="Main_FirstStartQuestion" xml:space="preserve">
+    <value>Wie möchtest du starten?</value>
+  </data>
+  <data name="Main_FirstStartTitle" xml:space="preserve">
+    <value>Willkommen bei TextTemplateManager</value>
+  </data>
+  <data name="Main_ContinueButton" xml:space="preserve">
+    <value>Weiter</value>
+  </data>
+  <data name="Main_ImportV1FailedTitle" xml:space="preserve">
+    <value>Import aus TextTemplateManager 1 fehlgeschlagen</value>
+  </data>
+  <data name="Main_ImportV1FailedText" xml:space="preserve">
+    <value>{0}
+
+Du kannst es unter Einstellungen ▸ Sicherungen ▸ Aus TextTemplateManager 1 importieren noch einmal versuchen.</value>
+  </data>
+  <data name="Main_TourOfferTitle" xml:space="preserve">
+    <value>Möchtest du die Tour machen?</value>
+  </data>
+  <data name="Main_TourOfferText" xml:space="preserve">
+    <value>Eine kurze Tour zeigt das Hauptfenster, die Einstellungen und Quick Paste an Beispielvorlagen; die eigenen Vorlagen bleiben unberührt. Du kannst sie auch jederzeit über Hilfe ▸ Tour starten aufrufen.</value>
+  </data>
+  <data name="Main_TourOfferTakeButton" xml:space="preserve">
+    <value>Tour starten</value>
+  </data>
+  <data name="Main_TourOfferLaterButton" xml:space="preserve">
+    <value>Später</value>
+  </data>
+  <data name="Main_TourOfferNeverButton" xml:space="preserve">
+    <value>Nicht mehr anzeigen</value>
+  </data>
+  <data name="Main_WhatsNewTitle" xml:space="preserve">
+    <value>Neuigkeiten in {0}</value>
+  </data>
+  <data name="Main_ErrorTitle" xml:space="preserve">
+    <value>Etwas ist schiefgelaufen</value>
+  </data>
+  <data name="Main_ErrorSaved" xml:space="preserve">
+    <value>Ein unerwarteter Fehler ist aufgetreten. Alle Änderungen wurden gespeichert. Beende TextTemplateManager sicherheitshalber und starte die App neu.
+
+Details: {0}</value>
+  </data>
+  <data name="Main_ErrorUnsaved" xml:space="preserve">
+    <value>Ein unerwarteter Fehler ist aufgetreten, und die letzten Änderungen wurden möglicherweise nicht gespeichert. Beende TextTemplateManager sicherheitshalber und starte die App neu.
+
+Details: {0}</value>
+  </data>
+  <data name="Main_QuitButton" xml:space="preserve">
+    <value>Beenden</value>
+  </data>
+  <data name="Main_KeepRunningButton" xml:space="preserve">
+    <value>Weiter ausführen</value>
+  </data>
+  <data name="Main_SavingTitle" xml:space="preserve">
+    <value>Änderungen werden gespeichert…</value>
+  </data>
+  <data name="Main_StillSavingTitle" xml:space="preserve">
+    <value>Wird noch gespeichert</value>
+  </data>
+  <data name="Main_StillSavingText" xml:space="preserve">
+    <value>Die letzten Änderungen sind noch nicht fertig gespeichert (eine synchronisierte Datei ist vielleicht belegt). Wenn du jetzt beendest, können sie verloren gehen.</value>
+  </data>
+  <data name="Main_KeepWaitingButton" xml:space="preserve">
+    <value>Weiter warten</value>
+  </data>
+  <data name="Main_QuitAnywayButton" xml:space="preserve">
+    <value>Trotzdem beenden</value>
+  </data>
+  <data name="Main_DownloadingTitle" xml:space="preserve">
+    <value>Eine Sprache wird noch heruntergeladen</value>
+  </data>
+  <data name="Main_DownloadingText" xml:space="preserve">
+    <value>Eine Übersetzungssprache wird noch heruntergeladen. Warte, bis sie fertig ist, und beende dann, oder brich den Download ab und beende jetzt; du kannst sie später in Einstellungen ▸ Übersetzung erneut herunterladen.</value>
+  </data>
+  <data name="Main_WaitThenExitButton" xml:space="preserve">
+    <value>Warten, dann beenden</value>
+  </data>
+  <data name="Main_StopAndExitButton" xml:space="preserve">
+    <value>Abbrechen und beenden</value>
+  </data>
+  <data name="Main_DownloadProgressName" xml:space="preserve">
+    <value>Download-Fortschritt</value>
+  </data>
+  <data name="Main_FinishingDownloadTitle" xml:space="preserve">
+    <value>Download wird abgeschlossen…</value>
+  </data>
+  <data name="Main_DropEnd_One" xml:space="preserve">
+    <value>Ans Ende verschieben</value>
+  </data>
+  <data name="Main_DropEnd_Other" xml:space="preserve">
+    <value>{0} Elemente ans Ende verschieben</value>
+  </data>
+  <data name="Main_DropInto_One" xml:space="preserve">
+    <value>In „{1}“ verschieben</value>
+  </data>
+  <data name="Main_DropInto_Other" xml:space="preserve">
+    <value>{0} Elemente in „{1}“ verschieben</value>
+  </data>
+  <data name="Main_DropAbove_One" xml:space="preserve">
+    <value>Über „{1}“ verschieben</value>
+  </data>
+  <data name="Main_DropAbove_Other" xml:space="preserve">
+    <value>{0} Elemente über „{1}“ verschieben</value>
+  </data>
+  <data name="Main_DropBelow_One" xml:space="preserve">
+    <value>Unter „{1}“ verschieben</value>
+  </data>
+  <data name="Main_DropBelow_Other" xml:space="preserve">
+    <value>{0} Elemente unter „{1}“ verschieben</value>
+  </data>
+  <data name="Updates_DownloadingTitle" xml:space="preserve">
+    <value>Update wird heruntergeladen</value>
+  </data>
+  <data name="Updates_DownloadingText" xml:space="preserve">
+    <value>Das Update wird im Hintergrund heruntergeladen. Du kannst weiterarbeiten.</value>
+  </data>
+  <data name="Updates_ReadyTitle" xml:space="preserve">
+    <value>Update bereit</value>
+  </data>
+  <data name="Updates_ReadyText" xml:space="preserve">
+    <value>Das Update ist bereit zur Installation. Jetzt aktualisieren speichert alles und öffnet die neue Version in wenigen Sekunden.</value>
+  </data>
+  <data name="Updates_InstallingTitle" xml:space="preserve">
+    <value>Update wird installiert</value>
+  </data>
+  <data name="Updates_InstallingVersion" xml:space="preserve">
+    <value>TextTemplateManager startet gleich mit Version {0} neu.</value>
+  </data>
+  <data name="Updates_InstallingNew" xml:space="preserve">
+    <value>TextTemplateManager startet gleich mit der neuen Version neu.</value>
+  </data>
+  <data name="Updates_AvailableTitle" xml:space="preserve">
+    <value>Update verfügbar</value>
+  </data>
+  <data name="Updates_Available" xml:space="preserve">
+    <value>{0} ist verfügbar.</value>
+  </data>
+  <data name="Updates_StoreBlocked" xml:space="preserve">
+    <value>Automatische Updates für Store-Apps sind auf diesem PC ausgeschaltet. Wähle Herunterladen, um es zu holen.</value>
+  </data>
+  <data name="Updates_AvailableManaged" xml:space="preserve">
+    <value>{0} ist verfügbar. Die Updates auf diesem PC werden von der Organisation verwaltet: Wende dich an die IT-Abteilung oder aktualisiere die App im Microsoft Store, falls du darfst.</value>
+  </data>
+  <data name="Updates_FailedTitle" xml:space="preserve">
+    <value>Problem beim Update</value>
+  </data>
+  <data name="Updates_FailedText" xml:space="preserve">
+    <value>Update fehlgeschlagen.</value>
+  </data>
+  <data name="Updates_ManualStepsTitle" xml:space="preserve">
+    <value>Update konnte nicht installiert werden</value>
+  </data>
+  <data name="Updates_ManualStepsText" xml:space="preserve">
+    <value>Das Update ist heruntergeladen, aber die App konnte nicht darauf umschalten. Beende die App (Datei ▸ Beenden) und starte sie über das Startmenü neu. Zeigt Hilfe ▸ Über danach noch die alte Version, aktualisiere die App im Microsoft Store.</value>
+  </data>
+  <data name="Updates_NewVersion" xml:space="preserve">
+    <value>Eine neue Version</value>
+  </data>
+  <data name="Updates_NotInstalledTitle" xml:space="preserve">
+    <value>Update nicht installiert</value>
+  </data>
+  <data name="Updates_NotInstalledText" xml:space="preserve">
+    <value>{0}
+
+Die Vorlagen sind nicht betroffen. Das Update bleibt bereit; du kannst es noch einmal versuchen.</value>
+  </data>
+  <data name="Updates_WindowsUpdateHint" xml:space="preserve">
+    <value>Windows Update bringt es meist von selbst; Jetzt aktualisieren erscheint, sobald es heruntergeladen ist.</value>
+  </data>
+  <data name="Updates_UpToDateNextCheck" xml:space="preserve">
+    <value>Auf dem neuesten Stand (zuletzt geprüft um {0:t}). Der Microsoft Store erlaubt die nächste Prüfung ab {1}.</value>
+  </data>
+  <data name="Updates_NextCheck" xml:space="preserve">
+    <value>Der Microsoft Store erlaubt die nächste Prüfung ab {0}.</value>
+  </data>
+  <data name="Updates_CheckFailed" xml:space="preserve">
+    <value>Suche nach Updates fehlgeschlagen ({0}, Fehler {1}).</value>
+  </data>
+  <data name="Updates_CheckRefused" xml:space="preserve">
+    <value>Der Microsoft Store hat diese Prüfung übersprungen, weil er begrenzt, wie oft eine App prüfen darf. Versuch es ab {0} erneut.</value>
+  </data>
+  <data name="Updates_StoreNotDownloaded" xml:space="preserve">
+    <value>Der Microsoft Store hat es noch nicht heruntergeladen. {0}</value>
+  </data>
+  <data name="Updates_NotStagedYet" xml:space="preserve">
+    <value>Der Download ist fertig, aber Windows hat das Update noch nicht vorbereitet. Die App prüft später erneut.</value>
+  </data>
+  <data name="Updates_DownloadFailedCode" xml:space="preserve">
+    <value>Update konnte nicht heruntergeladen werden ({0}, Fehler {1}).</value>
+  </data>
+  <data name="Updates_DownloadFailedDetail" xml:space="preserve">
+    <value>Update konnte nicht heruntergeladen werden: {0}.</value>
+  </data>
+  <data name="Updates_NoneReady" xml:space="preserve">
+    <value>Kein Update bereit.</value>
+  </data>
+  <data name="Updates_ManagedByOrganization" xml:space="preserve">
+    <value>Die Updates auf diesem PC werden von der Organisation verwaltet.</value>
+  </data>
+  <data name="Updates_Busy" xml:space="preserve">
+    <value>Ein Update-Schritt läuft bereits.</value>
+  </data>
+  <data name="Updates_NoLongerStaged" xml:space="preserve">
+    <value>Das heruntergeladene Update ist nicht mehr vorhanden (Windows hat es vielleicht entfernt). Die App lädt es bei der nächsten Prüfung erneut herunter.</value>
+  </data>
+  <data name="Updates_SwitchFailedCode" xml:space="preserve">
+    <value>Umschalten auf die neue Version fehlgeschlagen (Fehler {0}).</value>
+  </data>
+  <data name="Updates_SwitchFailed" xml:space="preserve">
+    <value>Umschalten auf die neue Version fehlgeschlagen.</value>
+  </data>
+  <data name="Updates_LastAttemptFailedWith" xml:space="preserve">
+    <value>Letzter Installationsversuch fehlgeschlagen. {0}</value>
+  </data>
+  <data name="Updates_LastAttemptFailed" xml:space="preserve">
+    <value>Letzter Installationsversuch fehlgeschlagen.</value>
+  </data>
+  <data name="Main_NewTemplateTitle" xml:space="preserve">
+    <value>Neue Vorlage</value>
+  </data>
+  <data name="Main_NewFolderTitle" xml:space="preserve">
+    <value>Neuer Ordner</value>
+  </data>
+  <data name="Main_CopyTitle" xml:space="preserve">
+    <value>{0} (Kopie)</value>
+  </data>
+  <data name="Main_ExportFileName" xml:space="preserve">
+    <value>Vorlagen_{0:yyyyMMdd}</value>
+  </data>
+  <data name="Conflicts_SingleKeyHeading" xml:space="preserve">
+    <value>Konflikte bei Einzeltasten</value>
+  </data>
+  <data name="Conflicts_MultiKeyHeading" xml:space="preserve">
+    <value>Konflikte bei Tastenfolgen</value>
+  </data>
+  <data name="Conflicts_SingleKeyNote" xml:space="preserve">
+    <value>Hinweis — dieselbe Einzeltaste in verschiedenen Bereichen (erlaubt; lokal gewinnt, dann die Sync-Reihenfolge):</value>
+  </data>
+  <data name="Conflicts_MultiKeyNote" xml:space="preserve">
+    <value>Hinweis — dieselbe Tastenfolge in verschiedenen Bereichen (erlaubt; lokal gewinnt, dann die Sync-Reihenfolge):</value>
+  </data>
+  <data name="Conflicts_Shortcut" xml:space="preserve">
+    <value>Kürzel: {0}</value>
+  </data>
+  <data name="QuickPaste_RowName" xml:space="preserve">
+    <value>{0}, Kürzel {1}, {2}</value>
+  </data>
+  <data name="QuickPaste_LocalSource" xml:space="preserve">
+    <value>lokal</value>
+  </data>
+  <data name="AboutDialog.CloseButtonText" xml:space="preserve">
+    <value>Schließen</value>
+  </data>
+  <data name="AboutDialog.SecondaryButtonText" xml:space="preserve">
+    <value>Hinweise zu Drittanbietern</value>
+  </data>
+  <data name="AboutDialog.PrimaryButtonText" xml:space="preserve">
+    <value>Lizenz anzeigen</value>
+  </data>
+  <data name="AboutDialog.Title" xml:space="preserve">
+    <value>Über</value>
+  </data>
+  <data name="AboutDialog_Tagline.Text" xml:space="preserve">
+    <value>Textvorlagen per Tastenkombination einfügen.</value>
+  </data>
+  <data name="AboutDialog_WebsiteLink.Content" xml:space="preserve">
+    <value>Website und Online-Hilfe</value>
+  </data>
+  <data name="AboutDialog_CopiedHint.Text" xml:space="preserve">
+    <value>Adresse in die Zwischenablage kopiert</value>
+  </data>
+  <data name="ConflictPanel_Title.Text" xml:space="preserve">
+    <value>⚠ Kürzelkonflikte</value>
+  </data>
+  <data name="ConflictPanel_DismissButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Ausblenden</value>
+  </data>
+  <data name="ConflictPanel_DismissButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Ausblenden</value>
+  </data>
+  <data name="SearchOptions_Button.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Suchoptionen</value>
+  </data>
+  <data name="SearchOptions_Button.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Suchoptionen</value>
+  </data>
+  <data name="SearchOptions_ContentItem.Text" xml:space="preserve">
+    <value>Vorlagentext durchsuchen</value>
+  </data>
+  <data name="SearchOptions_StrictItem.Text" xml:space="preserve">
+    <value>Genaue Suche: exakt wie eingegeben, * beliebige Zeichen, . ein Zeichen</value>
+  </data>
+  <data name="TemplateEditor_WebView.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Vorlageneditor</value>
+  </data>
+  <data name="Tour_Card.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Tour</value>
+  </data>
+  <data name="Tour_CloseButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Tour schließen</value>
+  </data>
+  <data name="Tour_CloseButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Tour schließen (Esc)</value>
+  </data>
+  <data name="Tour_SkipButton.Content" xml:space="preserve">
+    <value>Tour überspringen</value>
+  </data>
+  <data name="Tour_BackButton.Content" xml:space="preserve">
+    <value>Zurück</value>
+  </data>
+  <data name="Tour_NextButton.Content" xml:space="preserve">
+    <value>Weiter</value>
+  </data>
+  <data name="SearchOptions_TooltipStrictContent" xml:space="preserve">
+    <value>Suchoptionen (genau, auch im Vorlagentext)</value>
+  </data>
+  <data name="SearchOptions_TooltipContent" xml:space="preserve">
+    <value>Suchoptionen (auch im Vorlagentext)</value>
+  </data>
+  <data name="SearchOptions_TooltipStrict" xml:space="preserve">
+    <value>Suchoptionen (genaue Suche)</value>
+  </data>
+  <data name="SearchOptions_Tooltip" xml:space="preserve">
+    <value>Suchoptionen</value>
+  </data>
+  <data name="About_Released" xml:space="preserve">
+    <value>Veröffentlicht am {0}</value>
+  </data>
+  <data name="About_DevBuild" xml:space="preserve">
+    <value>Veröffentlicht: Entwicklerversion</value>
+  </data>
+  <data name="About_Protocol" xml:space="preserve">
+    <value>Protokoll der Connector-API {0}</value>
+  </data>
+  <data name="Tour_DoneButton" xml:space="preserve">
+    <value>Fertig</value>
+  </data>
+  <data name="Tour_NextButtonText" xml:space="preserve">
+    <value>Weiter</value>
+  </data>
+  <data name="Tour_Announcement" xml:space="preserve">
+    <value>{0}: {1}. {2}</value>
+  </data>
+  <data name="QuickPaste_PasteItem.Text" xml:space="preserve">
+    <value>Einfügen</value>
+  </data>
+  <data name="QuickPaste_PasteAsItem.Text" xml:space="preserve">
+    <value>Einfügen als</value>
+  </data>
+  <data name="QuickPaste_PasteAsAuto.Text" xml:space="preserve">
+    <value>Automatisch</value>
+  </data>
+  <data name="QuickPaste_PasteAsPlaintext.Text" xml:space="preserve">
+    <value>Nur Text</value>
+  </data>
+  <data name="QuickPaste_HelpButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Bedienungshilfe</value>
+  </data>
+  <data name="QuickPaste_HelpButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Bedienungshilfe</value>
+  </data>
+  <data name="QuickPaste_SearchBox.PlaceholderText" xml:space="preserve">
+    <value>Suchen...</value>
+  </data>
+  <data name="QuickPaste_TreeSplitter.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Breite der Vorlagenliste ändern</value>
+  </data>
+  <data name="QuickPaste_PreviewHeading.Text" xml:space="preserve">
+    <value>Inhaltsvorschau</value>
+  </data>
+  <data name="QuickPaste_PreviewWebView.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Vorlagenvorschau</value>
+  </data>
+  <data name="QuickPaste_PreviewSplitter.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Größe der Vorschau ändern</value>
+  </data>
+  <data name="QuickPaste_ShortcutLabel.Text" xml:space="preserve">
+    <value>KÜRZEL:</value>
+  </data>
+  <data name="QuickPaste_PlaintextBadge.Text" xml:space="preserve">
+    <value>NUR TEXT</value>
+  </data>
+  <data name="QuickPaste_ShortcutTabs.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Kürzellisten</value>
+  </data>
+  <data name="QuickPaste_TabSingle.Text" xml:space="preserve">
+    <value>Einzeltaste</value>
+  </data>
+  <data name="QuickPaste_TabMulti.Text" xml:space="preserve">
+    <value>Tastenfolge</value>
+  </data>
+  <data name="QuickPaste_SingleKeyList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Kürzel mit Einzeltaste</value>
+  </data>
+  <data name="QuickPaste_MultiKeyList.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Kürzel mit Tastenfolge</value>
+  </data>
+  <data name="QuickPaste_HelpTip.Title" xml:space="preserve">
+    <value>Anleitung Quick Paste</value>
+  </data>
+  <data name="QuickPaste_GuideSingleLabel.Text" xml:space="preserve">
+    <value>Einzeltaste:</value>
+  </data>
+  <data name="QuickPaste_GuideSingleText.Text" xml:space="preserve">
+    <value> drück eine Taste, um sofort einzufügen (bei leerer Suche), oder wähle mit ↑/↓ und Eingabe aus der Liste. Gibt es dieselbe Taste in mehreren Bereichen, gewinnt die lokale, danach die Sync-Ordner der Reihe nach.</value>
+  </data>
+  <data name="QuickPaste_GuideMultiLabel.Text" xml:space="preserve">
+    <value>Tastenfolge:</value>
+  </data>
+  <data name="QuickPaste_GuideMultiText.Text" xml:space="preserve">
+    <value> halte ALT gedrückt und tippe das Kürzel (synchronisierte haben ein Präfix, z. B. and-msg; Trennzeichen - _ . erlaubt). Lass ALT los, um den markierten Treffer einzufügen — ein Teil der Eingabe genügt. ↑/↓ verschieben die Markierung, Eingabe fügt ein.</value>
+  </data>
+  <data name="QuickPaste_GuidePlaintextLabel.Text" xml:space="preserve">
+    <value>Nur Text:</value>
+  </data>
+  <data name="QuickPaste_GuidePlaintextText.Text" xml:space="preserve">
+    <value> schließ mit Umschalt+'-' ('_') ab, um als reinen Text einzufügen.</value>
+  </data>
+  <data name="QuickPaste_GuideBackspaceLabel.Text" xml:space="preserve">
+    <value>Rücktaste:</value>
+  </data>
+  <data name="QuickPaste_GuideBackspaceText.Text" xml:space="preserve">
+    <value> korrigiere einen Tippfehler, während ALT gedrückt ist.</value>
+  </data>
+  <data name="QuickPaste_GuideDoubleClickLabel.Text" xml:space="preserve">
+    <value>Doppelklick:</value>
+  </data>
+  <data name="QuickPaste_GuideDoubleClickText.Text" xml:space="preserve">
+    <value> füge eine Vorlage aus der Liste oder einer Kürzelliste ein.</value>
+  </data>
+  <data name="QuickPaste_GuideRightClickLabel.Text" xml:space="preserve">
+    <value>Rechtsklick:</value>
+  </data>
+  <data name="QuickPaste_GuideRightClickText.Text" xml:space="preserve">
+    <value> Einfügen oder Einfügen als — Nur Text, Markdown, RTF, HTML, HTML/Jira oder Automatisch.</value>
+  </data>
+  <data name="QuickPaste_GuideSearchLabel.Text" xml:space="preserve">
+    <value>Suche:</value>
+  </data>
+  <data name="QuickPaste_GuideSearchText.Text" xml:space="preserve">
+    <value> berücksichtigt Ordner; Treffer zeigen ihren übergeordneten Pfad. Die Filterschaltfläche daneben kann auch den Vorlagentext durchsuchen. ↑/↓ bewegen den Cursor; ↓ am Ende wechselt in die Liste.</value>
+  </data>
+  <data name="QuickPaste_GuideEscLabel.Text" xml:space="preserve">
+    <value>Esc:</value>
+  </data>
+  <data name="QuickPaste_GuideEscText.Text" xml:space="preserve">
+    <value> schließt das Quick-Paste-Fenster.</value>
+  </data>
+  <data name="QuickPaste_WindowTitle" xml:space="preserve">
+    <value>Quick Paste</value>
+  </data>
+  <data name="App_ConnectorUnavailableTitle" xml:space="preserve">
+    <value>Browser-Connector nicht verfügbar</value>
+  </data>
+  <data name="App_ConnectorUnavailableText" xml:space="preserve">
+    <value>Port {0} kann nicht verwendet werden, daher kann sich die Browsererweiterung nicht verbinden. Eine andere App verwendet ihn (zum Beispiel ein älteres TextTemplateManager, das noch läuft), oder Windows hat ihn reserviert. Wähle in Einstellungen › Integrationen einen anderen Port und stell denselben Port in der Erweiterung ein.</value>
+  </data>
+  <data name="App_HotkeyUnavailableTitle" xml:space="preserve">
+    <value>Tastenkombination für Quick Paste nicht verfügbar</value>
+  </data>
+  <data name="App_HotkeyUnavailableText" xml:space="preserve">
+    <value>Die Tastenkombination {0} für Quick Paste wird bereits von einer anderen App verwendet, daher öffnet sie Quick Paste nicht. Wähle in Einstellungen › Allgemein eine andere Tastenkombination.</value>
+  </data>
+  <data name="App_RestoreNoRestart" xml:space="preserve">
+    <value>Die Sicherung wurde wiederhergestellt, aber die App konnte sich nicht selbst neu starten. Starte sie neu, um die wiederhergestellten Daten zu laden.</value>
+  </data>
+  <data name="App_UpdateReadyBalloon" xml:space="preserve">
+    <value>Das Update ist bereit zur Installation. Wähle im Menü des Infobereichssymbols Jetzt aktualisieren.</value>
+  </data>
+  <data name="Tray_OpenItem" xml:space="preserve">
+    <value>Öffnen</value>
+  </data>
+  <data name="Tray_ExitItem" xml:space="preserve">
+    <value>App beenden</value>
+  </data>
+  <data name="Restore_LeaveMissingButton" xml:space="preserve">
+    <value>Fehlen lassen</value>
+  </data>
+  <data name="Restore_Failed" xml:space="preserve">
+    <value>Wiederherstellen fehlgeschlagen, es wurde nichts geändert.</value>
+  </data>
+  <data name="Restore_FailedWith" xml:space="preserve">
+    <value>Wiederherstellen fehlgeschlagen, es wurde nichts geändert: {0}</value>
+  </data>
+  <data name="Restore_RestoredTitle" xml:space="preserve">
+    <value>Sicherung wiederhergestellt</value>
+  </data>
+  <data name="Restore_PartLocal" xml:space="preserve">
+    <value>Vorlagen und Ordner</value>
+  </data>
+  <data name="Restore_PartSettings" xml:space="preserve">
+    <value>Einstellungen</value>
+  </data>
+  <data name="Restore_PartSyncSettings" xml:space="preserve">
+    <value>Sync-Einstellungen</value>
+  </data>
+  <data name="Restore_PartSyncedFolders" xml:space="preserve">
+    <value>synchronisierten Vorlagen und Ordner</value>
+  </data>
+  <data name="Restore_ListAnd" xml:space="preserve">
+    <value>{0} und {1}</value>
+  </data>
+  <data name="Restore_ConfirmReplace" xml:space="preserve">
+    <value>Die aktuellen {0} werden durch die aus {1} ersetzt.</value>
+  </data>
+  <data name="Restore_ConfirmIntoFiles" xml:space="preserve">
+    <value>Ohne die Sync-Einstellungen werden die synchronisierten Vorlagen und Ordner in ihre Sync-Dateien wiederhergestellt. Als Nächstes wirst du für jeden synchronisierten Ordner gefragt.</value>
+  </data>
+  <data name="Restore_ConfirmLinkAsIs" xml:space="preserve">
+    <value>Eine vorhandene gemeinsame Sync-Datei wird so verknüpft, wie sie ist; bei einer fehlenden wirst du gefragt. Um die synchronisierten Vorlagen und Ordner in die Dateien wiederherzustellen, hak zusätzlich „Synchronisierte Vorlagen und Ordner“ an.</value>
+  </data>
+  <data name="Restore_ConfirmFilesStay" xml:space="preserve">
+    <value>Eine gemeinsame Sync-Datei, die noch existiert, bleibt, wie sie ist, außer du überschreibst sie; der Ordner einer fehlenden zeigt seine Kopie aus der Sicherung.</value>
+  </data>
+  <data name="Restore_ConfirmChanged_One" xml:space="preserve">
+    <value>Eine gemeinsame Sync-Datei hat sich seit der Sicherung geändert. Als Nächstes wirst du gefragt, ob du sie überschreiben oder behalten möchtest.</value>
+  </data>
+  <data name="Restore_ConfirmChanged_Other" xml:space="preserve">
+    <value>{0} gemeinsame Sync-Dateien haben sich seit der Sicherung geändert. Als Nächstes wirst du für jede gefragt, ob du sie überschreiben oder behalten möchtest.</value>
+  </data>
+  <data name="Restore_ConfirmMissing_One" xml:space="preserve">
+    <value>Eine Sync-Datei der Sicherung ist nicht auf diesem PC. Als Nächstes wirst du gefragt, was damit geschehen soll.</value>
+  </data>
+  <data name="Restore_ConfirmMissing_Other" xml:space="preserve">
+    <value>{0} Sync-Dateien der Sicherung sind nicht auf diesem PC. Als Nächstes wirst du für jede gefragt, was damit geschehen soll.</value>
+  </data>
+  <data name="Restore_ConfirmBackupFirst" xml:space="preserve">
+    <value>Zuerst wird der aktuelle Stand gesichert, dann startet die App neu.</value>
+  </data>
+  <data name="Restore_ConfirmTitle" xml:space="preserve">
+    <value>Möchtest du diese Sicherung wiederherstellen?</value>
+  </data>
+  <data name="Restore_RestoreButton" xml:space="preserve">
+    <value>Wiederherstellen</value>
+  </data>
+  <data name="Restore_ChangedTitle" xml:space="preserve">
+    <value>Sync-Datei „{0}“ hat sich geändert</value>
+  </data>
+  <data name="Restore_ChangedText" xml:space="preserve">
+    <value>{0}
+
+Die Datei wurde zuletzt am {1:f} geändert und unterscheidet sich von der Kopie in der Sicherung ({2}).
+
+Behalten: Der Ordner zeigt die Datei so, wie sie jetzt ist.
+Überschreiben: Die Datei erhält die Kopie aus der Sicherung, für alle, die sie verwenden.</value>
+  </data>
+  <data name="Restore_OverwriteButton" xml:space="preserve">
+    <value>Mit der Kopie aus der Sicherung überschreiben</value>
+  </data>
+  <data name="Restore_KeepFileButton" xml:space="preserve">
+    <value>Datei behalten</value>
+  </data>
+  <data name="Restore_NoFileKnown" xml:space="preserve">
+    <value>Für sie ist keine Sync-Datei bekannt, weder in den aktuellen Sync-Einstellungen noch in denen der Sicherung.</value>
+  </data>
+  <data name="Restore_FileMissing" xml:space="preserve">
+    <value>Die Datei ist nicht mehr da.</value>
+  </data>
+  <data name="Restore_FolderMissing" xml:space="preserve">
+    <value>Ihr Ordner existiert auf diesem PC nicht:
+{0}</value>
+  </data>
+  <data name="Restore_FileUnreadable" xml:space="preserve">
+    <value>Es gibt dort eine Datei, aber sie ist keine gültige Sync-Datei und wird daher nicht überschrieben.</value>
+  </data>
+  <data name="Restore_LocationImpossible" xml:space="preserve">
+    <value>Diesen Ort kann es auf diesem PC nicht geben, zum Beispiel weil das Laufwerk oder die Netzwerkfreigabe fehlt.</value>
+  </data>
+  <data name="Restore_HasCopy" xml:space="preserve">
+    <value>Die Sicherung enthält eine Kopie ihrer Vorlagen und Ordner.</value>
+  </data>
+  <data name="Restore_NoCopy" xml:space="preserve">
+    <value>Die Sicherung enthält keine Kopie davon, daher kannst du stattdessen nur eine vorhandene Datei verknüpfen.</value>
+  </data>
+  <data name="Restore_RecreateButton" xml:space="preserve">
+    <value>Dort neu erstellen</value>
+  </data>
+  <data name="Restore_CreateFolderButton" xml:space="preserve">
+    <value>Ordner und Datei erstellen</value>
+  </data>
+  <data name="Restore_UnreadableTitle" xml:space="preserve">
+    <value>Sync-Datei „{0}“ kann nicht gelesen werden</value>
+  </data>
+  <data name="Restore_MissingTitle" xml:space="preserve">
+    <value>Sync-Datei „{0}“ fehlt</value>
+  </data>
+  <data name="Restore_ChooseLocationButton" xml:space="preserve">
+    <value>Ort auswählen…</value>
+  </data>
+  <data name="Restore_LinkAnotherButton" xml:space="preserve">
+    <value>Andere Datei verknüpfen…</value>
+  </data>
+  <data name="Restore_SkipFolderButton" xml:space="preserve">
+    <value>Diesen Ordner überspringen</value>
+  </data>
+  <data name="Restore_OverwriteOlder" xml:space="preserve">
+    <value>Nur überschreiben, wo die aus der Sicherung neuer ist</value>
+  </data>
+  <data name="Restore_SkipThem" xml:space="preserve">
+    <value>Überspringen, die in der Datei behalten</value>
+  </data>
+  <data name="Restore_CopyHolds_One" xml:space="preserve">
+    <value>Die Kopie in der Sicherung enthält {0} Vorlage. Ordner mit demselben Namen werden zusammengeführt.</value>
+  </data>
+  <data name="Restore_CopyHolds_Other" xml:space="preserve">
+    <value>Die Kopie in der Sicherung enthält {0} Vorlagen. Ordner mit demselben Namen werden zusammengeführt.</value>
+  </data>
+  <data name="Restore_CopyConflicts_One" xml:space="preserve">
+    <value>{0} dieser Vorlagen ist bereits in der Datei vorhanden (dieselbe Vorlage oder derselbe Titel im selben Ordner):</value>
+  </data>
+  <data name="Restore_CopyConflicts_Other" xml:space="preserve">
+    <value>{0} dieser Vorlagen sind bereits in der Datei vorhanden (dieselbe Vorlage oder derselbe Titel im selben Ordner):</value>
+  </data>
+  <data name="Restore_RelinkedNote" xml:space="preserve">
+    <value>Die Datei ist in den aktuellen Sync-Einstellungen nicht verknüpft; sie wird wieder verknüpft.</value>
+  </data>
+  <data name="Restore_IntoFileTitle" xml:space="preserve">
+    <value>Möchtest du „{0}“ in seine Sync-Datei wiederherstellen?</value>
+  </data>
+  <data name="Restore_IntoFileButton" xml:space="preserve">
+    <value>In die Datei wiederherstellen</value>
+  </data>
+  <data name="Restore_BackupUnusable" xml:space="preserve">
+    <value>Die Sicherung kann nicht verwendet werden: {0}.</value>
+  </data>
+  <data name="Restore_NoneOfTheParts" xml:space="preserve">
+    <value>Die Sicherung enthält keinen der gewählten Teile.</value>
+  </data>
+  <data name="Backups_ProblemNoManifest" xml:space="preserve">
+    <value>kein Manifest</value>
+  </data>
+  <data name="Backups_ProblemUnreadableManifest" xml:space="preserve">
+    <value>Manifest nicht lesbar</value>
+  </data>
+  <data name="Backups_ProblemNewerVersion" xml:space="preserve">
+    <value>von einer neueren Version erstellt</value>
+  </data>
+  <data name="Backups_ProblemNoData" xml:space="preserve">
+    <value>keine Vorlagendaten</value>
+  </data>
+  <data name="Backups_ProblemFileMissing" xml:space="preserve">
+    <value>{0} fehlt</value>
+  </data>
+  <data name="Backups_ProblemFileDamaged" xml:space="preserve">
+    <value>{0} ist beschädigt</value>
+  </data>
+  <data name="Backups_ProblemFileUnloadable" xml:space="preserve">
+    <value>{0} lässt sich nicht laden</value>
+  </data>
+  <data name="Backups_ProblemNotZip" xml:space="preserve">
+    <value>keine lesbare Zip-Datei</value>
+  </data>
+  <data name="Sync_WriteProblem" xml:space="preserve">
+    <value>Speichern in die Sync-Datei fehlgeschlagen: {0} Die Änderungen bleiben hier erhalten und werden in die Datei gespeichert, sobald sie sich schreiben lässt.</value>
+  </data>
+  <data name="Translation_ImportEmpty" xml:space="preserve">
+    <value>Die Datei enthält keine Übersetzungsmodelle.</value>
+  </data>
+  <data name="Translation_DownloadDamaged" xml:space="preserve">
+    <value>{0} ist beschädigt angekommen.</value>
+  </data>
+  <data name="Translation_UpdatesTitle" xml:space="preserve">
+    <value>Updates für die Übersetzung</value>
+  </data>
+  <data name="Translation_UpdatesText" xml:space="preserve">
+    <value>Neuere Versionen von {0} sind verfügbar. Installieren unter Einstellungen ▸ Übersetzung.</value>
+  </data>
+  <data name="Picker_DataFileType" xml:space="preserve">
+    <value>TextTemplateManager-Daten</value>
+  </data>
+  <data name="Picker_BackupFileType" xml:space="preserve">
+    <value>TextTemplateManager-Sicherung</value>
+  </data>
+  <data name="Picker_LogsFileType" xml:space="preserve">
+    <value>Protokolle für eine Problemmeldung</value>
+  </data>
+  <data name="GeneralPage_LanguageHeading.Text" xml:space="preserve">
+    <value>Sprache</value>
+  </data>
+  <data name="GeneralPage_LanguageText.Text" xml:space="preserve">
+    <value>Die Sprache der Fenster, Menüs und Meldungen der App. Vorlagen bleiben unverändert.</value>
+  </data>
+  <data name="GeneralPage_LanguageCombo.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Sprache der App</value>
+  </data>
+  <data name="GeneralPage_LanguageRestartInfo.Message" xml:space="preserve">
+    <value>Die App wechselt beim nächsten Start in die neue Sprache.</value>
+  </data>
+  <data name="GeneralPage_LanguageRestartButton.Content" xml:space="preserve">
+    <value>Jetzt neu starten</value>
+  </data>
+  <data name="General_LanguageWindows" xml:space="preserve">
+    <value>Windows-Sprache verwenden</value>
+  </data>
+</root>
