@@ -68,6 +68,23 @@ public static class SupportLinks
         What can an attacker do with it?
         """);
 
+    /// <summary>A report about a translation: language and version for sorting, then the questions in the app's language
+    /// (whoever reports a translation may not read English well).</summary>
+    public static string TranslationMail(string language, string appVersion, string where, string now, string should, string more) =>
+        Mail($"translation issue ({language})",
+        $"""
+        App language: {language}
+        App version: {appVersion}
+
+        {where}
+
+        {now}
+
+        {should}
+
+        {more}
+        """);
+
     // Mail apps expect CRLF line breaks in a mailto body.
     private static string Mail(string kind, string body) =>
         $"mailto:{Email}?subject={Uri.EscapeDataString("TextTemplateManager: " + kind)}"

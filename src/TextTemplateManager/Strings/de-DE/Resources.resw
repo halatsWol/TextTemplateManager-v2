@@ -1826,4 +1826,22 @@ Behalten: Der Ordner zeigt die Datei so, wie sie jetzt ist.
   <data name="Key_Space" xml:space="preserve">
     <value>Leertaste</value>
   </data>
+  <data name="GeneralPage_ReportTranslationLink.Content" xml:space="preserve">
+    <value>Übersetzungsfehler melden</value>
+  </data>
+  <data name="General_MachineTranslatedNote" xml:space="preserve">
+    <value>Diese Sprachen wurden mithilfe von KI übersetzt und noch nicht Korrektur gelesen: {0}. Bitte melde falsche Übersetzungen, Rechtschreibfehler oder alles, was seltsam klingt.</value>
+  </data>
+  <data name="General_TranslationMailWhere" xml:space="preserve">
+    <value>Wo in der App (Fenster, Seite, Schaltfläche)?</value>
+  </data>
+  <data name="General_TranslationMailNow" xml:space="preserve">
+    <value>Was steht dort jetzt (genauer Text)?</value>
+  </data>
+  <data name="General_TranslationMailShould" xml:space="preserve">
+    <value>Was sollte dort stattdessen stehen?</value>
+  </data>
+  <data name="General_TranslationMailMore" xml:space="preserve">
+    <value>Sonst noch etwas? Ein Screenshot hilft.</value>
+  </data>
 </root>

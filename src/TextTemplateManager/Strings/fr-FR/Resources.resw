@@ -1826,4 +1826,22 @@ Remplacer : le fichier reçoit la copie de la sauvegarde, pour tous ceux qui l'
   <data name="Key_Space" xml:space="preserve">
     <value>Espace</value>
   </data>
+  <data name="GeneralPage_ReportTranslationLink.Content" xml:space="preserve">
+    <value>Signaler un problème de traduction</value>
+  </data>
+  <data name="General_MachineTranslatedNote" xml:space="preserve">
+    <value>Ces langues ont été traduites avec l'aide de l'IA et n'ont pas encore été relues : {0}. Signalez les erreurs de traduction, les fautes d'orthographe ou tout ce qui sonne étrangement.</value>
+  </data>
+  <data name="General_TranslationMailWhere" xml:space="preserve">
+    <value>Où dans l'application (fenêtre, page, bouton) ?</value>
+  </data>
+  <data name="General_TranslationMailNow" xml:space="preserve">
+    <value>Que dit le texte actuellement (texte exact) ?</value>
+  </data>
+  <data name="General_TranslationMailShould" xml:space="preserve">
+    <value>Que devrait-il dire à la place ?</value>
+  </data>
+  <data name="General_TranslationMailMore" xml:space="preserve">
+    <value>Autre chose ? Une capture d'écran aide.</value>
+  </data>
 </root>

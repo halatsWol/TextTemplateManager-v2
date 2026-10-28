@@ -282,7 +282,7 @@ Open settings from **File ▸ Settings**. It has a **General**, an **Integration
 
 **Language**
 
-- **App language** — the language of the app's windows, menus and messages: **Use the Windows language** (the default), **English**, **Deutsch**, **Magyar**, **Italiano**, **Français** or **Español (España y Latinoamérica)**. With the Windows language, a Windows in one of these languages shows the app in it, any other language in English. Your templates aren't changed. The new language shows when the app starts again; **Restart now** in the note below the list does that right away (unsaved changes are asked about first, as when you exit). The choice belongs to this PC: it isn't synced or part of a backup.
+- **App language** — the language of the app's windows, menus and messages: **Use the Windows language** (the default), **English**, **Deutsch**, **Magyar**, **Italiano**, **Français** or **Español (España y Latinoamérica)**. With the Windows language, a Windows in one of these languages shows the app in it, any other language in English. Hungarian, Italian, French and Spanish were translated with the help of AI and haven't been proofread yet; **Report a translation problem** below the list opens an e-mail to contact@kmarflow.com with the questions to answer (where in the app, what it says, what it should say), in the app's language. Your templates aren't changed. The new language shows when the app starts again; **Restart now** in the note below the list does that right away (unsaved changes are asked about first, as when you exit). The choice belongs to this PC: it isn't synced or part of a backup.
 
 **Quick Paste**
 

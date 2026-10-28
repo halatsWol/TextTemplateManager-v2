@@ -18,6 +18,9 @@
                     <Button x:Uid="GeneralPage_LanguageRestartButton" Click="LanguageRestart_Click"/>
                 </InfoBar.ActionButton>
             </InfoBar>
+            <TextBlock x:Name="MachineTranslatedNote" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,4,0,0"/>
+            <HyperlinkButton x:Uid="GeneralPage_ReportTranslationLink" Click="ReportTranslation_Click" Padding="0"/>
+            <TextBlock x:Name="TranslationMailHint" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Visibility="Collapsed"/>
         </StackPanel>
 
         <Rectangle Height="1" Fill="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,5"/>

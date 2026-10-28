@@ -154,6 +154,18 @@ public partial class LocalizationTests
         var folders = Directory.EnumerateDirectories(StringsDir).Select(Path.GetFileName).Order(StringComparer.OrdinalIgnoreCase);
         Assert.Equal(folders, UiLanguages.Available.Order(StringComparer.OrdinalIgnoreCase));
         Assert.DoesNotContain(UiLanguages.Pseudo, UiLanguages.Available);
+        Assert.All(UiLanguages.MachineTranslated, code => Assert.Contains(code, UiLanguages.Available));
+    }
+
+    [Fact]
+    public void The_translation_report_mail_names_the_language_and_keeps_the_questions()
+    {
+        string mail = Common.SupportLinks.TranslationMail("hu-HU", "2.6.0", "Hol?", "Mi áll ott?", "Mi álljon ott?", "Más?");
+        Assert.StartsWith("mailto:contact@kmarflow.com?subject=", mail);
+        string body = Uri.UnescapeDataString(mail[(mail.IndexOf("&body=", StringComparison.Ordinal) + 6)..]);
+        Assert.Contains("translation issue (hu-HU)", Uri.UnescapeDataString(mail));
+        Assert.Contains("App language: hu-HU\r\nApp version: 2.6.0", body);
+        Assert.Contains("Mi áll ott?", body);
     }
 
     [Fact]

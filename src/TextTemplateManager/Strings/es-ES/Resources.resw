@@ -1826,4 +1826,22 @@ Sobrescribir: el archivo recibe la copia de la copia de seguridad, para todos lo
   <data name="Key_Space" xml:space="preserve">
     <value>Espacio</value>
   </data>
+  <data name="GeneralPage_ReportTranslationLink.Content" xml:space="preserve">
+    <value>Informar de un problema de traducción</value>
+  </data>
+  <data name="General_MachineTranslatedNote" xml:space="preserve">
+    <value>Estos idiomas se tradujeron con ayuda de IA y todavía no se han revisado: {0}. Informa de traducciones incorrectas, errores ortográficos o cualquier cosa que suene rara.</value>
+  </data>
+  <data name="General_TranslationMailWhere" xml:space="preserve">
+    <value>¿Dónde en la aplicación (ventana, página, botón)?</value>
+  </data>
+  <data name="General_TranslationMailNow" xml:space="preserve">
+    <value>¿Qué dice ahora (texto exacto)?</value>
+  </data>
+  <data name="General_TranslationMailShould" xml:space="preserve">
+    <value>¿Qué debería decir en su lugar?</value>
+  </data>
+  <data name="General_TranslationMailMore" xml:space="preserve">
+    <value>¿Algo más? Una captura de pantalla ayuda.</value>
+  </data>
 </root>

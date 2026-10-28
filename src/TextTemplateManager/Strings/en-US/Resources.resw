@@ -1826,4 +1826,22 @@ Overwrite it: the file gets the backup's copy, for everyone who uses it.</value>
   <data name="Key_Space" xml:space="preserve">
     <value>Space</value>
   </data>
+  <data name="GeneralPage_ReportTranslationLink.Content" xml:space="preserve">
+    <value>Report a translation problem</value>
+  </data>
+  <data name="General_MachineTranslatedNote" xml:space="preserve">
+    <value>These languages were translated with the help of AI and haven't been proofread yet: {0}. Please report wrong translations, spelling mistakes or anything that reads oddly.</value>
+  </data>
+  <data name="General_TranslationMailWhere" xml:space="preserve">
+    <value>Where in the app (window, page, button)?</value>
+  </data>
+  <data name="General_TranslationMailNow" xml:space="preserve">
+    <value>What does it say now (exact text)?</value>
+  </data>
+  <data name="General_TranslationMailShould" xml:space="preserve">
+    <value>What should it say instead?</value>
+  </data>
+  <data name="General_TranslationMailMore" xml:space="preserve">
+    <value>Anything else? A screenshot helps.</value>
+  </data>
 </root>

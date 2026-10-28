@@ -1826,4 +1826,22 @@ Sovrascrivi: il file riceve la copia del backup, per tutti quelli che lo usano.<
   <data name="Key_Space" xml:space="preserve">
     <value>BARRA SPAZIATRICE</value>
   </data>
+  <data name="GeneralPage_ReportTranslationLink.Content" xml:space="preserve">
+    <value>Segnala un problema di traduzione</value>
+  </data>
+  <data name="General_MachineTranslatedNote" xml:space="preserve">
+    <value>Queste lingue sono state tradotte con l'aiuto dell'IA e non sono ancora state revisionate: {0}. Segnala traduzioni errate, errori di ortografia o qualsiasi cosa suoni strana.</value>
+  </data>
+  <data name="General_TranslationMailWhere" xml:space="preserve">
+    <value>Dove nell'app (finestra, pagina, pulsante)?</value>
+  </data>
+  <data name="General_TranslationMailNow" xml:space="preserve">
+    <value>Cosa c'è scritto ora (testo esatto)?</value>
+  </data>
+  <data name="General_TranslationMailShould" xml:space="preserve">
+    <value>Cosa dovrebbe esserci scritto invece?</value>
+  </data>
+  <data name="General_TranslationMailMore" xml:space="preserve">
+    <value>Altro? Uno screenshot aiuta.</value>
+  </data>
 </root>

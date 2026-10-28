@@ -16,6 +16,10 @@ public static class UiLanguages
 {
     public static readonly IReadOnlyList<string> Available = ["en-US", "de-DE", "hu-HU", "it-IT", "fr-FR", "es-ES"];
 
+    /// <summary>The languages translated with the help of AI and not proofread yet (Settings ▸ General says so and asks
+    /// for reports); one leaves this list once a native speaker has checked it.</summary>
+    public static readonly IReadOnlyList<string> MachineTranslated = ["hu-HU", "it-IT", "fr-FR", "es-ES"];
+
     /// <summary>The pseudo-language that only Debug builds carry (see build/New-PseudoLoc.ps1).</summary>
     public const string Pseudo = "qps-ploc";
 

@@ -1829,4 +1829,22 @@ Felülírás: a fájl a biztonsági másolatban lévő példányt kapja meg, min
   <data name="Key_Space" xml:space="preserve">
     <value>Szóköz</value>
   </data>
+  <data name="GeneralPage_ReportTranslationLink.Content" xml:space="preserve">
+    <value>Fordítási hiba bejelentése</value>
+  </data>
+  <data name="General_MachineTranslatedNote" xml:space="preserve">
+    <value>Ezek a nyelvek mesterséges intelligencia segítségével készültek, és még senki sem lektorálta őket: {0}. Jelentsd a hibás fordításokat, helyesírási hibákat vagy bármit, ami furcsán hangzik.</value>
+  </data>
+  <data name="General_TranslationMailWhere" xml:space="preserve">
+    <value>Hol az alkalmazásban (ablak, oldal, gomb)?</value>
+  </data>
+  <data name="General_TranslationMailNow" xml:space="preserve">
+    <value>Mi áll ott most (pontos szöveg)?</value>
+  </data>
+  <data name="General_TranslationMailShould" xml:space="preserve">
+    <value>Mi álljon ott helyette?</value>
+  </data>
+  <data name="General_TranslationMailMore" xml:space="preserve">
+    <value>Van még valami? Egy képernyőkép sokat segít.</value>
+  </data>
 </root>

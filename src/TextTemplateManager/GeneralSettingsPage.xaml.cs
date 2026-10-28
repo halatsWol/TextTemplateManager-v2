@@ -56,7 +56,21 @@ public sealed partial class GeneralSettingsPage : Page
         string chosen = UiLanguages.Chosen;
         LanguageCombo.SelectedItem = choices.FirstOrDefault(c => string.Equals(c.Code, chosen, StringComparison.OrdinalIgnoreCase)) ?? choices[0];
         ShowLanguageRestart();
+        MachineTranslatedNote.Text = Loc.Format("General_MachineTranslatedNote", string.Join(", ", UiLanguages.MachineTranslated.Select(UiLanguages.NameOf)));
         _languageLoading = false;
+    }
+
+    // Like Support's mails: a mailto: link does nothing without a mail app, so the address is also copied.
+    private void ReportTranslation_Click(object sender, RoutedEventArgs e)
+    {
+        var package = new Windows.ApplicationModel.DataTransfer.DataPackage();
+        package.SetText(Common.SupportLinks.Email);
+        Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(package);
+        TranslationMailHint.Text = Loc.Format("Support_MailHint", Common.SupportLinks.Email);
+        TranslationMailHint.Visibility = Visibility.Visible;
+        ExternalLinks.Open(Common.SupportLinks.TranslationMail(UiLanguages.Effective, Common.AppInfo.Version,
+            Loc.Get("General_TranslationMailWhere"), Loc.Get("General_TranslationMailNow"),
+            Loc.Get("General_TranslationMailShould"), Loc.Get("General_TranslationMailMore")));
     }
 
     private void Language_SelectionChanged(object sender, SelectionChangedEventArgs e)
