@@ -234,6 +234,30 @@ public partial class LocalizationTests
         Assert.Equal("Friday, October 30, 2026", new DateTime(2026, 10, 30).ToString("D", culture));
     }
 
+    [Theory]
+    [InlineData("en-US", "de-DE", "German")]
+    [InlineData("en-US", "hu-HU", "Hungarian")]
+    [InlineData("de-DE", "de-DE", "Deutsch")]
+    [InlineData("de-DE", "hu-HU", "Ungarisch")]
+    [InlineData("hu-HU", "fr-FR", "Francia")]
+    public void The_language_list_names_languages_in_the_ui_language(string ui, string code, string name)
+    {
+        var before = System.Globalization.CultureInfo.CurrentUICulture;
+        try
+        {
+            System.Globalization.CultureInfo.CurrentUICulture = new(ui);
+            Assert.Equal(name, UiLanguages.LocalNameOf(code));
+        }
+        finally { System.Globalization.CultureInfo.CurrentUICulture = before; }
+    }
+
+    [Fact]
+    public void Neutral_spanish_has_its_own_name_in_every_language()
+    {
+        Assert.Equal(English()["General_LanguageSpanishAmericas"], UiLanguages.LocalNameOf("es-ES"));
+        Assert.Equal("Español (España y Latinoamérica)", UiLanguages.NameOf("es-ES"));
+    }
+
     [Fact]
     public void Language_names_follow_the_ui_language()
     {

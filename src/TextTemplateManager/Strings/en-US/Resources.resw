@@ -90,7 +90,7 @@
     <value>The logs couldn't be saved: {0}</value>
   </data>
   <data name="Support_MailHint" xml:space="preserve">
-    <value>If no e-mail window opened, write to {0}; the address is on the clipboard.</value>
+    <value>If no e-mail window opened, Windows may have no app set for e-mail links: check Settings › Apps › Default apps (link type MAILTO). Or write to {0} from any mail program or webmail; the address is on the clipboard.</value>
   </data>
   <data name="SettingsView_General.Content" xml:space="preserve">
     <value>General</value>
@@ -1843,5 +1843,14 @@ Overwrite it: the file gets the backup's copy, for everyone who uses it.</value>
   </data>
   <data name="General_TranslationMailMore" xml:space="preserve">
     <value>Anything else? A screenshot helps.</value>
+  </data>
+  <data name="General_LanguageSpanishAmericas" xml:space="preserve">
+    <value>Spanish (Spain and Latin America)</value>
+  </data>
+  <data name="MailHint_DefaultAppsLink.Content" xml:space="preserve">
+    <value>Open Default apps</value>
+  </data>
+  <data name="MailHint_HelpLink.Content" xml:space="preserve">
+    <value>Step-by-step help</value>
   </data>
 </root>

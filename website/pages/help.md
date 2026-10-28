@@ -86,6 +86,35 @@ If the problem started more than 14 days ago, use the PowerShell version below w
     powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\Downloads\Collect-TTMLogs.ps1" -Days 30
     ```
 
+### No e-mail window opens
+
+The e-mail buttons, in the app and on this page, open an e-mail through Windows: Windows hands it to the app set for e-mail links (link type `MAILTO`). If no app is set, or the set one isn't installed any more, nothing happens. The app copies the address to the clipboard each time, so you can always paste `contact@kmarflow.com` into a new e-mail yourself.
+
+**Set the e-mail app in Windows 11**
+
+1. Open **Settings ▸ Apps ▸ Default apps**. In the app: the **Open Default apps** link below the e-mail buttons opens this page.
+2. Scroll down and select **Choose defaults by link type**.
+3. Type `MAILTO` into the search box.
+4. Click the entry next to **MAILTO** and choose your e-mail app, for example **Outlook**, **Outlook (classic)** or **Thunderbird**.
+5. Click the e-mail button in TextTemplateManager again.
+
+**Set the e-mail app in Windows 10**
+
+1. Open **Settings ▸ Apps ▸ Default apps**.
+2. Select **Choose default apps by protocol** at the bottom.
+3. Click the entry next to **MAILTO** and choose your e-mail app.
+
+**Using webmail (Gmail, Outlook.com and others)**
+
+Windows can only open e-mail links in an installed app, so the browser has to take them over first:
+
+- **Chrome or Edge**: open your webmail. If the address bar shows a handler icon (two overlapping diamonds), click it and allow the site to open e-mail links. Gmail asks for it under **Settings ▸ See all settings ▸ General ▸ Default email app** in some versions. Then choose **Chrome** or **Edge** for **MAILTO** in Windows (steps above).
+- **Firefox**: **Settings ▸ General ▸ Applications**, search for `mailto` and choose your webmail. Then choose **Firefox** for **MAILTO** in Windows.
+
+**On a company PC**
+
+Your organization may set the default apps; if **MAILTO** can't be changed, write the e-mail in your usual e-mail program: send it to `contact@kmarflow.com` (already on the clipboard) and answer the questions listed under [Reporting a problem](#reporting-a-problem).
+
 ## Suggesting a feature
 
 Ideas are welcome, by e-mail or, with a GitHub account, on GitHub. Both buttons open a form that asks what you'd like to get done, how you do it today, and how it could work.

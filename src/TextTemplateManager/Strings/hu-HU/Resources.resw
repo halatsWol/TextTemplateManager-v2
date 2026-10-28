@@ -90,7 +90,7 @@
     <value>Nem sikerült menteni a naplókat: {0}</value>
   </data>
   <data name="Support_MailHint" xml:space="preserve">
-    <value>Ha nem nyílt meg e-mail-ablak, írj erre a címre: {0}; a cím a vágólapon van.</value>
+    <value>Ha nem nyílt meg e-mail-ablak, lehet, hogy a Windowsban nincs alkalmazás beállítva az e-mail-hivatkozásokhoz: ellenőrizd itt: Beállítások › Alkalmazások › Alapértelmezett alkalmazások (MAILTO hivatkozástípus). Vagy írj bármely levelezőprogramból vagy webmailből erre a címre: {0}; a cím a vágólapon van.</value>
   </data>
   <data name="SettingsView_General.Content" xml:space="preserve">
     <value>Általános</value>
@@ -1846,5 +1846,14 @@ Felülírás: a fájl a biztonsági másolatban lévő példányt kapja meg, min
   </data>
   <data name="General_TranslationMailMore" xml:space="preserve">
     <value>Van még valami? Egy képernyőkép sokat segít.</value>
+  </data>
+  <data name="General_LanguageSpanishAmericas" xml:space="preserve">
+    <value>Spanyol (Spanyolország és Latin-Amerika)</value>
+  </data>
+  <data name="MailHint_DefaultAppsLink.Content" xml:space="preserve">
+    <value>Alapértelmezett alkalmazások megnyitása</value>
+  </data>
+  <data name="MailHint_HelpLink.Content" xml:space="preserve">
+    <value>Részletes útmutató</value>
   </data>
 </root>

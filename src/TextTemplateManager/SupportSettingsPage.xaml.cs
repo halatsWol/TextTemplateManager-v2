@@ -6,7 +6,6 @@ using Microsoft.UI.Xaml.Navigation;
 using TextTemplateManager.Common;
 using TextTemplateManager.Helpers;
 using TextTemplateManager.Services.Platform;
-using Windows.ApplicationModel.DataTransfer;
 
 namespace TextTemplateManager;
 
@@ -81,14 +80,9 @@ public sealed partial class SupportSettingsPage : Page
 
     private void SecurityGitHub_Click(object sender, RoutedEventArgs e) => ExternalLinks.Open(SupportLinks.GitHubSecurityUrl);
 
-    // A mailto: link does nothing when no mail app is registered, so the address is also copied.
     private void OpenMail(string mailto)
     {
-        var package = new DataPackage();
-        package.SetText(SupportLinks.Email);
-        Clipboard.SetContent(package);
-        MailHint.Text = Loc.Format("Support_MailHint", SupportLinks.Email);
-        MailHint.Visibility = Visibility.Visible;
+        MailHint.Show();
         ExternalLinks.Open(mailto);
     }
 }

@@ -90,7 +90,7 @@
     <value>Protokolle konnten nicht gespeichert werden: {0}</value>
   </data>
   <data name="Support_MailHint" xml:space="preserve">
-    <value>Falls sich kein E-Mail-Fenster geöffnet hat, schreib an {0}; die Adresse ist in der Zwischenablage.</value>
+    <value>Falls sich kein E-Mail-Fenster geöffnet hat, ist in Windows vielleicht keine App für E-Mail-Links festgelegt: Prüfe Einstellungen › Apps › Standard-Apps (Linktyp MAILTO). Oder schreib aus einem beliebigen Mailprogramm oder Webmail an {0}; die Adresse ist in der Zwischenablage.</value>
   </data>
   <data name="SettingsView_General.Content" xml:space="preserve">
     <value>Allgemein</value>
@@ -1843,5 +1843,14 @@ Behalten: Der Ordner zeigt die Datei so, wie sie jetzt ist.
   </data>
   <data name="General_TranslationMailMore" xml:space="preserve">
     <value>Sonst noch etwas? Ein Screenshot hilft.</value>
+  </data>
+  <data name="General_LanguageSpanishAmericas" xml:space="preserve">
+    <value>Spanisch (Spanien und Lateinamerika)</value>
+  </data>
+  <data name="MailHint_DefaultAppsLink.Content" xml:space="preserve">
+    <value>Standard-Apps öffnen</value>
+  </data>
+  <data name="MailHint_HelpLink.Content" xml:space="preserve">
+    <value>Schritt-für-Schritt-Hilfe</value>
   </data>
 </root>

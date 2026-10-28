@@ -40,34 +40,31 @@ public sealed partial class GeneralSettingsPage : Page
     }
 
     // ---- Language ----
-    public sealed record LanguageChoice(string Code, string Name);
+    /// <summary>An entry of the language list: <paramref name="Name"/> in the app's language, <paramref name="NativeName"/>
+    /// (its own name) as the tooltip; none for the Windows language.</summary>
+    public sealed record LanguageChoice(string Code, string Name, string? NativeName);
 
     private bool _languageLoading;
 
     private void InitLanguageUi()
     {
         _languageLoading = true;
-        var choices = new List<LanguageChoice> { new("", Loc.Get("General_LanguageWindows")) };
-        choices.AddRange(UiLanguages.Available.Select(code => new LanguageChoice(code, UiLanguages.NameOf(code))));
+        var choices = new List<LanguageChoice> { new("", Loc.Get("General_LanguageWindows"), null) };
+        choices.AddRange(UiLanguages.Available.Select(code => new LanguageChoice(code, UiLanguages.LocalNameOf(code), UiLanguages.NameOf(code))));
 #if DEBUG
-        choices.Add(new(UiLanguages.Pseudo, UiLanguages.NameOf(UiLanguages.Pseudo)));
+        choices.Add(new(UiLanguages.Pseudo, UiLanguages.NameOf(UiLanguages.Pseudo), null));
 #endif
         LanguageCombo.ItemsSource = choices;
         string chosen = UiLanguages.Chosen;
         LanguageCombo.SelectedItem = choices.FirstOrDefault(c => string.Equals(c.Code, chosen, StringComparison.OrdinalIgnoreCase)) ?? choices[0];
         ShowLanguageRestart();
-        MachineTranslatedNote.Text = Loc.Format("General_MachineTranslatedNote", string.Join(", ", UiLanguages.MachineTranslated.Select(UiLanguages.NameOf)));
+        MachineTranslatedNote.Text = Loc.Format("General_MachineTranslatedNote", string.Join(", ", UiLanguages.MachineTranslated.Select(UiLanguages.LocalNameOf)));
         _languageLoading = false;
     }
 
-    // Like Support's mails: a mailto: link does nothing without a mail app, so the address is also copied.
     private void ReportTranslation_Click(object sender, RoutedEventArgs e)
     {
-        var package = new Windows.ApplicationModel.DataTransfer.DataPackage();
-        package.SetText(Common.SupportLinks.Email);
-        Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(package);
-        TranslationMailHint.Text = Loc.Format("Support_MailHint", Common.SupportLinks.Email);
-        TranslationMailHint.Visibility = Visibility.Visible;
+        TranslationMailHint.Show();
         ExternalLinks.Open(Common.SupportLinks.TranslationMail(UiLanguages.Effective, Common.AppInfo.Version,
             Loc.Get("General_TranslationMailWhere"), Loc.Get("General_TranslationMailNow"),
             Loc.Get("General_TranslationMailShould"), Loc.Get("General_TranslationMailMore")));

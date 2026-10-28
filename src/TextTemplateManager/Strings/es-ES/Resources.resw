@@ -90,7 +90,7 @@
     <value>No se pudieron guardar los registros: {0}</value>
   </data>
   <data name="Support_MailHint" xml:space="preserve">
-    <value>Si no se abrió ninguna ventana de correo, escribe a {0}; la dirección está en el Portapapeles.</value>
+    <value>Si no se abrió ninguna ventana de correo, es posible que Windows no tenga una aplicación asignada a los vínculos de correo: revisa Configuración › Aplicaciones › Aplicaciones predeterminadas (tipo de vínculo MAILTO). O escribe a {0} desde cualquier programa de correo o webmail; la dirección está en el Portapapeles.</value>
   </data>
   <data name="SettingsView_General.Content" xml:space="preserve">
     <value>General</value>
@@ -1843,5 +1843,14 @@ Sobrescribir: el archivo recibe la copia de la copia de seguridad, para todos lo
   </data>
   <data name="General_TranslationMailMore" xml:space="preserve">
     <value>¿Algo más? Una captura de pantalla ayuda.</value>
+  </data>
+  <data name="General_LanguageSpanishAmericas" xml:space="preserve">
+    <value>Español (España y Latinoamérica)</value>
+  </data>
+  <data name="MailHint_DefaultAppsLink.Content" xml:space="preserve">
+    <value>Abrir Aplicaciones predeterminadas</value>
+  </data>
+  <data name="MailHint_HelpLink.Content" xml:space="preserve">
+    <value>Ayuda paso a paso</value>
   </data>
 </root>

@@ -90,7 +90,7 @@
     <value>Impossibile salvare i log: {0}</value>
   </data>
   <data name="Support_MailHint" xml:space="preserve">
-    <value>Se non si è aperta nessuna finestra di posta, scrivi a {0}; l'indirizzo è negli Appunti.</value>
+    <value>Se non si è aperta nessuna finestra di posta, in Windows potrebbe non esserci un'app impostata per i collegamenti e-mail: controlla Impostazioni › App › App predefinite (tipo di collegamento MAILTO). Oppure scrivi a {0} da qualsiasi programma di posta o webmail; l'indirizzo è negli Appunti.</value>
   </data>
   <data name="SettingsView_General.Content" xml:space="preserve">
     <value>Generale</value>
@@ -1843,5 +1843,14 @@ Sovrascrivi: il file riceve la copia del backup, per tutti quelli che lo usano.<
   </data>
   <data name="General_TranslationMailMore" xml:space="preserve">
     <value>Altro? Uno screenshot aiuta.</value>
+  </data>
+  <data name="General_LanguageSpanishAmericas" xml:space="preserve">
+    <value>Spagnolo (Spagna e America Latina)</value>
+  </data>
+  <data name="MailHint_DefaultAppsLink.Content" xml:space="preserve">
+    <value>Apri App predefinite</value>
+  </data>
+  <data name="MailHint_HelpLink.Content" xml:space="preserve">
+    <value>Guida passo passo</value>
   </data>
 </root>

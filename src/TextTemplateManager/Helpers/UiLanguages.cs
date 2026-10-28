@@ -88,7 +88,17 @@ public static class UiLanguages
         else File.WriteAllText(file, code);
     }
 
-    /// <summary>The language's own name ("English", "Deutsch"), as language pickers show it.</summary>
+    /// <summary>The language's name in the app's language ("German" in English, "Ungarisch" in German): what the
+    /// language list and the AI-translation note show; its own name (<see cref="NameOf"/>) is the list's tooltip.</summary>
+    public static string LocalNameOf(string code)
+    {
+        if (code == Pseudo) return NameOf(code);
+        if (code == "es-ES") return Loc.Get("General_LanguageSpanishAmericas");
+        string name = new CultureInfo(code).Parent.DisplayName;   // in .NET's UI culture, set by Apply
+        return name.Length > 0 ? char.ToUpper(name[0], CultureInfo.CurrentUICulture) + name[1..] : code;
+    }
+
+    /// <summary>The language's own name ("English", "Deutsch").</summary>
     public static string NameOf(string code)
     {
         if (code == Pseudo) return "Pseudo-language (test)";   // Debug builds only

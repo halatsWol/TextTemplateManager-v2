@@ -90,7 +90,7 @@
     <value>Impossible d'enregistrer les journaux : {0}</value>
   </data>
   <data name="Support_MailHint" xml:space="preserve">
-    <value>Si aucune fenêtre de messagerie ne s'est ouverte, écrivez à {0} ; l'adresse est dans le Presse-papiers.</value>
+    <value>Si aucune fenêtre de messagerie ne s'est ouverte, Windows n'a peut-être aucune application définie pour les liens e-mail : vérifiez Paramètres › Applications › Applications par défaut (type de lien MAILTO). Ou écrivez à {0} depuis n'importe quel logiciel de messagerie ou webmail ; l'adresse est dans le Presse-papiers.</value>
   </data>
   <data name="SettingsView_General.Content" xml:space="preserve">
     <value>Général</value>
@@ -1843,5 +1843,14 @@ Remplacer : le fichier reçoit la copie de la sauvegarde, pour tous ceux qui l'
   </data>
   <data name="General_TranslationMailMore" xml:space="preserve">
     <value>Autre chose ? Une capture d'écran aide.</value>
+  </data>
+  <data name="General_LanguageSpanishAmericas" xml:space="preserve">
+    <value>Espagnol (Espagne et Amérique latine)</value>
+  </data>
+  <data name="MailHint_DefaultAppsLink.Content" xml:space="preserve">
+    <value>Ouvrir Applications par défaut</value>
+  </data>
+  <data name="MailHint_HelpLink.Content" xml:space="preserve">
+    <value>Aide pas à pas</value>
   </data>
 </root>

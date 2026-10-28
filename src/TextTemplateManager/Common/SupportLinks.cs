@@ -12,6 +12,7 @@ public static class SupportLinks
     public const string WebsiteUrl = "https://software.kmarflow.com/TextTemplateManager-v2/";
     public const string HelpUrl = WebsiteUrl + "help/";
     public const string LogCollectorUrl = HelpUrl + "#collecting-the-logs";
+    public const string MailSetupUrl = HelpUrl + "#no-e-mail-window-opens";
     private const string Repository = "https://github.com/halatsWol/TextTemplateManager-v2";
     public const string GitHubProblemUrl = Repository + "/issues/new?template=bug_report.yml";
     public const string GitHubFeatureUrl = Repository + "/issues/new?template=feature_request.yml";
