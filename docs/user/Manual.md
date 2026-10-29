@@ -13,6 +13,8 @@ bold (for example, **Alt**). The installed version is shown under **Help ▸ Abo
 
 Install TextTemplateManager from the Microsoft Store: search for *TextTemplateManager* in the Store app, or open [its Store page](https://apps.microsoft.com/detail/9NMBSZLLLN6V). The Store also keeps it up to date (see *Updates*). The .NET runtime is part of the app and the Store adds the Windows App SDK it needs, so nothing else has to be installed, and no administrator rights are needed. In a company, IT may install it for you instead (see the **Administrator & Deployment Guide**).
 
+To start it, search the Start menu for *TextTemplateManager* or just *ttm* (or *ttm2*); **ttm** also starts it from **Run** (**Win+R**) or a command prompt.
+
 Coming from TextTemplateManager 1: its templates and settings stay where they are. Version 2 backs them up at its first start and offers to import them (see below), and it closes a version 1 that is still running, so the two don't compete for the Quick Paste shortcut.
 
 ### The first start
