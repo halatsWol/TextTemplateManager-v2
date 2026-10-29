@@ -81,6 +81,57 @@ public partial class StoreTextTests
         }
     }
 
+    [Fact]
+    public void Every_listing_has_the_screenshot_texts_of_the_english_images()
+    {
+        foreach (string release in Directory.GetDirectories(ReleasesDir(), "v*"))
+        {
+            string englishFile = Path.Combine(release, "en-US", "store.md");
+            if (!File.ReadAllText(englishFile).Contains("### Screenshot images")) continue;   // releases before 2.6.0
+            var english = Lines(Block(File.ReadAllText(englishFile), "Screenshot images")).Select(ImageFields).ToList();
+            foreach (string file in Directory.GetFiles(release, "store.md", SearchOption.AllDirectories))
+            {
+                var images = Lines(Block(File.ReadAllText(file), "Screenshot images")).Select(ImageFields).ToList();
+                Assert.True(english.Select(i => (i.Name, i.Shot)).SequenceEqual(images.Select(i => (i.Name, i.Shot))),
+                    $"{file}: the images (name | capture) differ from en-US");
+                Assert.All(images, i => Assert.True(i.Caption.Length > 0 && i.Sub.Length > 0, $"{file}: {i.Name} without caption or subline"));
+            }
+        }
+    }
+
+    private static (string Name, string Shot, string Caption, string Sub) ImageFields(string line)
+    {
+        var f = line.Split('|').Select(s => s.Trim()).ToArray();
+        Assert.True(f.Length == 4, $"not 'name | capture | caption | subline': {line}");
+        return (f[0], f[1], f[2], f[3]);
+    }
+
+    [Fact]
+    public void Every_ui_language_has_screenshot_sample_data_whose_shots_exist()
+    {
+        string samples = Path.Combine(ReleasesDir(), "..", "design", "store", "samples");
+        foreach (string language in UiLanguages.Available)
+        {
+            string file = Path.Combine(samples, language + ".json");
+            Assert.True(File.Exists(file), $"design/store/samples/{language}.json is missing");
+            using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(file));
+            var root = doc.RootElement;
+            var titles = new HashSet<string>();
+            void Collect(System.Text.Json.JsonElement items)
+            {
+                foreach (var e in items.EnumerateArray())
+                    if (e.TryGetProperty("folder", out _)) Collect(e.GetProperty("items"));
+                    else titles.Add(e.GetProperty("title").GetString()!);
+            }
+            Collect(root.GetProperty("local"));
+            Collect(root.GetProperty("team"));
+            foreach (var shot in root.GetProperty("shots").EnumerateObject())
+                Assert.True(titles.Contains(shot.Value.GetString()!), $"{language}: shot '{shot.Name}' names a template that isn't in the sample data");
+            foreach (string key in new[] { "notepadFile", "notepadText", "searchTerm", "teamName", "teamFile" })
+                Assert.False(string.IsNullOrWhiteSpace(root.GetProperty(key).GetString()), $"{language}: {key} is empty");
+        }
+    }
+
     private static string[] Lines(string block) =>
         block.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 }

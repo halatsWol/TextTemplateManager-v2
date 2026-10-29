@@ -102,6 +102,22 @@ Textbaustein-Verwaltung
 09  Übersetze Vorlagen auf deinem PC, offline in über 50 Sprachen, Deutsch mit Sie oder du (experimentell).
 ```
 
+### Screenshot images
+
+The text in each screenshot, one line per image: file name | capture | caption | subline. `design/store/Make-StoreScreenshots.ps1` puts them into the Photoshop templates.
+
+```text
+01-main|store-main | Deine Textvorlagen an einem Ort | Ordner, formatierter Text, Tags und Tastenkürzel für jede Antwort, die du immer wieder schreibst
+02-quick-paste|store-qp-single | Jede Vorlage mit einer einzigen Taste | Umschalt+Alt+Y öffnet Quick Paste in jeder App
+03-multi-key|store-qp-multi | Oder Alt halten und ein Kürzel tippen | Tastenfolgen grenzen die Liste beim Tippen ein
+04-paste-modes|store-pastemode | Eingefügt im Format, das die App braucht | Automatisch, HTML/Jira, HTML, RTF, Markdown oder Nur Text
+05-search|store-search | Jede Vorlage beim Tippen finden | Nach Titel, Tags oder Text, unscharf oder genau
+06-sync|store-sync | Vorlagen mit dem Team teilen | Eine synchronisierte Datei auf OneDrive oder einer Netzwerkfreigabe
+07-backups|store-backups | Automatische Sicherungen zum Wiederherstellen | Nach deinen Änderungen, alle zwei Stunden und täglich
+08-tour|store-tour | Eine Tour hilft beim Einstieg | Mit Beispielvorlagen; deine eigenen bleiben unberührt
+09-translate|store-translate | Vorlagen auf deinem PC übersetzen | Offline in über 50 Sprachen, Deutsch mit Sie oder du (experimentell)
+```
+
 ### Copyright and trademark info
 
 ```text

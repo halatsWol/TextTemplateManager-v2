@@ -1,0 +1,42 @@
+{
+  "notepadFile": "Risposta a Sam.txt",
+  "notepadText": "Ciao Sam,",
+  "searchTerm": "risposta",
+  "shots": {
+    "main": "Note di rilascio",
+    "pasteMode": "Sollecito di pagamento",
+    "search": "Ticket chiuso",
+    "translate": "Grazie per il messaggio"
+  },
+  "translate": { "to": "en", "formal": false },
+  "teamName": "Team",
+  "teamFile": "Modelli del team.ttmdata",
+  "local": [
+    { "folder": "Risposte ai clienti", "items": [
+      { "title": "Grazie per il messaggio", "tags": "supporto, risposta", "single": "T", "multi": "THX", "mode": 4,
+        "content": "<p>Buongiorno,</p><p>grazie per il suo messaggio. Le risponderemo <strong>entro un giorno lavorativo</strong>.</p><p>Cordiali saluti</p>" },
+      { "title": "Ticket chiuso", "tags": "supporto, ticket", "multi": "TC", "mode": 3,
+        "content": "<p>Buongiorno,</p><p>abbiamo chiuso questo ticket. Se il problema si ripresenta, basta inviare una risposta a questo messaggio e il ticket verrà riaperto.</p>" },
+      { "title": "Sollecito di pagamento", "tags": "fatturazione, sollecito", "multi": "INV", "mode": 3,
+        "content": "<p>Gentile cliente,</p><p>dai nostri registri risulta che la fattura <strong>#2026-118</strong> è ancora aperta:</p><ul><li><p>Importo: 480,00 EUR</p></li><li><p>Scadenza: 30 settembre 2026</p></li></ul><p>La preghiamo di farci sapere se è già stata pagata.</p>" }
+    ] },
+    { "folder": "Frammenti di codice", "items": [
+      { "title": "Elenca i servizi in esecuzione", "tags": "powershell", "single": "P", "multi": "SVC", "mode": 0,
+        "content": "<pre><code class=\"language-powershell\">Get-Service | Where-Object Status -eq 'Running' |\n    Sort-Object DisplayName | Select-Object Name, DisplayName</code></pre>" },
+      { "title": "Spazio libero su disco", "tags": "powershell, disco", "multi": "DISK", "mode": 0,
+        "content": "<pre><code class=\"language-powershell\">Get-PSDrive -PSProvider FileSystem |\n    Select-Object Name, @{ n = 'Libero (GB)'; e = { [math]::Round($_.Free / 1GB, 1) } }</code></pre>" }
+    ] },
+    { "title": "Note della riunione", "tags": "riunione, agenda", "single": "M", "multi": "MTG", "mode": 3,
+      "content": "<h2>Riunione settimanale</h2><p><strong>Data:</strong> </p><h3>Ordine del giorno</h3><ol><li><p>Ticket aperti</p></li><li><p>Rilasci della settimana</p></li><li><p>Varie</p></li></ol><h3>Azioni</h3><ul><li><p></p></li></ul>" },
+    { "title": "Firma", "single": "S", "multi": "SIG", "mode": 4,
+      "content": "<p>Cordiali saluti<br>Alex Esempio<br>Team di supporto</p>" }
+  ],
+  "team": [
+    { "title": "Note di rilascio", "tags": "rilascio, annuncio", "single": "R", "multi": "REL", "mode": 5,
+      "content": "<h2>Novità</h2><div class=\"ttm-panel ak-editor-panel\" data-panel-type=\"info\"><p>Questo aggiornamento viene installato automaticamente; non è richiesta alcuna azione.</p></div><ul><li><p>Ricerca più veloce</p></li><li><p>Nuove opzioni di esportazione</p></li></ul>" },
+    { "title": "Escalation", "tags": "supporto, escalation", "multi": "ESC", "mode": 5,
+      "content": "<div class=\"ttm-panel ak-editor-panel\" data-panel-type=\"warning\"><p><strong>In escalation:</strong> questo ticket è ora gestito dal team di secondo livello.</p></div><p>Avrà nostre notizie entro quattro ore.</p>" },
+    { "title": "Fuori ufficio", "tags": "assenza", "multi": "OOO", "mode": 4,
+      "content": "<p>Sono fuori ufficio fino a lunedì e risponderò al mio rientro. Per questioni urgenti scrivete a support@example.com.</p>" }
+  ]
+}

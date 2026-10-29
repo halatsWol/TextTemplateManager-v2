@@ -1,0 +1,42 @@
+{
+  "notepadFile": "Reply to Sam.txt",
+  "notepadText": "Hi Sam,",
+  "searchTerm": "reply",
+  "shots": {
+    "main": "Release notes",
+    "pasteMode": "Invoice reminder",
+    "search": "Ticket closed",
+    "translate": "Thanks for your message"
+  },
+  "translate": { "to": "de", "formal": true },
+  "teamName": "Team",
+  "teamFile": "Team templates.ttmdata",
+  "local": [
+    { "folder": "Customer replies", "items": [
+      { "title": "Thanks for your message", "tags": "support, reply", "single": "T", "multi": "THX", "mode": 4,
+        "content": "<p>Hello,</p><p>thank you for your message. We will get back to you <strong>within one working day</strong>.</p><p>Kind regards</p>" },
+      { "title": "Ticket closed", "tags": "support, ticket", "multi": "TC", "mode": 3,
+        "content": "<p>Hello,</p><p>we have closed this ticket. If the problem comes back, just reply to this message and it opens again.</p>" },
+      { "title": "Invoice reminder", "tags": "billing, reminder", "multi": "INV", "mode": 3,
+        "content": "<p>Dear customer,</p><p>our records show that invoice <strong>#2026-118</strong> is still open:</p><ul><li><p>Amount: EUR 480.00</p></li><li><p>Due: 30 September 2026</p></li></ul><p>Please let us know if it has already been paid.</p>" }
+    ] },
+    { "folder": "Code snippets", "items": [
+      { "title": "List running services", "tags": "powershell", "single": "P", "multi": "SVC", "mode": 0,
+        "content": "<pre><code class=\"language-powershell\">Get-Service | Where-Object Status -eq 'Running' |\n    Sort-Object DisplayName | Select-Object Name, DisplayName</code></pre>" },
+      { "title": "Free disk space", "tags": "powershell, disk", "multi": "DISK", "mode": 0,
+        "content": "<pre><code class=\"language-powershell\">Get-PSDrive -PSProvider FileSystem |\n    Select-Object Name, @{ n = 'Free (GB)'; e = { [math]::Round($_.Free / 1GB, 1) } }</code></pre>" }
+    ] },
+    { "title": "Meeting notes", "tags": "meeting, agenda", "single": "M", "multi": "MTG", "mode": 3,
+      "content": "<h2>Weekly meeting</h2><p><strong>Date:</strong> </p><h3>Agenda</h3><ol><li><p>Open tickets</p></li><li><p>Releases this week</p></li><li><p>Anything else</p></li></ol><h3>Actions</h3><ul><li><p></p></li></ul>" },
+    { "title": "Signature", "single": "S", "multi": "SIG", "mode": 4,
+      "content": "<p>Best regards<br>Alex Example<br>Support team</p>" }
+  ],
+  "team": [
+    { "title": "Release notes", "tags": "release, announcement", "single": "R", "multi": "REL", "mode": 5,
+      "content": "<h2>What's new</h2><div class=\"ttm-panel ak-editor-panel\" data-panel-type=\"info\"><p>This update is installed automatically; no action is needed.</p></div><ul><li><p>Faster search</p></li><li><p>New export options</p></li></ul>" },
+    { "title": "Escalation", "tags": "support, escalation", "multi": "ESC", "mode": 5,
+      "content": "<div class=\"ttm-panel ak-editor-panel\" data-panel-type=\"warning\"><p><strong>Escalated:</strong> this ticket is now handled by the second-level team.</p></div><p>You will hear from us within four hours.</p>" },
+    { "title": "Out of office", "tags": "absence", "multi": "OOO", "mode": 4,
+      "content": "<p>I am out of the office until Monday and will reply then. For urgent matters, please contact support@example.com.</p>" }
+  ]
+}

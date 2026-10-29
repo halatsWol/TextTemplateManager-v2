@@ -102,6 +102,22 @@ textos frecuentes
 09  Traduce plantillas en tu PC, sin conexión a más de 50 idiomas, con alemán formal incluido (experimental).
 ```
 
+### Screenshot images
+
+The text in each screenshot, one line per image: file name | capture | caption | subline. `design/store/Make-StoreScreenshots.ps1` puts them into the Photoshop templates.
+
+```text
+01-main|store-main | Tus plantillas de texto en un solo lugar | Carpetas, texto enriquecido, etiquetas y atajos para cada respuesta que escribes a menudo
+02-quick-paste|store-qp-single | Pega cualquier plantilla con una tecla | Mayús+Alt+Y abre Quick Paste en cualquier aplicación
+03-multi-key|store-qp-multi | O mantén pulsada Alt y escribe un código | Las secuencias de teclas acotan la lista mientras escribes
+04-paste-modes|store-pastemode | Pegado en el formato que necesita la app | Automático, HTML/Jira, HTML, RTF, Markdown o Texto sin formato
+05-search|store-search | Encuentra cualquier plantilla al escribir | Por título, etiquetas o texto, de forma aproximada o exacta
+06-sync|store-sync | Comparte plantillas con tu equipo | Un archivo sincronizado en OneDrive o en un recurso compartido de red
+07-backups|store-backups | Copias de seguridad que puedes restaurar | Después de tus cambios, cada dos horas y a diario
+08-tour|store-tour | Un recorrido te ayuda a empezar | Con plantillas de ejemplo; las tuyas no se tocan
+09-translate|store-translate | Traduce plantillas en tu PC | Sin conexión a más de 50 idiomas, con alemán formal incluido (experimental)
+```
+
 ### Copyright and trademark info
 
 ```text

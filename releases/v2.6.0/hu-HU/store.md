@@ -102,6 +102,22 @@ szövegblokkok
 09  Fordíts sablonokat a gépeden, offline több mint 50 nyelvre, német magázó formával is (kísérleti).
 ```
 
+### Screenshot images
+
+The text in each screenshot, one line per image: file name | capture | caption | subline. `design/store/Make-StoreScreenshots.ps1` puts them into the Photoshop templates.
+
+```text
+01-main|store-main | Szövegsablonjaid egy helyen | Mappák, formázott szöveg, címkék és billentyűparancsok minden visszatérő válaszhoz
+02-quick-paste|store-qp-single | Bármely sablon egyetlen billentyűvel | A Shift+Alt+Y bármely alkalmazásban megnyitja a Quick Paste ablakot
+03-multi-key|store-qp-multi | Vagy tartsd lenyomva az Alt billentyűt | A billentyűsorok gépelés közben szűkítik a listát
+04-paste-modes|store-pastemode | Az alkalmazásnak megfelelő formátumban | Automatikus, HTML/Jira, HTML, RTF, Markdown vagy Csak szöveg
+05-search|store-search | Bármely sablon gépelés közben | Cím, címkék vagy szöveg alapján, közelítően vagy pontosan
+06-sync|store-sync | Sablonok megosztása a csapattal | Szinkronizált fájl OneDrive-on vagy hálózati megosztáson
+07-backups|store-backups | Visszaállítható biztonsági másolatok | A változtatások után, kétóránként és naponta
+08-tour|store-tour | Egy bemutató segít az indulásban | Mintasablonokon; a sajátjaidhoz nem nyúl
+09-translate|store-translate | Sablonok fordítása a gépeden | Offline több mint 50 nyelvre, német magázó formával is (kísérleti)
+```
+
 ### Copyright and trademark info
 
 ```text

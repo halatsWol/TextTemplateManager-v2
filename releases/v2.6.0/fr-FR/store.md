@@ -102,6 +102,22 @@ textes récurrents
 09  Traduisez vos modèles sur votre PC, hors ligne dans plus de 50 langues, allemand formel compris (expérimental).
 ```
 
+### Screenshot images
+
+The text in each screenshot, one line per image: file name | capture | caption | subline. `design/store/Make-StoreScreenshots.ps1` puts them into the Photoshop templates.
+
+```text
+01-main|store-main | Vos modèles de texte en un seul endroit | Dossiers, texte enrichi, balises et raccourcis pour chaque réponse que vous écrivez souvent
+02-quick-paste|store-qp-single | Collez n'importe quel modèle d'une touche | Maj+Alt+Y ouvre Quick Paste dans n'importe quelle application
+03-multi-key|store-qp-multi | Ou maintenez Alt et tapez un code court | Les séquences de touches filtrent la liste pendant la saisie
+04-paste-modes|store-pastemode | Collé dans le format qu'il faut | Automatique, HTML/Jira, HTML, RTF, Markdown ou Texte brut
+05-search|store-search | Trouvez un modèle pendant la saisie | Par titre, balises ou texte, de façon approximative ou exacte
+06-sync|store-sync | Partagez vos modèles avec votre équipe | Un fichier synchronisé sur OneDrive ou un partage réseau
+07-backups|store-backups | Des sauvegardes automatiques à restaurer | Après vos modifications, toutes les deux heures et chaque jour
+08-tour|store-tour | Une visite guidée pour démarrer | Sur des modèles d'exemple ; les vôtres restent intacts
+09-translate|store-translate | Traduisez vos modèles sur votre PC | Hors ligne dans plus de 50 langues, allemand formel compris (expérimental)
+```
+
 ### Copyright and trademark info
 
 ```text

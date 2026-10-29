@@ -102,6 +102,22 @@ testi ricorrenti
 09  Traduci i modelli sul tuo PC, offline in oltre 50 lingue, tedesco formale compreso (sperimentale).
 ```
 
+### Screenshot images
+
+The text in each screenshot, one line per image: file name | capture | caption | subline. `design/store/Make-StoreScreenshots.ps1` puts them into the Photoshop templates.
+
+```text
+01-main|store-main | I tuoi modelli di testo in un unico posto | Cartelle, testo formattato, tag e scelte rapide per ogni risposta che scrivi di continuo
+02-quick-paste|store-qp-single | Incolla qualsiasi modello con un tasto | MAIUSC+ALT+Y apre Quick Paste in qualsiasi app
+03-multi-key|store-qp-multi | Oppure tieni premuto ALT e digita un codice | Le sequenze di tasti restringono l'elenco mentre digiti
+04-paste-modes|store-pastemode | Nel formato che serve all'app | Automatica, HTML/Jira, HTML, RTF, Markdown o Solo testo
+05-search|store-search | Trova qualsiasi modello mentre digiti | Per titolo, tag o testo, in modo approssimativo o esatto
+06-sync|store-sync | Condividi i modelli con il team | Un file sincronizzato su OneDrive o in una condivisione di rete
+07-backups|store-backups | Backup automatici da ripristinare | Dopo le tue modifiche, ogni due ore e ogni giorno
+08-tour|store-tour | Un tour ti aiuta a iniziare | Sui modelli di esempio; i tuoi restano intatti
+09-translate|store-translate | Traduci i modelli sul tuo PC | Offline in oltre 50 lingue, tedesco formale compreso (sperimentale)
+```
+
 ### Copyright and trademark info
 
 ```text

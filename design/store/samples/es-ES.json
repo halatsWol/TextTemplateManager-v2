@@ -1,0 +1,42 @@
+{
+  "notepadFile": "Respuesta a Sam.txt",
+  "notepadText": "Hola, Sam:",
+  "searchTerm": "respuesta",
+  "shots": {
+    "main": "Notas de la versión",
+    "pasteMode": "Recordatorio de factura",
+    "search": "Ticket cerrado",
+    "translate": "Gracias por su mensaje"
+  },
+  "translate": { "to": "en", "formal": false },
+  "teamName": "Equipo",
+  "teamFile": "Plantillas del equipo.ttmdata",
+  "local": [
+    { "folder": "Respuestas a clientes", "items": [
+      { "title": "Gracias por su mensaje", "tags": "soporte, respuesta", "single": "T", "multi": "THX", "mode": 4,
+        "content": "<p>Hola:</p><p>gracias por su mensaje. Le responderemos <strong>en un plazo de un día hábil</strong>.</p><p>Saludos cordiales</p>" },
+      { "title": "Ticket cerrado", "tags": "soporte, ticket", "multi": "TC", "mode": 3,
+        "content": "<p>Hola:</p><p>hemos cerrado este ticket. Si el problema vuelve a aparecer, envíe una respuesta a este mensaje y se volverá a abrir.</p>" },
+      { "title": "Recordatorio de factura", "tags": "facturación, recordatorio", "multi": "INV", "mode": 3,
+        "content": "<p>Estimado cliente:</p><p>según nuestros registros, la factura <strong>n.º 2026-118</strong> sigue pendiente:</p><ul><li><p>Importe: 480,00 EUR</p></li><li><p>Vencimiento: 30 de septiembre de 2026</p></li></ul><p>Le rogamos que nos avise si ya la ha pagado.</p>" }
+    ] },
+    { "folder": "Fragmentos de código", "items": [
+      { "title": "Listar servicios en ejecución", "tags": "powershell", "single": "P", "multi": "SVC", "mode": 0,
+        "content": "<pre><code class=\"language-powershell\">Get-Service | Where-Object Status -eq 'Running' |\n    Sort-Object DisplayName | Select-Object Name, DisplayName</code></pre>" },
+      { "title": "Espacio libre en disco", "tags": "powershell, disco", "multi": "DISK", "mode": 0,
+        "content": "<pre><code class=\"language-powershell\">Get-PSDrive -PSProvider FileSystem |\n    Select-Object Name, @{ n = 'Libre (GB)'; e = { [math]::Round($_.Free / 1GB, 1) } }</code></pre>" }
+    ] },
+    { "title": "Notas de la reunión", "tags": "reunión, agenda", "single": "M", "multi": "MTG", "mode": 3,
+      "content": "<h2>Reunión semanal</h2><p><strong>Fecha:</strong> </p><h3>Orden del día</h3><ol><li><p>Tickets abiertos</p></li><li><p>Versiones de esta semana</p></li><li><p>Otros asuntos</p></li></ol><h3>Tareas</h3><ul><li><p></p></li></ul>" },
+    { "title": "Firma", "single": "S", "multi": "SIG", "mode": 4,
+      "content": "<p>Saludos cordiales<br>Alex Ejemplo<br>Equipo de soporte</p>" }
+  ],
+  "team": [
+    { "title": "Notas de la versión", "tags": "versión, anuncio", "single": "R", "multi": "REL", "mode": 5,
+      "content": "<h2>Novedades</h2><div class=\"ttm-panel ak-editor-panel\" data-panel-type=\"info\"><p>Esta actualización se instala automáticamente; no tiene que hacer nada.</p></div><ul><li><p>Búsqueda más rápida</p></li><li><p>Nuevas opciones de exportación</p></li></ul>" },
+    { "title": "Escalado", "tags": "soporte, escalado", "multi": "ESC", "mode": 5,
+      "content": "<div class=\"ttm-panel ak-editor-panel\" data-panel-type=\"warning\"><p><strong>Escalado:</strong> este ticket lo gestiona ahora el equipo de segundo nivel.</p></div><p>Tendrá noticias nuestras en un plazo de cuatro horas.</p>" },
+    { "title": "Fuera de la oficina", "tags": "ausencia", "multi": "OOO", "mode": 4,
+      "content": "<p>Estoy fuera de la oficina hasta el lunes y responderé a mi regreso. Para asuntos urgentes, escriba a support@example.com.</p>" }
+  ]
+}

@@ -1,6 +1,6 @@
 # Microsoft Store texts: English (en-US), 2.6.0
 
-The Store listing and "What's new" for this release, to copy into Partner Center as they are (plain text; the Store fields take no Markdown, HTML or links in the description). The release workflow also sends the "What's new" text with an automatic submission (`build/Release-Notes.ps1 -StoreOutDir`, every language folder's own text); it must stay within the Store's 1500 characters. The submission settings that don't depend on the language are in [`store.md`](../../../store.md) at the repository root.
+The Store listing and "What's new" for this release, to copy into Partner Center as they are (plain text; the Store fields take no Markdown, HTML or links in the description). The release workflow turns every language's file into the listing for Partner Center (`build/Release-Notes.ps1 -ListingOutDir`, in the build artifact) and sends it with an automatic submission; texts over Partner Center's limits fail the build. The submission settings that don't depend on the language are in [`store.md`](../../../store.md) at the repository root.
 
 Limits (Partner Center, 2026): description 10,000 characters; short description 1,000 (only the first 270 show in some views); up to 20 product features of 200 characters each; "What's new" 1,500.
 
@@ -104,6 +104,22 @@ From `screenshots/` in this folder (2560x1440 PNG, one colour scheme), uploaded 
 07  Automatic backups you can restore: after your changes, every two hours and daily.
 08  A guided tour gets you started, on sample templates; yours stay untouched.
 09  Translate templates on your PC, offline in over 50 languages, formal German included (experimental).
+```
+
+### Screenshot images
+
+The text in each screenshot, one line per image: file name | capture | caption | subline. `design/store/Make-StoreScreenshots.ps1` puts them into the Photoshop templates.
+
+```text
+01-main|store-main | Your text templates, in one place | Folders, rich text, tags and shortcuts for every reply you write again and again
+02-quick-paste|store-qp-single | Paste any template with a single key | Shift+Alt+Y opens Quick Paste in any app
+03-multi-key|store-qp-multi | Or hold Alt and type a short code | Multi-key shortcuts narrow the list as you type
+04-paste-modes|store-pastemode | Pasted in the format the app needs | Auto, HTML/Jira, HTML, RTF, Markdown or plain text
+05-search|store-search | Find any template as you type | By title, tags or the text itself, fuzzy or strict
+06-sync|store-sync | Share templates with your team | A synced file on OneDrive or a network share
+07-backups|store-backups | Automatic backups you can restore | After your changes, every two hours and daily
+08-tour|store-tour | A guided tour gets you started | On sample templates; yours stay untouched
+09-translate|store-translate | Translate templates on your PC | Offline in over 50 languages, formal German included (experimental)
 ```
 
 ### Copyright and trademark info

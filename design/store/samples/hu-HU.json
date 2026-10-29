@@ -1,0 +1,42 @@
+{
+  "notepadFile": "Válasz Samnek.txt",
+  "notepadText": "Szia Sam!",
+  "searchTerm": "válasz",
+  "shots": {
+    "main": "Kiadási megjegyzések",
+    "pasteMode": "Fizetési emlékeztető",
+    "search": "Jegy lezárva",
+    "translate": "Köszönjük az üzenetét"
+  },
+  "translate": { "to": "en", "formal": false },
+  "teamName": "Csapat",
+  "teamFile": "Csapatsablonok.ttmdata",
+  "local": [
+    { "folder": "Ügyfélválaszok", "items": [
+      { "title": "Köszönjük az üzenetét", "tags": "támogatás, válasz", "single": "T", "multi": "THX", "mode": 4,
+        "content": "<p>Tisztelt Ügyfelünk!</p><p>Köszönjük az üzenetét. <strong>Egy munkanapon belül</strong> jelentkezünk.</p><p>Üdvözlettel</p>" },
+      { "title": "Jegy lezárva", "tags": "támogatás, jegy", "multi": "TC", "mode": 3,
+        "content": "<p>Tisztelt Ügyfelünk!</p><p>Ezt a jegyet lezártuk. Ha a probléma újra jelentkezik, egyszerűen válaszoljon erre az üzenetre, és a jegy újra megnyílik.</p>" },
+      { "title": "Fizetési emlékeztető", "tags": "számlázás, emlékeztető", "multi": "INV", "mode": 3,
+        "content": "<p>Tisztelt Ügyfelünk!</p><p>Nyilvántartásunk szerint a <strong>#2026-118</strong> számú számla még nincs kiegyenlítve:</p><ul><li><p>Összeg: 480,00 EUR</p></li><li><p>Esedékes: 2026. szeptember 30.</p></li></ul><p>Kérjük, jelezze, ha már kifizette.</p>" }
+    ] },
+    { "folder": "Kódrészletek", "items": [
+      { "title": "Futó szolgáltatások listája", "tags": "powershell", "single": "P", "multi": "SVC", "mode": 0,
+        "content": "<pre><code class=\"language-powershell\">Get-Service | Where-Object Status -eq 'Running' |\n    Sort-Object DisplayName | Select-Object Name, DisplayName</code></pre>" },
+      { "title": "Szabad lemezterület", "tags": "powershell, lemez", "multi": "DISK", "mode": 0,
+        "content": "<pre><code class=\"language-powershell\">Get-PSDrive -PSProvider FileSystem |\n    Select-Object Name, @{ n = 'Szabad (GB)'; e = { [math]::Round($_.Free / 1GB, 1) } }</code></pre>" }
+    ] },
+    { "title": "Értekezlet jegyzetei", "tags": "értekezlet, napirend", "single": "M", "multi": "MTG", "mode": 3,
+      "content": "<h2>Heti értekezlet</h2><p><strong>Dátum:</strong> </p><h3>Napirend</h3><ol><li><p>Nyitott jegyek</p></li><li><p>A heti kiadások</p></li><li><p>Egyéb</p></li></ol><h3>Teendők</h3><ul><li><p></p></li></ul>" },
+    { "title": "Aláírás", "single": "S", "multi": "SIG", "mode": 4,
+      "content": "<p>Üdvözlettel<br>Példa Alex<br>Ügyfélszolgálat</p>" }
+  ],
+  "team": [
+    { "title": "Kiadási megjegyzések", "tags": "kiadás, közlemény", "single": "R", "multi": "REL", "mode": 5,
+      "content": "<h2>Újdonságok</h2><div class=\"ttm-panel ak-editor-panel\" data-panel-type=\"info\"><p>A frissítés automatikusan települ; nincs teendője.</p></div><ul><li><p>Gyorsabb keresés</p></li><li><p>Új exportálási lehetőségek</p></li></ul>" },
+    { "title": "Eszkaláció", "tags": "támogatás, eszkaláció", "multi": "ESC", "mode": 5,
+      "content": "<div class=\"ttm-panel ak-editor-panel\" data-panel-type=\"warning\"><p><strong>Eszkalálva:</strong> ezt a jegyet mostantól a második szintű csapat kezeli.</p></div><p>Négy órán belül jelentkezünk.</p>" },
+    { "title": "Házon kívül", "tags": "távollét", "multi": "OOO", "mode": 4,
+      "content": "<p>Hétfőig nem vagyok az irodában, utána válaszolok. Sürgős ügyben kérjük, írjon a support@example.com címre.</p>" }
+  ]
+}
