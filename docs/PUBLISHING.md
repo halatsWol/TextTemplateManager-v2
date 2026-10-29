@@ -6,22 +6,22 @@ How a release is published, and how to renew the Partner Center credentials the 
 
 ## How a release is published
 
-1. Create the release's folder `releases/vX.Y.Z/` with a folder per UI language (`en-US`, `de-DE`, …), starting from a copy of the previous release's. In each, `release.md` has the "What's new in this release" section with the changes since the last tag; the app shows the one of its language once after the update (English if that language has none), and the English one is the GitHub release text. `store.md` holds that language's Store listing and its short "What's new" (at most 1500 characters; each one is sent with an automatic submission), `screenshots/` its Store screenshots. The submission settings that don't depend on the language are in [`store.md`](../store.md) at the root.
+1. Create the release's folder `releases/vX.Y.Z/` with a folder per UI language (`en-US`, `de-DE`, …), starting from a copy of the previous release's. In each, `release.md` has the "What's new in this release" section with the changes since the last tag; the app shows the one of its language once after the update (English if that language has none), and the English one is the GitHub release text. `store.md` holds that language's Store listing: name, descriptions, features, search terms, "What's new" (at most 1500 characters), the screenshot captions and the texts in the screenshot images; `screenshots/` its Store screenshots (see *Store screenshots* below; a release without new ones reuses the newest earlier release's). The submission settings that don't depend on the language are in [`store.md`](../store.md) at the root.
 2. Commit and push, then check that **Tests** and **CodeQL** are green for that commit under **Actions**, and that **Security** (Code scanning, Dependabot) shows no open alert you haven't looked at. A merged Dependabot npm update reaches the app only after `npm ci` and `npm run build` in `src/editor` and a commit of the rebuilt bundle.
 3. Create an **annotated** tag and push it:
    ```bash
    git tag -a v2.0.1 -m 'v2.0.1'
    git push origin v2.0.1
    ```
-4. [`.github/workflows/release.yml`](../.github/workflows/release.yml) runs the tests, builds the x64 Store package (`.msixupload`) and both manuals, and creates the GitHub release as a **draft** with the manuals attached (no installers, never an `.exe`). Read the notes under **Releases**; nothing is public before the version is live in the Store (step 6), and you can still fix them until then.
-5. The `microsoft-store` job then waits for the **`store-release`** environment. Approve it under **Actions ▸ the run ▸ Review deployments**; it checks the access to the app, uploads the package to a new Store submission, sets "What's new" for every listing language (each language's own text from its `store.md`; a regional listing such as `es-mx` gets `es-ES`, any other English; a language folder without a listing in Partner Center yet is named in a warning, since a new listing needs its screenshots and is added there by hand once), and commits the submission (with `publish: draft` it stops before the commit, see below). Certification takes hours to days; the job doesn't wait for it.
+4. [`.github/workflows/release.yml`](../.github/workflows/release.yml) runs the tests, builds the x64 Store package (`.msixupload`) and both manuals, writes the Store listing of every language (`build/Release-Notes.ps1 -ListingOutDir`: one file per Partner Center field plus the screenshots, in the build artifact's `store-listing/<language>/`; Partner Center's limits are checked) and creates the GitHub release as a **draft** with the manuals attached (no installers, never an `.exe`). Read the notes under **Releases**; nothing is public before the version is live in the Store (step 6), and you can still fix them until then.
+5. The `microsoft-store` job then waits for the **`store-release`** environment. Approve it under **Actions ▸ the run ▸ Review deployments**; it checks the access to the app and makes a new Store submission (`build/Store-Api.ps1 -Submit`): the new package replaces the old one, and every listing gets its language's texts, "What's new" and screenshots (a regional listing such as `es-mx` gets `es-ES`; a listing without a language folder only the English "What's new"). A language folder no listing uses yet is added as a new listing when it has screenshots; if Partner Center refuses that, the job warns and the language is added there by hand once. Then it commits the submission (with `publish: draft` it stops before the commit, see below). Certification takes hours to days; the job doesn't wait for it.
 6. The `publish-when-live` job then starts [`publish-when-live.yml`](../.github/workflows/publish-when-live.yml): it checks the Store's public catalog every 10 minutes and publishes the draft GitHub release as soon as that version (or a newer one) is live there. A job may run 6 hours at most, so each run waits about 5.5 hours and then starts the next one, for up to 7 days; after that the release stays a draft with a warning in the run's summary. With `publish: draft` the manual commit run starts it instead. To publish earlier, click **Publish release** under **Releases**; the watcher then stops by itself.
 
 Rules:
 
 - The tag is the only version source: `vX.Y.Z` becomes the app version and the package version `X.Y.Z.0`. Plain numbers only; the Store has no beta versions (use a package flight in Partner Center for that).
 - Every release needs a **higher** version than the one live in the Store.
-- The Store's "What's new" comes from `releases/vX.Y.Z/en-US/store.md` as it is; a text over 1500 characters fails the build instead of being cut. A Store build without `releases/vX.Y.Z/en-US/release.md` fails.
+- The Store texts come from `releases/vX.Y.Z/<language>/store.md` as they are; a text over Partner Center's limits fails the build instead of being cut. A Store build without `releases/vX.Y.Z/en-US/release.md` fails.
 
 ### Store submission: store, draft or none
 
@@ -29,9 +29,9 @@ A line in the tag message decides what the `microsoft-store` job does; the draft
 
 | Line | Store submission |
 | --- | --- |
-| `publish: store` or no such line | Package uploaded, "What's new" set, submission committed (certification starts) |
-| `publish: draft` | Package uploaded and "What's new" set, but not committed; commit it with the manual run below |
-| `publish: none` | Skipped |
+| `publish: store` or no such line | Submission made (package, listings, screenshots) and committed (certification starts) |
+| `publish: draft` | Submission made but not committed; check it, then commit it with the manual run below |
+| `publish: none` | Skipped; submit by hand from the build artifact (see *Submitting by hand*) |
 
 ```bash
 git tag -a v2.2.0 -m 'v2.2.0' -m 'publish: draft'
@@ -39,7 +39,20 @@ git tag -a v2.2.0 -m 'v2.2.0' -m 'publish: draft'
 
 Use `publish: draft` after changing the `microsoft-store` job.
 
-Partner Center shows a package uploaded through the API only after the commit: until then the draft there still lists the previous package, and **Submit** in Partner Center would send that one again. So don't submit an API draft in Partner Center. **Actions ▸ Release ▸ Run workflow** with **Check Store access** lists the pending submission's packages (the new one as `PendingUpload`, the old one as `PendingDelete`); **Commit the pending Store submission** commits it after the `store-release` approval, and certification starts.
+Partner Center may show a package uploaded through the API only after the commit: until then the draft there can still list the previous package, and **Submit** in Partner Center would send that one again. So don't submit an API draft in Partner Center. **Actions ▸ Release ▸ Run workflow** with **Check Store access** lists the pending submission's packages (the new one as `PendingUpload`, the old one as `PendingDelete`) and the screenshots per listing; **Commit the pending Store submission** commits it after the `store-release` approval, and certification starts.
+
+### Submitting by hand
+
+With `publish: none`, the run's build artifact `TextTemplateManager-X.Y.Z` holds everything for Partner Center: the `.msixupload`, and in `store-listing/<language>/` one text file per field (`title`, `short-description`, `description`, `features` one per line, `search-terms` one per line, `whats-new`, `copyright`, `screenshot-captions` in the order of the screenshots) and `screenshots/`. In the submission, upload the package (remove the old one), and per listing language paste the files and upload the screenshots with their captions. A language without a listing yet: **Store listings ▸ Manage additional languages**. Submission options and properties: the root [`store.md`](../store.md). After submitting, start **Actions ▸ Publish release when live ▸ Run workflow** with the tag.
+
+### Store screenshots
+
+Each language's screenshots are made from window captures of the app in that language, with sample templates in that language:
+
+1. The sample data per language is in [`design/store/samples/<language>.json`](../design/store/samples) (templates, team file, the text in Notepad, the search term, which template each screenshot shows, the translation target). A new UI language needs one.
+2. The captures are made on a test VM at 125 % on a 2560x1440 display and go to `design/store/captures/<language>/` (nine per language: `store-main`, `store-qp-single`, `store-qp-multi`, `store-pastemode`, `store-search`, `store-sync`, `store-backups`, `store-tour`, `store-translate`). The VM scripts aren't part of the repository.
+3. `pwsh -File design/store/Make-StoreScreenshots.ps1 -Version X.Y.Z` puts them into the Photoshop templates (`design/store/templates`, through `Make-StoreImages.jsx` and Photoshop's COM interface) with the texts of each language's "Screenshot images" block, and writes `releases/vX.Y.Z/<language>/screenshots/` (2560x1440, colour scheme `amber` as in the Store, `-Scheme slate` for the other). Every language folder with a `store.md` is picked up; captions that are too wide are set smaller.
+4. Commit the screenshots with the release. A release without new screenshots needs none: the listing takes the newest earlier release's.
 
 ### Publishing the GitHub release by hand
 
@@ -75,7 +88,7 @@ The manuals, a help page and the privacy policy are published at <https://softwa
 The Store API can only update an app that already has a published submission, so the first one goes in by hand:
 
 1. Tag `v2.0.0` with `publish: none` (see above).
-2. Download the `TextTemplateManager-2.0.0` artifact from the run (or build it locally from the same commit: `build/Build-Release.ps1 -Version 2.0.0`, from a short path; it is unsigned, the Store signs it) and upload its `.msixupload` in a new submission in Partner Center, together with the listing, screenshots, age rating and pricing. The texts to paste are in [`store.md`](../store.md) and, per language, in the release's `releases/vX.Y.Z/<language>/store.md`, with that language's screenshots (2560x1440, one colour scheme: `amber` or `slate`) next to it; the 300x300 app tile and the art without text are in [`design/store`](../design/store).
+2. Download the `TextTemplateManager-2.0.0` artifact from the run (or build it locally from the same commit: `build/Build-Release.ps1 -Version 2.0.0`, from a short path; it is unsigned, the Store signs it) and upload its `.msixupload` in a new submission in Partner Center, together with the listing, screenshots, age rating and pricing (see *Submitting by hand*); the 300x300 app tile and the art without text are in [`design/store`](../design/store).
 3. From then on, tags submit automatically.
 
 ---
@@ -89,7 +102,7 @@ Stored in **GitHub ▸ repo ▸ Settings ▸ Secrets and variables ▸ Actions**
 | `MSSTORE_TENANT_ID` | Partner Center ▸ Account settings ▸ User management ▸ Microsoft Entra applications (Tenant ID) | No |
 | `MSSTORE_CLIENT_ID` | Same page, the application's Client ID | No |
 | `MSSTORE_CLIENT_SECRET` | Same page ▸ the application ▸ **Add new key** (shown once) | **Yes: 1 or 2 years** |
-| `MSSTORE_SELLER_ID` | Partner Center ▸ Account settings ▸ Legal info ▸ Developer (Seller ID) | No |
+| `MSSTORE_SELLER_ID` | Not used any more (it was for the Store Developer CLI); can be deleted | No |
 
 A missing secret fails the `microsoft-store` job with its name; the draft GitHub release exists by then.
 
@@ -97,7 +110,7 @@ A missing secret fails the `microsoft-store` job with its name; the draft GitHub
 
 1. Partner Center ▸ **Account settings ▸ User management ▸ Microsoft Entra applications ▸ Create Microsoft Entra application** (or add an existing one), role **Manager**.
 2. Open the application, **Add new key**, and copy the client secret right away; it isn't shown again. Note the expiry date.
-3. Add the four secrets above in GitHub.
+3. Add the three secrets above in GitHub.
 4. GitHub ▸ **Settings ▸ Environments ▸ New environment** `store-release`, and add yourself as a **required reviewer**.
 
 ### Renewing the client secret
@@ -105,7 +118,7 @@ A missing secret fails the `microsoft-store` job with its name; the draft GitHub
 The client secret expires (1 or 2 years, chosen when it's created). Before it does:
 
 1. Partner Center ▸ Account settings ▸ User management ▸ Microsoft Entra applications ▸ the application ▸ **Add new key**.
-2. Update `MSSTORE_CLIENT_SECRET` in GitHub (the secret ▸ **Update**). Tenant, client and seller IDs stay the same.
+2. Update `MSSTORE_CLIENT_SECRET` in GitHub (the secret ▸ **Update**). Tenant and client IDs stay the same.
 3. Remove the old key in Partner Center once the next release has gone through.
 
 If a submission failed because the secret had expired, renew it and re-run the failed `microsoft-store` job.
@@ -114,6 +127,6 @@ If a submission failed because the secret had expired, renew it and re-run the f
 
 ## If the Store job fails halfway
 
-- **Before "Commit the submission"**: the package sits in a pending submission in Partner Center. Finish it there by hand (check "What's new", submit), or delete the pending submission there and re-run the job. Whether `msstore publish` reuses a pending submission left by a failed run hasn't been tried yet, so delete it first.
+- **Before "Commit the submission"**: the submission is pending in Partner Center. Delete it there and re-run the job (a new submission isn't made while one is pending), or finish it by hand.
 - **After it**: the submission is in certification; check its status in Partner Center. A commit the Store rejects at once fails the job with the Store's reasons.
-- The package upload uses the Microsoft Store Developer CLI (`msstore`, installed by `microsoft/microsoft-store-apppublisher`), pinned to a version (`version:` in the `microsoft-store` job), with the `.msixupload` file itself passed to `msstore publish`. Before raising the pinned version, check that command against its release notes. The access check, "What's new" and the commit go straight to the Partner Center submission API (`build/Store-Api.ps1`), which doesn't depend on the CLI's output format.
+- Everything goes through the Partner Center submission API (`build/Store-Api.ps1`, no other tool): a new submission, its data (packages, listings, images) with `PUT`, the ZIP with the package and screenshots to the submission's upload URL in 4 MB blocks, then the commit. `pwsh -File build/Store-Api.ps1 -AppId 9NMBSZLLLN6V -ListingDir <store-listing> -Preview en-us,de-de` shows locally, without signing in, what a submission would do with those listing languages.

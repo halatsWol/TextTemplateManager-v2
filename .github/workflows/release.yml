@@ -8,9 +8,10 @@ name: Release
 #     "Check Store access", only sign in to Partner Center and read the app (no build, nothing submitted), or, with
 #     "Commit the pending Store submission", commit a submission left by "publish: draft".
 #
-# The Store submission is controlled by the annotated tag's message: "publish: none" skips it, "publish: draft"
-# uploads the package and sets "What's new" but doesn't commit (Partner Center shows the package only after the
-# commit, so commit with the manual run, not Submit in Partner Center), "publish: store" or no such line submits.
+# The Store submission is controlled by the annotated tag's message: "publish: none" skips it (the build artifact
+# holds the package and every language's listing with its screenshots, for a submission by hand), "publish: draft"
+# makes the submission (package, listings, screenshots) but doesn't commit it (commit with the manual run),
+# "publish: store" or no such line submits.
 # The submission jobs wait for the "store-release" environment, so they go out only after a manual approval
 # (Settings > Environments). See docs/PUBLISHING.md.
 
@@ -138,9 +139,9 @@ jobs:
             if ($LASTEXITCODE -eq 0 -and $json) { $changelog = ($json | ConvertFrom-Json).body }
           }
           ./build/Release-Notes.ps1 -Version ${{ steps.ver.outputs.version }} -Changelog $changelog `
-            -GitHubOut release-notes.md -StoreOutDir dist/store-notes
+            -GitHubOut release-notes.md -ListingOutDir dist/store-listing
           Write-Host '----- GitHub release notes -----'; Get-Content release-notes.md
-          foreach ($f in Get-ChildItem dist/store-notes -Filter *.txt) { Write-Host "----- Store ""What's new"" ($($f.BaseName)) -----"; Get-Content $f.FullName }
+          foreach ($f in Get-ChildItem dist/store-listing -Recurse -Filter whats-new.txt) { Write-Host "----- Store ""What's new"" ($($f.Directory.Name)) -----"; Get-Content $f.FullName }
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7
@@ -157,7 +158,7 @@ jobs:
           name: store-submission
           path: |
             dist/*.msixupload
-            dist/store-notes/*.txt
+            dist/store-listing/**
           if-no-files-found: error
 
       # A draft, published once the Store has the version live (publish-when-live.yml); 2.x is updated through the
@@ -197,43 +198,18 @@ jobs:
           MSSTORE_CLIENT_SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
         run: ./build/Store-Api.ps1 -AppId $env:STORE_PRODUCT_ID -Check
 
-      # Pinned: the command below follows this version's syntax (publish takes the package file).
-      - name: Set up the Microsoft Store Developer CLI
-        uses: microsoft/microsoft-store-apppublisher@v1.4
-        with:
-          version: v0.4.3
-
-      - name: Sign in to Partner Center
+      # A new submission from the last published one: the package, and every listing's texts and screenshots from
+      # store-listing (each language's own; new languages with screenshots become new listings). Not committed yet.
+      - name: Submission with package, listings and screenshots
         shell: pwsh
         env:
           MSSTORE_TENANT_ID: ${{ secrets.MSSTORE_TENANT_ID }}
           MSSTORE_CLIENT_ID: ${{ secrets.MSSTORE_CLIENT_ID }}
           MSSTORE_CLIENT_SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
-          MSSTORE_SELLER_ID: ${{ secrets.MSSTORE_SELLER_ID }}
-        run: |
-          if ([string]::IsNullOrWhiteSpace($env:MSSTORE_SELLER_ID)) { throw 'Missing MSSTORE_SELLER_ID (see docs/PUBLISHING.md).' }
-          msstore reconfigure --tenantId $env:MSSTORE_TENANT_ID --sellerId $env:MSSTORE_SELLER_ID `
-            --clientId $env:MSSTORE_CLIENT_ID --clientSecret $env:MSSTORE_CLIENT_SECRET
-          if ($LASTEXITCODE -ne 0) { throw 'msstore reconfigure failed' }
-
-      # msstore uploads the package (to the blob store the submission names) into a pending submission, which it
-      # creates from the last published one; it doesn't commit. A built package is published by passing the
-      # .msixupload itself; -i would be the folder of a project's packages.
-      - name: Upload the package to a draft submission
-        shell: pwsh
         run: |
           $upload = Get-ChildItem store -Filter *.msixupload | Select-Object -First 1
           if (-not $upload) { throw 'No .msixupload in the store-submission artifact.' }
-          msstore publish $upload.FullName -id $env:STORE_PRODUCT_ID --noCommit
-          if ($LASTEXITCODE -ne 0) { throw 'msstore publish failed' }
-
-      - name: Set "What's new"
-        shell: pwsh
-        env:
-          MSSTORE_TENANT_ID: ${{ secrets.MSSTORE_TENANT_ID }}
-          MSSTORE_CLIENT_ID: ${{ secrets.MSSTORE_CLIENT_ID }}
-          MSSTORE_CLIENT_SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
-        run: ./build/Store-Api.ps1 -AppId $env:STORE_PRODUCT_ID -ReleaseNotesDir store/store-notes
+          ./build/Store-Api.ps1 -AppId $env:STORE_PRODUCT_ID -Submit -Package $upload.FullName -ListingDir store/store-listing
 
       # Certification takes hours to days; the job ends once the commit has been accepted.
       - name: Commit the submission
@@ -249,7 +225,7 @@ jobs:
         if: needs.package.outputs.store_mode == 'draft'
         shell: pwsh
         run: |
-          $text = "The submission is uploaded but not committed (publish: draft). Partner Center shows the new package only after the commit, so don't use Submit there: commit with Actions > Release > Run workflow > 'Commit the pending Store submission'. That run also starts the watcher that publishes the GitHub release."
+          $text = "The submission is uploaded but not committed (publish: draft). Check it with Actions > Release > Run workflow > 'Check Store access' (packages and screenshots per listing) or in Partner Center, then commit with Actions > Release > Run workflow > 'Commit the pending Store submission'; that run also starts the watcher that publishes the GitHub release."
           Write-Host $text
           "### Store submission left as a draft`n`n$text" >> $env:GITHUB_STEP_SUMMARY
 

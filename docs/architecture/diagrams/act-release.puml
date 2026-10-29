@@ -25,7 +25,7 @@ endif
 :setup .NET 8 + 10;
 :tests/run-tests.ps1;
 :build/Build-Release.ps1\n-> x64 .msixupload (StoreBuild), Manual.pdf, AdminManual.pdf;
-:build/Release-Notes.ps1\n-> GitHub notes (releases/vX.Y.Z/en-US/release.md\n   + generated changelog), Store "What's new" per language folder\n   (<language>/store.md, <= 1500 chars or fail);
+:build/Release-Notes.ps1\n-> GitHub notes (releases/vX.Y.Z/en-US/release.md\n   + generated changelog), store-listing/<language>/\n   (every field + screenshots; limits or fail);
 :upload artifacts;
 if (tag?) then (yes)
   :gh release create --draft (PDFs only, no .exe);
@@ -33,16 +33,14 @@ if (tag?) then (yes)
   if (draft or store?) then (yes)
     :manual approval;
     :Store-Api.ps1 -Check\n(secrets, sign-in, access to the app);
-    :msstore reconfigure;
-    :msstore publish <.msixupload> -id 9NMBSZLLLN6V --noCommit;
-    :Store-Api.ps1 -ReleaseNotesDir\n(each listing: own language, same base\nlanguage or English; warns about\nlanguages without a listing; REST);
+    :Store-Api.ps1 -Submit\n(new submission: package, every listing's\ntexts and screenshots, new languages as\nnew listings; ZIP to the upload URL in blocks);
     if (store?) then (yes)
       :Store-Api.ps1 -Commit\n(certification follows);
       |publish-when-live|
       :start publish-when-live.yml;
       :every 10 min: version live in the\nStore catalog? then publish the release\n(5.5 h per run, next run, up to 7 days);
     else (draft)
-      :left uncommitted: commit with the manual run\n(Partner Center shows the package only after it);
+      :left uncommitted: check, then commit\nwith the manual run;
     endif
   endif
 endif
