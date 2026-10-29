@@ -3,8 +3,9 @@
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap desktop rescap">
+  IgnorableNamespaces="uap desktop uap5 rescap">
 
   <!-- Identity as reserved in Partner Center. Version is replaced by the build (git tag, X.Y.Z.0). -->
   <Identity
@@ -55,6 +56,16 @@
             </uap:SupportedFileTypes>
           </uap:FileTypeAssociation>
         </uap:Extension>
+        <!-- 1.x shipped as ttm.exe, so Start search found the app by "ttm"; the aliases bring that back
+             (Start matches them whole, not by prefix). With web search on, Start didn't offer the one with
+             spaces (Win 11 24H2); kept for setups without web search. -->
+        <uap5:Extension Category="windows.appExecutionAlias">
+          <uap5:AppExecutionAlias>
+            <uap5:ExecutionAlias Alias="ttm.exe" />
+            <uap5:ExecutionAlias Alias="ttm2.exe" />
+            <uap5:ExecutionAlias Alias="text template manager.exe" />
+          </uap5:AppExecutionAlias>
+        </uap5:Extension>
       </Extensions>
     </Application>
   </Applications>
