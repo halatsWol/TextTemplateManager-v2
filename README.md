@@ -39,6 +39,7 @@ Version 1 shipped as a per-user installer from GitHub with its own updater. Vers
   - [Chrome Web Store](https://chrome.google.com/webstore/detail/jclopjpjdldbknjdhmjldehlkgbihlmi)
   - [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/ttm-connect/fbpmhopmnaoedcnbegdkpfblekhaindm)
   - [Firefox Add-ons](https://addons.mozilla.org/addon/ttm-connect/)
+- **Six UI languages**: English, German, Hungarian, Italian, French and Spanish; the Windows display language by default, or another one per PC in **Settings ▸ General ▸ Language**. Hungarian, Italian, French and Spanish were translated with the help of AI and aren't proofread yet.
 - **Start with Windows** (Windows' own startup setting, hidden in the system tray by default) and a configurable global hotkey.
 - **Updates while it runs**: new versions are downloaded from the Store in the background; **Restart to update** (or quitting the app) installs them in seconds, optionally also while the app isn't in use. Policy keys let administrators turn this off or limit it.
 

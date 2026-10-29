@@ -24,6 +24,27 @@ $out = (Resolve-Path $OutDir).Path
 if ($LASTEXITCODE -ne 0) { throw 'Store build failed.' }
 $upload = Get-ChildItem $packages -Recurse -Filter "TextTemplateManager_$Version.0_x64*.msixupload" | Select-Object -First 1
 if (-not $upload) { throw "No TextTemplateManager_$Version.0_x64 .msixupload in $packages." }
+
+# The app package (.msixupload > .msixbundle > x64 .msix) must declare every UI language (Strings\<language>), or the
+# Store version would show only some of them.
+Add-Type -AssemblyName System.IO.Compression
+function Open-Entry($zip, $pattern) {
+    $entry = $zip.Entries | Where-Object { $_.FullName -like $pattern } | Select-Object -First 1
+    if (-not $entry) { throw "No $pattern in the package." }
+    $buffer = New-Object System.IO.MemoryStream
+    $stream = $entry.Open(); $stream.CopyTo($buffer); $stream.Close()
+    $buffer.Position = 0
+    $buffer
+}
+$uploadZip = [System.IO.Compression.ZipFile]::OpenRead($upload.FullName)
+$bundleZip = New-Object System.IO.Compression.ZipArchive (Open-Entry $uploadZip '*.msixbundle')
+$appZip = New-Object System.IO.Compression.ZipArchive (Open-Entry $bundleZip '*_x64.msix')
+$manifest = (New-Object System.IO.StreamReader (Open-Entry $appZip 'AppxManifest.xml')).ReadToEnd()
+$uploadZip.Dispose()
+$declared = [regex]::Matches($manifest, '<Resource Language="([^"]+)"') | ForEach-Object { $_.Groups[1].Value }
+$missing = Get-ChildItem (Join-Path $app 'Strings') -Directory | Where-Object { $_.Name -notin $declared } | ForEach-Object Name
+if ($missing) { throw "The package declares $($declared -join ', ') but not $($missing -join ', ')." }
+"Package languages: $($declared -join ', ')"
 Copy-Item $upload.FullName $out
 
 $manualGen = Join-Path $root 'tools\ManualGen\ManualGen.csproj'
