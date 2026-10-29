@@ -138,9 +138,9 @@ jobs:
             if ($LASTEXITCODE -eq 0 -and $json) { $changelog = ($json | ConvertFrom-Json).body }
           }
           ./build/Release-Notes.ps1 -Version ${{ steps.ver.outputs.version }} -Changelog $changelog `
-            -GitHubOut release-notes.md -StoreOut dist/store-notes.txt
+            -GitHubOut release-notes.md -StoreOutDir dist/store-notes
           Write-Host '----- GitHub release notes -----'; Get-Content release-notes.md
-          Write-Host '----- Store "What''s new" -----'; Get-Content dist/store-notes.txt
+          foreach ($f in Get-ChildItem dist/store-notes -Filter *.txt) { Write-Host "----- Store ""What's new"" ($($f.BaseName)) -----"; Get-Content $f.FullName }
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7
@@ -157,7 +157,7 @@ jobs:
           name: store-submission
           path: |
             dist/*.msixupload
-            dist/store-notes.txt
+            dist/store-notes/*.txt
           if-no-files-found: error
 
       # A draft, published once the Store has the version live (publish-when-live.yml); 2.x is updated through the
@@ -233,7 +233,7 @@ jobs:
           MSSTORE_TENANT_ID: ${{ secrets.MSSTORE_TENANT_ID }}
           MSSTORE_CLIENT_ID: ${{ secrets.MSSTORE_CLIENT_ID }}
           MSSTORE_CLIENT_SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
-        run: ./build/Store-Api.ps1 -AppId $env:STORE_PRODUCT_ID -ReleaseNotesFile store/store-notes.txt
+        run: ./build/Store-Api.ps1 -AppId $env:STORE_PRODUCT_ID -ReleaseNotesDir store/store-notes
 
       # Certification takes hours to days; the job ends once the commit has been accepted.
       - name: Commit the submission

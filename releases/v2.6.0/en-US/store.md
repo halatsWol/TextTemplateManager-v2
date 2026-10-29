@@ -1,6 +1,6 @@
 # Microsoft Store texts: English (en-US), 2.6.0
 
-The Store listing and "What's new" for this release, to copy into Partner Center as they are (plain text; the Store fields take no Markdown, HTML or links in the description). The release workflow also sends the "What's new" text with an automatic submission (`build/Release-Notes.ps1 -StoreOut`); it must stay within the Store's 1500 characters. The submission settings that don't depend on the language are in [`store.md`](../../../store.md) at the repository root.
+The Store listing and "What's new" for this release, to copy into Partner Center as they are (plain text; the Store fields take no Markdown, HTML or links in the description). The release workflow also sends the "What's new" text with an automatic submission (`build/Release-Notes.ps1 -StoreOutDir`, every language folder's own text); it must stay within the Store's 1500 characters. The submission settings that don't depend on the language are in [`store.md`](../../../store.md) at the repository root.
 
 Limits (Partner Center, 2026): description 10,000 characters; short description 1,000 (only the first 270 show in some views); up to 20 product features of 200 characters each; "What's new" 1,500.
 
