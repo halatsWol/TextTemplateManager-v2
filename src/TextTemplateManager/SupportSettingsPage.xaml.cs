@@ -67,12 +67,12 @@ public sealed partial class SupportSettingsPage : Page
     }
 
     private void ProblemMail_Click(object sender, RoutedEventArgs e) =>
-        OpenMail(SupportLinks.ProblemMail(AppInfo.Version, SupportLinks.WindowsVersion()));
+        OpenMail(SupportLinks.ProblemMail(AppInfo.Version, SupportLinks.WindowsVersion()), ProblemMailHint);
 
-    private void FeatureMail_Click(object sender, RoutedEventArgs e) => OpenMail(SupportLinks.FeatureMail(AppInfo.Version));
+    private void FeatureMail_Click(object sender, RoutedEventArgs e) => OpenMail(SupportLinks.FeatureMail(AppInfo.Version), FeatureMailHint);
 
     private void SecurityMail_Click(object sender, RoutedEventArgs e) =>
-        OpenMail(SupportLinks.SecurityMail(AppInfo.Version, SupportLinks.WindowsVersion()));
+        OpenMail(SupportLinks.SecurityMail(AppInfo.Version, SupportLinks.WindowsVersion()), SecurityMailHint);
 
     private void ProblemGitHub_Click(object sender, RoutedEventArgs e) => ExternalLinks.Open(SupportLinks.GitHubProblemUrl);
 
@@ -80,9 +80,12 @@ public sealed partial class SupportSettingsPage : Page
 
     private void SecurityGitHub_Click(object sender, RoutedEventArgs e) => ExternalLinks.Open(SupportLinks.GitHubSecurityUrl);
 
-    private void OpenMail(string mailto)
+    // The hint goes under the button that was clicked; only one shows at a time.
+    private void OpenMail(string mailto, Controls.MailFallbackHint hint)
     {
-        MailHint.Show();
+        foreach (var other in new[] { ProblemMailHint, FeatureMailHint, SecurityMailHint })
+            if (other != hint) other.Visibility = Visibility.Collapsed;
+        hint.Show();
         ExternalLinks.Open(mailto);
     }
 }

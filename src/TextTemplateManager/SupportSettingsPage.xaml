@@ -39,6 +39,7 @@
                 <Button x:Uid="SupportPage_ProblemMailButton" Style="{StaticResource AccentButtonStyle}" Click="ProblemMail_Click"/>
                 <Button x:Uid="SupportPage_ProblemGitHubButton" Click="ProblemGitHub_Click"/>
             </StackPanel>
+            <controls:MailFallbackHint x:Name="ProblemMailHint"/>
         </StackPanel>
 
         <StackPanel Spacing="8">
@@ -48,6 +49,7 @@
                 <Button x:Uid="SupportPage_FeatureMailButton" Click="FeatureMail_Click"/>
                 <Button x:Uid="SupportPage_FeatureGitHubButton" Click="FeatureGitHub_Click"/>
             </StackPanel>
+            <controls:MailFallbackHint x:Name="FeatureMailHint"/>
         </StackPanel>
 
         <StackPanel Spacing="8">
@@ -57,12 +59,10 @@
                 <Button x:Uid="SupportPage_SecurityMailButton" Click="SecurityMail_Click"/>
                 <Button x:Uid="SupportPage_SecurityGitHubButton" Click="SecurityGitHub_Click"/>
             </StackPanel>
+            <controls:MailFallbackHint x:Name="SecurityMailHint"/>
         </StackPanel>
 
-        <StackPanel Spacing="4">
-            <TextBlock x:Uid="SupportPage_GitHubHint" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-            <controls:MailFallbackHint x:Name="MailHint"/>
-        </StackPanel>
+        <TextBlock x:Uid="SupportPage_GitHubHint" TextWrapping="Wrap" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
     </StackPanel>
     </ScrollViewer>
 </Page>
