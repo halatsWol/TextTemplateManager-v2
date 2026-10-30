@@ -1,6 +1,6 @@
 # The documentation site at https://software.kmarflow.com/TextTemplateManager-v2/ (GitHub Pages). Built by
 # build/Build-Website.ps1, which puts the manuals from docs/user and PRIVACY.md next to the pages in website/pages,
-# so the site and the PDFs come from the same text. Colors: website/pages/stylesheets/ttm.css (the slate Store art).
+# so the site and the PDFs come from the same text. Styles: the shared marflow.css of software.kmarflow.com.
 # See docs/architecture/11-platform-build-release.md.
 site_name: TextTemplateManager
 site_description: Reusable text, one keystroke away. Documentation for TextTemplateManager 2 for Windows.
@@ -32,7 +32,7 @@ theme:
   language: en
   logo: images/logo.svg
   favicon: images/logo.svg
-  font: false   # Segoe UI like the app (ttm.css), no Google Fonts
+  font: false   # Segoe UI like the app (marflow.css), no Google Fonts
   features:
     - navigation.instant
     - navigation.tabs
@@ -58,7 +58,7 @@ theme:
         name: Light mode
 
 extra_css:
-  - stylesheets/ttm.css
+  - https://software.kmarflow.com/assets/marflow.css
 
 # Microsoft's Store badge (<ms-store-badge> on the home page); loaded on every page, so instant navigation finds it.
 extra_javascript:

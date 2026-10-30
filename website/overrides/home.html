@@ -2,12 +2,12 @@
 
 {% block tabs %}
   {{ super() }}
-  <section class="ttm-hero" style="background-image: url('{{ 'images/store/super-hero-art-slate.png' | url }}')">
-    <div class="ttm-hero__inner">
-      <img class="ttm-hero__logo" src="{{ 'images/logo.svg' | url }}" alt="" width="72" height="72">
-      <h1 class="ttm-hero__title">Your text templates,<br><span class="ttm-mark">one keystroke</span> away</h1>
-      <p class="ttm-hero__lead">Keep replies, snippets, signatures and code in one place, and paste them into any Windows app, formatted to fit.</p>
-      <div class="ttm-hero__actions">
+  <section class="mf-hero mf-hero--art" style="background-image: url('{{ 'images/store/super-hero-art-slate.png' | url }}')">
+    <div class="mf-hero__inner">
+      <img class="mf-hero__logo" src="{{ 'images/logo.svg' | url }}" alt="" width="72" height="72">
+      <h1 class="mf-hero__title">Your text templates,<br><span class="mf-mark">one keystroke</span> away</h1>
+      <p class="mf-hero__lead">Keep replies, snippets, signatures and code in one place, and paste them into any Windows app, formatted to fit.</p>
+      <div class="mf-hero__actions">
         <ms-store-badge productid="9nmbszllln6v" productname="TextTemplateManager" window-mode="direct" theme="dark"
           size="large" language="en-us" animation="on">
           <!-- HTML-only badge from microsoft/app-store-badge, shown only when the badge script doesn't run -->
@@ -15,7 +15,7 @@
             <img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200" alt="Get it from Microsoft">
           </a>
         </ms-store-badge>
-        <a class="md-button ttm-ghost" href="{{ 'manual/' | url }}">Read the manual</a>
+        <a class="md-button mf-ghost" href="{{ 'manual/' | url }}">Read the manual</a>
       </div>
     </div>
   </section>

@@ -6,50 +6,50 @@ hide:
   - toc
 ---
 
-<div class="ttm-features" markdown>
+<div class="mf-features" markdown>
 
-<div class="ttm-feature" markdown>
-:material-keyboard-outline:{ .ttm-icon }
+<div class="mf-feature" markdown>
+:material-keyboard-outline:{ .mf-icon }
 
 ### Quick Paste
 
 Press the hotkey wherever you type, then a template's key: the text is pasted where you were, formatted for the app you paste into.
 </div>
 
-<div class="ttm-feature" markdown>
-:material-format-text-variant-outline:{ .ttm-icon }
+<div class="mf-feature" markdown>
+:material-format-text-variant-outline:{ .mf-icon }
 
 ### Rich templates
 
 Headings, lists, tables, colors, code blocks and callout panels. Paste as HTML, Jira, RTF, Markdown or plain text.
 </div>
 
-<div class="ttm-feature" markdown>
-:material-account-group-outline:{ .ttm-icon }
+<div class="mf-feature" markdown>
+:material-account-group-outline:{ .mf-icon }
 
 ### Built for teams
 
 Share templates through a file in OneDrive or on a network share. Each shared file is a pinned folder, read-only if you like.
 </div>
 
-<div class="ttm-feature" markdown>
-:material-shield-check-outline:{ .ttm-icon }
+<div class="mf-feature" markdown>
+:material-shield-check-outline:{ .mf-icon }
 
 ### Safe with your data
 
 Automatic backups in your Documents folder. Everything stays on your PC and in the shared files you choose.
 </div>
 
-<div class="ttm-feature" markdown>
-:material-magnify:{ .ttm-icon }
+<div class="mf-feature" markdown>
+:material-magnify:{ .mf-icon }
 
 ### Find anything
 
 Search by title, tags or text as you type, fuzzy or exact. Folders with drag and drop.
 </div>
 
-<div class="ttm-feature" markdown>
-:material-web:{ .ttm-icon }
+<div class="mf-feature" markdown>
+:material-web:{ .mf-icon }
 
 ### In your browser
 
@@ -60,7 +60,7 @@ The TTM-Connect extension lists, pastes and creates templates from Chrome, Edge 
 
 ## See it in action
 
-<div class="ttm-gallery" markdown>
+<div class="mf-gallery" markdown>
 
 [![The main window with folders and the template editor](images/store/01-main-slate.png)](images/store/01-main-slate.png)
 [![Quick Paste over any app](images/store/02-quick-paste-slate.png)](images/store/02-quick-paste-slate.png)
@@ -71,7 +71,7 @@ The TTM-Connect extension lists, pastes and creates templates from Chrome, Edge 
 
 ## Documentation
 
-<div class="ttm-docs" markdown>
+<div class="mf-docs mf-docs--2" markdown>
 
 [:material-book-open-variant: **User manual**<br><span>Templates, Quick Paste, sync, backups, settings and updates. Also in the app under Help ▸ Open Manual.</span>](manual.md)
 
