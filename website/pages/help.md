@@ -21,6 +21,7 @@ New versions take up to a few hours after their release to reach every PC. If it
 1. Quit the app completely: tray icon ▸ **Exit App**, or **File ▸ Exit** (closing the window only hides it).
 2. Start TextTemplateManager again from the Start menu. A downloaded update is installed at this start, and the window opens with what's new.
 3. If **Help ▸ About** still shows the old version, open **Library** in the Microsoft Store app and click **Update** next to TextTemplateManager, then start the app again.
+4. If the update still fails, [reinstall the app](#reinstalling-the-app).
 
 More in the manual under [Updates](manual.md#updates).
 
@@ -46,7 +47,34 @@ On the old PC, **Settings ▸ Backups ▸ Export backup…** saves everything (t
 
 ### Resetting or removing the app
 
-Windows **Settings ▸ Apps ▸ Installed apps ▸ TextTemplateManager ▸ …**: **Advanced options ▸ Reset** starts the app as on the first day, **Uninstall** removes it. Both delete the app's data folder but keep the backups in `Documents\TextTemplateManager\Backups`. Details in the manual under [Resetting or removing the app](manual.md#resetting-or-removing-the-app).
+Windows **Settings ▸ Apps ▸ Installed apps ▸ TextTemplateManager ▸ …**: **Advanced options ▸ Repair** fixes the app's files and keeps your data, **Advanced options ▸ Reset** starts the app as on the first day, **Uninstall** removes it. Reset and Uninstall delete the app's data folder but keep the backups in `Documents\TextTemplateManager\Backups`. Details in the manual under [Resetting or removing the app](manual.md#resetting-or-removing-the-app).
+
+### Reinstalling the app
+
+If Repair and Reset don't help, for example the app doesn't start or an update keeps failing, remove it completely and install it again:
+
+1. If the app still starts, save your templates with **Settings ▸ Backups ▸ Export backup…**. If it doesn't, the automatic backups in `Documents\TextTemplateManager\Backups` stay on the PC.
+2. Quit the app (tray icon ▸ **Exit App**) and uninstall it: **Settings ▸ Apps ▸ Installed apps ▸ TextTemplateManager ▸ … ▸ Uninstall**.
+3. If it was installed for every user of the PC (often on company PCs), also remove that copy, see [Removing the app completely](#removing-the-app-completely).
+4. Restart Windows.
+5. Install TextTemplateManager again from the [Microsoft Store](https://apps.microsoft.com/detail/9NMBSZLLLN6V) and start it. The first start offers to restore a backup.
+
+### Removing the app completely
+
+With PowerShell, for your own user account (no administrator rights needed):
+
+```powershell
+Get-AppxPackage MarflowSoftware.TextTemplateManager | Remove-AppxPackage
+```
+
+For every user of the PC, including the copy Windows keeps (provisions) to install for new users, in a PowerShell window opened with **Run as administrator**:
+
+```powershell
+Get-AppxPackage -AllUsers MarflowSoftware.TextTemplateManager | Remove-AppxPackage -AllUsers
+Get-AppxProvisionedPackage -Online | Where-Object DisplayName -eq 'MarflowSoftware.TextTemplateManager' | Remove-AppxProvisionedPackage -Online
+```
+
+The second command lists nothing and removes nothing if the app was never provisioned; that's fine. On a company PC, ask your IT first: if they deploy the app (for example with Intune), it may come back by itself. Backups in `Documents\TextTemplateManager\Backups` and shared sync files stay; delete them by hand if you no longer need them.
 
 ## Reporting a problem
 

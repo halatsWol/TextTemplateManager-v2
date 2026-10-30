@@ -99,6 +99,7 @@ To bring a machine up to date by hand (in-app updates off by policy, or a switch
 1. Quit the app completely: tray icon ▸ **Exit App**, or **File ▸ Exit** (closing the window only hides it).
 2. Start TextTemplateManager again from the Start menu. If the update was already downloaded and a switch had failed, it's installed now.
 3. If **Help ▸ About** still shows the old version, quit the app again, run `winget upgrade --id 9NMBSZLLLN6V --source msstore` or click **Update** in the Store app (**Library**, or the app's Store page), then start the app again.
+4. If it still fails, do a clean reinstall (see *Reset and removal*).
 
 With Intune, an assigned *Microsoft Store app (new)* is brought up to date by Intune's own schedule, under the same rule: the switch happens while the app isn't running.
 
@@ -194,6 +195,8 @@ As an administrator, for every user of the machine (and, if the package was prov
 
     Get-AppxPackage -AllUsers MarflowSoftware.TextTemplateManager | Remove-AppxPackage -AllUsers
     Get-AppxProvisionedPackage -Online | Where-Object DisplayName -eq 'MarflowSoftware.TextTemplateManager' | Remove-AppxProvisionedPackage -Online
+
+For a clean reinstall when Repair and Reset don't help (the app doesn't start, or an update keeps failing on the machine): quit the app in every session, run both administrator commands, restart, then install it again through the Store, winget or Intune (see *Deployment*). The provisioned copy is what keeps an old or broken version around for new profiles, so remove it too. With Intune, unassign the app (or assign *Uninstall*) first, or Intune installs it again on its own schedule. The first start of the new install offers to restore a backup.
 
 None of these remove the backups (`Documents\TextTemplateManager\Backups`) or shared sync files; delete them by hand if they are no longer needed. Version 1's data folder is never touched by version 2.
 

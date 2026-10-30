@@ -511,6 +511,7 @@ If an update can't be installed (the notice says so), or to update by hand:
 1. Quit the app completely: tray icon ▸ **Exit App**, or **File ▸ Exit** (closing the window only hides it).
 2. Start TextTemplateManager again from the Start menu. If Windows has already downloaded the update, it's installed now, and the window opens with what's new.
 3. If **Help ▸ About** still shows the old version, the update hasn't been downloaded yet: quit the app again, open **Library** in the Store app and click **Update** next to TextTemplateManager (**Get updates** only looks for updates; the update itself starts with **Update**), then start the app again.
+4. If the update still fails, reinstall the app (see *Resetting or removing the app*).
 
 After an update, the first time the window opens it shows what's new in that version, once (see *What's new*).
 
@@ -573,7 +574,25 @@ In Windows **Settings ▸ Apps ▸ Installed apps**, open the **…** menu next 
 - **Advanced options ▸ Reset** deletes the app's data (templates, settings, sync settings) and starts it as on the first day; **Repair** keeps the data and only fixes the app's files. After a reset, the first start offers to restore a backup.
 - **Uninstall** removes the app together with its data folder.
 
-Neither touches the backups in `Documents\TextTemplateManager\Backups` or your shared sync files; delete those by hand if you no longer need them.
+If Repair and Reset don't help (the app doesn't start, or an update keeps failing), reinstall it:
+
+1. If the app still starts, save your templates with **Settings ▸ Backups ▸ Export backup…**; otherwise the automatic backups stay on the PC.
+2. Quit the app (tray icon ▸ **Exit App**) and **Uninstall** it as above.
+3. If it was installed for every user of the PC, remove that copy as well (see below).
+4. Restart Windows, install TextTemplateManager again from the Microsoft Store and start it. The first start offers to restore a backup.
+
+To remove the app completely with PowerShell, for your own user account:
+
+    Get-AppxPackage MarflowSoftware.TextTemplateManager | Remove-AppxPackage
+
+For every user of the PC, including the copy Windows keeps (provisions) for new users, in a PowerShell window opened with **Run as administrator**:
+
+    Get-AppxPackage -AllUsers MarflowSoftware.TextTemplateManager | Remove-AppxPackage -AllUsers
+    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -eq 'MarflowSoftware.TextTemplateManager' | Remove-AppxProvisionedPackage -Online
+
+On a company PC, ask your IT first; if they deploy the app, it may come back by itself.
+
+None of this touches the backups in `Documents\TextTemplateManager\Backups` or your shared sync files; delete those by hand if you no longer need them.
 
 ---
 
