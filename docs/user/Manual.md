@@ -312,9 +312,9 @@ If TextTemplateManager 1 was set up on this PC, both switches take over its choi
 
 - **Hide cross-area shortcut warnings** — suppress the dismissible note shown when the same shortcut is used in more than one area (local and synchronized folders). Off by default; blocking same-area conflicts are always shown. See *Keyboard shortcuts and conflicts*.
 
-![Settings ▸ General: the Quick Paste shortcut, the default paste mode for new templates, startup, Autosave and the start of Updates.](../../src/TextTemplateManager/Assets/ManualImages/TTM_GeneralSettings1.png)
+![Settings ▸ General: the app language, the Quick Paste shortcut, the default paste mode for new templates, startup and the start of Editing.](../../src/TextTemplateManager/Assets/ManualImages/TTM_GeneralSettings1.png)
 
-![Settings ▸ General, scrolled down: Updates with the version, what the updater is doing, Check for updates, the switches for automatic updates and idle install, then Other.](../../src/TextTemplateManager/Assets/ManualImages/TTM_GeneralSettings2.png)
+![Settings ▸ General, scrolled down: Autosave, Updates with the version, what the updater is doing, Check for updates, the switches for automatic updates and idle install, then Other.](../../src/TextTemplateManager/Assets/ManualImages/TTM_GeneralSettings2.png)
 
 ### Integrations
 
@@ -420,7 +420,7 @@ is already running.)
 
 Here you download the languages for the editor's **Translate** button (see *Translating a template*). They are the Firefox Translations language models from Mozilla, downloaded from Mozilla's servers; the translation itself runs on this PC, and translating works without an internet connection once a language is installed. The page is marked experimental, with a reminder to check every translation.
 
-![Settings ▸ Translation with German installed and the other languages from Mozilla's list.](../../src/TextTemplateManager/Assets/ManualImages/TTM_Settings_Translation.png)
+![Settings ▸ Translation: the daily check for newer language versions, German installed and up to date, and the other languages from Mozilla's list.](../../src/TextTemplateManager/Assets/ManualImages/TTM_Settings_Translation.png)
 
 Each row is a language with its download size and the space it takes on disk, or **Installed** and the space it uses. **Download** installs it, in both directions (to and from English) where Mozilla offers both; a few languages exist in one direction only, which the row says. While it downloads, **Cancel** stops it, and the download keeps running if you leave Settings. Quitting the app while a language downloads asks first: **Wait, then exit** finishes the download and shows how far it is (that dialog can still stop it), **Stop and exit** stops it, **Cancel** keeps the app running. Every installed language has **Update**, which you can click when Mozilla has published a newer version (the row then says **update available**, otherwise **up to date**), and **Remove** deletes a language. **Search languages** filters the list. Every downloaded file is checked against Mozilla's checksums before it's used.
 
