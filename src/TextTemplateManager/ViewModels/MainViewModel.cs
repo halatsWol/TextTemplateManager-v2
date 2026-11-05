@@ -464,17 +464,7 @@ public partial class MainViewModel : ObservableObject
         var siblings = parent?.Children ?? AllItems;
         string cloneTitle = ItemTitles.Unique(Loc.Format("Main_CopyTitle", SelectedItem.Title), siblings);
 
-        BaseItem clone = SelectedItem is Template t
-            ? new Template
-            {
-                Title = cloneTitle,
-                Content = t.Content,
-                TagsCsv = t.TagsCsv,
-                DefaultPasteMode = t.DefaultPasteMode,
-                SingleKeyShortcut = t.SingleKeyShortcut,
-                MultiKeyShortcut = t.MultiKeyShortcut,
-            }
-            : new Folder { Title = cloneTitle };
+        BaseItem clone = SelectedItem.DuplicateAs(cloneTitle);
 
         await _dataNode.AddItemAsync(clone, parent);
 
@@ -492,14 +482,7 @@ public partial class MainViewModel : ObservableObject
 
         Folder? parent = _dataNode.IsItemReadOnly(original) ? null : AllItems.ParentOf(original) as Folder;
         var siblings = parent?.Children ?? AllItems;
-        var copy = new Template
-        {
-            Title = ItemTitles.Unique(TranslatedCopy.Title(original.Title, from, to), siblings),
-            Content = html,
-            TagsCsv = original.TagsCsv,
-            DefaultPasteMode = original.DefaultPasteMode,
-            MultiKeyShortcut = TranslatedCopy.MultiKey(original.MultiKeyShortcut, original.Title, from, to),
-        };
+        var copy = TranslatedCopy.Of(original, ItemTitles.Unique(TranslatedCopy.Title(original.Title, from, to), siblings), html, from, to);
 
         await _dataNode.AddItemAsync(copy, parent);
 

@@ -34,6 +34,24 @@ namespace TextTemplateManager.Models
         [JsonExtensionData]
         public Dictionary<string, JsonElement>? UnknownFields { get; set; }
 
+        /// <summary>A new item with this one's content under <paramref name="title"/>, without children.</summary>
+        public BaseItem DuplicateAs(string title)
+        {
+            BaseItem copy = this is Template t
+                ? new Template
+                {
+                    Title = title,
+                    Content = t.Content,
+                    TagsCsv = t.TagsCsv,
+                    DefaultPasteMode = t.DefaultPasteMode,
+                    SingleKeyShortcut = t.SingleKeyShortcut,
+                    MultiKeyShortcut = t.MultiKeyShortcut,
+                }
+                : new Folder { Title = title };
+            if (UnknownFields != null) copy.UnknownFields = new(UnknownFields);
+            return copy;
+        }
+
         // Screen readers name Quick Paste's tree rows by it (their content is the item itself).
         public override string ToString() => Title;
 

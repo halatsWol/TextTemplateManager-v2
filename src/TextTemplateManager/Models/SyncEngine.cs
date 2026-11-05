@@ -27,6 +27,7 @@ namespace TextTemplateManager.Models
             // and writes it back on load, so a read-only open re-serializes differently and churns
             // the shared file — which makes OneDrive spawn conflict copies across devices.
             target.LastChange = fileRoot.LastChange;
+            target.UnknownFields = fileRoot.UnknownFields;
 
             SyncChildren(target.Children, merged);
         }
@@ -66,6 +67,7 @@ namespace TextTemplateManager.Models
         {
             to.Title = from.Title;
             to.LastChange = from.LastChange;
+            to.UnknownFields = from.UnknownFields;
             if (from is Template ft && to is Template tt)
             {
                 tt.Content = ft.Content;

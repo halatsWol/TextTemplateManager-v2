@@ -72,6 +72,7 @@ public class DataNode
                 // Keep persisted root metadata so an unchanged tree re-saves identically.
                 RootFolder.Id = loadedRoot.Id;
                 RootFolder.LastChange = loadedRoot.LastChange;
+                RootFolder.UnknownFields = loadedRoot.UnknownFields;
 
                 RootFolder.Children.Clear();
                 foreach (var item in loadedRoot.Children)
@@ -203,6 +204,7 @@ public class DataNode
                 current.SingleKeyShortcut = imported.SingleKeyShortcut;
                 current.MultiKeyShortcut = imported.MultiKeyShortcut;
                 current.LastChange = imported.LastChange;
+                current.UnknownFields = imported.UnknownFields;
             }
             else
             {
@@ -231,7 +233,7 @@ public class DataNode
 
     /// <summary>Export a folder's subtree to a standalone file (the folder becomes the root).</summary>
     public Task ExportFolderAsync(string path, Folder folder) =>
-        ExportAsync(path, new Folder { Id = folder.Id, Title = folder.Title, LastChange = folder.LastChange }, folder.Children);
+        ExportAsync(path, new Folder { Id = folder.Id, Title = folder.Title, LastChange = folder.LastChange, UnknownFields = folder.UnknownFields }, folder.Children);
 
     /// <summary>Export templates and folders into one file, under a plain root, as <see cref="ExportTree"/> lays
     /// them out.</summary>
@@ -270,7 +272,7 @@ public class DataNode
             {
                 if (!copies.TryGetValue(folder, out var copy))
                 {
-                    copy = new Folder { Id = folder.Id, Title = folder.Title, LastChange = folder.LastChange };
+                    copy = new Folder { Id = folder.Id, Title = folder.Title, LastChange = folder.LastChange, UnknownFields = folder.UnknownFields };
                     copies[folder] = copy;
                     into.Add(copy);
                 }
@@ -765,6 +767,7 @@ public class DataNode
             // Fixed root title so the shared file doesn't churn with each PC's local name.
             Title = "Root",
             LastChange = syncFolder.LastChange,
+            UnknownFields = syncFolder.UnknownFields,
         };
         foreach (var child in syncFolder.Children)
             root.Children.Add(ToFileItem(child, root.Id));
@@ -791,6 +794,7 @@ public class DataNode
         fileItem.Id = fileId;
         fileItem.ParentId = parentSyncId;
         fileItem.LastChange = appItem.LastChange;
+        fileItem.UnknownFields = appItem.UnknownFields;
         foreach (var c in appItem.Children)
             fileItem.Children.Add(ToFileItem(c, fileId));
         return fileItem;

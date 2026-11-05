@@ -16,6 +16,17 @@ public static class TranslatedCopy
         _ => code.ToUpperInvariant(),
     };
 
+    /// <summary>The copy, without the single-key shortcut. A newer version's fields stay behind: they may describe
+    /// the original's language, which this content no longer is in.</summary>
+    public static Template Of(Template original, string title, string html, string from, string to) => new()
+    {
+        Title = title,
+        Content = html,
+        TagsCsv = original.TagsCsv,
+        DefaultPasteMode = original.DefaultPasteMode,
+        MultiKeyShortcut = MultiKey(original.MultiKeyShortcut, original.Title, from, to),
+    };
+
     public static string Title(string title, string from, string to) =>
         $"{WithoutTag(title.TrimEnd(), from, out _)} ({Tag(to)})";
 

@@ -337,6 +337,7 @@ public sealed class RestoreService
                 current.SingleKeyShortcut = restored.SingleKeyShortcut;
                 current.MultiKeyShortcut = restored.MultiKeyShortcut;
                 current.LastChange = restored.LastChange;
+                current.UnknownFields = restored.UnknownFields;
             }
             else
             {
@@ -470,7 +471,7 @@ public sealed class RestoreService
 
         var localSource = takeLocal ? fromBackup : current;
         var syncedSource = takeLocal ? current : fromBackup;
-        var mixed = new Models.Folder { Id = localSource.Id, Title = localSource.Title, LastChange = localSource.LastChange };
+        var mixed = new Models.Folder { Id = localSource.Id, Title = localSource.Title, LastChange = localSource.LastChange, UnknownFields = localSource.UnknownFields };
         foreach (var synced in syncedSource.Children.Where(c => c is Models.Folder && c.SyncId != null)) mixed.Children.Add(synced);
         foreach (var item in localSource.Children.Where(c => !(c is Models.Folder && c.SyncId != null))) mixed.Children.Add(item);
         return StorageService.SerializeTree(mixed);
