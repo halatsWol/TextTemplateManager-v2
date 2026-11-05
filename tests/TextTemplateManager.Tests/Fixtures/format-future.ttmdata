@@ -1,0 +1,76 @@
+{
+  "Id": "00000000-0000-0000-0000-000000000000",
+  "ItemType": 0,
+  "LastChange": "20260101120000",
+  "Children": [
+    {
+      "$type": "folder",
+      "Id": "11111111-1111-1111-1111-111111111111",
+      "ParentId": "00000000-0000-0000-0000-000000000000",
+      "ItemType": 0,
+      "LastChange": "20260101120001",
+      "Children": [
+        {
+          "$type": "template",
+          "Content": "<p>Hello</p>",
+          "SingleKeyShortcut": "",
+          "MultiKeyShortcut": "",
+          "TagsCsv": "",
+          "DefaultPasteMode": 4,
+          "HasSingleKeyConflict": false,
+          "HasMultiKeyConflict": false,
+          "Id": "22222222-2222-2222-2222-222222222222",
+          "ParentId": "11111111-1111-1111-1111-111111111111",
+          "ItemType": 1,
+          "LastChange": "20260101120002",
+          "Children": [],
+          "Title": "Greeting",
+          "FutureLanguage": "de",
+          "FutureLanguageId": "a1b2",
+          "FutureAltLanguages": [
+            {
+              "Id": "c3d4",
+              "Language": "en",
+              "Content": "<p>Hello <b>\"world\"</b> & äöü € \uD83D\uDE42\r\n\ttab \\ back</p>",
+              "Nested": {
+                "Empty": {},
+                "EmptyList": [],
+                "Nothing": null
+              }
+            }
+          ],
+          "FutureNumbers": [
+            1,
+            1.0,
+            1.50,
+            1e3,
+            -0,
+            12345678901234567890123,
+            0.1000000000000000055511151231257827
+          ],
+          "FutureFlag": true
+        }
+      ],
+      "Title": "Folder",
+      "FutureFolderColor": 12
+    },
+    {
+      "$type": "template",
+      "Content": "",
+      "SingleKeyShortcut": "",
+      "MultiKeyShortcut": "",
+      "TagsCsv": "",
+      "DefaultPasteMode": 99,
+      "HasSingleKeyConflict": false,
+      "HasMultiKeyConflict": false,
+      "Id": "33333333-3333-3333-3333-333333333333",
+      "ParentId": "00000000-0000-0000-0000-000000000000",
+      "ItemType": 1,
+      "LastChange": "20260101120003",
+      "Children": [],
+      "Title": "Plain"
+    }
+  ],
+  "Title": "Root",
+  "FutureFormat": 3
+}

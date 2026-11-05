@@ -117,6 +117,20 @@ public class FileFormatTests
     }
 
     [Fact]
+    public async Task File_from_a_newer_version_round_trips_to_the_same_bytes()
+    {
+        string path = Path.Combine(TestEnvironment.NewScratchDir(), "a.ttmdata");
+        string fixture = await File.ReadAllTextAsync(Fixture("format-future.ttmdata"));
+
+        await _storage.SaveAsync(path, (await StorageService.LoadRootAsync(Fixture("format-future.ttmdata")))!);
+        Assert.Equal(fixture, await File.ReadAllTextAsync(path));
+
+        // Sync files are read through the stream path.
+        await _storage.SaveSharedAsync(path, (await StorageService.LoadRootSharedAsync(Fixture("format-future.ttmdata")))!);
+        Assert.Equal(fixture, await File.ReadAllTextAsync(path));
+    }
+
+    [Fact]
     public async Task Settings_files_round_trip_to_the_same_bytes()
     {
         File.Copy(Fixture("format-settings.ttmsettings"), _storage.GetSettingsPath());

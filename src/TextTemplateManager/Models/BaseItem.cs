@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using TextTemplateManager.Common;
 
@@ -26,6 +28,11 @@ namespace TextTemplateManager.Models
         public string LastChange { get; set; } = DateTime.Now.ToString("yyyyMMddHHmmss");
 
         public ObservableCollection<BaseItem> Children { get; set; } = new();
+
+        /// <summary>Fields of a newer version's file. Written back behind Title, where that version puts them
+        /// (see the data format page), so the file stays byte-identical. Null when there are none.</summary>
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement>? UnknownFields { get; set; }
 
         // Screen readers name Quick Paste's tree rows by it (their content is the item itself).
         public override string ToString() => Title;
