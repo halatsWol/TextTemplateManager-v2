@@ -1,4 +1,5 @@
 using TextTemplateManager.Common;
+using TextTemplateManager.Data;
 using TextTemplateManager.Models;
 using Xunit;
 
@@ -229,6 +230,99 @@ public class SyncEngineTests
 
         var group = Assert.IsType<Folder>(Assert.Single(target.Children));
         Assert.Equal("Mover", Assert.Single(group.Children).Title);
+    }
+
+    // ---- the same id more than once in a file ----
+
+    private static Folder FileWithTwins(Guid id) =>
+        FileRoot(FileTemplate(id, "One", "<p>1</p>", Older), FileTemplate(id, "Two", "<p>2</p>", Older));
+
+    [Fact]
+    public void Two_items_with_one_id_stay_two_items_through_every_merge()
+    {
+        var target = new Folder();
+        var id = Guid.NewGuid();
+
+        SyncEngine.Merge(target, FileWithTwins(id), "S", Guid.NewGuid(), allowSave: true);
+        var (one, two) = (target.Children[0], target.Children[1]);
+        SyncEngine.Merge(target, FileWithTwins(id), "S", Guid.NewGuid(), allowSave: true);
+        SyncEngine.Merge(target, FileWithTwins(id), "S", Guid.NewGuid(), allowSave: true);
+
+        Assert.Equal(2, target.Children.Count);
+        Assert.Same(one, target.Children[0]);
+        Assert.Same(two, target.Children[1]);
+        Assert.Equal("One", one.Title);
+        Assert.Equal("Two", two.Title);
+    }
+
+    [Fact]
+    public void A_newer_local_edit_of_a_twin_stays_on_that_twin()
+    {
+        var target = new Folder();
+        var id = Guid.NewGuid();
+        SyncEngine.Merge(target, FileWithTwins(id), "S", Guid.NewGuid(), allowSave: true);
+
+        var two = (Template)target.Children[1];
+        two.Content = "<p>edited</p>";
+        two.LastChange = Newer;
+        SyncEngine.Merge(target, FileWithTwins(id), "S", Guid.NewGuid(), allowSave: true);
+
+        Assert.Equal("<p>1</p>", ((Template)target.Children[0]).Content);
+        Assert.Equal("<p>edited</p>", two.Content);
+    }
+
+    [Fact]
+    public void One_id_in_two_folders_is_two_items()
+    {
+        var target = new Folder();
+        var id = Guid.NewGuid();
+        var (a, b) = (Guid.NewGuid(), Guid.NewGuid());
+        Folder File() => FileRoot(
+            new Folder { Id = a, Title = "A", Children = { FileTemplate(id, "One", "<p>1</p>", Older) } },
+            new Folder { Id = b, Title = "B", Children = { FileTemplate(id, "Two", "<p>2</p>", Older) } });
+
+        SyncEngine.Merge(target, File(), "S", Guid.NewGuid(), allowSave: true);
+        SyncEngine.Merge(target, File(), "S", Guid.NewGuid(), allowSave: true);
+
+        Assert.NotSame(target.Children[0].Children[0], target.Children[1].Children[0]);
+        Assert.Equal("One", target.Children[0].Children[0].Title);
+        Assert.Equal("Two", target.Children[1].Children[0].Title);
+    }
+
+    [Fact]
+    public void An_item_with_its_parents_id_doesnt_become_its_own_child()
+    {
+        var target = new Folder();
+        var id = Guid.NewGuid();
+        Folder File() => FileRoot(new Folder { Id = id, Title = "Parent", Children = { FileTemplate(id, "Child", "<p>c</p>", Older) } });
+
+        SyncEngine.Merge(target, File(), "S", Guid.NewGuid(), allowSave: true);
+        SyncEngine.Merge(target, File(), "S", Guid.NewGuid(), allowSave: true);
+
+        var parent = Assert.Single(target.Children);
+        var child = Assert.Single(parent.Children);
+        Assert.NotSame(parent, child);
+        Assert.Equal(2, target.Children.SelectMany(c => c.SelfAndDescendants()).Count());
+    }
+
+    [Fact]
+    public async Task A_sync_file_with_twins_opens_again_and_stays_as_it_is()
+    {
+        var storage = new StorageService(TestEnvironment.NewScratchDir());
+        string shared = Path.Combine(TestEnvironment.NewScratchDir(), "team.ttmdata");
+        var id = Guid.NewGuid();
+        await storage.SaveSharedAsync(shared, FileWithTwins(id));
+        await storage.SaveSyncSettingsAsync(new SyncSettings { Sources = { new SyncSource { Name = "Team", Path = shared, IsActive = true, AllowSave = true } } });
+        var first = new DataNode(storage);
+        await first.InitializeAsync();
+        string written = File.ReadAllText(shared);
+
+        var second = new DataNode(storage);
+        await second.InitializeAsync();
+        await second.SaveDataAsync();
+
+        Assert.Equal(new[] { "One", "Two" }, second.LocalItems[0].Children.Select(c => c.Title));
+        Assert.Equal(written, File.ReadAllText(shared));
     }
 
     [Fact]

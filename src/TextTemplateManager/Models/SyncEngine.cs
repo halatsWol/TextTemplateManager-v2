@@ -13,9 +13,15 @@ namespace TextTemplateManager.Models
     {
         public static void Merge(Folder target, Folder fileRoot, string name, Guid sourceId, bool allowSave)
         {
-            var cache = new Dictionary<Guid, BaseItem>();
+            // A queue per id: a file can hold an id twice (hand edits, merged conflict copies), and one object in two
+            // places breaks the tree. Each occurrence takes its own cached item, in tree order.
+            var cache = new Dictionary<Guid, Queue<BaseItem>>();
             foreach (var item in target.Children.Descendants())
-                if (item.SyncId is Guid sid) cache[sid] = item;
+                if (item.SyncId is Guid sid)
+                {
+                    if (!cache.TryGetValue(sid, out var items)) cache[sid] = items = new Queue<BaseItem>();
+                    items.Enqueue(item);
+                }
 
             var merged = fileRoot.Children.Select(fc => BuildMerged(fc, cache, allowSave)).ToList();
 
@@ -32,9 +38,10 @@ namespace TextTemplateManager.Models
             SyncChildren(target.Children, merged);
         }
 
-        private static BaseItem BuildMerged(BaseItem fileItem, Dictionary<Guid, BaseItem> cache, bool allowSave)
+        private static BaseItem BuildMerged(BaseItem fileItem, Dictionary<Guid, Queue<BaseItem>> cache, bool allowSave)
         {
-            cache.TryGetValue(fileItem.Id, out var cached);
+            BaseItem? cached = null;
+            if (cache.TryGetValue(fileItem.Id, out var items)) items.TryDequeue(out cached);
 
             // The cached (app) copy wins only if saving is allowed AND it is strictly newer.
             bool cacheWins = allowSave && cached != null &&
