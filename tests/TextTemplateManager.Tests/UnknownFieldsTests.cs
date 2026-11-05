@@ -314,6 +314,146 @@ public class UnknownFieldsTests
         Assert.Equal(expected, Value((await StorageService.LoadRootAsync(storage.GetDataPath()))!));
     }
 
+    // ---- fields that can't be kept ----
+
+    private const string Surrogate = "\"a\\uD800b\"";
+
+    private static string Nested(int depth) => new string('[', depth) + new string(']', depth);
+
+    // The fixture with raw values for a template field and a root field.
+    private static string FileWith(string templateField, string rootField) => File.ReadAllText(FutureFixture())
+        .Replace("\"FutureFlag\": true", templateField)
+        .Replace("\"FutureFormat\": 3", rootField);
+
+    private static string NewFile(string text)
+    {
+        string path = Path.Combine(TestEnvironment.NewScratchDir(), "f.ttmdata");
+        File.WriteAllText(path, text);
+        return path;
+    }
+
+    private static Template Greeting(Folder root) => root.SelfAndDescendants().OfType<Template>().First(t => t.Title == "Greeting");
+
+    public static TheoryData<string> Unwritable => new() { Surrogate, Nested(40) };
+
+    [Theory]
+    [MemberData(nameof(Unwritable))]
+    public async Task A_value_that_cant_be_written_is_dropped_on_every_load_path(string value)
+    {
+        string text = FileWith($"\"Bad\": {value}", $"\"Bad\": {value}");
+        string path = NewFile(text);
+
+        foreach (var tree in new[]
+        {
+            (await StorageService.LoadRootAsync(path))!,
+            (await StorageService.LoadRootSharedAsync(path))!,
+            StorageService.ParseTree(System.Text.Encoding.UTF8.GetBytes(text))!,
+        })
+        {
+            Assert.False(tree.UnknownFields?.ContainsKey("Bad") ?? false);
+            var greeting = Greeting(tree);
+            Assert.False(greeting.UnknownFields!.ContainsKey("Bad"));
+            Assert.True(greeting.UnknownFields.ContainsKey("FutureLanguage"));   // the others stay
+            StorageService.SerializeTree(tree);   // doesn't throw
+        }
+    }
+
+    [Fact]
+    public async Task A_value_nested_within_the_limit_stays()
+    {
+        var tree = await StorageService.LoadRootAsync(NewFile(FileWith($"\"Deep\": {Nested(32)}", "\"Other\": 1")));
+
+        Assert.True(Greeting(tree!).UnknownFields!.ContainsKey("Deep"));
+    }
+
+    [Fact]
+    public async Task An_item_left_without_fields_has_none()
+    {
+        string text = File.ReadAllText(FutureFixture()).Replace(",\r\n  \"FutureFormat\": 3", $",\r\n  \"Bad\": {Surrogate}");
+
+        Assert.Null((await StorageService.LoadRootAsync(NewFile(text)))!.UnknownFields);
+    }
+
+    [Theory]
+    [InlineData("$custom")]
+    [InlineData("$id")]
+    [InlineData("$ref")]
+    [InlineData("$type")]
+    [InlineData("$values")]
+    public async Task A_dollar_name_on_a_root_is_dropped(string name)
+    {
+        string value = name == "$values" ? "[]" : "\"1\"";
+        var tree = await StorageService.LoadRootSharedAsync(NewFile(FileWith("\"Other\": 1", $"\"{name}\": {value},\r\n  \"Kept\": 1")));
+
+        Assert.Equal(new[] { "Kept" }, tree!.UnknownFields!.Keys);
+    }
+
+    private static async Task<(StorageService storage, string shared)> SeedLocalAndSyncFileAsync(string syncFile)
+    {
+        var storage = new StorageService(TestEnvironment.NewScratchDir());
+        string shared = NewFile(syncFile);
+        await storage.SaveAsync(storage.GetDataPath(), new Folder { Id = Guid.Empty, Title = "Root", Children = { T("Mine") } });
+        await storage.SaveSyncSettingsAsync(new SyncSettings { Sources = { new SyncSource { Name = "Team", Path = shared, IsActive = true, AllowSave = true } } });
+        return (storage, shared);
+    }
+
+    [Theory]
+    [MemberData(nameof(Unwritable))]
+    public async Task A_sync_file_with_such_a_value_doesnt_stop_the_app(string value)
+    {
+        var (storage, shared) = await SeedLocalAndSyncFileAsync(FileWith($"\"Bad\": {value}", $"\"Bad\": {value}"));
+
+        var node = new DataNode(storage);
+        await node.InitializeAsync();
+        ((Template)Find(node, "Mine")).Content = "<p>edited</p>";
+        await node.FlushPendingSaveAsync();
+
+        Assert.Contains("<p>edited</p>", File.ReadAllText(storage.GetDataPath()));
+        string written = File.ReadAllText(shared);
+        Assert.DoesNotContain("\"Bad\"", written);
+        Assert.Contains("\"FutureLanguage\"", written);
+
+        var again = new DataNode(storage);
+        await again.InitializeAsync();
+        Assert.Equal(written, File.ReadAllText(shared));   // stable from here on
+    }
+
+    [Theory]
+    [InlineData("$custom")]
+    [InlineData("$id")]
+    public async Task A_sync_files_dollar_root_field_doesnt_cost_the_local_data(string name)
+    {
+        var (storage, _) = await SeedLocalAndSyncFileAsync(FileWith("\"Other\": 1", $"\"{name}\": \"1\""));
+        var node = new DataNode(storage);
+        await node.InitializeAsync();
+        await node.SaveDataAsync();
+
+        var again = new DataNode(storage);
+        await again.InitializeAsync();
+
+        Assert.Empty(storage.TakeUnreadableFiles());
+        Assert.Equal("Mine", Find(again, "Mine").Title);
+    }
+
+    [Fact]
+    public async Task An_imported_folder_exports_dollar_root_field_doesnt_cost_the_local_data()
+    {
+        var storage = new StorageService(TestEnvironment.NewScratchDir());
+        var node = new DataNode(storage);
+        await node.InitializeAsync();
+        await node.AddItemAsync(T("Mine"));
+        string text = FileWith("\"Other\": 1", "\"$custom\": \"1\"")
+            .Replace("  \"Id\": \"00000000-0000-0000-0000-000000000000\",\r\n  \"ItemType\"", "  \"Id\": \"77777777-7777-7777-7777-777777777777\",\r\n  \"ItemType\"");
+
+        var root = await StorageService.LoadRootAsync(NewFile(text));
+        await node.ImportAsync(DataNode.ImportedItems(root!), null, ImportConflicts.Skip);
+
+        var again = new DataNode(storage);
+        await again.InitializeAsync();
+        Assert.Empty(storage.TakeUnreadableFiles());
+        Assert.Equal("Mine", Find(again, "Mine").Title);
+    }
+
     // ---- copies ----
 
     [Fact]

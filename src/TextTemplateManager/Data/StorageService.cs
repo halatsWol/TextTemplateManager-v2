@@ -128,7 +128,7 @@ public sealed class StorageService
 
     internal static Folder? ParseTree(byte[] content)
     {
-        try { var reader = JsonReaderFor(content); return JsonSerializer.Deserialize(ref reader, Json.Folder); }
+        try { var reader = JsonReaderFor(content); return UnknownFields.Clean(JsonSerializer.Deserialize(ref reader, Json.Folder)); }
         catch { return null; }
     }
 
@@ -245,7 +245,7 @@ public sealed class StorageService
             try
             {
                 var value = JsonSerializer.Deserialize(await File.ReadAllTextAsync(path), typeInfo);
-                if (value != null) return LegacyRtf.ConvertTree(value);
+                if (value != null) return UnknownFields.Clean(LegacyRtf.ConvertTree(value));
                 break;
             }
             catch (IOException) when (attempt < 2) { await Task.Delay(200); }   // briefly locked (antivirus, backup tool)
@@ -335,7 +335,7 @@ public sealed class StorageService
         try
         {
             string json = await File.ReadAllTextAsync(filePath);
-            return LegacyRtf.ConvertTree(JsonSerializer.Deserialize(json, Json.Folder));
+            return UnknownFields.Clean(LegacyRtf.ConvertTree(JsonSerializer.Deserialize(json, Json.Folder)));
         }
         catch (Exception ex)
         {
@@ -362,7 +362,7 @@ public sealed class StorageService
             {
                 using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read,
                     FileShare.ReadWrite | FileShare.Delete);
-                return new(LegacyRtf.ConvertTree(await JsonSerializer.DeserializeAsync(fs, Json.Folder)), false);
+                return new(UnknownFields.Clean(LegacyRtf.ConvertTree(await JsonSerializer.DeserializeAsync(fs, Json.Folder))), false);
             }
             catch (IOException) { await Task.Delay(150); }        // transient lock -> retry
             catch (Exception ex)
