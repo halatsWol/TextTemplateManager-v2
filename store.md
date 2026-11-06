@@ -1,6 +1,6 @@
 # Microsoft Store submission
 
-The Partner Center settings that don't depend on the language, to copy as they are. The Store listing, "What's new" and screenshots of each language are in that release's folder, `releases/vX.Y.Z/<language>/` (`store.md`, `screenshots/`).
+The Partner Center settings that don't depend on the language, to copy as they are. The Store listing, "What's new" and screenshots of each language are in `store-submission/<language>/` (`store.md`, `screenshots/`).
 
 ---
 

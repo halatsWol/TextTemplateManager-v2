@@ -72,7 +72,7 @@ public class TutorialTests
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir != null && !File.Exists(Path.Combine(dir.FullName, "TextTemplateManager.slnx"))) dir = dir.Parent;
         Assert.NotNull(dir);
-        var files = Directory.GetFiles(Path.Combine(dir!.FullName, "releases"), "release.md", SearchOption.AllDirectories);
+        var files = Directory.GetFiles(Path.Combine(dir!.FullName, "store-submission"), "release.md", SearchOption.AllDirectories);
         Assert.NotEmpty(files);
 
         foreach (string file in files)
@@ -85,24 +85,19 @@ public class TutorialTests
     }
 
     [Fact]
-    public void Whats_new_takes_the_notes_of_its_own_version_else_the_newest()
+    public void Whats_new_takes_the_notes_of_its_language_else_english()
     {
         string root = TestEnvironment.NewScratchDir();
-        foreach (string version in new[] { "2.9.0", "2.10.0", "2.6.0" })
+        foreach (string language in new[] { "en-US", "de-DE" })
         {
-            Directory.CreateDirectory(Path.Combine(root, "v" + version, "en-US"));
-            File.WriteAllText(Path.Combine(root, "v" + version, "en-US", "release.md"), version);
+            Directory.CreateDirectory(Path.Combine(root, language));
+            File.WriteAllText(Path.Combine(root, language, "release.md"), language);
         }
-        Directory.CreateDirectory(Path.Combine(root, "vnext", "en-US"));
 
-        Directory.CreateDirectory(Path.Combine(root, "v2.6.0", "de-DE"));
-        File.WriteAllText(Path.Combine(root, "v2.6.0", "de-DE", "release.md"), "2.6.0 de");
-
-        Assert.Equal("2.6.0", File.ReadAllText(WhatsNew.NotesFile(root, "2.6.0", "en-US")!));
-        Assert.Equal("2.6.0 de", File.ReadAllText(WhatsNew.NotesFile(root, "2.6.0", "de-DE")!));
-        Assert.Equal("2.6.0", File.ReadAllText(WhatsNew.NotesFile(root, "2.6.0", "hu-HU")!));
-        Assert.Equal("2.10.0", File.ReadAllText(WhatsNew.NotesFile(root, "0.0.0-dev", "de-DE")!));
-        Assert.Null(WhatsNew.NotesFile(Path.Combine(root, "missing"), "2.6.0", "en-US"));
+        Assert.Equal("en-US", File.ReadAllText(WhatsNew.NotesFile(root, "en-US")!));
+        Assert.Equal("de-DE", File.ReadAllText(WhatsNew.NotesFile(root, "de-DE")!));
+        Assert.Equal("en-US", File.ReadAllText(WhatsNew.NotesFile(root, "hu-HU")!));
+        Assert.Null(WhatsNew.NotesFile(Path.Combine(root, "missing"), "en-US"));
     }
 
     [Fact]
@@ -115,15 +110,13 @@ public class TutorialTests
     }
 
     [Fact]
-    public void The_newest_release_has_notes_in_every_ui_language()
+    public void The_release_has_notes_in_every_ui_language()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir != null && !File.Exists(Path.Combine(dir.FullName, "TextTemplateManager.slnx"))) dir = dir.Parent;
-        string newest = Directory.GetDirectories(Path.Combine(dir!.FullName, "releases"), "v*")
-            .OrderByDescending(d => Version.Parse(Path.GetFileName(d)[1..])).First();
 
         foreach (string language in TextTemplateManager.Helpers.UiLanguages.Available)
-            Assert.True(File.Exists(Path.Combine(newest, language, "release.md")), $"{Path.GetFileName(newest)}/{language}/release.md is missing");
+            Assert.True(File.Exists(Path.Combine(dir!.FullName, "store-submission", language, "release.md")), $"{language}/release.md is missing");
     }
 
     [Theory]

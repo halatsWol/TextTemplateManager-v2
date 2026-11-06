@@ -1,4 +1,4 @@
-# Microsoft Store texts: French (fr-FR), 2.6.1
+# Microsoft Store texts: French (fr-FR)
 
 The French Store listing and "What's new" for this release, to copy into Partner Center (listing language **French**) as they are. Same structure and limits as [`../en-US/store.md`](../en-US/store.md); the screenshots go in `screenshots/` in this folder, captions below. Translated with the help of AI, not proofread yet.
 
@@ -129,5 +129,6 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Corrigé : en tapant ttm dans la recherche du menu Démarrer, on retrouve TextTemplateManager, comme avec la version 1 ; ttm2 fonctionne aussi.
+Nouveau : les modèles et les dossiers gardent ce qu'une version plus récente de TextTemplateManager y enregistre, y compris dans les fichiers de synchronisation partagés. Veuillez mettre à jour vers cette version chaque PC qui partage un fichier de synchronisation.
+Corrigé : l'application s'ouvre de nouveau lorsqu'un fichier de synchronisation contient deux fois le même identifiant d'élément.
 ```

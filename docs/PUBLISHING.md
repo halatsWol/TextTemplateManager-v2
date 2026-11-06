@@ -6,7 +6,7 @@ How a release is published, and how to renew the Partner Center credentials the 
 
 ## How a release is published
 
-1. Create the release's folder `releases/vX.Y.Z/` with a folder per UI language (`en-US`, `de-DE`, …), starting from a copy of the previous release's. In each, `release.md` has the "What's new in this release" section with the changes since the last tag; the app shows the one of its language once after the update (English if that language has none), and the English one is the GitHub release text. `store.md` holds that language's Store listing: name, descriptions, features, search terms, "What's new" (at most 1500 characters), the screenshot captions and the texts in the screenshot images; `screenshots/` its Store screenshots (see *Store screenshots* below; a release without new ones reuses the newest earlier release's). The submission settings that don't depend on the language are in [`store.md`](../store.md) at the root.
+1. Update `store-submission/<language>/` for every UI language (`en-US`, `de-DE`, …); there is one set, for the release being made, and older ones are at their git tags. In each, `release.md` has the "What's new in this release" section with the changes since the last tag; the app shows the one of its language once after the update (English if that language has none), and the English one is the GitHub release text. `store.md` holds that language's Store listing: name, descriptions, features, search terms, "What's new" (at most 1500 characters), the screenshot captions and the texts in the screenshot images; `screenshots/` its Store screenshots (see *Store screenshots* below; they stay until new ones are made). A tag's build fails when a language's `release.md` or "What's new" hasn't changed since the previous tag, so old notes can't ship by accident. The submission settings that don't depend on the language are in [`store.md`](../store.md) at the root.
 2. Commit and push, then check that **Tests** and **CodeQL** are green for that commit under **Actions**, and that **Security** (Code scanning, Dependabot) shows no open alert you haven't looked at. A merged Dependabot npm update reaches the app only after `npm ci` and `npm run build` in `src/editor` and a commit of the rebuilt bundle.
 3. Create an **annotated** tag and push it:
    ```bash
@@ -21,7 +21,7 @@ Rules:
 
 - The tag is the only version source: `vX.Y.Z` becomes the app version and the package version `X.Y.Z.0`. Plain numbers only; the Store has no beta versions (use a package flight in Partner Center for that).
 - Every release needs a **higher** version than the one live in the Store.
-- The Store texts come from `releases/vX.Y.Z/<language>/store.md` as they are; a text over Partner Center's limits fails the build instead of being cut. A Store build without `releases/vX.Y.Z/en-US/release.md` fails.
+- The Store texts come from `store-submission/<language>/store.md` as they are; a text over Partner Center's limits fails the build instead of being cut. A Store build without `store-submission/en-US/release.md` fails.
 
 ### Store submission: store, draft or none
 
@@ -51,8 +51,8 @@ Each language's screenshots are made from window captures of the app in that lan
 
 1. The sample data per language is in [`design/store/samples/<language>.json`](../design/store/samples) (templates, team file, the text in Notepad, the search term, which template each screenshot shows, the translation target). A new UI language needs one.
 2. The captures are made on a test VM at 125 % on a 2560x1440 display and go to `design/store/captures/<language>/` (nine per language: `store-main`, `store-qp-single`, `store-qp-multi`, `store-pastemode`, `store-search`, `store-sync`, `store-backups`, `store-tour`, `store-translate`). The VM scripts aren't part of the repository.
-3. `pwsh -File design/store/Make-StoreScreenshots.ps1 -Version X.Y.Z` puts them into the Photoshop templates (`design/store/templates`, through `Make-StoreImages.jsx` and Photoshop's COM interface) with the texts of each language's "Screenshot images" block, and writes `releases/vX.Y.Z/<language>/screenshots/` (2560x1440, colour scheme `amber` as in the Store, `-Scheme slate` for the other). Every language folder with a `store.md` is picked up; captions that are too wide are set smaller.
-4. Commit the screenshots with the release. A release without new screenshots needs none: the listing takes the newest earlier release's.
+3. `pwsh -File design/store/Make-StoreScreenshots.ps1` puts them into the Photoshop templates (`design/store/templates`, through `Make-StoreImages.jsx` and Photoshop's COM interface) with the texts of each language's "Screenshot images" block, and writes `store-submission/<language>/screenshots/` (2560x1440, colour scheme `amber` as in the Store, `-Scheme slate` for the other). Every language folder with a `store.md` is picked up; captions that are too wide are set smaller.
+4. Commit the screenshots with the release. A release without new screenshots keeps the ones it has.
 
 ### Publishing the GitHub release by hand
 

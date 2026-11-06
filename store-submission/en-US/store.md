@@ -1,6 +1,6 @@
-# Microsoft Store texts: English (en-US), 2.6.1
+# Microsoft Store texts: English (en-US)
 
-The Store listing and "What's new" for this release, to copy into Partner Center as they are (plain text; the Store fields take no Markdown, HTML or links in the description). The release workflow turns every language's file into the listing for Partner Center (`build/Release-Notes.ps1 -ListingOutDir`, in the build artifact) and sends it with an automatic submission; texts over Partner Center's limits fail the build. The submission settings that don't depend on the language are in [`store.md`](../../../store.md) at the repository root.
+The Store listing and "What's new" for this release, to copy into Partner Center as they are (plain text; the Store fields take no Markdown, HTML or links in the description). The release workflow turns every language's file into the listing for Partner Center (`build/Release-Notes.ps1 -ListingOutDir`, in the build artifact) and sends it with an automatic submission; texts over Partner Center's limits fail the build. The submission settings that don't depend on the language are in [`store.md`](../../store.md) at the repository root.
 
 Limits (Partner Center, 2026): description 10,000 characters; short description 1,000 (only the first 270 show in some views); up to 20 product features of 200 characters each; "What's new" 1,500.
 
@@ -92,7 +92,7 @@ snippet manager
 
 ### Screenshots and logo
 
-From `screenshots/` in this folder, or else in the newest earlier release that has them (here 2.6.0) (2560x1440 PNG, one colour scheme), uploaded in this order; the caption field (optional, up to 200 characters) takes the text below. They are made with the scripts in [`design/store`](../../../design/store). The images without text are the same in every language and stay in `design/store`: the Store tile `StoreTile-300.png` (Store logos, 1:1 app tile icon, 300x300) and, from one scheme folder (`amber/` or `slate/`), `poster-art-<scheme>.png` for the 2:3 poster art (1440x2160), `box-art-<scheme>.png` for the 1:1 box art (2160x2160) and `super-hero-art-<scheme>.png` for the 16:9 super hero art (3840x2160, no text, as required).
+From `screenshots/` in this folder (2560x1440 PNG, one colour scheme), uploaded in this order; the caption field (optional, up to 200 characters) takes the text below. They are made with the scripts in [`design/store`](../../../design/store). The images without text are the same in every language and stay in `design/store`: the Store tile `StoreTile-300.png` (Store logos, 1:1 app tile icon, 300x300) and, from one scheme folder (`amber/` or `slate/`), `poster-art-<scheme>.png` for the 2:3 poster art (1440x2160), `box-art-<scheme>.png` for the 1:1 box art (2160x2160) and `super-hero-art-<scheme>.png` for the 16:9 super hero art (3840x2160, no text, as required).
 
 ```text
 01  Your text templates, in one place: folders, rich text, tags and shortcuts for every reply you write again and again.
@@ -135,5 +135,6 @@ Copyright © 2026 Marflow Software
 This block is the Store's "What's new" (Microsoft asks for it on updates only). It lists only what changed since the previous release; keep it in step with `release.md` in this folder.
 
 ```text
-Fixed: typing ttm in the Start menu search finds TextTemplateManager again, as with version 1; ttm2 works too.
+New: templates and folders keep what a newer TextTemplateManager stores in them, in shared sync files too. Please update every PC that shares a sync file to this version.
+Fixed: the app opens again when a sync file holds the same item ID twice.
 ```

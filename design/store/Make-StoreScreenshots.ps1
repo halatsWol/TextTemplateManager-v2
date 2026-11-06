@@ -1,12 +1,11 @@
-# Builds a release's Store screenshots for every language: for each releases/vX.Y.Z/<language>/store.md, the lines
-# of its "Screenshot images" block and the window captures in design/store/captures/<language>/ go through
-# Make-StoreImages.jsx in Photoshop (COM), into releases/vX.Y.Z/<language>/screenshots/<name>.png (2560x1440, one
-# colour scheme). A new language folder is picked up on its own. Needs Photoshop on this PC; the captures come from
-# the VM capture run.
+# Builds the Store screenshots for every language: for each store-submission/<language>/store.md, the lines of its
+# "Screenshot images" block and the window captures in design/store/captures/<language>/ go through
+# Make-StoreImages.jsx in Photoshop (COM), into store-submission/<language>/screenshots/<name>.png (2560x1440, one colour
+# scheme). A new language folder is picked up on its own. Needs Photoshop on this PC; the captures come from the VM
+# capture run.
 #
-# Usage: pwsh -File design/store/Make-StoreScreenshots.ps1 -Version 2.6.0 [-Scheme amber] [-Language de-DE,fr-FR]
+# Usage: pwsh -File design/store/Make-StoreScreenshots.ps1 [-Scheme amber] [-Language de-DE,fr-FR]
 param(
-    [Parameter(Mandatory)][string]$Version,
     [ValidateSet('amber', 'slate')][string]$Scheme = 'amber',
     [string[]]$Language,
     [int]$ImageTimeoutSec = 120
@@ -14,9 +13,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-$release = Join-Path $repo 'releases' "v$Version"
+$release = Join-Path $repo 'store-submission'
 $jsx = Join-Path $PSScriptRoot 'Make-StoreImages.jsx'
-if (-not (Test-Path $release)) { throw "No release folder $release." }
 
 function Get-ImageLines([string]$storeMd) {
     $m = [regex]::Match((Get-Content $storeMd -Raw), "(?ms)^### Screenshot images[^\n]*\n.*?^``````text\r?\n(.*?)\r?\n``````")

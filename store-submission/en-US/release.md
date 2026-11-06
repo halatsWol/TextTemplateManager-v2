@@ -12,9 +12,14 @@ Coming from TextTemplateManager 1: your templates and settings are backed up at 
 
 ### What's new in this release
 
+#### New
+
+- **Newer versions' data stays:** templates and folders now keep what a newer TextTemplateManager stores in them. This version no longer removes that data when it saves, in your own templates or in shared sync files.
+- **Please update every PC that shares a sync file to this version.** Coming versions will store more with your templates, and older versions still remove it.
+
 #### Fixed
 
-- Typing **ttm** in the Start menu search finds TextTemplateManager again, as with version 1; **ttm2** works too. Both also start the app from **Run** (Win+R) or a command prompt.
+- The app opens again when a sync file holds the same item ID twice, for example after merging conflict copies by hand. Until now it stayed without a window from the second start on.
 
 {{CHANGELOG}}
 

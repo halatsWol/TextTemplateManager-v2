@@ -226,7 +226,7 @@ if ($Submit) {
         # the submission still goes through, and the new languages are added in Partner Center by hand once.
         $new = @($submission.listings.PSObject.Properties.Name | Where-Object { $_ -notin $known })
         if (-not $new) { throw }
-        $text = "Partner Center refused the new listings ($($new -join ', ')): $($_.Exception.Message) Add them in Partner Center (Store listings, from releases/vX.Y.Z/<language>/store.md and its screenshots)."
+        $text = "Partner Center refused the new listings ($($new -join ', ')): $($_.Exception.Message) Add them in Partner Center (Store listings, from store-submission/<language>/store.md and its screenshots)."
         if ($env:GITHUB_ACTIONS) { Write-Host "::warning::$text" } else { Write-Warning $text }
         foreach ($n in $new) { $submission.listings.PSObject.Properties.Remove($n) }
         $images = @($images | Where-Object { $entry = $_.Entry; -not ($new | Where-Object { $entry -like "$_-*" }) })

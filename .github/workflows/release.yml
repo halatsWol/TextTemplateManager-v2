@@ -2,7 +2,7 @@ name: Release
 
 # Tests, then the x64 Store package and the manuals; on a version tag also the GitHub release and the Store submission.
 #
-#   - Push an annotated tag like v2.0.1 -> build, create a draft GitHub release (manuals, notes from releases/vX.Y.Z/en-US), then
+#   - Push an annotated tag like v2.0.1 -> build, create a draft GitHub release (manuals, notes from store-submission/en-US), then
 #     submit the package to the Microsoft Store; publish-when-live.yml publishes the release once the Store has it live.
 #   - Run manually (workflow_dispatch) -> build and upload the files as artifacts ONLY (never publishes), or, with
 #     "Check Store access", only sign in to Partner Center and read the app (no build, nothing submitted), or, with
@@ -85,6 +85,8 @@ jobs:
       store_mode: ${{ steps.targets.outputs.store_mode }}
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0   # the release notes check compares with the previous tag
 
       - name: Version
         id: ver
@@ -113,6 +115,11 @@ jobs:
           $mode = switch ($target) { { $_ -in 'store', 'all', '' } { 'store' } 'draft' { 'draft' } { $_ -in 'none', 'skip' } { 'none' } default { throw "Unknown 'publish: $target' in the tag message (store, draft or none)." } }
           "store_mode=$mode" >> $env:GITHUB_OUTPUT
           Write-Host "Store submission: $mode"
+
+      - name: Release notes updated since the previous tag
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        run: ./build/Release-Notes.ps1 -Version ${{ steps.ver.outputs.version }} -NotesChangedSince (git describe --tags --abbrev=0 HEAD^)
 
       - uses: actions/setup-dotnet@v5
         with:

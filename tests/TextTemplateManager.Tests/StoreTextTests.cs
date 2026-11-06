@@ -5,18 +5,17 @@ using Xunit;
 
 namespace TextTemplateManager.Tests;
 
-/// <summary>The Store texts in releases\vX.Y.Z\&lt;language&gt;\store.md: every UI language has a listing in the newest
-/// release, and every listing stays within Partner Center's limits, so a pasted text isn't cut or refused.</summary>
+/// <summary>The Store texts in store-submission\&lt;language&gt;\store.md: every UI language has a listing, and every listing stays within Partner Center's limits, so a pasted text isn't cut or refused.</summary>
 public partial class StoreTextTests
 {
-    private static string ReleasesDir([CallerFilePath] string self = "") =>
-        Path.GetFullPath(Path.Combine(Path.GetDirectoryName(self)!, "..", "..", "releases"));
+    private static string SubmissionDir([CallerFilePath] string self = "") =>
+        Path.GetFullPath(Path.Combine(Path.GetDirectoryName(self)!, "..", "..", "store-submission"));
 
     public static TheoryData<string> Listings()
     {
         var data = new TheoryData<string>();
-        foreach (string file in Directory.GetFiles(ReleasesDir(), "store.md", SearchOption.AllDirectories))
-            data.Add(Path.GetRelativePath(ReleasesDir(), file));
+        foreach (string file in Directory.GetFiles(SubmissionDir(), "store.md", SearchOption.AllDirectories))
+            data.Add(Path.GetRelativePath(SubmissionDir(), file));
         return data;
     }
 
@@ -29,20 +28,17 @@ public partial class StoreTextTests
     }
 
     [Fact]
-    public void The_newest_release_has_a_store_listing_in_every_ui_language()
+    public void Every_ui_language_has_a_store_listing()
     {
-        string newest = Directory.GetDirectories(ReleasesDir(), "v*")
-            .OrderByDescending(d => Version.Parse(Path.GetFileName(d)[1..])).First();
-
         foreach (string language in UiLanguages.Available)
-            Assert.True(File.Exists(Path.Combine(newest, language, "store.md")), $"{Path.GetFileName(newest)}/{language}/store.md is missing");
+            Assert.True(File.Exists(Path.Combine(SubmissionDir(), language, "store.md")), $"{language}/store.md is missing");
     }
 
     [Theory]
     [MemberData(nameof(Listings))]
     public void A_store_listing_stays_within_the_partner_center_limits(string listing)
     {
-        string text = File.ReadAllText(Path.Combine(ReleasesDir(), listing));
+        string text = File.ReadAllText(Path.Combine(SubmissionDir(), listing));
 
         Assert.Equal("TextTemplateManager", Block(text, "Product name").Trim());
         Assert.InRange(Block(text, "Short description").Length, 1, 1000);
@@ -64,38 +60,30 @@ public partial class StoreTextTests
     }
 
     [Fact]
-    public void Every_listing_of_a_release_has_as_many_features_and_captions_as_the_english_one()
+    public void Every_listing_has_as_many_features_and_captions_as_the_english_one()
     {
-        foreach (string release in Directory.GetDirectories(ReleasesDir(), "v*"))
+        string english = File.ReadAllText(Path.Combine(SubmissionDir(), "en-US", "store.md"));
+        int features = Lines(Block(english, "Product features")).Length;
+        int captions = Lines(Block(english, "Screenshots and logo")).Length;
+        foreach (string file in Directory.GetFiles(SubmissionDir(), "store.md", SearchOption.AllDirectories))
         {
-            string english = File.ReadAllText(Path.Combine(release, "en-US", "store.md"));
-            int features = Lines(Block(english, "Product features")).Length;
-            int captions = Lines(Block(english, "Screenshots and logo")).Length;
-            foreach (string file in Directory.GetFiles(release, "store.md", SearchOption.AllDirectories))
-            {
-                string text = File.ReadAllText(file);
-                string captionHeading = text.Contains("### Screenshot captions") ? "Screenshot captions" : "Screenshots and logo";
-                Assert.True(features == Lines(Block(text, "Product features")).Length, $"{file}: product features differ from en-US");
-                Assert.True(captions == Lines(Block(text, captionHeading)).Length, $"{file}: screenshot captions differ from en-US");
-            }
+            string text = File.ReadAllText(file);
+            string captionHeading = text.Contains("### Screenshot captions") ? "Screenshot captions" : "Screenshots and logo";
+            Assert.True(features == Lines(Block(text, "Product features")).Length, $"{file}: product features differ from en-US");
+            Assert.True(captions == Lines(Block(text, captionHeading)).Length, $"{file}: screenshot captions differ from en-US");
         }
     }
 
     [Fact]
     public void Every_listing_has_the_screenshot_texts_of_the_english_images()
     {
-        foreach (string release in Directory.GetDirectories(ReleasesDir(), "v*"))
+        var english = Lines(Block(File.ReadAllText(Path.Combine(SubmissionDir(), "en-US", "store.md")), "Screenshot images")).Select(ImageFields).ToList();
+        foreach (string file in Directory.GetFiles(SubmissionDir(), "store.md", SearchOption.AllDirectories))
         {
-            string englishFile = Path.Combine(release, "en-US", "store.md");
-            if (!File.ReadAllText(englishFile).Contains("### Screenshot images")) continue;   // releases before 2.6.0
-            var english = Lines(Block(File.ReadAllText(englishFile), "Screenshot images")).Select(ImageFields).ToList();
-            foreach (string file in Directory.GetFiles(release, "store.md", SearchOption.AllDirectories))
-            {
-                var images = Lines(Block(File.ReadAllText(file), "Screenshot images")).Select(ImageFields).ToList();
-                Assert.True(english.Select(i => (i.Name, i.Shot)).SequenceEqual(images.Select(i => (i.Name, i.Shot))),
-                    $"{file}: the images (name | capture) differ from en-US");
-                Assert.All(images, i => Assert.True(i.Caption.Length > 0 && i.Sub.Length > 0, $"{file}: {i.Name} without caption or subline"));
-            }
+            var images = Lines(Block(File.ReadAllText(file), "Screenshot images")).Select(ImageFields).ToList();
+            Assert.True(english.Select(i => (i.Name, i.Shot)).SequenceEqual(images.Select(i => (i.Name, i.Shot))),
+                $"{file}: the images (name | capture) differ from en-US");
+            Assert.All(images, i => Assert.True(i.Caption.Length > 0 && i.Sub.Length > 0, $"{file}: {i.Name} without caption or subline"));
         }
     }
 
@@ -109,7 +97,7 @@ public partial class StoreTextTests
     [Fact]
     public void Every_ui_language_has_screenshot_sample_data_whose_shots_exist()
     {
-        string samples = Path.Combine(ReleasesDir(), "..", "design", "store", "samples");
+        string samples = Path.Combine(SubmissionDir(), "..", "design", "store", "samples");
         foreach (string language in UiLanguages.Available)
         {
             string file = Path.Combine(samples, language + ".json");

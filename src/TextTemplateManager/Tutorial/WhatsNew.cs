@@ -15,23 +15,13 @@ public sealed record WhatsNewBlock(WhatsNewKind Kind, IReadOnlyList<(string Text
 /// headings, bullets and paragraphs with bold runs. Links keep their text, code keeps its text without the backticks.</summary>
 public static partial class WhatsNew
 {
-    /// <summary>The release notes shipped in <paramref name="whatsNewDirectory"/> (vX.Y.Z\&lt;language&gt;\release.md):
-    /// those of <paramref name="version"/>, else the newest (a dev build ships every release's notes), in
+    /// <summary>The release notes shipped in <paramref name="whatsNewDirectory"/> (&lt;language&gt;\release.md), in
     /// <paramref name="language"/> or else in English; null if there are none.</summary>
-    public static string? NotesFile(string whatsNewDirectory, string version, string language)
+    public static string? NotesFile(string whatsNewDirectory, string language)
     {
-        string own = Path.Combine(whatsNewDirectory, "v" + version);
-        string? release = Directory.Exists(own) ? own : !Directory.Exists(whatsNewDirectory) ? null :
-            Directory.GetDirectories(whatsNewDirectory, "v*")
-                .Select(d => (Dir: d, Version: System.Version.TryParse(Path.GetFileName(d)[1..], out var v) ? v : null))
-                .Where(r => r.Version != null && File.Exists(Path.Combine(r.Dir, "en-US", "release.md")))
-                .OrderByDescending(r => r.Version)
-                .Select(r => r.Dir)
-                .FirstOrDefault();
-        if (release == null) return null;
-        string localized = Path.Combine(release, language, "release.md");
+        string localized = Path.Combine(whatsNewDirectory, language, "release.md");
         if (File.Exists(localized)) return localized;
-        string english = Path.Combine(release, "en-US", "release.md");
+        string english = Path.Combine(whatsNewDirectory, "en-US", "release.md");
         return File.Exists(english) ? english : null;
     }
 

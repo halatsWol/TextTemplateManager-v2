@@ -1,4 +1,4 @@
-# Microsoft Store texts: German (de-DE), 2.6.1
+# Microsoft Store texts: German (de-DE)
 
 The German Store listing and "What's new" for this release, to copy into Partner Center (listing language **German**) as they are. Same structure and limits as [`../en-US/store.md`](../en-US/store.md); the screenshots go in `screenshots/` in this folder, captions below.
 
@@ -129,5 +129,6 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Behoben: Die Suche im Startmenü findet TextTemplateManager wieder mit ttm, wie bei Version 1; ttm2 geht auch.
+Neu: Vorlagen und Ordner behalten, was ein neueres TextTemplateManager in ihnen speichert, auch in geteilten Sync-Dateien. Bitte aktualisiere jeden PC, der eine Sync-Datei mitbenutzt, auf diese Version.
+Behoben: Die App öffnet sich wieder, wenn eine Sync-Datei dieselbe Element-ID zweimal enthält.
 ```

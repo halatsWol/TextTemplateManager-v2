@@ -1,4 +1,4 @@
-# Microsoft Store texts: Italian (it-IT), 2.6.0
+# Microsoft Store texts: Italian (it-IT)
 
 The Italian Store listing and "What's new" for this release, to copy into Partner Center (listing language **Italian**) as they are. Same structure and limits as [`../en-US/store.md`](../en-US/store.md); the screenshots go in `screenshots/` in this folder, captions below. Translated with the help of AI, not proofread yet.
 
@@ -129,11 +129,6 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-TextTemplateManager ora parla tedesco, ungherese, italiano, francese e spagnolo.
-
-- Novità: l'app in sei lingue: inglese, tedesco, ungherese, italiano, francese e spagnolo (un unico spagnolo per la Spagna e l'America Latina). Si avvia nella lingua di visualizzazione di Windows, altrimenti in inglese; Impostazioni > Generale > Lingua ne sceglie un'altra. Finestre, menu, messaggi, il tour e l'editor sono tradotti; i tuoi modelli non cambiano.
-- Ungherese, italiano, francese e spagnolo sono stati tradotti con l'aiuto dell'IA e non sono ancora stati revisionati: Impostazioni > Generale > Segnala un problema di traduzione.
-- Miglioramenti: date, nomi dei giorni, dei tasti e delle lingue seguono la lingua dell'app.
-- Miglioramenti: se non si apre nessuna finestra di posta, l'app rimanda all'impostazione di Windows per i collegamenti e-mail e a una guida passo passo.
-- Correzioni: un arresto anomalo quando l'app veniva avviata una seconda volta mentre il primo avvio era ancora in corso.
+Novità: modelli e cartelle conservano ciò che una versione più recente di TextTemplateManager vi memorizza, anche nei file di sincronizzazione condivisi. Aggiorna a questa versione ogni PC che condivide un file di sincronizzazione.
+Correzioni: l'app si apre di nuovo quando un file di sincronizzazione contiene due volte lo stesso ID di elemento.
 ```

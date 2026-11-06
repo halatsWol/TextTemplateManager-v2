@@ -1,4 +1,4 @@
-# Microsoft Store texts: Spanish (es-ES), 2.6.1
+# Microsoft Store texts: Spanish (es-ES)
 
 The Spanish Store listing and "What's new" for this release (neutral Spanish, for Spain and Latin America), to copy into Partner Center as they are: listing language **Spanish (Spain)**, and the same texts for the Latin American Spanish listings if they are added. Same structure and limits as [`../en-US/store.md`](../en-US/store.md); the screenshots go in `screenshots/` in this folder, captions below. Translated with the help of AI, not proofread yet.
 
@@ -129,5 +129,6 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Corregido: al escribir ttm en la búsqueda del menú Inicio vuelve a aparecer TextTemplateManager, como con la versión 1; ttm2 también funciona.
+Nuevo: las plantillas y carpetas mantienen lo que una versión más reciente de TextTemplateManager guarda en ellas, también en los archivos de sincronización compartidos. Actualiza a esta versión cada PC que comparta un archivo de sincronización.
+Corregido: la aplicación vuelve a abrirse cuando un archivo de sincronización contiene dos veces el mismo identificador de elemento.
 ```

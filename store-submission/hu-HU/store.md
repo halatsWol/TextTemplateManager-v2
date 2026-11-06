@@ -1,4 +1,4 @@
-# Microsoft Store texts: Hungarian (hu-HU), 2.6.1
+# Microsoft Store texts: Hungarian (hu-HU)
 
 The Hungarian Store listing and "What's new" for this release, to copy into Partner Center (listing language **Hungarian**) as they are. Same structure and limits as [`../en-US/store.md`](../en-US/store.md); the screenshots go in `screenshots/` in this folder, captions below. Translated with the help of AI, not proofread yet.
 
@@ -129,5 +129,6 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Javítva: a Start menü keresője ismét megtalálja a TextTemplateManagert a ttm beírására, mint az 1-es verziónál; a ttm2 is működik.
+Új: a sablonok és mappák megőrzik, amit egy újabb TextTemplateManager tárol bennük, a megosztott szinkronizálási fájlokban is. Kérjük, frissíts erre a verzióra minden számítógépet, amely szinkronizálási fájlt használ közösen.
+Javítva: az alkalmazás ismét megnyílik, ha egy szinkronizálási fájl kétszer tartalmazza ugyanazt az elemazonosítót.
 ```

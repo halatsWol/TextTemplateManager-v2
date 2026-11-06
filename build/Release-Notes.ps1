@@ -1,25 +1,27 @@
-# Release notes and Store listings from the release's folder, releases/vX.Y.Z (one folder per language):
+# Release notes and Store listings from store-submission/ (one folder per language):
 #   -GitHubOut      the GitHub release text: en-US/release.md with {{VERSION}}, {{TAG}} and {{CHANGELOG}} filled in.
 #   -ListingOutDir  the Store listing of every language folder with a store.md, one field per file, as Partner Center
 #                   takes them (title, short-description, description, features, search-terms, whats-new, copyright,
-#                   screenshot-captions) plus screenshots\ (from the release's <language>/screenshots, else from the
-#                   newest earlier release that has them for the language). Partner Center's limits are checked; a
-#                   new language folder is picked up on its own; en-US must be there.
+#                   screenshot-captions) plus screenshots\ (from <language>/screenshots). Partner Center's limits are
+#                   checked; a new language folder is picked up on its own; en-US must be there.
+#   -NotesChangedSince  fails if a language's release.md or "What's new" is the same as at this git revision (the
+#                   previous tag), so a release can't ship the last one's notes. Only reads git.
 #
 # Usage: pwsh -File build/Release-Notes.ps1 -Version 2.0.1 -GitHubOut notes.md -ListingOutDir store-listing [-Changelog '...']
 param(
     [Parameter(Mandatory)][string]$Version,
     [string]$Changelog = '',
     [string]$GitHubOut,
-    [string]$ListingOutDir
+    [string]$ListingOutDir,
+    [string]$NotesChangedSince
 )
 
 $ErrorActionPreference = 'Stop'
 $tag = "v$Version"
-$releases = Join-Path (Split-Path $PSScriptRoot -Parent) 'releases'
-$release = Join-Path $releases $tag
+$repo = Split-Path $PSScriptRoot -Parent
+$release = Join-Path $repo 'store-submission'
 $file = Join-Path $release 'en-US' 'release.md'
-if (-not (Test-Path $file)) { throw "No release notes for $tag ($file)." }
+if (-not (Test-Path $file)) { throw "No release notes ($file)." }
 
 if ($GitHubOut) {
     if ([string]::IsNullOrWhiteSpace($Changelog)) { $Changelog = 'Initial release.' }
@@ -37,21 +39,36 @@ function Get-Block([string]$text, [string[]]$headings, [string]$language) {
 }
 function Lines([string]$block) { @($block -split "`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ }) }
 
-# The newest release up to this one with screenshots for the language.
 function Get-Screenshots([string]$language) {
-    $versions = Get-ChildItem $releases -Directory -Filter 'v*' |
-        Where-Object { $_.Name -match '^v\d+\.\d+\.\d+$' -and [version]$_.Name.Substring(1) -le [version]$Version } |
-        Sort-Object { [version]$_.Name.Substring(1) } -Descending
-    foreach ($v in $versions) {
-        $shots = @(Get-ChildItem (Join-Path $v.FullName $language 'screenshots') -Filter *.png -ErrorAction SilentlyContinue | Sort-Object Name)
-        if ($shots) { return $shots }
+    @(Get-ChildItem (Join-Path $release $language 'screenshots') -Filter *.png -ErrorAction SilentlyContinue | Sort-Object Name)
+}
+
+# A file as it was at a git revision, line endings evened out; null if it wasn't there.
+function Get-TextAt([string]$revision, [string]$path) {
+    [Console]::OutputEncoding = [Text.Encoding]::UTF8
+    $text = git -C $repo show "${revision}:$path" 2>$null
+    if ($LASTEXITCODE -ne 0) { return $null }
+    ($text -join "`n").Trim()
+}
+function Get-Text([string]$path) { ((Get-Content $path -Raw -Encoding utf8) -replace "\r\n", "`n").Trim() }
+
+if ($NotesChangedSince) {
+    $stale = foreach ($language in Get-ChildItem $release -Directory) {
+        $name = $language.Name
+        $notes = Join-Path $language.FullName 'release.md'
+        $before = Get-TextAt $NotesChangedSince "store-submission/$name/release.md"
+        if ($null -ne $before -and $before -ceq (Get-Text $notes)) { "$name/release.md" }
+        $store = Join-Path $language.FullName 'store.md'
+        $before = Get-TextAt $NotesChangedSince "store-submission/$name/store.md"
+        if ($null -ne $before -and (Get-Block $before "What's new" $name) -ceq (Get-Block (Get-Text $store) "What's new" $name)) { "$name/store.md (What's new)" }
     }
-    @()
+    if ($stale) { throw "Not changed since ${NotesChangedSince}: $($stale -join ', ')." }
+    "Release notes changed since $NotesChangedSince."
 }
 
 if ($ListingOutDir) {
     $languages = Get-ChildItem $release -Directory | Where-Object { Test-Path (Join-Path $_.FullName 'store.md') }
-    if ('en-US' -notin $languages.Name) { throw "No en-US/store.md for $tag." }
+    if ('en-US' -notin $languages.Name) { throw 'No en-US/store.md.' }
     foreach ($language in $languages) {
         $name = $language.Name
         $text = Get-Content (Join-Path $language.FullName 'store.md') -Raw
@@ -87,7 +104,7 @@ if ($ListingOutDir) {
             $shots | Copy-Item -Destination (Join-Path $dir 'screenshots')
             if ($shots.Count -ne $captions.Count) { Write-Warning "$name`: $($shots.Count) screenshots but $($captions.Count) captions." }
         }
-        else { Write-Warning "$name`: no screenshots in this or an earlier release." }
-        "$name`: listing, $($shots.Count) screenshots$(if ($shots) { " (from $($shots[0].Directory.Parent.Parent.Name))" })"
+        else { Write-Warning "$name`: no screenshots." }
+        "$name`: listing, $($shots.Count) screenshots"
     }
 }
