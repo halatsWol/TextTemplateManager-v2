@@ -12,7 +12,15 @@ A hotkey-driven text-template paste tool for Windows: organize reusable snippets
 
 I started this project because I was never quite happy with the text-template tools I could find. Most had only minimalistic feature sets, felt outdated overall, or had dated, bare-bones designs, and the ones that came close usually only covered *some* of what I wanted. The biggest deal breaker was always the lack of **sync** and separation, so a team could share the same templates file but only use the templates they need.
 
-This is my **first C# / WinUI 3 / .NET project**. It has been in the works since 2025-07-15 and was thrown away and rebuilt from scratch several times along the way. I'm not a professional software developer and don't aim to be: I work in IT, but got frustrated enough by the available tools that I took it on myself to solve this. AI is part of how this gets built: at first mostly for debugging complex issues and planning structures, by now also for parts of the code, especially reformatting, testing and the like. The idea, the features and the decisions on how they work are mine, and I check and test the changes and commit each one myself.
+This is my **first C# / WinUI 3 / .NET project**. It has been in the works since 2025-07-15 and was thrown away and rebuilt from scratch several times along the way. I'm not a professional software developer and don't aim to be: I work in IT, but got frustrated enough by the available tools that I took it on myself to solve this.
+
+> [!NOTE]
+> **Use of AI:** As I said, I'm not a software developer and never claim to be. AI is part of how this gets built. At first it mostly helped with debugging complex issues and planning structures. By now I also use it for:
+>
+> - parts of the code, especially reformatting, testing, stress testing, avoiding security issues and the like
+> - the user and developer documentation, to keep it accurate, up to date (in case I forget something I changed) and easy to read, and to avoid embarrassing typos and errors
+>
+> The idea, the features and the decisions on how they work are mine. I check and test the changes and commit each one myself.
 
 ### Why version 2
 
