@@ -47,8 +47,9 @@ function Get-Screenshots([string]$language) {
 function Get-TextAt([string]$revision, [string]$path) {
     [Console]::OutputEncoding = [Text.Encoding]::UTF8
     $text = git -C $repo show "${revision}:$path" 2>$null
-    if ($LASTEXITCODE -ne 0) { return $null }
-    ($text -join "`n").Trim()
+    $found = $LASTEXITCODE -eq 0
+    $global:LASTEXITCODE = 0   # a workflow step fails on a non-zero one left behind, however the script ended
+    if ($found) { ($text -join "`n").Trim() }
 }
 function Get-Text([string]$path) { ((Get-Content $path -Raw -Encoding utf8) -replace "\r\n", "`n").Trim() }
 
