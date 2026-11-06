@@ -6,7 +6,7 @@ actor User
 node "Other app\n(paste target)" as Target
 node "Browser with\nTTM-Connect" as Browser
 
-package "ttm2.exe (WinUI 3, .NET 8)" {
+package "ttm2.exe (WinUI 3, .NET 10)" {
   package "Presentation" {
     [App] as App
     [MainPage + MainViewModel] as Main

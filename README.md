@@ -2,7 +2,7 @@
 
 A hotkey-driven text-template paste tool for Windows: organize reusable snippets in folders, give them shortcuts, and paste them into any application from a global Quick Paste window.
 
-> Made by **Marflow Software**. Built with WinUI 3 (Windows App SDK) and .NET 8, distributed through the [Microsoft Store](https://apps.microsoft.com/detail/9NMBSZLLLN6V).
+> Made by **Marflow Software**. Built with WinUI 3 (Windows App SDK) and .NET 10, distributed through the [Microsoft Store](https://apps.microsoft.com/detail/9NMBSZLLLN6V).
 
 [![Tests](https://github.com/halatsWol/TextTemplateManager-v2/actions/workflows/tests.yml/badge.svg)](https://github.com/halatsWol/TextTemplateManager-v2/actions/workflows/tests.yml) [![CodeQL](https://github.com/halatsWol/TextTemplateManager-v2/actions/workflows/codeql.yml/badge.svg)](https://github.com/halatsWol/TextTemplateManager-v2/actions/workflows/codeql.yml)
 
@@ -71,7 +71,7 @@ Get **TextTemplateManager** from the [Microsoft Store](https://apps.microsoft.co
 
 Prerequisites:
 
-- [.NET 10 SDK](https://dotnet.microsoft.com/download) (the app targets .NET 8 and uses C# 14)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download) (the app targets .NET 10 and uses C# 14)
 - Windows 10 19041+ / Windows 11
 - [Node.js](https://nodejs.org/), only to rebuild the editor after changing `src/editor` (the bundle in the app's assets is committed)
 

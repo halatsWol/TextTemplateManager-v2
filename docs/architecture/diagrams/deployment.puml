@@ -5,7 +5,7 @@ title Deployment and where things live (per Windows user)
 node "Microsoft Store" as Store
 node "Windows PC" {
   node "MSIX package MarflowSoftware.TextTemplateManager\n(C:\\Program Files\\WindowsApps, read-only)" as Pkg {
-    artifact "ttm2.exe\n(.NET 8 self-contained)" as Exe
+    artifact "ttm2.exe\n(.NET 10 self-contained)" as Exe
     artifact "Assets\\editor\\*.html\n(TipTap bundles)" as EditorAssets
     artifact "Assets\\translator\n(Bergamot engine, worker)" as TranslatorAssets
     artifact "Manual.pdf, release.md, LICENSE" as Docs
