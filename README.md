@@ -12,7 +12,7 @@ A hotkey-driven text-template paste tool for Windows: organize reusable snippets
 
 I started this project because I was never quite happy with the text-template tools I could find. Most had only minimalistic feature sets, felt outdated overall, or had dated, bare-bones designs, and the ones that came close usually only covered *some* of what I wanted. The biggest deal breaker was always the lack of **sync** and separation, so a team could share the same templates file but only use the templates they need.
 
-This is my **first C# / WinUI 3 / .NET project**. It has been in the works since 2025-07-15 and was thrown away and rebuilt from scratch several times along the way. I'm not a professional software developer and don't aim to be: I work in IT, but got frustrated enough by the available tools that I took it on myself to solve this. AI was used occasionally (mainly for debugging complex issues, planning some structures and the like); any code written with or by AI was always reviewed and double-checked by me.
+This is my **first C# / WinUI 3 / .NET project**. It has been in the works since 2025-07-15 and was thrown away and rebuilt from scratch several times along the way. I'm not a professional software developer and don't aim to be: I work in IT, but got frustrated enough by the available tools that I took it on myself to solve this. AI is part of how this gets built: at first mostly for debugging complex issues and planning structures, by now also for parts of the code, especially reformatting, testing and the like. The idea, the features and the decisions on how they work are mine, and I check and test the changes and commit each one myself.
 
 ### Why version 2
 
