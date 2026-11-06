@@ -40,7 +40,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && inputs.check_store_access
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Check access to the app in Partner Center
         shell: pwsh
@@ -55,7 +55,7 @@ jobs:
     runs-on: windows-latest
     environment: store-release
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       # The check lists the pending submission's packages first, for the log.
       - name: Commit the pending submission
@@ -84,7 +84,7 @@ jobs:
     outputs:
       store_mode: ${{ steps.targets.outputs.store_mode }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0   # the release notes check compares with the previous tag
 
@@ -121,7 +121,7 @@ jobs:
         shell: pwsh
         run: ./build/Release-Notes.ps1 -Version ${{ steps.ver.outputs.version }} -NotesChangedSince (git describe --tags --abbrev=0 HEAD^)
 
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: |
             8.0.x
@@ -189,7 +189,7 @@ jobs:
     env:
       STORE_PRODUCT_ID: 9NMBSZLLLN6V   # public (the Store link); not a secret
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - uses: actions/download-artifact@v8
         with:

@@ -32,7 +32,7 @@ jobs:
           - language: actions
             os: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       # The committed editor bundle is minified third-party code (TipTap, highlight.js): its sources are scanned instead.
       # design/store/*.jsx are Photoshop ExtendScript (#target directive), not parseable as JavaScript.
