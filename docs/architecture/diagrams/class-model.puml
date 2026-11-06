@@ -10,9 +10,12 @@ abstract class BaseItem <<ObservableObject>> {
   +ItemType : ItemType
   +LastChange : string  (yyyyMMddHHmmss)
   +Children : ObservableCollection<BaseItem>
+  +UnknownFields : Dictionary<string, JsonElement>?  (a newer version's fields)
   ..transient..
   +IsSyncRoot : bool
   +SyncFileMissing : bool
+  --
+  +DuplicateAs(title) : BaseItem
 }
 class Folder
 class Template {

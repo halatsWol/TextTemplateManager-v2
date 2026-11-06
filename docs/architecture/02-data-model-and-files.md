@@ -44,7 +44,7 @@ An **area** is either "local" (`Guid.Empty`) or one sync source (its `Id`). `Dat
 
 ## Files
 
-All files are UTF-8 JSON without BOM (a BOM is accepted when reading), written indented, `null` values omitted, with relaxed escaping so HTML stays readable. Serialization uses compile-time metadata (`StorageJsonContext`). The exact format is pinned by `FileFormatTests` and fixtures in `tests/.../Fixtures/`: sync files are shared with TextTemplateManager 1, which drops unknown fields when it writes, so the format must not change while 1.x is in use.
+All files are UTF-8 JSON without BOM (a BOM is accepted when reading), written indented, `null` values omitted, with relaxed escaping so HTML stays readable. Serialization uses compile-time metadata (`StorageJsonContext`). The exact format is pinned by `FileFormatTests` and fixtures in `tests/.../Fixtures/`: sync files are shared with other versions, TextTemplateManager 1 included, and an unchanged tree must serialize to the same text, or two writers keep rewriting the file against each other. New fields follow the rules under [Fields of newer versions](#fields-of-newer-versions).
 
 | File | Type | Where |
 | --- | --- | --- |
@@ -105,6 +105,30 @@ A tree file looks like this (polymorphism through the `$type` discriminator, `Ti
 `AppSettings` fields are listed in the class diagram. Besides user choices it holds this installation's state: `LegacyRemovalOffered`, `TutorialOfferDone` and `LastRunVersion` (see [9](09-lifecycle.md)); a restore keeps the latter two from the current settings. The update switches `IdleInstall` and `NoAutomaticUpdates` (automatic updates off, stored inverted) are written only when on (`JsonIgnoreCondition.WhenWritingDefault`), so settings files without them keep their format. A `KeepUpdatingDespiteStorePolicy` left by 2.2 is ignored. `TranslateFrom` and `TranslateTo`, the Translate menu's last languages, are null until chosen and then not written, and `TranslateFormal`, `TranslationAutoCheck` and `TranslationAutoInstall` are written only when on and `TranslationLastCheck` only after a first check, for the same reason.
 
 `SyncSettings` holds the sources in priority order (index 0 first) and the `Separator` (`-`, `.` or empty; anything else is migrated to `-` on load).
+
+### Fields of newer versions
+
+`BaseItem.UnknownFields` (`[JsonExtensionData]`) holds the fields this version doesn't know, on templates, folders and the root, and writes them back behind `Title`. A tree file from a newer version therefore loads and saves byte-identically (`format-future.ttmdata`). It is a `Dictionary<string, JsonElement>`: a `JsonObject` writes a keyless nested object on .NET 8. Settings files don't keep unknown fields; they stay on one PC. 1.x and 2.6.x don't keep them either and drop them when they write.
+
+`UnknownFields.Clean` runs on every loaded tree and drops what can't be kept, so a file can never stop the app from saving: a value the JSON writer refuses (a lone surrogate escape) or one nested more than 32 levels (a cached or imported copy sits deeper in its file than the original did), and a `$` name on a root. The rest of the item stays, and the next write of the file leaves them out.
+
+Whatever copies an item's fields carries them: `SyncEngine.Merge` (items and the root), `DataNode.BuildFileTree`, the root in `DataNode.InitializeAsync`, the folder copies of an export, `RestoreService.MixData` (the root of the side the local items come from) and `BaseItem.DuplicateAs` (its own dictionary).
+
+- **The whole item wins.** The winner of a sync merge, an import overwrite or a restore merge overwrite brings its unknown fields, or none if it has none: overwriting from an old file clears them.
+- **A folder matched by name in an import or restore merge** keeps its own, like its other fields.
+- **`TranslatedCopy.Of` doesn't take them**: they may describe the original's language.
+- **`ItemDraft` doesn't need them**: the draft is never saved, `Commit` copies the edited fields onto the item.
+
+Rules for every new field in a tree file:
+
+- It gets a `JsonPropertyOrder` above all existing ones (`Title` is 1). Unknown fields are always written last, so an older version then writes it exactly where the newer one does.
+- Fields are only added: never removed, renamed or retyped. A removed field would become an unknown one in the newer version and move to the end.
+- No new `$type`: `BaseItem` is abstract, so an unknown discriminator makes older versions fail on the whole file. New data becomes fields on existing items.
+- No name starting with `$`: on an item it makes the whole file fail to load, on a root it is dropped.
+- No name of a `[JsonIgnore]` property (`IsSyncRoot`, `SyncFileMissing`, the cross-area warnings, ...) and not `UnknownFields`: the serializer takes those as its own, so older versions don't keep them.
+- Values stay within 32 levels of nesting.
+- No derived or cached values: an older version that edits `Content` bumps `LastChange` and writes the unknown fields back unchanged, so they must stay valid.
+- It must make sense on a duplicate. If it must not be copied, the newer version notices the duplicate and fixes it on its side.
 
 ---
 

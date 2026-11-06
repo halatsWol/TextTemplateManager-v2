@@ -9,7 +9,7 @@ if (cached item with that SyncId?) then (yes)
   if (source.AllowSave and cached.LastChange > file.LastChange?) then (yes)
     :keep the cached content\n(a local edit not written back yet);
   else (no)
-    :copy title, content, tags,\nshortcuts, paste mode, LastChange\nfrom the file;
+    :copy title, content, tags,\nshortcuts, paste mode, LastChange,\nunknown fields from the file;
   endif
 else (no)
   :new Template/Folder with a fresh app Id,\ncontent from the file;
@@ -19,7 +19,8 @@ endif
 :SyncChildren: remove items no longer in the file,\ninsert new ones, move to the file's order;
 stop
 note right
-  The folder root adopts the file root's LastChange, so a
+  The folder root adopts the file root's LastChange and
+  unknown fields, so a
   read-only open re-serializes identically and doesn't
   churn the shared file (OneDrive conflict copies).
   Write-back: BuildFileTree writes items keyed by SyncId

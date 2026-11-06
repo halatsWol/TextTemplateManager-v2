@@ -21,10 +21,12 @@ The list order is the priority order for single keys repeated across areas (loca
 
 ([source](diagrams/act-sync-merge.puml))
 
-Items are matched by `SyncId` and **reused in place**, so the tree keeps expansion and selection, and an open draft can be rebased onto the same item (see [6](06-main-window.md)). The merge rule:
+Items are matched by `SyncId` and **reused in place**, so the tree keeps expansion and selection, and an open draft can be rebased onto the same item (see [6](06-main-window.md)). An id that occurs more than once in a file (hand edits, merged conflict copies) stays as it is, and each occurrence takes its own cached item, in tree order, because one object in two places breaks the tree. The merge rule:
 
 - `AllowSave` off: the file wins.
 - `AllowSave` on: the newer `LastChange` wins, so a local edit that hasn't been written back yet survives a re-apply, and a newer edit from another PC replaces an older local one.
+
+The winner brings its fields of newer versions too (`UnknownFields`, see [2](02-data-model-and-files.md#fields-of-newer-versions)); the folder root always takes the file root's.
 
 ## Writing back
 

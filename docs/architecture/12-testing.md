@@ -16,7 +16,7 @@ pwsh -File tests/run-tests.ps1
 
 | Area | Tests |
 | --- | --- |
-| File formats | `FileFormatTests` (data, settings and sync files byte-for-byte against fixtures), `StorageServiceTests` (atomic writes, unchanged skips, unreadable files set aside, write signals) |
+| File formats | `FileFormatTests` (data, settings and sync files byte-for-byte against fixtures, a file from a newer version), `UnknownFieldsTests` (a newer version's fields through sync, import, export, restore and copies), `StorageServiceTests` (atomic writes, unchanged skips, unreadable files set aside, write signals) |
 | Store | `DataNodeTests` (add, delete, move, import, export, save suppression, shortcut clash resolution), `TreeWalkTests`, `ItemTitlesTests` |
 | Sync | `SyncEngineTests` (merge rules, identity reuse, order) |
 | Shortcuts and search | `ShortcutValidatorTests`, `TemplateShortcutTests`, `ShortcutRowTests`, `ConflictReportTests`, `TemplateSearchTests` |
