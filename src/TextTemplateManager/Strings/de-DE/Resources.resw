@@ -1361,6 +1361,12 @@ Die Vorlagen sind nicht betroffen. Das Update bleibt bereit; du kannst es noch e
   <data name="Conflicts_Shortcut" xml:space="preserve">
     <value>Kürzel: {0}</value>
   </data>
+  <data name="Conflicts_LanguageHeading" xml:space="preserve">
+    <value>Konflikte bei Sprachen</value>
+  </data>
+  <data name="Conflicts_Language" xml:space="preserve">
+    <value>Sprache: {0}</value>
+  </data>
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, Kürzel {1}, {2}</value>
   </data>

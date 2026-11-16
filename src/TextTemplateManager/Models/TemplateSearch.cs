@@ -21,17 +21,20 @@ public static class TemplateSearch
             if (StrictMatch(pattern, item.Title)) return true;
             if (item is not Template template) return false;
             if (StrictMatch(pattern, template.TagsCsv) || TagsMatch(query, template.TagsCsv)) return true;
-            return includeContent && StrictMatch(pattern, HtmlUtils.ToPlainText(template.Content));
+            return includeContent && Contents(template).Any(c => StrictMatch(pattern, HtmlUtils.ToPlainText(c)));
         }
 
         string text = item.Title;
         if (item is Template t)
         {
             text += $" {t.TagsCsv}";
-            if (includeContent) text += $" {HtmlUtils.ToPlainText(t.Content)}";
+            if (includeContent) text += " " + string.Join(" ", Contents(t).Select(HtmlUtils.ToPlainText));
         }
         return Matches(query, text);
     }
+
+    // Every tab's text, so a search finds a template by any of its languages.
+    private static IEnumerable<string> Contents(Template t) => t.AltLanguages?.Select(a => a.Content).Prepend(t.Content) ?? [t.Content];
 
     public static bool Matches(string query, string text)
     {

@@ -25,6 +25,7 @@ public static class TranslatedCopy
         TagsCsv = original.TagsCsv,
         DefaultPasteMode = original.DefaultPasteMode,
         MultiKeyShortcut = MultiKey(original.MultiKeyShortcut, original.Title, from, to),
+        Language = TemplateLanguages.NormalizeCode(to),
     };
 
     public static string Title(string title, string from, string to) =>

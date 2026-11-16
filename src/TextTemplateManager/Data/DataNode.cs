@@ -45,7 +45,7 @@ public class DataNode
     /// <summary>Raised after template data is successfully written to disk (may be off the UI thread).</summary>
     public event Action? DataSaved;
 
-    /// <summary>Raised when a template's shortcut changes, from any thread (an edit, a sync apply).</summary>
+    /// <summary>Raised when a template's shortcut or language conflict changes, from any thread (an edit, a sync apply).</summary>
     public event Action? ShortcutsChanged;
 
     /// <summary>Last observed write time per source, so the poller ignores our own writes.</summary>
@@ -203,6 +203,9 @@ public class DataNode
                 current.DefaultPasteMode = imported.DefaultPasteMode;
                 current.SingleKeyShortcut = imported.SingleKeyShortcut;
                 current.MultiKeyShortcut = imported.MultiKeyShortcut;
+                current.Language = imported.Language;
+                current.LanguageId = imported.LanguageId;
+                current.AltLanguages = imported.AltLanguages;
                 current.LastChange = imported.LastChange;
                 current.UnknownFields = imported.UnknownFields;
             }
@@ -447,16 +450,18 @@ public class DataNode
         nameof(Template.HasMultiKeyConflict),
         nameof(Template.HasSingleKeyCrossAreaWarning),
         nameof(Template.HasMultiKeyCrossAreaWarning),
+        nameof(Template.HasLanguageConflict),
     };
 
     private CancellationTokenSource? _editSaveDebounce;
 
     private void OnItemPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(Template.SingleKeyShortcut) or nameof(Template.MultiKeyShortcut))
+        if (e.PropertyName is nameof(Template.SingleKeyShortcut) or nameof(Template.MultiKeyShortcut) or nameof(Template.HasLanguageConflict))
             ShortcutsChanged?.Invoke();
 
         if (SavesSuppressed || e.PropertyName == null || _nonPersistedProps.Contains(e.PropertyName)) return;
+        if (sender is Template edited) edited.LanguagesKeptLocally = false;   // an edit here writes the languages back
         if (sender is BaseItem item)
         {
             item.LastChange = DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -813,6 +818,10 @@ public class DataNode
                 MultiKeyShortcut = t.MultiKeyShortcut,
                 TagsCsv = t.TagsCsv,
                 DefaultPasteMode = t.DefaultPasteMode,
+                // Kept only here: the file stays as the older version wrote it until this template is edited here.
+                Language = t.LanguagesKeptLocally ? null : t.Language,
+                LanguageId = t.LanguagesKeptLocally ? null : t.LanguageId,
+                AltLanguages = t.LanguagesKeptLocally ? null : t.AltLanguages,
             }
             : new Folder { Title = appItem.Title };
 

@@ -1361,6 +1361,12 @@ I modelli non sono stati toccati. L'aggiornamento resta pronto; puoi riprovare.<
   <data name="Conflicts_Shortcut" xml:space="preserve">
     <value>Abbreviazione: {0}</value>
   </data>
+  <data name="Conflicts_LanguageHeading" xml:space="preserve">
+    <value>Conflitti di lingue</value>
+  </data>
+  <data name="Conflicts_Language" xml:space="preserve">
+    <value>Lingua: {0}</value>
+  </data>
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, abbreviazione {1}, {2}</value>
   </data>

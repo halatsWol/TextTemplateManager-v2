@@ -1361,6 +1361,12 @@ Your templates weren't affected. The update stays ready; you can try again.</val
   <data name="Conflicts_Shortcut" xml:space="preserve">
     <value>Shortcut: {0}</value>
   </data>
+  <data name="Conflicts_LanguageHeading" xml:space="preserve">
+    <value>Language Conflicts</value>
+  </data>
+  <data name="Conflicts_Language" xml:space="preserve">
+    <value>Language: {0}</value>
+  </data>
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, shortcut {1}, {2}</value>
   </data>

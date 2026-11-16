@@ -29,8 +29,31 @@ class Template {
   ..transient..
   +HasSingleKeyCrossAreaWarning : bool
   +HasMultiKeyCrossAreaWarning : bool
+  +HasLanguageConflict : bool
+  +LanguagesKeptLocally : bool
+  +DefaultChangedSinceLanguages : bool
+  --
+  +Language : string?  (first tab)
+  +LanguageId : string?
+  +AltLanguages : IReadOnlyList<TemplateLanguage>?
+  +ContentFor(languageId) : string
   +{static} CleanShortcut(value) : string
 }
+class TemplateLanguage <<record>> {
+  +Id : string?  (4 hex, unique in the template)
+  +Language : string?
+  +Content : string
+  +UnknownFields : Dictionary<string, JsonElement>?
+}
+class TemplateLanguages <<static>> {
+  +NormalizeCode(code) : string?
+  +NewId(taken) : string
+  +Offered(template) : List<TemplateLanguage>
+  +HasDuplicate(template) : bool
+  +Repair(root)
+}
+Template "1" *-- "*" TemplateLanguage : AltLanguages
+TemplateLanguages ..> Template
 BaseItem <|-- Folder
 BaseItem <|-- Template
 BaseItem "1" o-- "*" BaseItem : Children
@@ -90,7 +113,7 @@ enum ItemType {
 }
 
 class SyncEngine <<static>> {
-  +Merge(target, fileRoot, name, sourceId, allowSave)
+  +Merge(target, fileRoot, name, sourceId, allowSave, unwritten)
 }
 class ShortcutValidator <<static>> {
   +Apply(entries)

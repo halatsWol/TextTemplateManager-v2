@@ -1361,6 +1361,12 @@ Les modèles n'ont pas été touchés. La mise à jour reste prête ; vous pouv
   <data name="Conflicts_Shortcut" xml:space="preserve">
     <value>Abréviation : {0}</value>
   </data>
+  <data name="Conflicts_LanguageHeading" xml:space="preserve">
+    <value>Conflits de langues</value>
+  </data>
+  <data name="Conflicts_Language" xml:space="preserve">
+    <value>Langue : {0}</value>
+  </data>
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, abréviation {1}, {2}</value>
   </data>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
+using TextTemplateManager.Services.Translation;
 
 namespace TextTemplateManager.ViewModels;
 
@@ -36,12 +37,15 @@ public sealed class ConflictReport
         var all = templates.ToList();
         var single = all.Where(t => t.HasSingleKeyConflict).GroupBy(t => t.SingleKeyShortcut).ToList();
         var multi = all.Where(t => t.HasMultiKeyConflict).GroupBy(t => t.MultiKeyShortcut).ToList();
+        var languages = all.Where(t => t.HasLanguageConflict).SelectMany(t => DuplicateLanguages(t).Select(l => (Tag: TranslatedCopy.Tag(l), t)))
+            .GroupBy(p => p.Tag, p => p.t).OrderBy(g => g.Key, StringComparer.Ordinal).ToList();
         var singleNotes = hideNotes ? new List<IGrouping<string, Template>>() : all.Where(t => t.HasSingleKeyCrossAreaWarning).GroupBy(t => t.SingleKeyShortcut).ToList();
         var multiNotes = hideNotes ? new List<IGrouping<string, Template>>() : all.Where(t => t.HasMultiKeyCrossAreaWarning).GroupBy(t => t.MultiKeyShortcut).ToList();
 
         var lines = new List<ConflictLine>();
-        AddConflicts(lines, Loc.Get("Conflicts_SingleKeyHeading"), single);
-        AddConflicts(lines, Loc.Get("Conflicts_MultiKeyHeading"), multi);
+        AddConflicts(lines, Loc.Get("Conflicts_SingleKeyHeading"), single, k => Loc.Format("Conflicts_Shortcut", k));
+        AddConflicts(lines, Loc.Get("Conflicts_MultiKeyHeading"), multi, k => Loc.Format("Conflicts_Shortcut", k));
+        AddConflicts(lines, Loc.Get("Conflicts_LanguageHeading"), languages, k => Loc.Format("Conflicts_Language", k));
         AddNotes(lines, Loc.Get("Conflicts_SingleKeyNote"), singleNotes);
         AddNotes(lines, Loc.Get("Conflicts_MultiKeyNote"), multiNotes);
 
@@ -50,16 +54,21 @@ public sealed class ConflictReport
                 .Concat(multiNotes.SelectMany(g => g.Select(t => "M:" + g.Key + "~" + t.Title)))
                 .OrderBy(s => s, StringComparer.Ordinal));
 
-        return new ConflictReport(lines, single.Count > 0 || multi.Count > 0, signature);
+        return new ConflictReport(lines, single.Count > 0 || multi.Count > 0 || languages.Count > 0, signature);
     }
 
-    private static void AddConflicts(List<ConflictLine> lines, string heading, List<IGrouping<string, Template>> groups)
+    // The languages a template has on more than one tab.
+    private static IEnumerable<string> DuplicateLanguages(Template t) =>
+        (t.AltLanguages ?? []).Select(a => a.Language).Prepend(t.Language).OfType<string>()
+            .GroupBy(l => l, StringComparer.OrdinalIgnoreCase).Where(g => g.Count() > 1).Select(g => g.Key);
+
+    private static void AddConflicts(List<ConflictLine> lines, string heading, List<IGrouping<string, Template>> groups, Func<string, string> keyLine)
     {
         if (groups.Count == 0) return;
         lines.Add(new(ConflictLineKind.Heading, heading));
         foreach (var g in groups)
         {
-            lines.Add(new(ConflictLineKind.Key, Loc.Format("Conflicts_Shortcut", g.Key)));
+            lines.Add(new(ConflictLineKind.Key, keyLine(g.Key)));
             lines.AddRange(g.Select(t => new ConflictLine(ConflictLineKind.Template, $"- {t.Title}")));
         }
     }

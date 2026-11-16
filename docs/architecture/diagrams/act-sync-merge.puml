@@ -9,7 +9,12 @@ if (cached item with that SyncId?) then (yes)
   if (source.AllowSave and cached.LastChange > file.LastChange?) then (yes)
     :keep the cached content\n(a local edit not written back yet);
   else (no)
-    :copy title, content, tags,\nshortcuts, paste mode, LastChange,\nunknown fields from the file;
+    if (file item has no language fields,\ncached template has some?) then (yes)
+      :copy the rest from the file,\nkeep the cached languages\n(an older version dropped them);
+      :LanguagesKeptLocally: written back\nwithout them until edited here;
+    else (no)
+      :copy title, content, tags,\nshortcuts, paste mode, languages,\nLastChange, unknown fields from the file;
+    endif
   endif
 else (no)
   :new Template/Folder with a fresh app Id,\ncontent from the file;

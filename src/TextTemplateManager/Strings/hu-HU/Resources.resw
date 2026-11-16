@@ -1364,6 +1364,12 @@ A sablonokat ez nem érintette. A frissítés készen áll; újra megpróbálhat
   <data name="Conflicts_Shortcut" xml:space="preserve">
     <value>Rövidítés: {0}</value>
   </data>
+  <data name="Conflicts_LanguageHeading" xml:space="preserve">
+    <value>Ütközések: nyelv</value>
+  </data>
+  <data name="Conflicts_Language" xml:space="preserve">
+    <value>Nyelv: {0}</value>
+  </data>
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, rövidítés: {1}, {2}</value>
   </data>

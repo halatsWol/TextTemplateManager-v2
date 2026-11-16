@@ -57,7 +57,11 @@ namespace TextTemplateManager.Models
             {
                 // Reuse the existing object so its tree identity (expansion/selection) is preserved.
                 result = cached;
-                if (!cacheWins) CopyContent(fileItem, result); // adopt the file's newer content
+                if (!cacheWins)   // adopt the file's newer content
+                {
+                    if (cached is Template ct && fileItem is Template ft && KeepsLanguages(ct, ft)) CopyKeepingLanguages(ft, ct);
+                    else CopyContent(fileItem, result);
+                }
             }
             else
             {
@@ -84,6 +88,24 @@ namespace TextTemplateManager.Models
             return merged;
         }
 
+        // A file item without any language fields, for a template that has them here, was written by a version that
+        // doesn't know them (1.x, 2.6 and older). Its other tabs are kept; a first tab's language alone only while the
+        // file brings no newer edit. A newer version always writes Language, so dropping it means an older writer.
+        private static bool KeepsLanguages(Template cached, Template file) =>
+            file.Language == null && file.LanguageId == null && file.AltLanguages == null
+            && (cached.AltLanguages != null
+                || (cached.Language != null && string.CompareOrdinal(cached.LastChange ?? "", file.LastChange ?? "") == 0));
+
+        private static void CopyKeepingLanguages(Template from, Template to)
+        {
+            var (language, languageId, alts) = (to.Language, to.LanguageId, to.AltLanguages);
+            bool newDefault = to.Content != from.Content;
+            CopyContent(from, to);
+            (to.Language, to.LanguageId, to.AltLanguages) = (language, languageId, alts);
+            to.LanguagesKeptLocally = true;
+            if (newDefault && alts != null) to.DefaultChangedSinceLanguages = true;
+        }
+
         private static void CopyContent(BaseItem from, BaseItem to)
         {
             to.Title = from.Title;
@@ -96,6 +118,11 @@ namespace TextTemplateManager.Models
                 tt.MultiKeyShortcut = ft.MultiKeyShortcut;
                 tt.TagsCsv = ft.TagsCsv;
                 tt.DefaultPasteMode = ft.DefaultPasteMode;
+                tt.Language = ft.Language;
+                tt.LanguageId = ft.LanguageId;
+                tt.AltLanguages = ft.AltLanguages;
+                tt.LanguagesKeptLocally = false;
+                tt.DefaultChangedSinceLanguages = false;
             }
         }
 

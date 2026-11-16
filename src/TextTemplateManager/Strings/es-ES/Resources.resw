@@ -1361,6 +1361,12 @@ Las plantillas no se vieron afectadas. La actualización sigue lista; puedes vol
   <data name="Conflicts_Shortcut" xml:space="preserve">
     <value>Abreviatura: {0}</value>
   </data>
+  <data name="Conflicts_LanguageHeading" xml:space="preserve">
+    <value>Conflictos de idioma</value>
+  </data>
+  <data name="Conflicts_Language" xml:space="preserve">
+    <value>Idioma: {0}</value>
+  </data>
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, abreviatura {1}, {2}</value>
   </data>
