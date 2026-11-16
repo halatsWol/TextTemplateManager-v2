@@ -484,9 +484,13 @@ public class DataNode
             pending.Cancel();
             await Storage.SaveSettingsAsync(CurrentSettings);
         }
+        else await _settingsSave;   // a delayed save that is already writing
     }
 
     private CancellationTokenSource? _settingsSaveDebounce;
+    private Task _settingsSave = Task.CompletedTask;
+
+    internal TimeSpan SettingsSaveDelay { get; set; } = TimeSpan.FromMilliseconds(500);
 
     // Every settings change (a toggle, the hotkey, a generated connector token) is saved here, once,
     // shortly after the last change, so the pages never have to remember to save.
@@ -494,12 +498,12 @@ public class DataNode
     {
         _settingsSaveDebounce?.Cancel();
         var cts = _settingsSaveDebounce = new CancellationTokenSource();
-        _ = SaveSettingsAfterDelayAsync(cts);
+        _settingsSave = SaveSettingsAfterDelayAsync(cts);
     }
 
     private async Task SaveSettingsAfterDelayAsync(CancellationTokenSource cts)
     {
-        await Task.Delay(500);
+        await Task.Delay(SettingsSaveDelay);
         if (cts.IsCancellationRequested) return;
         cts.Cancel();   // marks it done, so a flush doesn't write it a second time
         await Storage.SaveSettingsAsync(CurrentSettings);

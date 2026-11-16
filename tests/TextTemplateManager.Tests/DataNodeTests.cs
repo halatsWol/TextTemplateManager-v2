@@ -742,6 +742,25 @@ public class DataNodeTests
         Assert.True(saved.HideCrossAreaShortcutWarnings);
     }
 
+    [Fact]
+    public async Task A_flush_waits_for_a_settings_save_already_writing()
+    {
+        var (node, _) = await NewNodeAsync();
+        node.SettingsSaveDelay = TimeSpan.Zero;
+        var release = new TaskCompletionSource();
+        var holder = node.Storage.WithWriteLock(node.Storage.GetSettingsPath(), () => release.Task);
+
+        node.CurrentSettings.BrowserConnectorPort = 48000;   // its delayed save starts and waits for the file
+        var flush = node.FlushPendingSaveAsync();
+        await Task.Delay(300);
+        Assert.False(flush.IsCompleted);
+
+        release.SetResult();
+        await holder;
+        await flush;
+        Assert.Equal(48000, (await node.Storage.LoadSettingsAsync()).BrowserConnectorPort);
+    }
+
     [Theory]
     [InlineData("_", "-")]
     [InlineData("x", "-")]

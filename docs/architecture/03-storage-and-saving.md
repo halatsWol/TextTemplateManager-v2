@@ -45,7 +45,7 @@ One `StorageService` instance exists per data folder (the app's, the tour's samp
 - **A property edit** (title, content, tags, shortcuts, paste mode) sets `LastChange = now` and schedules a save **500 ms after the last edit** (`ScheduleEditSave`), so typing doesn't write on every keystroke. The conflict flags are excluded.
 - **A structural change** (add, delete, move, import) saves at once.
 - **A settings change** is saved 500 ms after the last one (`ScheduleSettingsSave`); pages never save settings themselves.
-- `FlushPendingSaveAsync()` writes a pending edit or settings save now (Save button, exit).
+- `FlushPendingSaveAsync()` writes a pending edit or settings save now (Save button, exit), and waits for a settings save that is already writing, so nothing is still being written when the app exits.
 
 `SaveDataAsync()` (one at a time, `_saveLock`) writes `data.ttmdata`, then each active sync source with saving allowed (`WriteSyncSourcesAsync`), then raises `DataSaved`.
 

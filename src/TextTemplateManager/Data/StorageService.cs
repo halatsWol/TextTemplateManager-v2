@@ -196,7 +196,7 @@ public sealed class StorageService
     /// <summary>Saves are written again (a restore that failed changed nothing).</summary>
     public void ResumeWrites() => _writesSuspended = false;
 
-    private async Task WithWriteLock(string path, Func<Task> write)
+    internal async Task WithWriteLock(string path, Func<Task> write)
     {
         if (_writesSuspended) return;
         if (_protectedPaths.ContainsKey(path)) return;   // unreadable and couldn't be set aside — never overwrite
