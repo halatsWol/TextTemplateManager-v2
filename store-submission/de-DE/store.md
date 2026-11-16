@@ -129,6 +129,5 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Neu: Vorlagen und Ordner behalten, was ein neueres TextTemplateManager in ihnen speichert, auch in geteilten Sync-Dateien. Bitte aktualisiere jeden PC, der eine Sync-Datei mitbenutzt, auf diese Version.
-Behoben: Die App öffnet sich wieder, wenn eine Sync-Datei dieselbe Element-ID zweimal enthält.
+Verbessert: läuft mit .NET 10, für das Microsoft bis November 2028 Sicherheitsupdates liefert. Vorlagen, Einstellungen und Bedienung bleiben gleich.
 ```

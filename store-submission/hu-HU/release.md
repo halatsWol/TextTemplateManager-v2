@@ -1,10 +1,5 @@
 ### Újdonságok ebben a verzióban
 
-#### Új
+#### Továbbfejlesztve
 
-- **Az újabb verziók adatai megmaradnak:** a sablonok és mappák mostantól megőrzik, amit egy újabb TextTemplateManager tárol bennük. Ez a verzió mentéskor már nem távolítja el ezeket az adatokat, sem a saját sablonjaidból, sem a megosztott szinkronizálási fájlokból.
-- **Kérjük, frissíts erre a verzióra minden számítógépet, amely szinkronizálási fájlt használ közösen.** A következő verziók több adatot tárolnak majd a sablonjaidról, a régebbi verziók pedig továbbra is eltávolítják azokat.
-
-#### Javítva
-
-- Az alkalmazás ismét megnyílik, ha egy szinkronizálási fájl kétszer tartalmazza ugyanazt az elemazonosítót, például ha az ütközési másolatokat kézzel egyesítették. Eddig a második indítástól kezdve ablak nélkül maradt.
+- **.NET 10 alapon fut:** a TextTemplateManager mostantól .NET 10-en fut, amelyhez a Microsoft 2028 novemberéig ad biztonsági frissítéseket. A korábbi verziók által használt .NET 8 2026. november 10. óta nem kap többet. A sablonjaid, a beállításaid és a használat módja nem változik.

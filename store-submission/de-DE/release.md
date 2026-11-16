@@ -1,10 +1,5 @@
 ### Neuigkeiten in dieser Version
 
-#### Neu
+#### Verbessert
 
-- **Daten neuerer Versionen bleiben erhalten:** Vorlagen und Ordner behalten jetzt, was ein neueres TextTemplateManager in ihnen speichert. Diese Version entfernt diese Daten beim Speichern nicht mehr, weder in deinen eigenen Vorlagen noch in geteilten Sync-Dateien.
-- **Bitte aktualisiere jeden PC, der eine Sync-Datei mitbenutzt, auf diese Version.** Kommende Versionen speichern mehr zu deinen Vorlagen, und ältere Versionen entfernen das weiterhin.
-
-#### Behoben
-
-- Die App öffnet sich wieder, wenn eine Sync-Datei dieselbe Element-ID zweimal enthält, zum Beispiel nachdem Konfliktkopien von Hand zusammengeführt wurden. Bisher blieb sie ab dem zweiten Start ohne Fenster.
+- **Läuft mit .NET 10:** TextTemplateManager läuft jetzt mit .NET 10, für das Microsoft bis November 2028 Sicherheitsupdates liefert. .NET 8, das ältere Versionen nutzen, bekommt seit dem 10. November 2026 keine mehr. Deine Vorlagen, Einstellungen und Arbeitsweise bleiben gleich.

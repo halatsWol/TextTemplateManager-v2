@@ -129,6 +129,5 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Új: a sablonok és mappák megőrzik, amit egy újabb TextTemplateManager tárol bennük, a megosztott szinkronizálási fájlokban is. Kérjük, frissíts erre a verzióra minden számítógépet, amely szinkronizálási fájlt használ közösen.
-Javítva: az alkalmazás ismét megnyílik, ha egy szinkronizálási fájl kétszer tartalmazza ugyanazt az elemazonosítót.
+Továbbfejlesztve: .NET 10-en fut, amelyhez a Microsoft 2028 novemberéig ad biztonsági frissítéseket. A sablonok, a beállítások és a használat nem változik.
 ```

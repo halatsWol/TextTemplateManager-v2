@@ -129,6 +129,5 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Nouveau : les modèles et les dossiers gardent ce qu'une version plus récente de TextTemplateManager y enregistre, y compris dans les fichiers de synchronisation partagés. Veuillez mettre à jour vers cette version chaque PC qui partage un fichier de synchronisation.
-Corrigé : l'application s'ouvre de nouveau lorsqu'un fichier de synchronisation contient deux fois le même identifiant d'élément.
+Amélioré : fonctionne avec .NET 10, pour lequel Microsoft fournit des mises à jour de sécurité jusqu'en novembre 2028. Modèles, paramètres et utilisation ne changent pas.
 ```

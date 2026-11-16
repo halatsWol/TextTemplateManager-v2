@@ -135,6 +135,5 @@ Copyright © 2026 Marflow Software
 This block is the Store's "What's new" (Microsoft asks for it on updates only). It lists only what changed since the previous release; keep it in step with `release.md` in this folder.
 
 ```text
-New: templates and folders keep what a newer TextTemplateManager stores in them, in shared sync files too. Please update every PC that shares a sync file to this version.
-Fixed: the app opens again when a sync file holds the same item ID twice.
+Improved: runs on .NET 10, which Microsoft supplies with security updates until November 2028. Templates, settings and how you work stay the same.
 ```

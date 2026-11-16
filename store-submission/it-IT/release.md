@@ -1,10 +1,5 @@
 ### Novità di questa versione
 
-#### Novità
+#### Miglioramenti
 
-- **I dati delle versioni più recenti restano:** modelli e cartelle ora conservano ciò che una versione più recente di TextTemplateManager vi memorizza. Questa versione non rimuove più questi dati durante il salvataggio, né nei tuoi modelli né nei file di sincronizzazione condivisi.
-- **Aggiorna a questa versione ogni PC che condivide un file di sincronizzazione.** Le prossime versioni memorizzeranno più dati con i tuoi modelli, e le versioni precedenti continuano a rimuoverli.
-
-#### Correzioni
-
-- L'app si apre di nuovo quando un file di sincronizzazione contiene due volte lo stesso ID di elemento, ad esempio dopo aver unito a mano delle copie in conflitto. Finora dal secondo avvio restava senza finestra.
+- **Funziona con .NET 10:** TextTemplateManager ora usa .NET 10, per cui Microsoft fornisce aggiornamenti di sicurezza fino a novembre 2028. .NET 8, usato dalle versioni precedenti, non ne riceve più dal 10 novembre 2026. I tuoi modelli, le impostazioni e il modo di lavorare restano gli stessi.
