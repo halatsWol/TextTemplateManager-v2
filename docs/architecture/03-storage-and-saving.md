@@ -12,7 +12,7 @@ One `StorageService` instance exists per data folder (the app's, the tour's samp
 
 - Every write of a path goes through `WithWriteLock(path, ...)`: one `SemaphoreSlim` per path, so two saves of the same file never overlap (a slow OneDrive file doesn't hold up the others).
 - Own files are written **atomically**: to `<file>.tmp`, flushed to disk, then moved over the target (`WriteAtomicAsync`). A crash leaves the old or the new file, never a mix.
-- Tree files are **skipped when unchanged** (`SaveAsync`, `SaveSharedAsync` compare the serialized text with the file), so modified times don't churn; this matters for sync files on OneDrive, where a needless rewrite on several PCs creates conflict copies.
+- Tree files are **skipped when unchanged** (`SaveAsync`, `SaveSharedAsync` compare the serialized text with the file), so modified times don't churn; this matters for sync files on OneDrive, where a needless rewrite on several PCs creates conflict copies. Sync write-back also skips a file written elsewhere since it was last read (`SaveSharedIfUnchangedAsync`, see [4](04-sync.md#writing-back)).
 - Sync files are read and written **shared** (`FileShare.ReadWrite | Delete`) with retries, because OneDrive briefly locks them.
 - Write activity is visible to others: `WritesInFlight`, `WriteCount` (writes that changed a file), `WritesQuiet(ms)` and `WaitForWritesAsync()`. Backups wait for quiet; exit waits for writes to finish.
 - `SuspendWritesAsync()` drops every later save; a restore uses it so nothing the running app holds overwrites the restored files. `ResumeWrites()` undoes it when the restore failed.

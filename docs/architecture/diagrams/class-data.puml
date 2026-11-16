@@ -37,6 +37,7 @@ class StorageService {
   +{static} CreateDefault(environment)
   +SaveAsync(path, root)
   +SaveSharedAsync(path, root)
+  +SaveSharedIfUnchangedAsync(path, root, lastSeenWriteUtc)
   +{static} LoadRootSharedAsync(path)
   +Load/SaveSettingsAsync()
   +Load/SaveSyncSettingsAsync()

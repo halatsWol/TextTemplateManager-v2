@@ -16,7 +16,7 @@ else (no)
 endif
 :SyncId = file item's Id;
 :merge its children the same way;
-:SyncChildren: remove items no longer in the file,\ninsert new ones, move to the file's order;
+:SyncChildren: remove items no longer in the file\n(except local additions not written yet),\ninsert new ones, move to the file's order;
 stop
 note right
   The folder root adopts the file root's LastChange and

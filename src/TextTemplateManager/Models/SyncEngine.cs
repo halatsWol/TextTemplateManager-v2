@@ -11,8 +11,12 @@ namespace TextTemplateManager.Models
     /// survives. With <c>allowSave</c>, the newer LastChange wins; otherwise the file wins.</summary>
     public static class SyncEngine
     {
-        public static void Merge(Folder target, Folder fileRoot, string name, Guid sourceId, bool allowSave)
+        /// <remarks>Items in <paramref name="unwritten"/> without a SyncId were added here and aren't in the file
+        /// yet (their write was skipped or failed): with <c>allowSave</c> they stay where they are.</remarks>
+        public static void Merge(Folder target, Folder fileRoot, string name, Guid sourceId, bool allowSave,
+            IReadOnlySet<BaseItem>? unwritten = null)
         {
+            var keep = allowSave ? unwritten : null;
             // A queue per id: a file can hold an id twice (hand edits, merged conflict copies), and one object in two
             // places breaks the tree. Each occurrence takes its own cached item, in tree order.
             var cache = new Dictionary<Guid, Queue<BaseItem>>();
@@ -23,7 +27,7 @@ namespace TextTemplateManager.Models
                     items.Enqueue(item);
                 }
 
-            var merged = fileRoot.Children.Select(fc => BuildMerged(fc, cache, allowSave)).ToList();
+            var merged = WithUnwritten(target.Children, fileRoot.Children.Select(fc => BuildMerged(fc, cache, allowSave, keep)).ToList(), keep);
 
             target.Id = sourceId;
             target.SyncId = fileRoot.Id;   // the sync file's root id (usually Guid.Empty)
@@ -38,7 +42,8 @@ namespace TextTemplateManager.Models
             SyncChildren(target.Children, merged);
         }
 
-        private static BaseItem BuildMerged(BaseItem fileItem, Dictionary<Guid, Queue<BaseItem>> cache, bool allowSave)
+        private static BaseItem BuildMerged(BaseItem fileItem, Dictionary<Guid, Queue<BaseItem>> cache, bool allowSave,
+            IReadOnlySet<BaseItem>? keep)
         {
             BaseItem? cached = null;
             if (cache.TryGetValue(fileItem.Id, out var items)) items.TryDequeue(out cached);
@@ -64,10 +69,19 @@ namespace TextTemplateManager.Models
 
             result.SyncId = fileItem.Id;
 
-            var mergedChildren = fileItem.Children.Select(fc => BuildMerged(fc, cache, allowSave)).ToList();
-            SyncChildren(result.Children, mergedChildren);
+            var mergedChildren = fileItem.Children.Select(fc => BuildMerged(fc, cache, allowSave, keep)).ToList();
+            SyncChildren(result.Children, WithUnwritten(result.Children, mergedChildren, keep));
 
             return result;
+        }
+
+        private static List<BaseItem> WithUnwritten(IList<BaseItem> current, List<BaseItem> merged, IReadOnlySet<BaseItem>? keep)
+        {
+            if (keep == null || keep.Count == 0) return merged;
+            for (int i = 0; i < current.Count; i++)
+                if (current[i].SyncId == null && keep.Contains(current[i]))
+                    merged.Insert(Math.Min(i, merged.Count), current[i]);
+            return merged;
         }
 
         private static void CopyContent(BaseItem from, BaseItem to)

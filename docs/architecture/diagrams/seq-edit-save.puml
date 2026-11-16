@@ -42,8 +42,8 @@ MainViewModel -> DataNode : FlushPendingSaveAsync()
 DataNode -> StorageService : SaveAsync(data.ttmdata, root)
 StorageService -> Data : skip if unchanged, else\nwrite .tmp, flush, move over
 loop each active source with AllowSave
-  DataNode -> StorageService : SaveSharedAsync(path, BuildFileTree(folder))
-  StorageService -> SyncFile : skip if unchanged, else temp + move\n(retries while OneDrive holds it)
+  DataNode -> StorageService : SaveSharedIfUnchangedAsync(path, BuildFileTree(folder), last seen time)
+  StorageService -> SyncFile : skip if unchanged, or if written elsewhere\nsince last seen (merged at the next poll);\nelse temp + move (retries while OneDrive holds it)
 end
 DataNode -> MainPage : DataSaved -> "Saved" indicator
 @enduml

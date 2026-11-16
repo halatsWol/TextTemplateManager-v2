@@ -592,20 +592,17 @@ public class DataNode
         foreach (var source in CurrentSyncSettings.Sources.Where(s => s.IsActive).ToList())
         {
             DateTime write = GetLastWriteSafe(source.Path);
-            if (_lastSeenWrite.TryGetValue(source.Id, out var prev) && write != prev)
-                changed = true;
-            _lastSeenWrite[source.Id] = write;
+            // A changed time is recorded by the merge that reads the file, not here: a save in between would take
+            // it as already merged and write over the change.
+            if (!_lastSeenWrite.TryGetValue(source.Id, out var prev)) _lastSeenWrite[source.Id] = write;
+            else if (write != prev) changed = true;
         }
 
         if (changed) await ReapplySyncAsync();
         else if (CurrentSyncSettings.Sources.Any(s => s.HasWriteProblem)) await SaveDataAsync();   // retry the failed write
     }
 
-    private static DateTime GetLastWriteSafe(string path)
-    {
-        try { return File.Exists(path) ? File.GetLastWriteTimeUtc(path) : default; }
-        catch { return default; }
-    }
+    private static DateTime GetLastWriteSafe(string path) => StorageService.LastWriteUtc(path);
 
     /// <summary>Returns the sync source an item belongs to (via its top-level ancestor), or null
     /// if the item is local.</summary>
@@ -701,10 +698,11 @@ public class DataNode
                 // time would leave it unread, and an outside edit made meanwhile would later be overwritten.
                 _lastSeenWrite[source.Id] = locked ? default : GetLastWriteSafe(source.Path);
             }
+            else _lastSeenWrite[source.Id] = default;   // a file that shows up later counts as a change
 
             if (fileRoot != null)
             {
-                SyncEngine.Merge(folder, fileRoot, source.Name, source.Id, source.AllowSave);
+                SyncEngine.Merge(folder, fileRoot, source.Name, source.Id, source.AllowSave, _unwritten);
                 folder.SyncFileMissing = false;
             }
             else
@@ -741,13 +739,32 @@ public class DataNode
                 SetWriteProblem(source, folder, null);   // nothing written, nothing failing
                 continue;
             }
-            string? problem;
-            try { problem = await Storage.SaveSharedAsync(source.Path, BuildFileTree(folder)); }
-            catch (Exception ex) { problem = ex.Message; }
-            if (problem == null) _lastSeenWrite[source.Id] = GetLastWriteSafe(source.Path); // don't treat our write as external
-            SetWriteProblem(source, folder, problem);
+            var assigned = new List<BaseItem>();
+            StorageService.SharedWrite result;
+            try
+            {
+                result = await Storage.SaveSharedIfUnchangedAsync(source.Path, BuildFileTree(folder, assigned),
+                    _lastSeenWrite.GetValueOrDefault(source.Id));
+            }
+            catch (Exception ex) { result = new(ex.Message, null); }
+
+            if (result.SeenWriteUtc is { } seen)
+            {
+                _lastSeenWrite[source.Id] = seen;   // don't treat our write as external
+                _unwritten.ExceptWith(assigned);
+            }
+            else
+            {
+                // Not in the file (yet): no file id, so the merge before the next write keeps them.
+                foreach (var item in assigned) item.SyncId = null;
+                _unwritten.UnionWith(assigned);
+            }
+            SetWriteProblem(source, folder, result.Problem);
         }
     }
+
+    /// <summary>Items added to a synced folder whose write was skipped (the file had changed) or failed.</summary>
+    private readonly HashSet<BaseItem> _unwritten = new();
 
     private static void SetWriteProblem(SyncSource source, Folder? folder, string? problem)
     {
@@ -758,8 +775,8 @@ public class DataNode
     }
 
     /// <summary>Convert a synced folder's subtree into a sync-file tree keyed by SyncId
-    /// (locally-added items get a fresh SyncId here).</summary>
-    internal static Folder BuildFileTree(Folder syncFolder)
+    /// (locally-added items get a fresh SyncId here, and are added to <paramref name="assigned"/>).</summary>
+    internal static Folder BuildFileTree(Folder syncFolder, List<BaseItem>? assigned = null)
     {
         var root = new Folder
         {
@@ -770,13 +787,17 @@ public class DataNode
             UnknownFields = syncFolder.UnknownFields,
         };
         foreach (var child in syncFolder.Children)
-            root.Children.Add(ToFileItem(child, root.Id));
+            root.Children.Add(ToFileItem(child, root.Id, assigned));
         return root;
     }
 
-    private static BaseItem ToFileItem(BaseItem appItem, Guid parentSyncId)
+    private static BaseItem ToFileItem(BaseItem appItem, Guid parentSyncId, List<BaseItem>? assigned)
     {
-        appItem.SyncId ??= Guid.NewGuid();   // assign a file id to locally-added items
+        if (appItem.SyncId == null)   // assign a file id to locally-added items
+        {
+            appItem.SyncId = Guid.NewGuid();
+            assigned?.Add(appItem);
+        }
         Guid fileId = appItem.SyncId.Value;
 
         BaseItem fileItem = appItem is Template t
@@ -796,7 +817,7 @@ public class DataNode
         fileItem.LastChange = appItem.LastChange;
         fileItem.UnknownFields = appItem.UnknownFields;
         foreach (var c in appItem.Children)
-            fileItem.Children.Add(ToFileItem(c, fileId));
+            fileItem.Children.Add(ToFileItem(c, fileId, assigned));
         return fileItem;
     }
 
