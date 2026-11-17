@@ -309,6 +309,15 @@ public sealed partial class TemplateEditor : UserControl
                     && root.TryGetProperty("to", out var t) && t.GetString() is { Length: > 0 } to)
                     TranslatedCopyRequested?.Invoke(html, from, to);
             }
+            else if (type == "translationAddLanguage")
+            {
+                var root = doc.RootElement;
+                if (root.TryGetProperty("html", out var h) && h.GetString() is { Length: > 0 } html
+                    && root.TryGetProperty("from", out var f) && f.GetString() is { Length: > 0 } from
+                    && root.TryGetProperty("to", out var t) && t.GetString() is { Length: > 0 } to
+                    && root.TryGetProperty("key", out var k) && k.GetString() is { Length: > 0 } key)
+                    AddTranslatedLanguage(html, from, to, key);
+            }
         }
         catch (Exception ex)
         {
@@ -388,8 +397,15 @@ public sealed partial class TemplateEditor : UserControl
     {
         if (EditorWebView?.CoreWebView2 == null) return;
         var choices = TranslationChoices.From(TranslationModelDirectory is { } dir ? new ModelStore(dir).Installed() : []);
+        var t = _current;
         string json = System.Text.Json.JsonSerializer.Serialize(new
         {
+            tab = t == null ? null : new
+            {
+                language = TemplateTabs.All(t).ElementAtOrDefault(TemplateTabs.IndexOf(t, _currentTab))?.Language,
+                languages = TemplateTabs.All(t).Select(x => x.Language).OfType<string>(),
+                editable = _requestedEditable && ReferenceEquals(_requested, t),
+            },
             sources = choices.Sources.Select(c => new { code = c.Code, name = c.Name }),
             targets = choices.Targets.Select(c => new { code = c.Code, name = c.Name }),
             from = choices.FromOrDefault(Settings?.TranslateFrom),
@@ -659,6 +675,20 @@ public sealed partial class TemplateEditor : UserControl
         }
         BuildTabs();
         if (shown) LoadRequested();
+    }
+
+    // The Translate menu's "Add as language": the translation of the tab named by `key` becomes a new tab of the same
+    // template, shown next. Dropped when another template is shown by now.
+    private void AddTranslatedLanguage(string html, string from, string to, string key)
+    {
+        if (_current is not { } t || !ReferenceEquals(_requested, t) || !_requestedEditable) return;
+        int slash = key.IndexOf('/');
+        if (slash < 0 || key[..slash] != t.Id.ToString()) return;
+        string? source = key[(slash + 1)..] is var s && s != "first" ? s : null;
+        if (TemplateTabs.AddTranslation(t, source, from, to, html) is not { } id) return;
+        _requestedTab = id;
+        BuildTabs();
+        LoadRequested();
     }
 
     // The language of a tab's text, including what was typed in the last moment.

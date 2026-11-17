@@ -27,6 +27,46 @@ public class TemplateTabsTests
     private static string Order(Template t) => string.Join(",", TemplateTabs.All(t).Select(x => x.Language));
 
     [Fact]
+    public void A_translation_is_added_as_a_tab_in_the_target_language()
+    {
+        var t = Single();
+
+        string? id = TemplateTabs.AddTranslation(t, null, "en", "DE", "<p>Hallo</p>");
+
+        Assert.NotNull(id);
+        Assert.Equal("en,de", Order(t));
+        Assert.Equal("<p>Hallo</p>", TemplateTabs.ContentOf(t, id));
+        Assert.Equal("<p>Hello</p>", t.Content);
+    }
+
+    [Fact]
+    public void A_translation_gives_a_source_tab_without_a_language_the_one_it_came_from()
+    {
+        var t = Single(null);
+
+        Assert.NotNull(TemplateTabs.AddTranslation(t, null, "en", "de", "<p>Hallo</p>"));
+        Assert.Equal("en,de", Order(t));
+
+        var u = Three();
+        string blank = TemplateTabs.Add(u);
+        Assert.NotNull(TemplateTabs.AddTranslation(u, blank, "it", "es", "<p>Hola</p>"));
+        Assert.Equal("en,de,fr,it,es", Order(u));
+    }
+
+    [Fact]
+    public void A_translation_into_a_language_the_template_has_adds_nothing()
+    {
+        var t = Three();
+        string blank = TemplateTabs.Add(t);
+
+        Assert.Null(TemplateTabs.AddTranslation(t, null, "en", "fr", "<p>Salut</p>"));
+        Assert.Null(TemplateTabs.AddTranslation(t, blank, "de", "fr", "<p>Salut</p>"));
+        Assert.Null(TemplateTabs.AddTranslation(t, blank, "it", "fr", "<p>Salut</p>"));
+        Assert.Equal("en,de,fr,", Order(t));
+        Assert.Equal("<p>Bonjour</p>", t.AltLanguages![1].Content);
+    }
+
+    [Fact]
     public void A_single_tab_is_the_templates_own_fields_without_an_id()
     {
         var t = Single();

@@ -56,6 +56,7 @@ class TemplateTabs <<static>> {
   +All(template) : List<TemplateLanguage>
   +IndexOf(template, id) : int
   +Add(template, language) : string
+  +AddTranslation(template, sourceId, from, to, html) : string?
   +SetLanguage(template, id, language)
   +SetContent(template, id, html)
   +Move(template, id, to) / Reorder(template, ids)

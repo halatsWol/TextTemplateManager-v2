@@ -34,6 +34,24 @@ public static class TemplateTabs
         return id;
     }
 
+    /// <summary>Adds <paramref name="content"/>, the tab <paramref name="sourceId"/> translated from
+    /// <paramref name="from"/>, as a tab in <paramref name="to"/>; its id. The source tab gets <paramref name="from"/>
+    /// when it has no language and no other tab has it. Null, with no tab added, when a tab already has
+    /// <paramref name="to"/> or the first tab still has no language.</summary>
+    public static string? AddTranslation(Template t, string? sourceId, string from, string to, string content)
+    {
+        string? fromCode = TemplateLanguages.NormalizeCode(from), toCode = TemplateLanguages.NormalizeCode(to);
+        int at = IndexOf(t, sourceId);
+        var tabs = All(t);
+        if (toCode == null || tabs.Any(x => x.Language == toCode)) return null;
+        if (at >= 0 && tabs[at].Language == null && fromCode != null && !tabs.Any(x => x.Language == fromCode))
+            SetLanguage(t, sourceId, fromCode);
+        if (!CanAdd(t)) return null;
+        string id = Add(t, toCode);
+        SetContent(t, id, content);
+        return id;
+    }
+
     /// <summary>Gives a tab another language. The first tab's language can be changed but not removed.</summary>
     public static void SetLanguage(Template t, string? id, string? language)
     {
