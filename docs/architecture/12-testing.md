@@ -21,7 +21,7 @@ pwsh -File tests/run-tests.ps1
 | Sync | `SyncEngineTests` (merge rules, identity reuse, order) |
 | Shortcuts and search | `ShortcutValidatorTests`, `TemplateShortcutTests`, `ShortcutRowTests`, `ConflictReportTests`, `TemplateSearchTests` |
 | Backups and restore | `BackupServiceTests`, `BackupSchedulerTests` (with an injected clock), `RestoreServiceTests` (parts, 1.x settings, sync file placements, rollback, recovery) |
-| Editing | `ItemDraftTests`, `MultiSelectionTests` |
+| Editing | `ItemDraftTests`, `MultiSelectionTests`, `TemplateTabsTests` (language tabs: add, move, rename, delete, the rules for the first tab, the draft's per-tab baselines, the language picker's lists) |
 | Quick Paste | `QuickPasteControllerTests`, `PasteWindowNavigationTests`, `PasteClipboardTests`, `SendInputTests`, `HotkeyListenerTests` |
 | Conversions | `HtmlToRtfTests`, `LegacyRtfTests` |
 | Translation | `TranslationChoicesTests` (the Translate menu's sources, targets and remembered languages), `TranslatedCopyTests` (title and multi-key shortcut of a translated copy), `TranslationUpdaterTests` (when the daily check runs, offline while off, notice or install, retries), `ModelCatalogTests` (which records are offered: versions, sizes, Android and Nightly filters, complete pairs, languages and names), `ModelStoreTests` (install from a fake server with both hashes checked, failed and cancelled downloads, updates, remove, export and import, damaged or unsafe zips, whether a download runs, for the exit question) |

@@ -214,6 +214,12 @@ package "Services.Translation" {
     +TickAsync() : once a day, if on
     +CheckAsync() : notice or install
   }
+  class LanguageCatalog <<static>> {
+    +All : string[]
+    +Suggested(uiLanguages, translatorLanguages)
+    +Choices(suggested, taken, filter)
+  }
+  LanguageCatalog ..> TranslationLanguage : NameOf
   TranslationUpdater ..> ModelCatalog : daily
   TranslationUpdater ..> ModelStore : downloads newer
   ModelCatalog ..> ModelPair

@@ -43,6 +43,7 @@ A template can hold its text in several languages, one tab each in the editor. T
 - **Codes.** `TemplateLanguages.NormalizeCode` stores a code in one form: lowercase language, title-case script, uppercase region (`de`, `zh-Hant`, `pt-BR`), legacy codes replaced (`iw` is `he`, `in` is `id`, `no` is `nb`).
 - **Repair at load.** `TemplateLanguages.Repair` runs on every loaded tree, after `UnknownFields.Clean`: codes normalized, a missing, malformed or repeated id replaced, a `LanguageId` without other tabs dropped. A file already in order is left exactly as it was; a repaired one is written in its new form at the next save, without a new `LastChange`.
 - **Pasting.** The first tab always pastes, whether its language is known or not. Of the others, `TemplateLanguages.Offered` lists those with a language no earlier tab has; `Template.ContentFor(id)` gives a tab's text (the first tab's for null or an unknown id).
+- **Editing.** `TemplateTabs` adds, moves, renames and deletes tabs (see [6](06-main-window.md#language-tabs)). A second tab needs the first tab's language, which can then be changed but not removed; the first tab always has a language while there are others.
 - **The same language twice** stays in the data, but only the first such tab is offered; `Template.HasLanguageConflict` (transient) flags it, and the conflict panel lists it under its own heading.
 
 ### Search

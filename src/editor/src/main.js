@@ -466,12 +466,15 @@ const host = window.chrome && window.chrome.webview ? window.chrome.webview : nu
 const post = (msg) => { try { host && host.postMessage(JSON.stringify(msg)) } catch (_) {} }
 
 let suppressChange = false
+// The template and tab shown ("<template id>/<tab id>"): a change reports it, so the host can drop one that arrives
+// after a switch.
+let tabKey = null
 const debounce = (fn, ms) => {
     let t
     return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms) }
 }
 const emitChange = debounce(() => {
-    if (!suppressChange) post({ type: 'change', html: getCleanHtml() })
+    if (!suppressChange) post({ type: 'change', html: getCleanHtml(), key: tabKey })
 }, 250)
 
 // ---- Editor -------------------------------------------------------------------
@@ -635,16 +638,29 @@ function normalizeMarkBoundaries(html) {
 
 function getCleanHtml() { return normalizeMarkBoundaries(editor.getHTML()) }
 
+// Each tab of the template shown keeps its own undo history while switching between them; another template starts
+// them afresh. A tab whose text changed meanwhile (a sync) starts afresh too.
+const tabStates = new Map()
+const templateOf = (key) => key == null ? null : key.slice(0, key.indexOf('/'))
+
 window.editorApi = {
-    setContent(html) {
+    setContent(html, key = null) {
+        if (tabKey != null && key != null && templateOf(tabKey) === templateOf(key)) tabStates.set(tabKey, { state: editor.state, html: getCleanHtml() })
+        else tabStates.clear()
+        tabKey = key
         suppressChange = true
-        editor.commands.setContent(normalizeBreaks(html), false)
-        // Per-template history: recreating the state re-inits the history plugin (empty undo/redo),
-        // so "back" can't cross into the previously loaded template.
-        editor.view.updateState(EditorState.create({
-            doc: editor.state.doc,
-            plugins: editor.state.plugins,
-        }))
+        const saved = key != null ? tabStates.get(key) : null
+        if (saved && saved.html === html) {
+            editor.view.updateState(saved.state)
+        } else {
+            editor.commands.setContent(normalizeBreaks(html), false)
+            // Recreating the state re-inits the history plugin (empty undo/redo), so "back" can't cross into the
+            // previously loaded template or tab.
+            editor.view.updateState(EditorState.create({
+                doc: editor.state.doc,
+                plugins: editor.state.plugins,
+            }))
+        }
         suppressChange = false
     },
     getContent() { return getCleanHtml() },
@@ -745,14 +761,16 @@ document.addEventListener('keydown', (e) => {
     btn?.focus()
 })
 
-// Ctrl+F and Ctrl+S never reach the host's XAML accelerators while the WebView has focus, so forward them.
+// Ctrl+F, Ctrl+S and Ctrl+PgUp/PgDn (the language tabs) never reach the host's XAML accelerators while the WebView
+// has focus, so forward them.
 window.addEventListener('keydown', (e) => {
     if (!e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) return
-    const type = { f: 'focusSearch', s: 'save' }[e.key.toLowerCase()]
+    const step = { PageUp: -1, PageDown: 1 }[e.key]
+    const type = step ? 'switchTab' : { f: 'focusSearch', s: 'save' }[e.key.toLowerCase()]
     if (!type) return
     e.preventDefault()
     e.stopPropagation()
-    post({ type })
+    post(step ? { type, step } : { type })
 }, true)
 
 // Show `pop` under `btn`, clamped to the viewport so a right-edge button (e.g. the symbol

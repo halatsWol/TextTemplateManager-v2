@@ -52,7 +52,19 @@ class TemplateLanguages <<static>> {
   +HasDuplicate(template) : bool
   +Repair(root)
 }
+class TemplateTabs <<static>> {
+  +All(template) : List<TemplateLanguage>
+  +IndexOf(template, id) : int
+  +Add(template, language) : string
+  +SetLanguage(template, id, language)
+  +SetContent(template, id, html)
+  +Move(template, id, to) / Reorder(template, ids)
+  +Remove(template, id)
+  +CanAdd / CanMove / CanRemove
+  +Apply(template, tabs)
+}
 Template "1" *-- "*" TemplateLanguage : AltLanguages
+TemplateTabs ..> Template : the editor's tabs
 TemplateLanguages ..> Template
 BaseItem <|-- Folder
 BaseItem <|-- Template

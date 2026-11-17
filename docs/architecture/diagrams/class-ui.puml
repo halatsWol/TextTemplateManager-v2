@@ -61,7 +61,7 @@ class ItemDraft {
   +IsDirty
   +Commit()
   +RebaseOnto(item)
-  +ContentLoaded(html)
+  +ContentLoaded(html, tabId)
 }
 class MultiSelection {
   +Items
@@ -76,7 +76,13 @@ class TemplateEditor <<UserControl>> {
   +Show(template, editable)
   +FlushAsync()
   +FocusPart(text)
+  +FocusTabs()
+  +LanguageTabStrip
+  +ShowDialog
   +ContentLoaded / SaveRequested / FocusSearchRequested / TabOut
+}
+class LanguagePickerDialog <<ContentDialog>> {
+  +PickAsync(show) : string?
 }
 class SettingsView <<UserControl>> {
   +Open(page, parameter)
@@ -119,6 +125,8 @@ App --> PasteWindow : warm instance
 App ..> TutorialOverlay : via MainPage / PasteWindow
 MainPage *-- MainViewModel
 MainPage *-- TemplateEditor
+TemplateEditor ..> LanguagePickerDialog : add / change language
+TemplateEditor ..> TemplateTabs
 MainPage *-- SettingsView
 MainPage *-- ConflictPanel
 MainPage *-- SearchOptionsButton

@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using TextTemplateManager.Helpers;
@@ -11,16 +12,23 @@ using TextTemplateManager.Services.Translation;
 
 namespace TextTemplateManager.Controls;
 
-/// <summary>The rich-text editor (TipTap in a WebView2). It shows one template at a time and writes the
-/// edits back to that template; the store saves them. Must not live in a DataTemplate.</summary>
+/// <summary>The rich-text editor (TipTap in a WebView2) with a tab per language above it. It shows one tab of one
+/// template at a time and writes the edits back to that tab; the store saves them. Must not live in a DataTemplate.</summary>
 public sealed partial class TemplateEditor : UserControl
 {
     private bool _initStarted;
     private bool _ready;
-    // Template loaded in the editor (by reference), so edits save to the right one.
+    // Template and tab loaded in the editor (the template by reference), so edits save to the right one.
     private Template? _current;
+    private string? _currentTab;
+    private string? _currentKey;
     private Template? _requested;
+    private string? _requestedTab;
     private bool _requestedEditable = true;
+    // The tabs as last built (ids, languages, editable), so typing in a tab doesn't rebuild them.
+    private string? _tabsShown;
+    private bool _buildingTabs;
+    private bool _tabsQueued;
 
     /// <summary>The editor asked to move focus back to the search box.</summary>
     public event EventHandler? FocusSearchRequested;
@@ -31,9 +39,9 @@ public sealed partial class TemplateEditor : UserControl
     /// <summary>Tab left the editor: forward from its text (true = Shift+Tab, back from its toolbar).</summary>
     public event Action<bool>? TabOut;
 
-    /// <summary>A template was loaded; its content as the editor shows it (normalised HTML, which can differ
-    /// from the stored text without any edit).</summary>
-    public event Action<Template, string>? ContentLoaded;
+    /// <summary>A tab of a template was loaded (template, tab id, null for the first); its content as the editor
+    /// shows it (normalised HTML, which can differ from the stored text without any edit).</summary>
+    public event Action<Template, string?, string>? ContentLoaded;
 
     /// <summary>The Translate menu's "Manage languages…" was chosen.</summary>
     public event EventHandler? TranslationSettingsRequested;
@@ -47,15 +55,35 @@ public sealed partial class TemplateEditor : UserControl
     /// <summary>The app settings, where the Translate menu's last languages are kept.</summary>
     public AppSettings? Settings { get; set; }
 
+    /// <summary>Shows a dialog (the language picker, the delete question); None when none can be shown.</summary>
+    public Func<ContentDialog, Task<ContentDialogResult>>? ShowDialog { get; set; }
+
+    /// <summary>The language tabs, a stop of their own in the page's Tab order, before the editor.</summary>
+    public FrameworkElement LanguageTabStrip => LanguageTabs;
+
     public TemplateEditor() => InitializeComponent();
 
-    /// <summary>Shows <paramref name="template"/> (null: an empty editor), read-only unless
+    /// <summary>Shows <paramref name="template"/> (null: an empty editor) at its first tab, read-only unless
     /// <paramref name="editable"/>. Before the editor is ready this is remembered and shown once it is.</summary>
     public void Show(Template? template, bool editable)
     {
+        if (!ReferenceEquals(_requested, template))
+        {
+            if (_requested != null) _requested.PropertyChanged -= Requested_PropertyChanged;
+            if (template != null) template.PropertyChanged += Requested_PropertyChanged;
+            _requestedTab = null;
+        }
         _requested = template;
         _requestedEditable = editable;
+        BuildTabs();
         LoadRequested();
+    }
+
+    /// <summary>Puts the keyboard focus on the selected language tab.</summary>
+    public void FocusTabs()
+    {
+        if (LanguageTabs.ContainerFromIndex(Math.Max(0, LanguageTabs.SelectedIndex)) is Control tab) tab.Focus(FocusState.Keyboard);
+        else LanguageTabs.Focus(FocusState.Keyboard);
     }
 
     /// <summary>Moves the keyboard focus into the editor: its toolbar, or its text with the caret at the end (the
@@ -67,12 +95,13 @@ public sealed partial class TemplateEditor : UserControl
         _ = EditorWebView.CoreWebView2.ExecuteScriptAsync(text ? "window.editorApi.focusTextEnd()" : "window.editorApi.focusToolbar()");
     }
 
-    /// <summary>Reads the editor's HTML and saves it to the template it belongs to.</summary>
+    /// <summary>Reads the editor's HTML and saves it to the template tab it belongs to.</summary>
     public async Task FlushAsync()
     {
         var t = _current;
+        string? tab = _currentTab;
         if (t == null || EditorWebView?.CoreWebView2 == null) return;
-        if (await GetHtmlAsync() is { } html && t.Content != html) t.Content = html;
+        if (await GetHtmlAsync() is { } html) TemplateTabs.SetContent(t, tab, html);
     }
 
     private async Task<string?> GetHtmlAsync()
@@ -219,7 +248,13 @@ public sealed partial class TemplateEditor : UserControl
             else if (type == "change")
             {
                 var html = doc.RootElement.TryGetProperty("html", out var h) ? h.GetString() : null;
-                if (!string.IsNullOrEmpty(html)) OnContentChanged(html);
+                var key = doc.RootElement.TryGetProperty("key", out var k) ? k.GetString() : null;
+                // A change typed just before a switch can arrive after it: it belongs to the tab it was typed in.
+                if (!string.IsNullOrEmpty(html) && key == _currentKey) OnContentChanged(html);
+            }
+            else if (type == "switchTab")
+            {
+                SelectNeighbourTab(doc.RootElement.TryGetProperty("step", out var st) && st.TryGetInt32(out int step) ? step : 1);
             }
             else if (type == "openLink")
             {
@@ -279,13 +314,20 @@ public sealed partial class TemplateEditor : UserControl
         if (_requested is not Template t)
         {
             _current = null;
-            await SetHtmlAsync("<p></p>");
+            _currentTab = null;
+            _currentKey = null;
+            await SetHtmlAsync("<p></p>", null);
             return;
         }
 
+        string? tab = TemplateTabs.IndexOf(t, _requestedTab) > 0 ? _requestedTab : t.LanguageId;
+        // By its id from here on: a tab moved away from the front stays the selected one.
+        _requestedTab = tab;
         _current = t;
-        await SetHtmlAsync(GetHtmlForEditing(t));
-        if (await GetHtmlAsync() is { } shown && ReferenceEquals(_current, t)) ContentLoaded?.Invoke(t, shown);
+        _currentTab = tab;
+        _currentKey = $"{t.Id}/{tab ?? "first"}";
+        await SetHtmlAsync(GetHtmlForEditing(TemplateTabs.ContentOf(t, tab)), _currentKey);
+        if (await GetHtmlAsync() is { } shown && ReferenceEquals(_current, t) && _currentTab == tab) ContentLoaded?.Invoke(t, tab, shown);
 
         // Read-only for save-off synced templates.
         try
@@ -296,18 +338,20 @@ public sealed partial class TemplateEditor : UserControl
         catch { }
     }
 
-    private static string GetHtmlForEditing(Template t)
+    private static string GetHtmlForEditing(string? content)
     {
-        string content = (t.Content ?? string.Empty).TrimEnd('\0');
+        content = (content ?? string.Empty).TrimEnd('\0');
         return string.IsNullOrWhiteSpace(content) ? "<p></p>" : content;
     }
 
-    private async Task SetHtmlAsync(string html)
+    // The key names the template and tab, so the page keeps each tab's undo history while the template is shown.
+    private async Task SetHtmlAsync(string html, string? key)
     {
         try
         {
             string arg = System.Text.Json.JsonSerializer.Serialize(html);
-            await EditorWebView.CoreWebView2.ExecuteScriptAsync($"window.editorApi.setContent({arg})");
+            string keyArg = System.Text.Json.JsonSerializer.Serialize(key);
+            await EditorWebView.CoreWebView2.ExecuteScriptAsync($"window.editorApi.setContent({arg}, {keyArg})");
         }
         catch (Exception ex)
         {
@@ -323,7 +367,7 @@ public sealed partial class TemplateEditor : UserControl
         if (t == null) return;
 
         // The store saves the change (debounced); nothing else to schedule here.
-        if (t.Content != html) t.Content = html;
+        TemplateTabs.SetContent(t, _currentTab, html);
     }
 
     // The Translate menu asks each time it opens, so languages installed meanwhile in Settings show up.
@@ -349,4 +393,226 @@ public sealed partial class TemplateEditor : UserControl
         _ = EditorWebView.CoreWebView2.ExecuteScriptAsync(
             $"window.editorApi && window.editorApi.setTheme({(dark ? "true" : "false")})");
     }
+
+    #region Language tabs
+
+    // Ids, languages and order changed (an edit here, a sync, a draft saved): the tab headers follow, once per change.
+    private void Requested_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is not (nameof(Models.Template.Language) or nameof(Models.Template.LanguageId) or nameof(Models.Template.AltLanguages)) || _tabsQueued) return;
+        _tabsQueued = true;
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            _tabsQueued = false;
+            BuildTabs();
+        });
+    }
+
+    private void BuildTabs()
+    {
+        var t = _requested;
+        var tabs = t != null ? TemplateTabs.All(t) : [];
+        string shown = string.Join("|", tabs.Select(x => $"{x.Id}:{x.Language}")) + $"|{_requestedEditable}|{t?.Id}";
+        if (shown != _tabsShown)
+        {
+            _tabsShown = shown;
+            _buildingTabs = true;
+            try
+            {
+                LanguageTabs.TabItems.Clear();
+                if (t != null)
+                {
+                    var offered = TemplateLanguages.Offered(t).Skip(1).Select(o => o.Id).ToHashSet();
+                    for (int i = 0; i < tabs.Count; i++)
+                        LanguageTabs.TabItems.Add(NewTab(tabs[i], i, tabs.Count, i > 0 && !offered.Contains(tabs[i].Id)));
+                }
+            }
+            finally { _buildingTabs = false; }
+            LanguageTabs.CanReorderTabs = _requestedEditable;
+            AddLanguageButton.Visibility = _requestedEditable ? Visibility.Visible : Visibility.Collapsed;
+        }
+        SelectTab(t != null ? TemplateTabs.IndexOf(t, _requestedTab) : -1);
+    }
+
+    private void SelectTab(int index)
+    {
+        int count = LanguageTabs.TabItems.Count;
+        _buildingTabs = true;
+        try { LanguageTabs.SelectedIndex = index >= 0 && index < count ? index : (count > 0 ? 0 : -1); }
+        finally { _buildingTabs = false; }
+    }
+
+    // The first tab, pasted by default, has a star once there are others; a tab that isn't pasted (no language, or
+    // the language of an earlier tab) a warning sign.
+    private TabViewItem NewTab(TemplateLanguage tab, int index, int count, bool notPasted)
+    {
+        string name = tab.Language != null ? TranslationLanguage.NameOf(tab.Language) : Loc.Get("LanguageTabs_NoLanguage");
+        string? description = index == 0 && count > 1 ? Loc.Get("LanguageTabs_DefaultLanguageTip")
+            : notPasted ? (tab.Language == null ? Loc.Get("LanguageTabs_UnsetLanguageTip") : Loc.Get("LanguageTabs_DuplicateLanguageTip"))
+            : null;
+        var item = new TabViewItem
+        {
+            Header = name,
+            Tag = tab.Id,
+            IsClosable = false,
+            IconSource = index == 0 && count > 1 ? new FontIconSource { Glyph = "\uE735" }
+                : notPasted ? new FontIconSource { Glyph = "\uE7BA" } : null,
+        };
+        if (description != null)
+        {
+            ToolTipService.SetToolTip(item, description);
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetHelpText(item, description);
+        }
+        if (_requestedEditable) item.ContextFlyout = TabMenu(item);
+        return item;
+    }
+
+    private MenuFlyout TabMenu(TabViewItem item)
+    {
+        var menu = new MenuFlyout();
+        MenuFlyoutItem Entry(string text, string glyph, Func<Template, string?, Task> act)
+        {
+            var entry = new MenuFlyoutItem { Text = text, Icon = new FontIcon { Glyph = glyph } };
+            entry.Click += async (_, _) => { if (_requested is { } t) await act(t, item.Tag as string); };
+            menu.Items.Add(entry);
+            return entry;
+        }
+        // The add button sits outside the keyboard's way through the tabs; the menu (Shift+F10) reaches it too.
+        Entry(Loc.Get("LanguageTabs_AddLanguage"), "\uE710", (_, _) => AddLanguageAsync());
+        Entry(Loc.Get("LanguageTabs_ChangeLanguage"), "\uE8C1", ChangeLanguageAsync);
+        var makeDefault = Entry(Loc.Get("LanguageTabs_MakeDefault"), "\uE735", (t, id) => Moved(t, id, 0));
+        var left = Entry(Loc.Get("LanguageTabs_MoveLeft"), "\uE72B", (t, id) => Moved(t, id, TemplateTabs.IndexOf(t, id) - 1));
+        var right = Entry(Loc.Get("LanguageTabs_MoveRight"), "\uE72A", (t, id) => Moved(t, id, TemplateTabs.IndexOf(t, id) + 1));
+        menu.Items.Add(new MenuFlyoutSeparator());
+        var delete = Entry(Loc.Get("LanguageTabs_DeleteLanguage"), "\uE74D", DeleteLanguageAsync);
+        menu.Opening += (_, _) =>
+        {
+            if (_requested is not { } t) return;
+            string? id = item.Tag as string;
+            int at = TemplateTabs.IndexOf(t, id);
+            makeDefault.IsEnabled = TemplateTabs.CanMove(t, id, 0);
+            left.IsEnabled = TemplateTabs.CanMove(t, id, at - 1);
+            right.IsEnabled = TemplateTabs.CanMove(t, id, at + 1);
+            delete.IsEnabled = TemplateTabs.CanRemove(t, id);
+        };
+        return menu;
+    }
+
+    private static Task Moved(Template t, string? id, int to)
+    {
+        TemplateTabs.Move(t, id, to);
+        return Task.CompletedTask;
+    }
+
+    private void LanguageTabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_buildingTabs || _requested is not { } t || LanguageTabs.SelectedItem is not TabViewItem item) return;
+        string? id = item.Tag as string;
+        if (TemplateTabs.IndexOf(t, id) == TemplateTabs.IndexOf(t, _currentTab) && ReferenceEquals(_current, t)) return;
+        _requestedTab = id;
+        LoadRequested();
+    }
+
+    // A tab dragged to another place: the template takes the new order, or the tabs go back when it can't (a tab
+    // without a language can't be first).
+    private void LanguageTabs_TabItemsChanged(TabView sender, Windows.Foundation.Collections.IVectorChangedEventArgs args)
+    {
+        if (_buildingTabs || _requested is not { } t || args.CollectionChange != Windows.Foundation.Collections.CollectionChange.ItemInserted) return;
+        var ids = LanguageTabs.TabItems.OfType<TabViewItem>().Select(i => i.Tag as string).ToList();
+        if (ids.Count != TemplateTabs.All(t).Count) return;
+        if (!TemplateTabs.Reorder(t, ids))
+        {
+            _tabsShown = null;
+            DispatcherQueue.TryEnqueue(BuildTabs);
+        }
+    }
+
+    private void PreviousTab_Invoked(Microsoft.UI.Xaml.Input.KeyboardAccelerator sender, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        SelectNeighbourTab(-1);
+    }
+
+    private void NextTab_Invoked(Microsoft.UI.Xaml.Input.KeyboardAccelerator sender, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        SelectNeighbourTab(1);
+    }
+
+    private void SelectNeighbourTab(int step)
+    {
+        int count = LanguageTabs.TabItems.Count;
+        if (count < 2) return;
+        LanguageTabs.SelectedIndex = ((Math.Max(0, LanguageTabs.SelectedIndex) + step) % count + count) % count;
+    }
+
+    private async void AddLanguage_Click(object sender, RoutedEventArgs e) => await AddLanguageAsync();
+
+    private async Task AddLanguageAsync()
+    {
+        if (_requested is not { } t || !_requestedEditable) return;
+        if (!TemplateTabs.CanAdd(t))
+        {
+            // The text so far gets its language first: the first tab is the one pasted by default.
+            string? first = await PickLanguageAsync(Loc.Get("LanguagePicker_FirstTitle"), Loc.Get("LanguagePicker_FirstMessage"), []);
+            if (first == null || !ReferenceEquals(_requested, t)) return;
+            TemplateTabs.SetLanguage(t, null, first);
+        }
+        // The new tab gets its language later, from its menu; until then it isn't pasted.
+        _requestedTab = TemplateTabs.Add(t);
+        BuildTabs();
+        LoadRequested();
+    }
+
+    private async Task ChangeLanguageAsync(Template t, string? id)
+    {
+        int at = TemplateTabs.IndexOf(t, id);
+        if (at < 0) return;
+        var others = TemplateTabs.All(t).Where((_, i) => i != at).Select(x => x.Language).ToList();
+        string? language = await PickLanguageAsync(Loc.Get("LanguagePicker_ChangeTitle"), null, others);
+        if (language != null && ReferenceEquals(_requested, t)) TemplateTabs.SetLanguage(t, id, language);
+    }
+
+    private async Task DeleteLanguageAsync(Template t, string? id)
+    {
+        int at = TemplateTabs.IndexOf(t, id);
+        if (at < 0 || !TemplateTabs.CanRemove(t, id)) return;
+        var tab = TemplateTabs.All(t)[at];
+        if (HtmlUtils.ToPlainText(tab.Content).Trim().Length > 0)
+        {
+            string name = tab.Language != null ? TranslationLanguage.NameOf(tab.Language) : Loc.Get("LanguageTabs_NoLanguage");
+            var dialog = new ContentDialog
+            {
+                Title = Loc.Format("LanguageTabs_DeleteLanguageTitle", name),
+                Content = Loc.Format("LanguageTabs_DeleteLanguageText", name),
+                PrimaryButtonText = Loc.Get("LanguageTabs_DeleteLanguageButton"),
+                CloseButtonText = Loc.Get("Common_CancelButton"),
+                DefaultButton = ContentDialogButton.Close,
+            };
+            if (ShowDialog == null || await ShowDialog(dialog) != ContentDialogResult.Primary || !ReferenceEquals(_requested, t)) return;
+            at = TemplateTabs.IndexOf(t, id);
+            if (at < 0) return;
+        }
+        bool shown = TemplateTabs.IndexOf(t, _currentTab) == at;
+        TemplateTabs.Remove(t, id);
+        // The editor then shows the tab that took its place.
+        if (shown)
+        {
+            var tabs = TemplateTabs.All(t);
+            _requestedTab = tabs[Math.Min(at, tabs.Count - 1)].Id;
+            _current = null;
+        }
+        BuildTabs();
+        if (shown) LoadRequested();
+    }
+
+    private async Task<string?> PickLanguageAsync(string title, string? message, IReadOnlyList<string?> taken)
+    {
+        if (ShowDialog == null) return null;
+        var translator = TranslationModelDirectory is { } dir ? new ModelStore(dir).Installed().SelectMany(p => new[] { p.From, p.To }) : [];
+        var suggested = LanguageCatalog.Suggested(UiLanguages.Available, translator);
+        return await new LanguagePickerDialog(title, message, suggested, taken).PickAsync(ShowDialog);
+    }
+
+    #endregion
 }

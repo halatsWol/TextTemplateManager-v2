@@ -1862,4 +1862,79 @@ Felülírás: a fájl a biztonsági másolatban lévő példányt kapja meg, min
   <data name="MailHint_HelpLink.Content" xml:space="preserve">
     <value>Részletes útmutató</value>
   </data>
+  <data name="TemplateEditor_LanguageTabs.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Nyelvek</value>
+  </data>
+  <data name="TemplateEditor_AddLanguageButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Nyelv hozzáadása</value>
+  </data>
+  <data name="TemplateEditor_AddLanguageButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Nyelv hozzáadása</value>
+  </data>
+  <data name="LanguageTabs_NoLanguage" xml:space="preserve">
+    <value>Nincs nyelv</value>
+  </data>
+  <data name="LanguageTabs_DefaultLanguageTip" xml:space="preserve">
+    <value>Alapértelmezett nyelv: ez kerül beillesztésre, ha nincs más kiválasztva</value>
+  </data>
+  <data name="LanguageTabs_UnsetLanguageTip" xml:space="preserve">
+    <value>Nincs nyelv: nem ajánlott fel beillesztésre</value>
+  </data>
+  <data name="LanguageTabs_DuplicateLanguageTip" xml:space="preserve">
+    <value>Ugyanaz a nyelv, mint egy korábbi lapé: nem ajánlott fel beillesztésre</value>
+  </data>
+  <data name="LanguageTabs_AddLanguage" xml:space="preserve">
+    <value>Nyelv hozzáadása</value>
+  </data>
+  <data name="LanguageTabs_ChangeLanguage" xml:space="preserve">
+    <value>Nyelv módosítása…</value>
+  </data>
+  <data name="LanguageTabs_MakeDefault" xml:space="preserve">
+    <value>Beállítás alapértelmezettként</value>
+  </data>
+  <data name="LanguageTabs_MoveLeft" xml:space="preserve">
+    <value>Mozgatás balra</value>
+  </data>
+  <data name="LanguageTabs_MoveRight" xml:space="preserve">
+    <value>Mozgatás jobbra</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguage" xml:space="preserve">
+    <value>Nyelv törlése</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageTitle" xml:space="preserve">
+    <value>Törli: {0}?</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageText" xml:space="preserve">
+    <value>A(z) {0} nyelvű szöveg törlődik ebből a sablonból.</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageButton" xml:space="preserve">
+    <value>Törlés</value>
+  </data>
+  <data name="LanguagePicker_FilterBox.PlaceholderText" xml:space="preserve">
+    <value>Nyelvek keresése</value>
+  </data>
+  <data name="LanguagePicker_FilterBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Nyelvek keresése</value>
+  </data>
+  <data name="LanguagePicker_List.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Nyelvek</value>
+  </data>
+  <data name="LanguagePicker_ChooseButton" xml:space="preserve">
+    <value>Kiválasztás</value>
+  </data>
+  <data name="LanguagePicker_Suggested" xml:space="preserve">
+    <value>Javasolt</value>
+  </data>
+  <data name="LanguagePicker_All" xml:space="preserve">
+    <value>Minden nyelv</value>
+  </data>
+  <data name="LanguagePicker_FirstTitle" xml:space="preserve">
+    <value>A szöveg nyelve</value>
+  </data>
+  <data name="LanguagePicker_FirstMessage" xml:space="preserve">
+    <value>Újabb nyelv hozzáadása előtt válaszd ki, milyen nyelven íródott ez a sablon. Ez a szöveg marad az alapértelmezett, ez kerül beillesztésre, ha nincs más nyelv kiválasztva.</value>
+  </data>
+  <data name="LanguagePicker_ChangeTitle" xml:space="preserve">
+    <value>Nyelv módosítása</value>
+  </data>
 </root>

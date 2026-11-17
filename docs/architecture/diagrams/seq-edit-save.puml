@@ -19,14 +19,14 @@ MainPage -> MainViewModel : SelectedItem = template
 MainViewModel -> ItemDraft : For(template) (a copy)
 MainViewModel -> MainPage : EditedItem = draft.Edited
 MainPage -> TemplateEditor : Show(draft.Edited, editable)
-TemplateEditor -> Web : editorApi.setContent(html)
+TemplateEditor -> Web : editorApi.setContent(html, key)\n(the shown tab: template id / tab id)
 TemplateEditor -> Web : editorApi.getContent()
-TemplateEditor -> MainViewModel : ContentLoaded(template, normalised html)
-MainViewModel -> ItemDraft : ContentLoaded(html) (baseline, not an edit)
+TemplateEditor -> MainViewModel : ContentLoaded(template, tab id, normalised html)
+MainViewModel -> ItemDraft : ContentLoaded(html, tab id) (the tab's baseline, not an edit)
 
 User -> Web : types
-Web -> TemplateEditor : postMessage {type:"change", html}\n(debounced 250 ms)
-TemplateEditor -> ItemDraft : Edited.Content = html
+Web -> TemplateEditor : postMessage {type:"change", html, key}\n(debounced 250 ms; dropped when key isn't the shown tab's)
+TemplateEditor -> ItemDraft : TemplateTabs.SetContent(Edited, tab id, html)
 ItemDraft -> MainViewModel : DirtyChanged
 MainViewModel -> MainPage : HasUnsavedChanges -> Save button shown
 
@@ -34,7 +34,7 @@ User -> MainPage : Save / Ctrl+S
 MainPage -> TemplateEditor : FlushAsync()
 MainPage -> MainViewModel : SaveEditsAsync()
 MainViewModel -> ItemDraft : Commit()
-ItemDraft -> Original : Title / Content / TagsCsv / shortcuts / paste mode
+ItemDraft -> Original : Title / language tabs (TemplateTabs.Apply) / TagsCsv / shortcuts / paste mode
 Original -> DataNode : PropertyChanged
 DataNode -> Original : LastChange = now
 DataNode -> DataNode : ScheduleEditSave() (500 ms debounce)

@@ -201,10 +201,11 @@ public partial class MainViewModel : ObservableObject
         if (_draft != null) SelectedItem = _draft.Original;
     }
 
-    /// <summary>The editor shows the edited template's content as <paramref name="html"/> after loading it.</summary>
-    public void EditorLoaded(Template shown, string html)
+    /// <summary>The editor shows tab <paramref name="tabId"/> of the edited template as <paramref name="html"/> after
+    /// loading it.</summary>
+    public void EditorLoaded(Template shown, string? tabId, string html)
     {
-        if (_draft is { } draft && ReferenceEquals(draft.Edited, shown)) draft.ContentLoaded(html);
+        if (_draft is { } draft && ReferenceEquals(draft.Edited, shown)) draft.ContentLoaded(html, tabId);
     }
 
     #endregion

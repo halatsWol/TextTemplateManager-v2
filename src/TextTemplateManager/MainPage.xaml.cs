@@ -108,6 +108,7 @@ namespace TextTemplateManager
             Editor.TabOut += Editor_TabOut;
             TreeToolbar.GotFocus += (_, e) => { if (e.OriginalSource is Button button) _lastToolbarButton = button; };
             Editor.ContentLoaded += ViewModel.EditorLoaded;
+            Editor.ShowDialog = ShowDialogAsync;
         }
 
         private async Task SaveAsync()
@@ -1086,6 +1087,7 @@ namespace TextTemplateManager
             var next = cycle[SearchNavigation.NextInCycle(current, cycle.Count, back)];
             if (ReferenceEquals(next, ItemTreeView)) FocusTree();
             else if (ReferenceEquals(next, TreeToolbar)) FocusToolbar();
+            else if (ReferenceEquals(next, Editor.LanguageTabStrip)) Editor.FocusTabs();
             else if (ReferenceEquals(next, Editor)) Editor.FocusPart(text: back);   // forward: its toolbar; back: its text
             else if (next is Control control) control.Focus(FocusState.Keyboard);
         }
@@ -1099,6 +1101,7 @@ namespace TextTemplateManager
             if (TemplatePanel.Visibility == Visibility.Visible)
             {
                 if (TemplateTitleBox.IsEnabled) cycle.Add(TemplateTitleBox);
+                cycle.Add(Editor.LanguageTabStrip);
                 cycle.Add(Editor);
                 cycle.AddRange(new Control[] { SingleKeyBox, MultiKeyBox, TagsBox, PasteModeBox }.Where(c => c.IsEnabled));
             }

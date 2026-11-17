@@ -1859,4 +1859,79 @@ Sovrascrivi: il file riceve la copia del backup, per tutti quelli che lo usano.<
   <data name="MailHint_HelpLink.Content" xml:space="preserve">
     <value>Guida passo passo</value>
   </data>
+  <data name="TemplateEditor_LanguageTabs.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Lingue</value>
+  </data>
+  <data name="TemplateEditor_AddLanguageButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Aggiungi lingua</value>
+  </data>
+  <data name="TemplateEditor_AddLanguageButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Aggiungi lingua</value>
+  </data>
+  <data name="LanguageTabs_NoLanguage" xml:space="preserve">
+    <value>Nessuna lingua</value>
+  </data>
+  <data name="LanguageTabs_DefaultLanguageTip" xml:space="preserve">
+    <value>Lingua predefinita: viene incollata se non ne è scelta un'altra</value>
+  </data>
+  <data name="LanguageTabs_UnsetLanguageTip" xml:space="preserve">
+    <value>Nessuna lingua: non proposta per incollare</value>
+  </data>
+  <data name="LanguageTabs_DuplicateLanguageTip" xml:space="preserve">
+    <value>Stessa lingua di una scheda precedente: non proposta per incollare</value>
+  </data>
+  <data name="LanguageTabs_AddLanguage" xml:space="preserve">
+    <value>Aggiungi lingua</value>
+  </data>
+  <data name="LanguageTabs_ChangeLanguage" xml:space="preserve">
+    <value>Cambia lingua…</value>
+  </data>
+  <data name="LanguageTabs_MakeDefault" xml:space="preserve">
+    <value>Imposta come predefinita</value>
+  </data>
+  <data name="LanguageTabs_MoveLeft" xml:space="preserve">
+    <value>Sposta a sinistra</value>
+  </data>
+  <data name="LanguageTabs_MoveRight" xml:space="preserve">
+    <value>Sposta a destra</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguage" xml:space="preserve">
+    <value>Elimina lingua</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageTitle" xml:space="preserve">
+    <value>Eliminare {0}?</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageText" xml:space="preserve">
+    <value>Il testo in {0} viene eliminato da questo modello.</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageButton" xml:space="preserve">
+    <value>Elimina</value>
+  </data>
+  <data name="LanguagePicker_FilterBox.PlaceholderText" xml:space="preserve">
+    <value>Cerca lingue</value>
+  </data>
+  <data name="LanguagePicker_FilterBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Cerca lingue</value>
+  </data>
+  <data name="LanguagePicker_List.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Lingue</value>
+  </data>
+  <data name="LanguagePicker_ChooseButton" xml:space="preserve">
+    <value>Scegli</value>
+  </data>
+  <data name="LanguagePicker_Suggested" xml:space="preserve">
+    <value>Suggerite</value>
+  </data>
+  <data name="LanguagePicker_All" xml:space="preserve">
+    <value>Tutte le lingue</value>
+  </data>
+  <data name="LanguagePicker_FirstTitle" xml:space="preserve">
+    <value>Lingua di questo testo</value>
+  </data>
+  <data name="LanguagePicker_FirstMessage" xml:space="preserve">
+    <value>Prima di aggiungere un'altra lingua, scegli la lingua in cui è scritto questo modello. Questo testo resta quello predefinito, incollato se non è scelta un'altra lingua.</value>
+  </data>
+  <data name="LanguagePicker_ChangeTitle" xml:space="preserve">
+    <value>Cambia lingua</value>
+  </data>
 </root>
