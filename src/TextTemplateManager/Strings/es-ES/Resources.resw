@@ -1376,6 +1376,12 @@ Las plantillas no se vieron afectadas. La actualización sigue lista; puedes vol
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, abreviatura {1}, {2}</value>
   </data>
+  <data name="QuickPaste_RowNameLanguages" xml:space="preserve">
+    <value>{0}, abreviatura {1}, {2}, idiomas {3}</value>
+  </data>
+  <data name="QuickPaste_PasteLanguageItem.Text" xml:space="preserve">
+    <value>Pegar idioma</value>
+  </data>
   <data name="QuickPaste_LocalSource" xml:space="preserve">
     <value>local</value>
   </data>
@@ -1539,7 +1545,7 @@ Las plantillas no se vieron afectadas. La actualización sigue lista; puedes vol
     <value>Secuencia de teclas:</value>
   </data>
   <data name="QuickPaste_GuideMultiText.Text" xml:space="preserve">
-    <value> mantén presionada ALT y escribe la abreviatura (las sincronizadas llevan un prefijo, por ejemplo, and-msg; separadores - _ . permitidos). Suelta ALT para pegar la coincidencia resaltada — basta con una parte. ↑/↓ mueven el resaltado y Entrar lo pega.</value>
+    <value> mantén presionada ALT y escribe la abreviatura (las sincronizadas llevan un prefijo, por ejemplo, and-msg; separadores - _ . permitidos). Suelta ALT para pegar la coincidencia resaltada — basta con una parte. ↑/↓ mueven el resaltado y Entrar lo pega; ←/→ cambian el idioma de la plantilla resaltada.</value>
   </data>
   <data name="QuickPaste_GuidePlaintextLabel.Text" xml:space="preserve">
     <value>Texto sin formato:</value>
@@ -1563,7 +1569,7 @@ Las plantillas no se vieron afectadas. La actualización sigue lista; puedes vol
     <value>Clic derecho:</value>
   </data>
   <data name="QuickPaste_GuideRightClickText.Text" xml:space="preserve">
-    <value> Pegar o Pegar como — Texto sin formato, Markdown, RTF, HTML, HTML/Jira o Automático.</value>
+    <value> Pegar o Pegar como — Texto sin formato, Markdown, RTF, HTML, HTML/Jira o Automático; Pegar idioma para una plantilla en varios idiomas. También en las listas de abreviaturas.</value>
   </data>
   <data name="QuickPaste_GuideSearchLabel.Text" xml:space="preserve">
     <value>Buscar:</value>

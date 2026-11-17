@@ -1376,6 +1376,12 @@ Your templates weren't affected. The update stays ready; you can try again.</val
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, shortcut {1}, {2}</value>
   </data>
+  <data name="QuickPaste_RowNameLanguages" xml:space="preserve">
+    <value>{0}, shortcut {1}, {2}, languages {3}</value>
+  </data>
+  <data name="QuickPaste_PasteLanguageItem.Text" xml:space="preserve">
+    <value>Paste Language</value>
+  </data>
   <data name="QuickPaste_LocalSource" xml:space="preserve">
     <value>local</value>
   </data>
@@ -1539,7 +1545,7 @@ Your templates weren't affected. The update stays ready; you can try again.</val
     <value>Multi-key:</value>
   </data>
   <data name="QuickPaste_GuideMultiText.Text" xml:space="preserve">
-    <value> hold ALT and type the shortcut (synced ones are prefixed, e.g. and-msg; separators - _ . allowed). Release ALT to paste the highlighted match — a partial entry is enough. ↑/↓ move the highlight, Enter pastes it.</value>
+    <value> hold ALT and type the shortcut (synced ones are prefixed, e.g. and-msg; separators - _ . allowed). Release ALT to paste the highlighted match — a partial entry is enough. ↑/↓ move the highlight, Enter pastes it; ←/→ switch the highlighted template's language.</value>
   </data>
   <data name="QuickPaste_GuidePlaintextLabel.Text" xml:space="preserve">
     <value>Plaintext:</value>
@@ -1563,7 +1569,7 @@ Your templates weren't affected. The update stays ready; you can try again.</val
     <value>Right-click:</value>
   </data>
   <data name="QuickPaste_GuideRightClickText.Text" xml:space="preserve">
-    <value> Paste, or Paste As — Plaintext, Markdown, RTF, HTML, HTML/Jira or Auto.</value>
+    <value> Paste, or Paste As — Plaintext, Markdown, RTF, HTML, HTML/Jira or Auto; Paste Language for a template in several languages. Also on the shortcut lists.</value>
   </data>
   <data name="QuickPaste_GuideSearchLabel.Text" xml:space="preserve">
     <value>Search:</value>

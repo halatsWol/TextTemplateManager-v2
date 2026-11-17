@@ -8,6 +8,7 @@ state "Shortcut mode\n(root grid focused)" as ShortcutMode {
   ShortcutMode : letter/digit -> SingleKey -> paste, or error tone
   ShortcutMode : Up/Down -> move highlight (wraps)
   ShortcutMode : Enter -> CommitHighlighted -> paste
+  ShortcutMode : Left/Right (multi-key tab) -> StepLanguage
 }
 state "Search box" as Search {
   Search : letters filter tree and both lists
@@ -15,13 +16,14 @@ state "Search box" as Search {
 }
 state "Tree" as Tree {
   Tree : arrows move/expand, Enter or double-click -> paste
-  Tree : right-click -> Paste / Paste As
+  Tree : right-click -> Paste / Paste As / Paste Language
 }
 state "Alt held: multi-key entry" as Multi {
   Multi : TypeMulti(c) narrows the multi-key list
   Multi : '_' (Alt+Shift+-) marks plain text
   Multi : Alt+Backspace -> Backspace
   Multi : Up/Down -> MoveMultiHighlight
+  Multi : Left/Right -> StepLanguage
   Multi : Enter -> CommitMulti -> paste
 }
 

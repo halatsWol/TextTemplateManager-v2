@@ -1379,6 +1379,12 @@ A sablonokat ez nem érintette. A frissítés készen áll; újra megpróbálhat
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, rövidítés: {1}, {2}</value>
   </data>
+  <data name="QuickPaste_RowNameLanguages" xml:space="preserve">
+    <value>{0}, rövidítés: {1}, {2}, nyelvek: {3}</value>
+  </data>
+  <data name="QuickPaste_PasteLanguageItem.Text" xml:space="preserve">
+    <value>Nyelv beillesztése</value>
+  </data>
   <data name="QuickPaste_LocalSource" xml:space="preserve">
     <value>helyi</value>
   </data>
@@ -1542,7 +1548,7 @@ A sablonokat ez nem érintette. A frissítés készen áll; újra megpróbálhat
     <value>Billentyűsor:</value>
   </data>
   <data name="QuickPaste_GuideMultiText.Text" xml:space="preserve">
-    <value> tartsd lenyomva az ALT billentyűt, és írd be a rövidítést (a szinkronizáltaknak előtagjuk van, például and-msg; elválasztó: - _ .). Az ALT felengedésekor a kiemelt találat beillesztődik — elég a rövidítés egy része. A ↑/↓ mozgatja a kiemelést, az Enter beilleszti.</value>
+    <value> tartsd lenyomva az ALT billentyűt, és írd be a rövidítést (a szinkronizáltaknak előtagjuk van, például and-msg; elválasztó: - _ .). Az ALT felengedésekor a kiemelt találat beillesztődik — elég a rövidítés egy része. A ↑/↓ mozgatja a kiemelést, az Enter beilleszti; a ←/→ váltja a kiemelt sablon nyelvét.</value>
   </data>
   <data name="QuickPaste_GuidePlaintextLabel.Text" xml:space="preserve">
     <value>Csak szöveg:</value>
@@ -1566,7 +1572,7 @@ A sablonokat ez nem érintette. A frissítés készen áll; újra megpróbálhat
     <value>Jobb gomb:</value>
   </data>
   <data name="QuickPaste_GuideRightClickText.Text" xml:space="preserve">
-    <value> Beillesztés vagy Beillesztés másként — Csak szöveg, Markdown, RTF, HTML, HTML/Jira vagy Automatikus.</value>
+    <value> Beillesztés vagy Beillesztés másként — Csak szöveg, Markdown, RTF, HTML, HTML/Jira vagy Automatikus; több nyelvű sablonnál Nyelv beillesztése. A rövidítéslistákban is.</value>
   </data>
   <data name="QuickPaste_GuideSearchLabel.Text" xml:space="preserve">
     <value>Keresés:</value>

@@ -1376,6 +1376,12 @@ Die Vorlagen sind nicht betroffen. Das Update bleibt bereit; du kannst es noch e
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, Kürzel {1}, {2}</value>
   </data>
+  <data name="QuickPaste_RowNameLanguages" xml:space="preserve">
+    <value>{0}, Kürzel {1}, {2}, Sprachen {3}</value>
+  </data>
+  <data name="QuickPaste_PasteLanguageItem.Text" xml:space="preserve">
+    <value>Sprache einfügen</value>
+  </data>
   <data name="QuickPaste_LocalSource" xml:space="preserve">
     <value>lokal</value>
   </data>
@@ -1539,7 +1545,7 @@ Die Vorlagen sind nicht betroffen. Das Update bleibt bereit; du kannst es noch e
     <value>Tastenfolge:</value>
   </data>
   <data name="QuickPaste_GuideMultiText.Text" xml:space="preserve">
-    <value> halte ALT gedrückt und tippe das Kürzel (synchronisierte haben ein Präfix, z. B. and-msg; Trennzeichen - _ . erlaubt). Lass ALT los, um den markierten Treffer einzufügen — ein Teil der Eingabe genügt. ↑/↓ verschieben die Markierung, Eingabe fügt ein.</value>
+    <value> halte ALT gedrückt und tippe das Kürzel (synchronisierte haben ein Präfix, z. B. and-msg; Trennzeichen - _ . erlaubt). Lass ALT los, um den markierten Treffer einzufügen — ein Teil der Eingabe genügt. ↑/↓ verschieben die Markierung, Eingabe fügt ein; ←/→ wechseln die Sprache der markierten Vorlage.</value>
   </data>
   <data name="QuickPaste_GuidePlaintextLabel.Text" xml:space="preserve">
     <value>Nur Text:</value>
@@ -1563,7 +1569,7 @@ Die Vorlagen sind nicht betroffen. Das Update bleibt bereit; du kannst es noch e
     <value>Rechtsklick:</value>
   </data>
   <data name="QuickPaste_GuideRightClickText.Text" xml:space="preserve">
-    <value> Einfügen oder Einfügen als — Nur Text, Markdown, RTF, HTML, HTML/Jira oder Automatisch.</value>
+    <value> Einfügen oder Einfügen als — Nur Text, Markdown, RTF, HTML, HTML/Jira oder Automatisch; Sprache einfügen bei einer Vorlage in mehreren Sprachen. Auch in den Kürzellisten.</value>
   </data>
   <data name="QuickPaste_GuideSearchLabel.Text" xml:space="preserve">
     <value>Suche:</value>

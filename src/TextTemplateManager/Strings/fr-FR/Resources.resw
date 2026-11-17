@@ -1376,6 +1376,12 @@ Les modèles n'ont pas été touchés. La mise à jour reste prête ; vous pouv
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, abréviation {1}, {2}</value>
   </data>
+  <data name="QuickPaste_RowNameLanguages" xml:space="preserve">
+    <value>{0}, abréviation {1}, {2}, langues {3}</value>
+  </data>
+  <data name="QuickPaste_PasteLanguageItem.Text" xml:space="preserve">
+    <value>Coller la langue</value>
+  </data>
   <data name="QuickPaste_LocalSource" xml:space="preserve">
     <value>local</value>
   </data>
@@ -1539,7 +1545,7 @@ Les modèles n'ont pas été touchés. La mise à jour reste prête ; vous pouv
     <value>Séquence de touches :</value>
   </data>
   <data name="QuickPaste_GuideMultiText.Text" xml:space="preserve">
-    <value> maintenez Alt et tapez l'abréviation (celles synchronisées ont un préfixe, par exemple and-msg ; séparateurs - _ . autorisés). Relâchez Alt pour coller la correspondance en surbrillance — une saisie partielle suffit. ↑/↓ déplacent la surbrillance, Entrée la colle.</value>
+    <value> maintenez Alt et tapez l'abréviation (celles synchronisées ont un préfixe, par exemple and-msg ; séparateurs - _ . autorisés). Relâchez Alt pour coller la correspondance en surbrillance — une saisie partielle suffit. ↑/↓ déplacent la surbrillance, Entrée la colle ; ←/→ changent la langue du modèle en surbrillance.</value>
   </data>
   <data name="QuickPaste_GuidePlaintextLabel.Text" xml:space="preserve">
     <value>Texte brut :</value>
@@ -1563,7 +1569,7 @@ Les modèles n'ont pas été touchés. La mise à jour reste prête ; vous pouv
     <value>Clic droit :</value>
   </data>
   <data name="QuickPaste_GuideRightClickText.Text" xml:space="preserve">
-    <value> Coller, ou Coller en tant que — Texte brut, Markdown, RTF, HTML, HTML/Jira ou Automatique.</value>
+    <value> Coller, ou Coller en tant que — Texte brut, Markdown, RTF, HTML, HTML/Jira ou Automatique ; Coller la langue pour un modèle en plusieurs langues. Aussi dans les listes d'abréviations.</value>
   </data>
   <data name="QuickPaste_GuideSearchLabel.Text" xml:space="preserve">
     <value>Rechercher :</value>

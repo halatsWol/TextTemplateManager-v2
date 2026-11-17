@@ -127,10 +127,20 @@ class QuickPasteController {
   +SingleKey(c) : PasteRequest
   +AltDown() / TypeMulti(c) / AltUp() : PasteRequest
   +CommitHighlighted() / CommitMulti()
+  +StepLanguage(delta) / HighlightedRow
   +SetSearch(text, inContent, strict)
 }
-class ShortcutRow <<record>>
-class PasteRequest <<record>>
+class ShortcutRow <<record>> {
+  +Languages : RowLanguages
+}
+class RowLanguages {
+  +Index / Chosen / Text
+  +Step(delta) / Reset()
+}
+class PasteRequest <<record>> {
+  +Template / PlainText / LanguageId
+}
+ShortcutRow *-- RowLanguages
 
 App --> MainPage
 App --> PasteWindow : warm instance

@@ -1,4 +1,5 @@
 using TextTemplateManager.Models;
+using TextTemplateManager.Services.Translation;
 using TextTemplateManager.ViewModels;
 using Xunit;
 using Entry = TextTemplateManager.Models.ShortcutValidator.Entry;
@@ -55,5 +56,26 @@ public class ShortcutRowTests
         Assert.Equal("Team msg", template.ToString());
         Assert.Equal("Work", new Folder { Title = "Work" }.ToString());
         Assert.Equal("Team", new SyncSource { Name = "Team" }.ToString());
+    }
+
+    [Fact]
+    public void A_row_in_several_languages_names_them_and_shows_the_chosen_one()
+    {
+        var template = new Template
+        {
+            Title = "Offer", Language = "en", LanguageId = "a1a1",
+            AltLanguages = [new() { Id = "b2b2", Language = "de" }, new() { Id = "c3c3" }],
+        };
+        var row = new ShortcutRow(template, "OFF", "Local", true);
+        string english = TranslationLanguage.NameOf("en"), german = TranslationLanguage.NameOf("de");
+
+        Assert.Equal($"Offer, shortcut OFF, Local, languages {english}, {german}", row.ToString());
+        Assert.Equal($"\u2039 {english} \u203A", row.Languages.Text);
+        row.Languages.Step(1);
+        Assert.Equal($"\u2039 {german} \u203A", row.Languages.Text);
+
+        var single = new ShortcutRow(new Template { Title = "Plain", Language = "en" }, "PL", "Local", true);
+        Assert.Equal("", single.Languages.Text);
+        Assert.Equal("Plain, shortcut PL, Local", single.ToString());
     }
 }
