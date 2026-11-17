@@ -384,6 +384,35 @@ public class TemplateTabsTests
         Assert.Empty(Codes(LanguageCatalog.Choices(["de"], [], "erman", Name)));
     }
 
+    [Fact]
+    public void The_detected_language_comes_first_and_only_once()
+    {
+        var (detected, suggested, others) = LanguageCatalog.PickerChoices("fr", ["en", "fr"], ["de"], null, c => c);
+
+        Assert.Equal("fr", detected?.Code);
+        Assert.Equal(["en"], suggested.Select(c => c.Code));
+        Assert.DoesNotContain(others, c => c.Code == "fr");
+    }
+
+    [Fact]
+    public void A_detected_language_the_template_has_or_the_filter_hides_isnt_offered()
+    {
+        Assert.Null(LanguageCatalog.PickerChoices("de", ["en", "de"], ["de"], null, c => c).Detected);
+        Assert.Null(LanguageCatalog.PickerChoices("fr", ["en", "fr"], [], "en", c => c).Detected);
+        Assert.Null(LanguageCatalog.PickerChoices(null, ["en"], [], null, c => c).Detected);
+    }
+
+    [Fact]
+    public void Text_is_detected_among_the_suggested_languages_and_those_the_templates_use()
+    {
+        var multi = Single("pt");
+        TemplateTabs.Add(multi, "sw");
+        TemplateTabs.Add(multi);
+        var templates = new[] { multi, Single("EN"), Single(null) };
+
+        Assert.Equal(["en", "de", "pt", "sw"], LanguageCatalog.DetectionCandidates(["en", "de"], templates));
+    }
+
     private static List<string> Codes((List<LanguageChoice> Suggested, List<LanguageChoice> Others) choices) =>
         choices.Suggested.Concat(choices.Others).Select(c => c.Code).ToList();
 }

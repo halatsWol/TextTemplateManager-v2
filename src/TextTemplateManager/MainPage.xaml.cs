@@ -109,12 +109,15 @@ namespace TextTemplateManager
             TreeToolbar.GotFocus += (_, e) => { if (e.OriginalSource is Button button) _lastToolbarButton = button; };
             Editor.ContentLoaded += ViewModel.EditorLoaded;
             Editor.ShowDialog = ShowDialogAsync;
+            Editor.Templates = () => store.AllItems;
+            ViewModel.FirstLanguage.Detect = Editor.DetectLanguageAsync;
         }
 
         private async Task SaveAsync()
         {
             await Editor.FlushAsync();   // what was typed in the last moment, not reported yet
             await ViewModel.SaveEditsAsync();
+            ViewModel.EditsSaved();
         }
 
         private async void Save_Click(object sender, RoutedEventArgs e) => await SaveAsync();

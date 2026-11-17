@@ -1925,6 +1925,9 @@ Behalten: Der Ordner zeigt die Datei so, wie sie jetzt ist.
   <data name="LanguagePicker_All" xml:space="preserve">
     <value>Alle Sprachen</value>
   </data>
+  <data name="LanguagePicker_Detected" xml:space="preserve">
+    <value>Im Text erkannt</value>
+  </data>
   <data name="LanguagePicker_FirstTitle" xml:space="preserve">
     <value>Sprache dieses Textes</value>
   </data>

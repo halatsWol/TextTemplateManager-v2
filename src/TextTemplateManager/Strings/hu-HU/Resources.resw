@@ -1928,6 +1928,9 @@ Felülírás: a fájl a biztonsági másolatban lévő példányt kapja meg, min
   <data name="LanguagePicker_All" xml:space="preserve">
     <value>Minden nyelv</value>
   </data>
+  <data name="LanguagePicker_Detected" xml:space="preserve">
+    <value>A szövegben felismert</value>
+  </data>
   <data name="LanguagePicker_FirstTitle" xml:space="preserve">
     <value>A szöveg nyelve</value>
   </data>

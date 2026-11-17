@@ -18,7 +18,7 @@ import { lowlight, LANGUAGES, DEFAULT_LANGUAGE } from './languages.js'
 import { DOMParser as PMDOMParser, DOMSerializer, Fragment, Slice } from '@tiptap/pm/model'
 import { TextSelection, EditorState, Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
-import { detectLanguage, FORMAL_LANGUAGES, translateHtml } from './translator/client.js'
+import { detectLanguage, FORMAL_LANGUAGES, guessLanguage, translateHtml } from './translator/client.js'
 
 // UI text from the app (Strings\<language>\Editor.resw), set before this script runs; a missing key shows itself.
 const STRINGS = window.ttmStrings ?? {}
@@ -1389,6 +1389,13 @@ popupButton(ICONS.dateTime, t('InsertDateTime'), (pop, close) => {
     toolbar.appendChild(b)
     toolbar.appendChild(pop)
 })()
+
+// The host asks which of `candidates` a tab's text is written in (the language picker, a new template's first tab);
+// the answer comes back as a message with the same id: the code and whether it is sure, or no code.
+window.editorApi.detectLanguage = (id, text, candidates) => {
+    guessLanguage(text, candidates).catch(() => null)
+        .then(guess => post({ type: 'detected', id, code: guess?.code ?? null, sure: !!guess?.sure }))
+}
 
 // ---- Keyboard: the main window's Tab cycle runs through the toolbar and the text ----------
 // The toolbar is one Tab stop (roving tabindex): Left/Right/Home/End move between its buttons, Tab goes to the end

@@ -46,4 +46,11 @@ loop each active source with AllowSave
   StorageService -> SyncFile : skip if unchanged, or if written elsewhere\nsince last seen (merged at the next poll);\nelse temp + move (retries while OneDrive holds it)
 end
 DataNode -> MainPage : DataSaved -> "Saved" indicator
+MainPage -> MainViewModel : EditsSaved()
+opt template added here, no language yet, has text (once)
+  MainViewModel -> TemplateEditor : FirstLanguageDetection: DetectLanguageAsync(content)
+  TemplateEditor -> Web : editorApi.detectLanguage(id, text, candidates)
+  Web -> TemplateEditor : postMessage {type:"detected", id, code}
+  MainViewModel -> Original : TemplateTabs.SetLanguage(first tab, code)\n(and on draft.Edited, so it stays unedited)
+end
 @enduml

@@ -1925,6 +1925,9 @@ Remplacer : le fichier reçoit la copie de la sauvegarde, pour tous ceux qui l'
   <data name="LanguagePicker_All" xml:space="preserve">
     <value>Toutes les langues</value>
   </data>
+  <data name="LanguagePicker_Detected" xml:space="preserve">
+    <value>Détectée dans le texte</value>
+  </data>
   <data name="LanguagePicker_FirstTitle" xml:space="preserve">
     <value>Langue de ce texte</value>
   </data>

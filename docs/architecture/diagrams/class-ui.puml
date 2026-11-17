@@ -43,6 +43,8 @@ class MainViewModel <<ObservableObject>> {
   +ImportAsync() / ExportAsync()
   +CanExportSelection
   +SaveEditsAsync() / DiscardEdits()
+  +EditsSaved()
+  +FirstLanguage : FirstLanguageDetection
   +ApplyFilter() / ReloadTree()
   +ValidateAllShortcuts()
   +ClickItem(item, ctrl, shift)
@@ -63,6 +65,12 @@ class ItemDraft {
   +RebaseOnto(item)
   +ContentLoaded(html, tabId)
 }
+class FirstLanguageDetection {
+  +Detect : html -> code?
+  +Added(template)
+  +IsPending(template)
+  +RunAsync(template, draftOf) : string?
+}
 class MultiSelection {
   +Items
   +Click(item, ctrl, shift, visible)
@@ -77,11 +85,15 @@ class TemplateEditor <<UserControl>> {
   +FlushAsync()
   +FocusPart(text)
   +FocusTabs()
+  +DetectLanguageAsync(html) : string?
+  +GuessLanguageAsync(html) : LanguageGuess?
   +LanguageTabStrip
   +ShowDialog
+  +Templates
   +ContentLoaded / SaveRequested / FocusSearchRequested / TabOut
 }
 class LanguagePickerDialog <<ContentDialog>> {
+  +LanguagePickerDialog(title, message, suggested, taken, detected)
   +PickAsync(show) : string?
 }
 class SettingsView <<UserControl>> {
@@ -134,6 +146,8 @@ MainPage *-- TutorialOverlay
 MainViewModel "1" *-- "*" TreeNode
 MainViewModel o-- ItemDraft : autosave off
 MainViewModel *-- MultiSelection
+MainViewModel *-- FirstLanguageDetection
+FirstLanguageDetection ..> TemplateEditor : Detect = DetectLanguageAsync
 MainViewModel ..> ConflictReport
 ConflictPanel ..> ConflictReport
 SettingsView o-- GeneralSettingsPage

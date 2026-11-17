@@ -1925,6 +1925,9 @@ Sovrascrivi: il file riceve la copia del backup, per tutti quelli che lo usano.<
   <data name="LanguagePicker_All" xml:space="preserve">
     <value>Tutte le lingue</value>
   </data>
+  <data name="LanguagePicker_Detected" xml:space="preserve">
+    <value>Rilevata nel testo</value>
+  </data>
   <data name="LanguagePicker_FirstTitle" xml:space="preserve">
     <value>Lingua di questo testo</value>
   </data>

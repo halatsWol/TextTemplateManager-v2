@@ -1925,6 +1925,9 @@ Overwrite it: the file gets the backup's copy, for everyone who uses it.</value>
   <data name="LanguagePicker_All" xml:space="preserve">
     <value>All languages</value>
   </data>
+  <data name="LanguagePicker_Detected" xml:space="preserve">
+    <value>Detected in the text</value>
+  </data>
   <data name="LanguagePicker_FirstTitle" xml:space="preserve">
     <value>Language of this text</value>
   </data>

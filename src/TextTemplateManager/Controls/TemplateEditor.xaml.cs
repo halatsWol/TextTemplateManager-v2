@@ -28,6 +28,9 @@ public sealed partial class TemplateEditor : UserControl
     // The tabs as last built (ids, languages, editable), so typing in a tab doesn't rebuild them.
     private string? _tabsShown;
     private bool _buildingTabs;
+    // Language detections the page hasn't answered yet, by request id.
+    private readonly Dictionary<int, TaskCompletionSource<LanguageGuess?>> _detections = [];
+    private int _lastDetection;
     private bool _tabsQueued;
 
     /// <summary>The editor asked to move focus back to the search box.</summary>
@@ -57,6 +60,9 @@ public sealed partial class TemplateEditor : UserControl
 
     /// <summary>Shows a dialog (the language picker, the delete question); None when none can be shown.</summary>
     public Func<ContentDialog, Task<ContentDialogResult>>? ShowDialog { get; set; }
+
+    /// <summary>All templates, whose languages a tab's text is detected among too.</summary>
+    public Func<IEnumerable<Template>>? Templates { get; set; }
 
     /// <summary>The language tabs, a stop of their own in the page's Tab order, before the editor.</summary>
     public FrameworkElement LanguageTabStrip => LanguageTabs;
@@ -252,6 +258,13 @@ public sealed partial class TemplateEditor : UserControl
                 // A change typed just before a switch can arrive after it: it belongs to the tab it was typed in.
                 if (!string.IsNullOrEmpty(html) && key == _currentKey) OnContentChanged(html);
             }
+            else if (type == "detected")
+            {
+                if (doc.RootElement.TryGetProperty("id", out var di) && di.TryGetInt32(out int id) && _detections.TryGetValue(id, out var answer))
+                    answer.TrySetResult(doc.RootElement.TryGetProperty("code", out var dc) && TemplateLanguages.NormalizeCode(dc.ValueKind == System.Text.Json.JsonValueKind.String ? dc.GetString() : null) is { } code
+                        ? new LanguageGuess(code, doc.RootElement.TryGetProperty("sure", out var ds) && ds.ValueKind == System.Text.Json.JsonValueKind.True)
+                        : null);
+            }
             else if (type == "switchTab")
             {
                 SelectNeighbourTab(doc.RootElement.TryGetProperty("step", out var st) && st.TryGetInt32(out int step) ? step : 1);
@@ -392,6 +405,43 @@ public sealed partial class TemplateEditor : UserControl
         bool dark = ActualTheme == ElementTheme.Dark;
         _ = EditorWebView.CoreWebView2.ExecuteScriptAsync(
             $"window.editorApi && window.editorApi.setTheme({(dark ? "true" : "false")})");
+    }
+
+    /// <summary>The language <paramref name="html"/> is written in, among the suggested languages and those the
+    /// templates use; null when it can't be told for sure (too little text) or the editor isn't ready.</summary>
+    public async Task<string?> DetectLanguageAsync(string html) => await GuessLanguageAsync(html) is { Sure: true } guess ? guess.Code : null;
+
+    /// <summary>Like <see cref="DetectLanguageAsync"/>, plus guesses for shorter texts that aren't sure.</summary>
+    public async Task<LanguageGuess?> GuessLanguageAsync(string html)
+    {
+        string text = HtmlUtils.ToPlainText(html).Trim();
+        if (!_ready || EditorWebView?.CoreWebView2 == null || text.Length == 0) return null;
+        int id = ++_lastDetection;
+        var answer = new TaskCompletionSource<LanguageGuess?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _detections[id] = answer;
+        try
+        {
+            var candidates = LanguageCatalog.DetectionCandidates(SuggestedLanguages(), Templates?.Invoke() ?? []);
+            string args = $"{id}, {System.Text.Json.JsonSerializer.Serialize(text)}, {System.Text.Json.JsonSerializer.Serialize(candidates)}";
+            await EditorWebView.CoreWebView2.ExecuteScriptAsync($"window.editorApi.detectLanguage({args})");
+            return await answer.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Editor] language detection failed: {ex.Message}");
+            return null;
+        }
+        finally
+        {
+            _detections.Remove(id);
+        }
+    }
+
+    // The app's UI languages and the installed translator languages.
+    private IReadOnlyList<string> SuggestedLanguages()
+    {
+        var translator = TranslationModelDirectory is { } dir ? new ModelStore(dir).Installed().SelectMany(p => new[] { p.From, p.To }) : [];
+        return LanguageCatalog.Suggested(UiLanguages.Available, translator);
     }
 
     #region Language tabs
@@ -553,8 +603,12 @@ public sealed partial class TemplateEditor : UserControl
         if (_requested is not { } t || !_requestedEditable) return;
         if (!TemplateTabs.CanAdd(t))
         {
-            // The text so far gets its language first: the first tab is the one pasted by default.
-            string? first = await PickLanguageAsync(Loc.Get("LanguagePicker_FirstTitle"), Loc.Get("LanguagePicker_FirstMessage"), []);
+            // The text so far gets its language first (the first tab is the one pasted by default): the detected one
+            // when it is sure, else the user's pick, with a guess for a short text offered first.
+            var guess = await GuessTabLanguageAsync(t, null);
+            if (!ReferenceEquals(_requested, t)) return;
+            string? first = guess is { Sure: true } ? guess.Code
+                : await PickLanguageAsync(Loc.Get("LanguagePicker_FirstTitle"), Loc.Get("LanguagePicker_FirstMessage"), [], guess?.Code);
             if (first == null || !ReferenceEquals(_requested, t)) return;
             TemplateTabs.SetLanguage(t, null, first);
         }
@@ -569,7 +623,8 @@ public sealed partial class TemplateEditor : UserControl
         int at = TemplateTabs.IndexOf(t, id);
         if (at < 0) return;
         var others = TemplateTabs.All(t).Where((_, i) => i != at).Select(x => x.Language).ToList();
-        string? language = await PickLanguageAsync(Loc.Get("LanguagePicker_ChangeTitle"), null, others);
+        var guess = await GuessTabLanguageAsync(t, id);
+        string? language = await PickLanguageAsync(Loc.Get("LanguagePicker_ChangeTitle"), null, others, guess?.Code);
         if (language != null && ReferenceEquals(_requested, t)) TemplateTabs.SetLanguage(t, id, language);
     }
 
@@ -606,12 +661,18 @@ public sealed partial class TemplateEditor : UserControl
         if (shown) LoadRequested();
     }
 
-    private async Task<string?> PickLanguageAsync(string title, string? message, IReadOnlyList<string?> taken)
+    // The language of a tab's text, including what was typed in the last moment.
+    private async Task<LanguageGuess?> GuessTabLanguageAsync(Template t, string? tabId)
+    {
+        if (ReferenceEquals(_current, t) && _currentTab == tabId) await FlushAsync();
+        return await GuessLanguageAsync(TemplateTabs.ContentOf(t, tabId));
+    }
+
+    // The picker offers the language detected in the tab's text first.
+    private async Task<string?> PickLanguageAsync(string title, string? message, IReadOnlyList<string?> taken, string? detected)
     {
         if (ShowDialog == null) return null;
-        var translator = TranslationModelDirectory is { } dir ? new ModelStore(dir).Installed().SelectMany(p => new[] { p.From, p.To }) : [];
-        var suggested = LanguageCatalog.Suggested(UiLanguages.Available, translator);
-        return await new LanguagePickerDialog(title, message, suggested, taken).PickAsync(ShowDialog);
+        return await new LanguagePickerDialog(title, message, SuggestedLanguages(), taken, detected).PickAsync(ShowDialog);
     }
 
     #endregion

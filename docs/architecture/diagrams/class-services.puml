@@ -218,6 +218,12 @@ package "Services.Translation" {
     +All : string[]
     +Suggested(uiLanguages, translatorLanguages)
     +Choices(suggested, taken, filter)
+    +PickerChoices(detected, suggested, taken, filter)
+    +DetectionCandidates(suggested, templates)
+  }
+  class LanguageGuess <<record>> {
+    +Code
+    +Sure
   }
   LanguageCatalog ..> TranslationLanguage : NameOf
   TranslationUpdater ..> ModelCatalog : daily

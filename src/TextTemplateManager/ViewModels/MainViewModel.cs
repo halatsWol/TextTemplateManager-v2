@@ -118,9 +118,13 @@ public partial class MainViewModel : ObservableObject
 
     private bool Autosave => _dataNode.CurrentSettings.Autosave;
 
+    /// <summary>Templates added here get their first language detected; the page supplies the detector.</summary>
+    public FirstLanguageDetection FirstLanguage { get; } = new();
+
     // The pane edits item: directly with autosave on, otherwise a fresh draft of it.
     private void Edit(BaseItem? item)
     {
+        if ((_draft?.Original ?? EditedItem) is Template left && !ReferenceEquals(left, item)) DetectFirstLanguage(left);
         if (item != null && !Autosave) { Adopt(ItemDraft.For(item)); return; }
         if (_draft != null) _draft.DirtyChanged -= OnDraftDirtyChanged;
         _draft = null;
@@ -183,6 +187,22 @@ public partial class MainViewModel : ObservableObject
     {
         if (_draft is { IsDirty: true } draft) draft.Commit();
         await _dataNode.FlushPendingSaveAsync();
+    }
+
+    /// <summary>The edited template was saved: a new one gets its language now if it can be told.</summary>
+    public void EditsSaved() => DetectFirstLanguage(_draft?.Original as Template ?? EditedTemplate);
+
+    private async void DetectFirstLanguage(Template? t)
+    {
+        if (t == null || !FirstLanguage.IsPending(t)) return;
+        try
+        {
+            await FirstLanguage.RunAsync(t, () => _draft is { } d && ReferenceEquals(d.Original, t) ? d.Edited as Template : null);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Language] detecting a new template's language failed: {ex.Message}");
+        }
     }
 
     /// <summary>Puts the edited item back as it was last saved.</summary>
@@ -425,6 +445,7 @@ public partial class MainViewModel : ObservableObject
             Id = Guid.NewGuid(),
             DefaultPasteMode = _dataNode.CurrentSettings.DefaultPasteMode
         };
+        FirstLanguage.Added(item);
 
         Expand(parent);   // reveal the new item
 

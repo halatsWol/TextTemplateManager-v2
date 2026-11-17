@@ -1925,6 +1925,9 @@ Sobrescribir: el archivo recibe la copia de la copia de seguridad, para todos lo
   <data name="LanguagePicker_All" xml:space="preserve">
     <value>Todos los idiomas</value>
   </data>
+  <data name="LanguagePicker_Detected" xml:space="preserve">
+    <value>Detectado en el texto</value>
+  </data>
   <data name="LanguagePicker_FirstTitle" xml:space="preserve">
     <value>Idioma de este texto</value>
   </data>
