@@ -55,7 +55,7 @@ Rules worth knowing:
 
 Conversions: `PanelHtml` (callout panels per target), `HtmlToRtfHelper` (paragraphs, headings, lists, emphasis, code blocks; non-cp1252 characters as `\uN?`), `HtmlToMarkdown` (headings, emphasis, code, links, nested lists, GitHub tables, panels as labelled blockquotes), `HtmlUtils` (plain text, colours).
 
-`PasteService.CopyToClipboardAsync` (tree "Copy" / "Copy As") puts the same formats on the clipboard without pasting. `RenderForMode` returns the content as a string with a MIME type for the browser connector.
+`PasteService.CopyToClipboardAsync` (tree "Copy" / "Copy As", Ctrl+C) puts the same formats on the clipboard without pasting; these copy the first tab (the default language). A template with more than one language that is pasted (`TemplateLanguages.Offered`) also gets "Copy Language" in its menu: one entry per such language, the first marked "(default)", each copying that tab's text in the default paste mode. `RenderForMode` returns the content as a string with a MIME type for the browser connector.
 
 ---
 

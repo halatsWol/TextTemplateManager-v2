@@ -867,7 +867,7 @@
     <value>Conflitti:</value>
   </data>
   <data name="MainPage_GuideConflictsText.Text" xml:space="preserve">
-    <value> un'abbreviazione duplicata nella stessa area viene bloccata (un pannello in alto a destra la elenca); tra aree diverse è solo un avviso che puoi ignorare.</value>
+    <value> un'abbreviazione duplicata nella stessa area viene bloccata (un pannello in alto a destra la elenca); tra aree diverse è solo un avviso che puoi ignorare. Il pannello elenca anche un modello con la stessa lingua su due schede; viene incollata solo la prima.</value>
   </data>
   <data name="MainPage_GuideRightClickLabel.Text" xml:space="preserve">
     <value>Clic destro:</value>
@@ -949,6 +949,12 @@
   </data>
   <data name="Main_CopyAsItem" xml:space="preserve">
     <value>Copia come</value>
+  </data>
+  <data name="Main_CopyLanguageItem" xml:space="preserve">
+    <value>Copia lingua</value>
+  </data>
+  <data name="Main_CopyLanguageDefault" xml:space="preserve">
+    <value>{0} (predefinita)</value>
   </data>
   <data name="Main_ExportItem" xml:space="preserve">
     <value>Esporta…</value>
@@ -1365,7 +1371,7 @@ I modelli non sono stati toccati. L'aggiornamento resta pronto; puoi riprovare.<
     <value>Conflitti di lingue</value>
   </data>
   <data name="Conflicts_Language" xml:space="preserve">
-    <value>Lingua: {0}</value>
+    <value>{0} su più di una scheda nel modello:</value>
   </data>
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, abbreviazione {1}, {2}</value>
@@ -1395,7 +1401,7 @@ I modelli non sono stati toccati. L'aggiornamento resta pronto; puoi riprovare.<
     <value>Indirizzo copiato negli Appunti</value>
   </data>
   <data name="ConflictPanel_Title.Text" xml:space="preserve">
-    <value>⚠ Conflitti di abbreviazioni</value>
+    <value>⚠ Conflitti</value>
   </data>
   <data name="ConflictPanel_DismissButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Ignora</value>

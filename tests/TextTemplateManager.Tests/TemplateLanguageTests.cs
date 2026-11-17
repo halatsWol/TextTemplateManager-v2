@@ -224,7 +224,7 @@ public class TemplateLanguageTests
         var report = ConflictReport.From(new[] { t, Multi("Other") }, hideNotes: false);
 
         Assert.True(report.HasConflicts);
-        Assert.Contains(report.Lines, l => l.Kind == ConflictLineKind.Key && l.Text.Contains("DE"));
+        Assert.Contains(report.Lines, l => l.Kind == ConflictLineKind.Key && l.Text.Contains(TranslationLanguage.NameOf("de")));
         Assert.Contains(report.Lines, l => l.Kind == ConflictLineKind.Template && l.Text == "- Mail");
         Assert.DoesNotContain(report.Lines, l => l.Text == "- Other");
     }

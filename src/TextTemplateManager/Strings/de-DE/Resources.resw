@@ -867,7 +867,7 @@
     <value>Konflikte:</value>
   </data>
   <data name="MainPage_GuideConflictsText.Text" xml:space="preserve">
-    <value> ein doppeltes Kürzel im selben Bereich wird blockiert (ein Feld oben rechts listet es auf); über Bereiche hinweg ist es nur ein Hinweis, den du ausblenden kannst.</value>
+    <value> ein doppeltes Kürzel im selben Bereich wird blockiert (ein Feld oben rechts listet es auf); über Bereiche hinweg ist es nur ein Hinweis, den du ausblenden kannst. Das Feld listet auch eine Vorlage mit derselben Sprache auf zwei Tabs; eingefügt wird nur der erste davon.</value>
   </data>
   <data name="MainPage_GuideRightClickLabel.Text" xml:space="preserve">
     <value>Rechtsklick:</value>
@@ -949,6 +949,12 @@
   </data>
   <data name="Main_CopyAsItem" xml:space="preserve">
     <value>Kopieren als</value>
+  </data>
+  <data name="Main_CopyLanguageItem" xml:space="preserve">
+    <value>Sprache kopieren</value>
+  </data>
+  <data name="Main_CopyLanguageDefault" xml:space="preserve">
+    <value>{0} (Standard)</value>
   </data>
   <data name="Main_ExportItem" xml:space="preserve">
     <value>Exportieren…</value>
@@ -1365,7 +1371,7 @@ Die Vorlagen sind nicht betroffen. Das Update bleibt bereit; du kannst es noch e
     <value>Konflikte bei Sprachen</value>
   </data>
   <data name="Conflicts_Language" xml:space="preserve">
-    <value>Sprache: {0}</value>
+    <value>{0} auf mehr als einem Tab in Vorlage:</value>
   </data>
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, Kürzel {1}, {2}</value>
@@ -1395,7 +1401,7 @@ Die Vorlagen sind nicht betroffen. Das Update bleibt bereit; du kannst es noch e
     <value>Adresse in die Zwischenablage kopiert</value>
   </data>
   <data name="ConflictPanel_Title.Text" xml:space="preserve">
-    <value>⚠ Kürzelkonflikte</value>
+    <value>⚠ Konflikte</value>
   </data>
   <data name="ConflictPanel_DismissButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Ausblenden</value>

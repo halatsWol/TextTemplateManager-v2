@@ -867,7 +867,7 @@
     <value>Ütközések:</value>
   </data>
   <data name="MainPage_GuideConflictsText.Text" xml:space="preserve">
-    <value> az azonos területen belül ismétlődő rövidítés le van tiltva (a jobb felső panel listázza); területek között csak figyelmeztetés, amelyet elrejthetsz.</value>
+    <value> az azonos területen belül ismétlődő rövidítés le van tiltva (a jobb felső panel listázza); területek között csak figyelmeztetés, amelyet elrejthetsz. A panel azt a sablont is listázza, amelynek két lapja ugyanazon a nyelven van; ezek közül csak az első kerül beillesztésre.</value>
   </data>
   <data name="MainPage_GuideRightClickLabel.Text" xml:space="preserve">
     <value>Jobb gomb:</value>
@@ -949,6 +949,12 @@
   </data>
   <data name="Main_CopyAsItem" xml:space="preserve">
     <value>Másolás másként</value>
+  </data>
+  <data name="Main_CopyLanguageItem" xml:space="preserve">
+    <value>Nyelv másolása</value>
+  </data>
+  <data name="Main_CopyLanguageDefault" xml:space="preserve">
+    <value>{0} (alapértelmezett)</value>
   </data>
   <data name="Main_ExportItem" xml:space="preserve">
     <value>Exportálás…</value>
@@ -1368,7 +1374,7 @@ A sablonokat ez nem érintette. A frissítés készen áll; újra megpróbálhat
     <value>Ütközések: nyelv</value>
   </data>
   <data name="Conflicts_Language" xml:space="preserve">
-    <value>Nyelv: {0}</value>
+    <value>{0} több lapon is ebben a sablonban:</value>
   </data>
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, rövidítés: {1}, {2}</value>
@@ -1398,7 +1404,7 @@ A sablonokat ez nem érintette. A frissítés készen áll; újra megpróbálhat
     <value>A cím a vágólapra került</value>
   </data>
   <data name="ConflictPanel_Title.Text" xml:space="preserve">
-    <value>⚠ Rövidítésütközések</value>
+    <value>⚠ Ütközések</value>
   </data>
   <data name="ConflictPanel_DismissButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Elrejtés</value>

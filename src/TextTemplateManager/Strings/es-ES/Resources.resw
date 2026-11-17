@@ -867,7 +867,7 @@
     <value>Conflictos:</value>
   </data>
   <data name="MainPage_GuideConflictsText.Text" xml:space="preserve">
-    <value> una abreviatura duplicada dentro de la misma área se bloquea (un panel arriba a la derecha la muestra); entre áreas es solo un aviso que puedes ocultar.</value>
+    <value> una abreviatura duplicada dentro de la misma área se bloquea (un panel arriba a la derecha la muestra); entre áreas es solo un aviso que puedes ocultar. El panel también muestra una plantilla con el mismo idioma en dos pestañas; solo se pega la primera.</value>
   </data>
   <data name="MainPage_GuideRightClickLabel.Text" xml:space="preserve">
     <value>Clic derecho:</value>
@@ -949,6 +949,12 @@
   </data>
   <data name="Main_CopyAsItem" xml:space="preserve">
     <value>Copiar como</value>
+  </data>
+  <data name="Main_CopyLanguageItem" xml:space="preserve">
+    <value>Copiar idioma</value>
+  </data>
+  <data name="Main_CopyLanguageDefault" xml:space="preserve">
+    <value>{0} (predeterminado)</value>
   </data>
   <data name="Main_ExportItem" xml:space="preserve">
     <value>Exportar…</value>
@@ -1365,7 +1371,7 @@ Las plantillas no se vieron afectadas. La actualización sigue lista; puedes vol
     <value>Conflictos de idioma</value>
   </data>
   <data name="Conflicts_Language" xml:space="preserve">
-    <value>Idioma: {0}</value>
+    <value>{0} en más de una pestaña en la plantilla:</value>
   </data>
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, abreviatura {1}, {2}</value>
@@ -1395,7 +1401,7 @@ Las plantillas no se vieron afectadas. La actualización sigue lista; puedes vol
     <value>Dirección copiada al Portapapeles</value>
   </data>
   <data name="ConflictPanel_Title.Text" xml:space="preserve">
-    <value>⚠ Conflictos de abreviaturas</value>
+    <value>⚠ Conflictos</value>
   </data>
   <data name="ConflictPanel_DismissButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Descartar</value>

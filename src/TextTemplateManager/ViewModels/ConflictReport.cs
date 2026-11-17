@@ -37,8 +37,8 @@ public sealed class ConflictReport
         var all = templates.ToList();
         var single = all.Where(t => t.HasSingleKeyConflict).GroupBy(t => t.SingleKeyShortcut).ToList();
         var multi = all.Where(t => t.HasMultiKeyConflict).GroupBy(t => t.MultiKeyShortcut).ToList();
-        var languages = all.Where(t => t.HasLanguageConflict).SelectMany(t => DuplicateLanguages(t).Select(l => (Tag: TranslatedCopy.Tag(l), t)))
-            .GroupBy(p => p.Tag, p => p.t).OrderBy(g => g.Key, StringComparer.Ordinal).ToList();
+        var languages = all.Where(t => t.HasLanguageConflict).SelectMany(t => DuplicateLanguages(t).Select(l => (Name: TranslationLanguage.NameOf(l), t)))
+            .GroupBy(p => p.Name, p => p.t).OrderBy(g => g.Key, StringComparer.CurrentCultureIgnoreCase).ToList();
         var singleNotes = hideNotes ? new List<IGrouping<string, Template>>() : all.Where(t => t.HasSingleKeyCrossAreaWarning).GroupBy(t => t.SingleKeyShortcut).ToList();
         var multiNotes = hideNotes ? new List<IGrouping<string, Template>>() : all.Where(t => t.HasMultiKeyCrossAreaWarning).GroupBy(t => t.MultiKeyShortcut).ToList();
 

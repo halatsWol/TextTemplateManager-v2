@@ -17,6 +17,7 @@ using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
 using TextTemplateManager.Services.Pasting;
 using TextTemplateManager.Services.Platform;
+using TextTemplateManager.Services.Translation;
 using TextTemplateManager.ViewModels;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
@@ -299,6 +300,22 @@ namespace TextTemplateManager
                     copyAs.Items.Add(mi);
                 }
                 flyout.Items.Add(copyAs);
+
+                // The languages that are pasted, in the default paste mode; Copy and Ctrl+C copy the first one.
+                var languages = TemplateLanguages.Offered(t);
+                if (languages.Count > 1)
+                {
+                    var copyLanguage = new MenuFlyoutSubItem { Text = Loc.Get("Main_CopyLanguageItem") };
+                    for (int i = 0; i < languages.Count; i++)
+                    {
+                        string name = languages[i].Language is { } code ? TranslationLanguage.NameOf(code) : Loc.Get("LanguageTabs_NoLanguage");
+                        string content = languages[i].Content;
+                        var mi = new MenuFlyoutItem { Text = i == 0 ? Loc.Format("Main_CopyLanguageDefault", name) : name };
+                        mi.Click += (_, _) => _ = PasteService.CopyToClipboardAsync(content, t.DefaultPasteMode);
+                        copyLanguage.Items.Add(mi);
+                    }
+                    flyout.Items.Add(copyLanguage);
+                }
             }
 
             if (!item.IsSyncRoot)   // a pinned sync folder already is a file

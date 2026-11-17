@@ -867,7 +867,7 @@
     <value>Conflicts:</value>
   </data>
   <data name="MainPage_GuideConflictsText.Text" xml:space="preserve">
-    <value> a duplicate shortcut inside the same area is blocked (a panel top-right lists it); across areas it's just a note you can dismiss.</value>
+    <value> a duplicate shortcut inside the same area is blocked (a panel top-right lists it); across areas it's just a note you can dismiss. The panel also lists a template with the same language on two tabs; only the first of them is pasted.</value>
   </data>
   <data name="MainPage_GuideRightClickLabel.Text" xml:space="preserve">
     <value>Right-click:</value>
@@ -949,6 +949,12 @@
   </data>
   <data name="Main_CopyAsItem" xml:space="preserve">
     <value>Copy As</value>
+  </data>
+  <data name="Main_CopyLanguageItem" xml:space="preserve">
+    <value>Copy Language</value>
+  </data>
+  <data name="Main_CopyLanguageDefault" xml:space="preserve">
+    <value>{0} (default)</value>
   </data>
   <data name="Main_ExportItem" xml:space="preserve">
     <value>Export…</value>
@@ -1365,7 +1371,7 @@ Your templates weren't affected. The update stays ready; you can try again.</val
     <value>Language Conflicts</value>
   </data>
   <data name="Conflicts_Language" xml:space="preserve">
-    <value>Language: {0}</value>
+    <value>{0} on more than one tab in template:</value>
   </data>
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, shortcut {1}, {2}</value>
@@ -1395,7 +1401,7 @@ Your templates weren't affected. The update stays ready; you can try again.</val
     <value>Address copied to clipboard</value>
   </data>
   <data name="ConflictPanel_Title.Text" xml:space="preserve">
-    <value>⚠ Shortcut Conflicts</value>
+    <value>⚠ Conflicts</value>
   </data>
   <data name="ConflictPanel_DismissButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Dismiss</value>
