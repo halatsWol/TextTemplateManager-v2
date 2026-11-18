@@ -775,10 +775,10 @@ namespace TextTemplateManager
             try
             {
                 await PreviewWebView.EnsureCoreWebView2Async(await WebViewEnvironment.GetAsync());
-                if (_previewConfigured) return;
+                // Null when the window closed meanwhile (quitting); the exception would stop a debugger on every exit.
+                if (_previewConfigured || PreviewWebView.CoreWebView2 is not { } core) return;
                 _previewConfigured = true;
 
-                var core = PreviewWebView.CoreWebView2;
                 core.Settings.AreDefaultContextMenusEnabled = false;
                 core.Settings.IsStatusBarEnabled = false;
                 core.WebMessageReceived += Preview_WebMessageReceived;
