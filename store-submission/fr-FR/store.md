@@ -129,5 +129,7 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Amélioré : fonctionne avec .NET 10, pour lequel Microsoft fournit des mises à jour de sécurité jusqu'en novembre 2028. Modèles, paramètres et utilisation ne changent pas.
+Nouveau : modèles en plusieurs langues. Un modèle peut contenir son texte en plusieurs langues, une par onglet, avec un seul titre et un seul jeu d'abréviations. Traduisez dans un nouvel onglet, et collez ou copiez n'importe quelle langue depuis Quick Paste et la liste. Chaque PC qui enregistre un fichier partagé doit avoir la version 2.7 ou plus récente pour les conserver.
+Amélioré : fonctionne avec .NET 10, pour lequel Microsoft fournit des mises à jour de sécurité jusqu'en novembre 2028. Modèles, paramètres et utilisation ne changent pas. Les dossiers et les modèles ont des icônes plus claires.
+Corrigé : l'enregistrement dans un fichier partagé n'écrase plus les modifications faites entre-temps par un autre PC. En quittant, l'application attend un enregistrement des paramètres déjà en cours.
 ```

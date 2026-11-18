@@ -867,13 +867,13 @@
     <value>Conflits :</value>
   </data>
   <data name="MainPage_GuideConflictsText.Text" xml:space="preserve">
-    <value> une abréviation en double dans une même zone est bloquée (un panneau en haut à droite la signale) ; entre zones, ce n'est qu'un avertissement que vous pouvez masquer. Le panneau signale aussi un modèle ayant la même langue sur deux onglets ; seul le premier est collé.</value>
+    <value> une abréviation en double dans une même zone est bloquée (un panneau en haut à droite la signale) ; entre zones, ce n'est qu'un avertissement que vous pouvez masquer. Le panneau signale aussi un modèle ayant la même langue sur deux onglets ; seul le premier est collé.</value>
   </data>
   <data name="MainPage_GuideRightClickLabel.Text" xml:space="preserve">
     <value>Clic droit :</value>
   </data>
   <data name="MainPage_GuideRightClickText.Text" xml:space="preserve">
-    <value> sur un modèle pour Dupliquer / Copier ; sur un modèle ou un dossier pour Exporter ou Supprimer. Faites glisser un élément dans l'espace vide sous la liste pour le placer au premier niveau.</value>
+    <value> sur un modèle pour Dupliquer / Copier / Copier la langue ; sur un modèle ou un dossier pour Exporter ou Supprimer. Faites glisser un élément dans l'espace vide sous la liste pour le placer au premier niveau.</value>
   </data>
   <data name="MainPage_GuideSearchLabel.Text" xml:space="preserve">
     <value>Rechercher :</value>
@@ -885,7 +885,7 @@
     <value>Éditeur :</value>
   </data>
   <data name="MainPage_GuideEditorText.Text" xml:space="preserve">
-    <value> mettez en forme avec la barre d'outils — titres, listes, tableaux, couleurs et panneaux Info/Note/Réussite/Avertissement/Erreur. Utilisez le mode de collage HTML/Jira pour coller les panneaux dans Jira.</value>
+    <value> mettez en forme avec la barre d'outils — titres, listes, tableaux, couleurs et panneaux Info/Note/Réussite/Avertissement/Erreur. Utilisez le mode de collage HTML/Jira pour coller les panneaux dans Jira. Les onglets au-dessus de la barre contiennent le modèle en plusieurs langues : + en ajoute une, un clic droit sur un onglet en propose plus ; le premier est collé par défaut.</value>
   </data>
   <data name="MainPage_GuideQuickPasteLabel.Text" xml:space="preserve">
     <value>Quick Paste :</value>
@@ -1545,7 +1545,7 @@ Les modèles n'ont pas été touchés. La mise à jour reste prête ; vous pouv
     <value>Séquence de touches :</value>
   </data>
   <data name="QuickPaste_GuideMultiText.Text" xml:space="preserve">
-    <value> maintenez Alt et tapez l'abréviation (celles synchronisées ont un préfixe, par exemple and-msg ; séparateurs - _ . autorisés). Relâchez Alt pour coller la correspondance en surbrillance — une saisie partielle suffit. ↑/↓ déplacent la surbrillance, Entrée la colle ; ←/→ changent la langue du modèle en surbrillance.</value>
+    <value> maintenez Alt et tapez l'abréviation (celles synchronisées ont un préfixe, par exemple and-msg ; séparateurs - _ . autorisés). Relâchez Alt pour coller la correspondance en surbrillance — une saisie partielle suffit. ↑/↓ déplacent la surbrillance, Entrée la colle ; ←/→ changent la langue du modèle en surbrillance.</value>
   </data>
   <data name="QuickPaste_GuidePlaintextLabel.Text" xml:space="preserve">
     <value>Texte brut :</value>
@@ -1569,7 +1569,7 @@ Les modèles n'ont pas été touchés. La mise à jour reste prête ; vous pouv
     <value>Clic droit :</value>
   </data>
   <data name="QuickPaste_GuideRightClickText.Text" xml:space="preserve">
-    <value> Coller, ou Coller en tant que — Texte brut, Markdown, RTF, HTML, HTML/Jira ou Automatique ; Coller la langue pour un modèle en plusieurs langues. Aussi dans les listes d'abréviations.</value>
+    <value> Coller, ou Coller en tant que — Texte brut, Markdown, RTF, HTML, HTML/Jira ou Automatique ; Coller la langue pour un modèle en plusieurs langues. Aussi dans les listes d'abréviations.</value>
   </data>
   <data name="QuickPaste_GuideSearchLabel.Text" xml:space="preserve">
     <value>Rechercher :</value>

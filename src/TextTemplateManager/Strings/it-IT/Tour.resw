@@ -45,6 +45,12 @@
   <data name="StepTranslating_Text" xml:space="preserve">
     <value>Il pulsante Traduci all'estremità destra della barra degli strumenti dell'editor traduce un modello su questo PC: sostituisci il testo, solo la selezione, oppure crea una copia tradotta. Il tedesco può essere formale (Sie). Controlla ogni traduzione; la traduzione automatica commette errori.</value>
   </data>
+  <data name="StepLanguages_Title" xml:space="preserve">
+    <value>Lingue</value>
+  </data>
+  <data name="StepLanguages_Text" xml:space="preserve">
+    <value>Un modello può contenere il suo testo in più lingue, una per scheda; questo ne ha due. + aggiunge una lingua; fai clic destro su una scheda per cambiarne la lingua, impostarla come predefinita, spostarla o eliminarla. La prima scheda è quella predefinita, incollata a meno che tu non scelga un'altra lingua. Traduci ▸ Aggiungi come lingua traduce in una nuova scheda, e Copia lingua nel menu del clic destro dell'elenco copia una delle altre.</value>
+  </data>
   <data name="StepShortcuts_Title" xml:space="preserve">
     <value>Abbreviazioni e tag</value>
   </data>
@@ -136,7 +142,7 @@
     <value>Abbreviazioni a sequenza di tasti</value>
   </data>
   <data name="StepMultiKey_Text" xml:space="preserve">
-    <value>Tieni premuto ALT e digita una sequenza di tasti (ALT + T, H, X): l'elenco si restringe mentre digiti e, al rilascio di ALT, viene incollata l'abbreviazione evidenziata. Anche INVIO incolla la riga selezionata in questo elenco. ALT + BACKSPACE corregge, ALT + ESC annulla.</value>
+    <value>Tieni premuto ALT e digita una sequenza di tasti (ALT + T, H, X): l'elenco si restringe mentre digiti e, al rilascio di ALT, viene incollata l'abbreviazione evidenziata. Anche INVIO incolla la riga selezionata in questo elenco. ALT + BACKSPACE corregge, ALT + ESC annulla. Per un modello in più lingue, ← / → scelgono la lingua della riga evidenziata.</value>
   </data>
   <data name="StepPlainText_Title" xml:space="preserve">
     <value>Come testo semplice</value>
@@ -154,7 +160,7 @@
     <value>Sfoglia e incolla</value>
   </data>
   <data name="StepBrowse_Text" xml:space="preserve">
-    <value>Scegli un modello nell'elenco per vederlo nell'anteprima; INVIO o un doppio clic lo incolla. Fai clic destro per Incolla come, per incollarlo in un'altra modalità. ESC chiude Quick Paste.</value>
+    <value>Scegli un modello nell'elenco per vederlo nell'anteprima; INVIO o un doppio clic lo incolla. Fai clic destro per Incolla come, per incollarlo in un'altra modalità, o per Incolla lingua, per incollare un'altra delle sue lingue. ESC chiude Quick Paste.</value>
   </data>
   <data name="StepEnd_Title" xml:space="preserve">
     <value>Ecco fatto</value>

@@ -873,7 +873,7 @@
     <value>Right-click:</value>
   </data>
   <data name="MainPage_GuideRightClickText.Text" xml:space="preserve">
-    <value> a template to Duplicate / Copy; a template or folder to Export or Delete. Drag an item to the empty space below the tree to move it to the top level.</value>
+    <value> a template to Duplicate / Copy / Copy Language; a template or folder to Export or Delete. Drag an item to the empty space below the tree to move it to the top level.</value>
   </data>
   <data name="MainPage_GuideSearchLabel.Text" xml:space="preserve">
     <value>Search:</value>
@@ -885,7 +885,7 @@
     <value>Editor:</value>
   </data>
   <data name="MainPage_GuideEditorText.Text" xml:space="preserve">
-    <value> format with the toolbar — headings, lists, tables, colors, and Info/Note/Success/Warning/Error panels. Use the HTML/Jira paste mode to paste panels into Jira.</value>
+    <value> format with the toolbar — headings, lists, tables, colors, and Info/Note/Success/Warning/Error panels. Use the HTML/Jira paste mode to paste panels into Jira. The tabs above the toolbar hold the template in several languages: + adds one, right-click a tab for more; the first one is pasted by default.</value>
   </data>
   <data name="MainPage_GuideQuickPasteLabel.Text" xml:space="preserve">
     <value>Quick Paste:</value>

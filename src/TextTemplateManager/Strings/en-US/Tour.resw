@@ -45,6 +45,12 @@
   <data name="StepTranslating_Text" xml:space="preserve">
     <value>The Translate button at the right end of the editor's toolbar translates a template on this PC: replace its text, only the selection, or create a translated copy. German can be formal (Sie). Check every translation; machine translation makes mistakes.</value>
   </data>
+  <data name="StepLanguages_Title" xml:space="preserve">
+    <value>Languages</value>
+  </data>
+  <data name="StepLanguages_Text" xml:space="preserve">
+    <value>A template can hold its text in several languages, one tab each; this one has two. + adds a language; right-click a tab to change its language, make it the default, move or delete it. The first tab is the default, pasted unless you choose another language. Translate ▸ Add as language translates into a new tab, and Copy Language in the tree's right-click menu copies one of the others.</value>
+  </data>
   <data name="StepShortcuts_Title" xml:space="preserve">
     <value>Shortcuts and tags</value>
   </data>
@@ -136,7 +142,7 @@
     <value>Multi-key shortcuts</value>
   </data>
   <data name="StepMultiKey_Text" xml:space="preserve">
-    <value>Hold Alt and type a multi key (Alt + T, H, X): the list narrows as you type, and releasing Alt pastes the highlighted shortcut. Enter also pastes the row selected in this list. Alt + Backspace corrects, Alt + Esc cancels.</value>
+    <value>Hold Alt and type a multi key (Alt + T, H, X): the list narrows as you type, and releasing Alt pastes the highlighted shortcut. Enter also pastes the row selected in this list. Alt + Backspace corrects, Alt + Esc cancels. For a template in several languages, ← / → choose the language of the highlighted row.</value>
   </data>
   <data name="StepPlainText_Title" xml:space="preserve">
     <value>As plain text</value>
@@ -154,7 +160,7 @@
     <value>Browse and paste</value>
   </data>
   <data name="StepBrowse_Text" xml:space="preserve">
-    <value>Pick a template in the tree to see it in the preview; Enter or a double-click pastes it. Right-click for Paste As, to paste it in another paste mode. Esc closes Quick Paste.</value>
+    <value>Pick a template in the tree to see it in the preview; Enter or a double-click pastes it. Right-click for Paste As, to paste it in another paste mode, or Paste Language, to paste another of its languages. Esc closes Quick Paste.</value>
   </data>
   <data name="StepEnd_Title" xml:space="preserve">
     <value>That's it</value>

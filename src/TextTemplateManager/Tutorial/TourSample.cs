@@ -50,6 +50,26 @@ public sealed class TourSample : IDisposable
 
     public static readonly Guid TeamId = new("7e4d0a63-5b1f-4c3e-9a77-2f1c6b8d9e01");
     public static readonly Guid ReleaseNotesId = new("7e4d0a63-5b1f-4c3e-9a77-2f1c6b8d9e02");
+    public static readonly Guid ThanksId = new("7e4d0a63-5b1f-4c3e-9a77-2f1c6b8d9e03");
+
+    // The thanks sample in a second language: German, or English when the app itself is German. Fixed texts, since
+    // they stay in their language whatever the app's.
+    private const string ThanksEnglish = "<p>Hello,</p><p>thank you for your message. We will get back to you <strong>within one working day</strong>.</p><p>Kind regards</p>";
+    private const string ThanksGerman = "<p>Hallo,</p><p>vielen Dank für Ihre Nachricht. Wir melden uns <strong>innerhalb eines Werktags</strong> bei Ihnen.</p><p>Freundliche Grüße</p>";
+
+    private static Template Thanks()
+    {
+        string app = UiLanguages.Effective[..2];
+        bool german = app == "de";
+        return new Template
+        {
+            Id = ThanksId,
+            Title = Loc.Tour.Get("SampleThanksTitle"), TagsCsv = Loc.Tour.Get("SampleThanksTags"), SingleKeyShortcut = "T", MultiKeyShortcut = "THX",
+            Content = Loc.Tour.Get("SampleThanksContent"),
+            Language = app, LanguageId = "a1b2",
+            AltLanguages = [new TemplateLanguage { Id = "c3d4", Language = german ? "en" : "de", Content = german ? ThanksEnglish : ThanksGerman }],
+        };
+    }
 
     private static Folder LocalItems() => new()
     {
@@ -62,11 +82,7 @@ public sealed class TourSample : IDisposable
                 Title = Loc.Tour.Get("SampleRepliesFolder"),
                 Children =
                 {
-                    new Template
-                    {
-                        Title = Loc.Tour.Get("SampleThanksTitle"), TagsCsv = Loc.Tour.Get("SampleThanksTags"), SingleKeyShortcut = "T", MultiKeyShortcut = "THX",
-                        Content = Loc.Tour.Get("SampleThanksContent"),
-                    },
+                    Thanks(),
                     new Template
                     {
                         Id = ReleaseNotesId,

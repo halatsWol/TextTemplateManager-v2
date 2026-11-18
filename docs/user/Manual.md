@@ -143,6 +143,7 @@ In the menu, choose the language the template is written in under **From** and t
 - **Replace template** replaces the template's text with the translation. **Ctrl+Z** brings the original back.
 - **Create new template** leaves this template as it is and adds a translated copy next to it, which is then selected. The copy's title gets the language in brackets (*Not reachable* becomes *Not reachable (DE)*) and its Multi Key shortcut gets the language code (*NOTREACH* becomes *NOTREACHDE*); its tags and default paste mode are copied, and its Single Key shortcut is left empty. Translating such a copy again replaces the language instead of adding a second one (*Not reachable (DE)* to English becomes *Not reachable (EN)*).
 - **Replace selection**, shown when text is selected, translates only the selection.
+- **Add as language** puts the translation into a new language tab of this template (see *Templates in several languages*); **From** is then the language of the tab you're on. If the template already has the language under **To**, the menu says so.
 
 ![The Translate menu at the right end of the editor toolbar: Detect has recognized English, To is German with Formal (Sie) on.](../../src/TextTemplateManager/Assets/ManualImages/TTM_TranslateMenu.png)
 
@@ -153,6 +154,22 @@ With German under **To**, **Formal (Sie)** chooses how the reader is addressed. 
 Formatting, links and date and time placeholders such as `$[DATE]` are kept. Each language translates to and from English; between two other languages, for example German and French, the text goes through English, so both need to be installed.
 
 Machine translation makes mistakes: it can change the meaning, leave out words, or put a link or formatting on the wrong words. Read every translation before you use it.
+
+### Templates in several languages
+
+A template can hold its text in several languages, for example a reply in English and German, so it keeps one title, one set of shortcuts and one place in the tree. Each language has a tab above the editor's toolbar.
+
+- **+** after the tabs adds a language: choose it in the list that opens, which you can search by name. It lists **Detected in the text** first (when the app recognizes the language), then **Suggested** (the app's languages, the installed translation languages and languages your templates already use), then **All languages**; languages the template already has aren't listed. The new tab starts empty.
+- Before the second language is added, the template's own language must be known. If it isn't set yet, **+** sets it from the text when the app can tell for sure; otherwise it asks first (**Language of this text**), with its guess chosen when it has one. Cancel adds nothing.
+- Right-click a tab for **Change language…**, **Make default**, **Move left**, **Move right** and **Delete language** (asked first). Tabs can also be dragged into another order.
+- The first tab is the **default language**, marked with a star. It is what **Copy**, **Ctrl + C**, single-key and multi-key shortcuts and the browser extension paste unless you choose another language. **Make default** (or moving a tab to the front) makes another language the default. Once a template has a language, its default can be changed but not removed.
+- **Ctrl + PgUp** and **Ctrl + PgDn** switch to the previous and next tab. **Ctrl + Z** undoes the changes of the tab you're on.
+
+A new template gets its language on its first save with text, when the app recognizes it from the text; existing templates are never changed this way. **Change language…** on the first tab sets or corrects it.
+
+To translate a template into a new tab, use **Translate ▸ Add as language** (see *Translating a template*). In the tree, right-click a template and choose **Copy Language** to copy one of its other languages. Quick Paste pastes them too (see *Inserting a template*), and **Search template text** looks through every language.
+
+A tab without a language (**No language**) or with the same language as an earlier tab is kept but never pasted; pointing at the tab says so. Two tabs with the same language usually come from changes made on two PCs at the same time: they're listed under **Language Conflicts** in the conflicts panel (see *Keyboard shortcuts and conflicts*) until you change or delete one of them. For templates in a synced folder, see *Sync*.
 
 ### Template properties
 
@@ -223,6 +240,7 @@ pasted.
   end (or the box is empty) moves into the template tree, the same as **Tab**. From the tree, **Esc** 
   returns to the search box with your text intact, and typing a letter carries straight on filtering. 
   Double-click any template, in either the tree or the shortcut lists, to paste it.
+- **Languages** — for a template in several languages (see *Templates in several languages*), the Multi Key list shows the language that will be pasted, for example *‹ English ›*. **← / →** choose another language for the highlighted row, while holding **Alt** or on the Multi Key tab; the preview shows it, and moving the highlight goes back to the default. A single key pastes the default language. Right-click a template, in the tree or a shortcut list, and choose **Paste Language** to paste another of its languages.
 
 The shortcut lists at the bottom of the window show the available single-key and multi-key 
 shortcuts, together with the area each belongs to (a synchronized folder's name, or *local*). 
@@ -335,6 +353,8 @@ The companion extension is [TTM-Connect](https://github.com/halatsWol/TTM-Connec
 - [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/ttm-connect/fbpmhopmnaoedcnbegdkpfblekhaindm)
 - [Firefox Add-ons](https://addons.mozilla.org/addon/ttm-connect/)
 
+With TextTemplateManager 2.8 or newer, the extension can also paste the other languages of a template and save selected text as a language of a template (see *Templates in several languages*); it never changes a template's default language. Older extension versions keep working as before.
+
 When enabled, the application runs a small local service (`127.0.0.1` — loopback only, never exposed
 to the network) that the extension talks to. Pairing is by **token**:
 
@@ -415,6 +435,8 @@ You can also add a source by **opening a `.ttmdata` file** — double-click it i
 source; if the file is already linked it is simply shown here, and the app's own data file is never
 added. (TextTemplateManager runs as a single instance, so opening a file always uses the window that
 is already running.)
+
+Templates in several languages (see *Templates in several languages*) can be shared like any other. Every PC that writes the shared file needs TextTemplateManager 2.7 or newer: TextTemplateManager 1 and 2.6 or older drop a template's other languages when they save the file. If that happens, this PC keeps the languages it knew and writes them back the next time the template is changed here; other PCs don't get them back until then.
 
 ### Translation
 
@@ -535,7 +557,8 @@ Installing with winget or Intune, how updates behave when the Store is restricte
 | Main window (Tree) | **Ctrl**+click / **Shift**+click | Add or remove an item / select a range of rows. |
 | Main window (Tree) | **Shift + ↑ / ↓** | Extend the selection to the row above / below. |
 | Main window (Tree) | **Ctrl + A** | Select all visible rows. |
-| Main window (Tree) | **Ctrl + C** | Copy the selected template in its default paste mode. |
+| Main window (Tree) | **Ctrl + C** | Copy the selected template in its default paste mode and default language. |
+| Editor | **Ctrl + PgUp / PgDn** | Switch to the previous / next language tab. |
 | Main window (search box) | **↑ / ↓** | Move the text cursor to the start / end; **↓** again at the end steps into the tree. |
 | Main window (search box) | **Esc** | Clear the search text; when it is already empty, clear the tree selection. |
 | Main window (Tree) | **Esc** | Return to the search box (the search text is kept). |
@@ -544,6 +567,7 @@ Installing with winget or Intune, how updates behave when the Store is restricte
 | Quick Paste | **Ctrl + F** | Focus the search box. |
 | Quick Paste (list) | **↑ / ↓** | Move the highlight through the current shortcut list (wraps at both ends). |
 | Quick Paste (list) | **Enter** | Paste the highlighted shortcut. |
+| Quick Paste (Multi Key list) | **← / →** | Choose the language of the highlighted template (also while holding **Alt**). |
 | Quick Paste (search box) | **↑ / ↓** | Move the text cursor to the start / end; **↓** again at the end steps into the tree. |
 | Quick Paste (tree) | **↓** (at end of search) or **Tab** | Move focus into the template tree. |
 | Quick Paste | **Alt** + *keys* | Paste by multi-key shortcut; release **Alt** to insert the highlighted match. |
@@ -551,7 +575,7 @@ Installing with winget or Intune, how updates behave when the Store is restricte
 | Quick Paste | **Alt** + **Backspace** | Correct the current multi-key entry. |
 | Quick Paste | **Esc** | Close the Quick Paste window. |
 
-Additional actions are available from the right-click menu, including **Duplicate**, **Copy** and **Copy As** for templates, and **Export…** and **Delete** for templates and folders.
+Additional actions are available from the right-click menu, including **Duplicate**, **Copy**, **Copy As** and **Copy Language** for templates, and **Export…** and **Delete** for templates and folders. In Quick Paste, right-clicking a template offers **Paste**, **Paste As** and **Paste Language**.
 
 ---
 

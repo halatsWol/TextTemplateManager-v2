@@ -873,7 +873,7 @@
     <value>Clic destro:</value>
   </data>
   <data name="MainPage_GuideRightClickText.Text" xml:space="preserve">
-    <value> su un modello per Duplica / Copia; su un modello o una cartella per Esporta o Elimina. Trascina un elemento nello spazio vuoto sotto l'elenco per spostarlo al livello principale.</value>
+    <value> su un modello per Duplica / Copia / Copia lingua; su un modello o una cartella per Esporta o Elimina. Trascina un elemento nello spazio vuoto sotto l'elenco per spostarlo al livello principale.</value>
   </data>
   <data name="MainPage_GuideSearchLabel.Text" xml:space="preserve">
     <value>Cerca:</value>
@@ -885,7 +885,7 @@
     <value>Editor:</value>
   </data>
   <data name="MainPage_GuideEditorText.Text" xml:space="preserve">
-    <value> formatta con la barra degli strumenti — titoli, elenchi, tabelle, colori e pannelli Info/Nota/Riuscito/Avviso/Errore. Usa la modalità Incolla HTML/Jira per incollare i pannelli in Jira.</value>
+    <value> formatta con la barra degli strumenti — titoli, elenchi, tabelle, colori e pannelli Info/Nota/Riuscito/Avviso/Errore. Usa la modalità Incolla HTML/Jira per incollare i pannelli in Jira. Le schede sopra la barra contengono il modello in più lingue: + ne aggiunge una, il clic destro su una scheda offre altro; per impostazione predefinita viene incollata la prima.</value>
   </data>
   <data name="MainPage_GuideQuickPasteLabel.Text" xml:space="preserve">
     <value>Quick Paste:</value>

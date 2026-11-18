@@ -873,7 +873,7 @@
     <value>Rechtsklick:</value>
   </data>
   <data name="MainPage_GuideRightClickText.Text" xml:space="preserve">
-    <value> auf eine Vorlage zum Duplizieren / Kopieren; auf eine Vorlage oder einen Ordner zum Exportieren oder Löschen. Zieh ein Element auf die freie Fläche unter der Liste, um es auf die oberste Ebene zu verschieben.</value>
+    <value> auf eine Vorlage zum Duplizieren / Kopieren / Sprache kopieren; auf eine Vorlage oder einen Ordner zum Exportieren oder Löschen. Zieh ein Element auf die freie Fläche unter der Liste, um es auf die oberste Ebene zu verschieben.</value>
   </data>
   <data name="MainPage_GuideSearchLabel.Text" xml:space="preserve">
     <value>Suche:</value>
@@ -885,7 +885,7 @@
     <value>Editor:</value>
   </data>
   <data name="MainPage_GuideEditorText.Text" xml:space="preserve">
-    <value> formatiere mit der Symbolleiste — Überschriften, Listen, Tabellen, Farben und die Felder Info/Hinweis/Erfolg/Warnung/Fehler. Mit dem Einfügemodus HTML/Jira fügst du Felder in Jira ein.</value>
+    <value> formatiere mit der Symbolleiste — Überschriften, Listen, Tabellen, Farben und die Felder Info/Hinweis/Erfolg/Warnung/Fehler. Mit dem Einfügemodus HTML/Jira fügst du Felder in Jira ein. Die Tabs über der Symbolleiste enthalten die Vorlage in mehreren Sprachen: + fügt eine hinzu, Rechtsklick auf einen Tab bietet mehr; der erste wird standardmäßig eingefügt.</value>
   </data>
   <data name="MainPage_GuideQuickPasteLabel.Text" xml:space="preserve">
     <value>Quick Paste:</value>

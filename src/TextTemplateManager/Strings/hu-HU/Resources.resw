@@ -873,7 +873,7 @@
     <value>Jobb gomb:</value>
   </data>
   <data name="MainPage_GuideRightClickText.Text" xml:space="preserve">
-    <value> sablonon: Duplikálás / Másolás; sablonon vagy mappán: Exportálás vagy Törlés. Húzz egy elemet a lista alatti üres területre, hogy a legfelső szintre kerüljön.</value>
+    <value> sablonon: Duplikálás / Másolás / Nyelv másolása; sablonon vagy mappán: Exportálás vagy Törlés. Húzz egy elemet a lista alatti üres területre, hogy a legfelső szintre kerüljön.</value>
   </data>
   <data name="MainPage_GuideSearchLabel.Text" xml:space="preserve">
     <value>Keresés:</value>
@@ -885,7 +885,7 @@
     <value>Szerkesztő:</value>
   </data>
   <data name="MainPage_GuideEditorText.Text" xml:space="preserve">
-    <value> formázz az eszköztárral — címsorok, listák, táblázatok, színek és Információ/Megjegyzés/Siker/Figyelmeztetés/Hiba panelek. A HTML/Jira beillesztési móddal a paneleket a Jirába is beillesztheted.</value>
+    <value> formázz az eszköztárral — címsorok, listák, táblázatok, színek és Információ/Megjegyzés/Siker/Figyelmeztetés/Hiba panelek. A HTML/Jira beillesztési móddal a paneleket a Jirába is beillesztheted. Az eszköztár feletti lapokon a sablon több nyelven is szerepelhet: a + újat ad hozzá, egy lapra jobb gombbal kattintva több lehetőség nyílik; alapértelmezetten az első lap illesztődik be.</value>
   </data>
   <data name="MainPage_GuideQuickPasteLabel.Text" xml:space="preserve">
     <value>Quick Paste:</value>

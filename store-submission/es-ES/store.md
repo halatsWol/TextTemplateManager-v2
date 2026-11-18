@@ -129,5 +129,7 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Mejorado: funciona con .NET 10, para el que Microsoft ofrece actualizaciones de seguridad hasta noviembre de 2028. Plantillas, configuración y uso siguen igual.
+Nuevo: plantillas en varios idiomas. Una plantilla puede tener su texto en varios idiomas, uno por pestaña, con un solo título y un solo conjunto de abreviaturas. Traduce a una nueva pestaña y pega o copia cualquier idioma desde Quick Paste y la lista. Cada equipo que guarda un archivo compartido necesita la versión 2.7 o posterior para conservarlos.
+Mejorado: funciona con .NET 10, para el que Microsoft ofrece actualizaciones de seguridad hasta noviembre de 2028. Plantillas, configuración y uso siguen igual. Las carpetas y las plantillas tienen iconos más claros.
+Corregido: guardar en un archivo compartido ya no sobrescribe los cambios que otro equipo hizo mientras tanto. Al salir, la aplicación espera a que termine un guardado de la configuración ya en curso.
 ```

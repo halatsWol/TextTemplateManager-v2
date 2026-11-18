@@ -16,7 +16,7 @@ User -> App : StartTutorialAsync()
 App -> Real : IsDialogOpen? (no tour under an open dialog: return)
 App -> Real : ResolveUnsavedEditsAsync()
 App -> App : settings.TutorialOfferDone = true
-App -> TourSample : CreateAsync(real settings)\n(temp folder: sample templates, a sample synced\nfolder, two sample backups, a settings copy)
+App -> TourSample : CreateAsync(real settings)\n(temp folder: sample templates, one in two\nlanguages, a sample synced\nfolder, two sample backups, a settings copy)
 App -> TourPage : new MainPage(sample.Store, tour: true)
 App -> HotkeyListener : Register("None")
 App -> BrowserConnector : Busy = true (503)
@@ -24,10 +24,10 @@ App -> App : MainWindow.Content = tour page
 App -> TourQP : new PasteWindow(sample.Store, tour: true)
 loop until Done, Skipped, or Back from Quick Paste's first step
   App -> TourPage : RunTourAsync(startAt, total)
-  TourPage -> Overlay : RunAsync(steps 1-14, endsTour: false)
+  TourPage -> Overlay : RunAsync(steps 1-18, endsTour: false)
   Overlay --> TourPage : Done (window stays dimmed)
   App -> TourQP : ShowForTour()
-  App -> TourQP : RunTourAsync(15, total)\n(steps 15-21 over Quick Paste; never pastes)
+  App -> TourQP : RunTourAsync(19, total)\n(steps 19-25 over Quick Paste; never pastes)
 end
 App -> App : EndTutorial()
 App -> TourQP : CloseForTour()

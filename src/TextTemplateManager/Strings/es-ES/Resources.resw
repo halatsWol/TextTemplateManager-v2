@@ -873,7 +873,7 @@
     <value>Clic derecho:</value>
   </data>
   <data name="MainPage_GuideRightClickText.Text" xml:space="preserve">
-    <value> en una plantilla para Duplicar / Copiar; en una plantilla o carpeta para Exportar o Eliminar. Arrastra un elemento al espacio vacío bajo la lista para moverlo al nivel superior.</value>
+    <value> en una plantilla para Duplicar / Copiar / Copiar idioma; en una plantilla o carpeta para Exportar o Eliminar. Arrastra un elemento al espacio vacío bajo la lista para moverlo al nivel superior.</value>
   </data>
   <data name="MainPage_GuideSearchLabel.Text" xml:space="preserve">
     <value>Buscar:</value>
@@ -885,7 +885,7 @@
     <value>Editor:</value>
   </data>
   <data name="MainPage_GuideEditorText.Text" xml:space="preserve">
-    <value> da formato con la barra de herramientas — títulos, listas, tablas, colores y paneles Información/Nota/Correcto/Advertencia/Error. Usa el modo de pegado HTML/Jira para pegar paneles en Jira.</value>
+    <value> da formato con la barra de herramientas — títulos, listas, tablas, colores y paneles Información/Nota/Correcto/Advertencia/Error. Usa el modo de pegado HTML/Jira para pegar paneles en Jira. Las pestañas sobre la barra contienen la plantilla en varios idiomas: + añade uno, el clic derecho en una pestaña ofrece más; por defecto se pega la primera.</value>
   </data>
   <data name="MainPage_GuideQuickPasteLabel.Text" xml:space="preserve">
     <value>Quick Paste:</value>
