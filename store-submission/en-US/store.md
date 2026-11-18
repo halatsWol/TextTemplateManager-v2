@@ -33,6 +33,9 @@ Share templates through a .ttmdata file in a cloud folder such as OneDrive or on
 Rich templates
 Write with headings, lists, tables, colors, code blocks with syntax highlighting and callout panels. Paste modes decide the format: Auto picks the best one for the target app; HTML/Jira keeps callout panels for Jira; HTML, RTF, Markdown and plain text paste just that.
 
+In several languages
+Keep a template in several languages, one tab each, with one title and one set of shortcuts. The first language is pasted by default; Quick Paste and the right-click menu paste or copy any other, and the offline translation can fill a new language for you.
+
 Find and organize
 Folders with drag and drop, several items at once, collapse and expand all. Search the tree as you type, fuzzy or strict with wildcards, by title, tags or the template text.
 
@@ -61,6 +64,7 @@ Quick Paste from any app with a global hotkey
 Paste by single key, or hold Alt and type a multi-key shortcut
 Rich text: headings, lists, tables, colors, code blocks and callout panels
 Paste modes: Auto, HTML/Jira, HTML, RTF, Markdown and plain text
+Templates in several languages, one tab each; paste any of them
 Share templates with your team through a synced file on OneDrive or a network share
 Read-only shared folders and shortcut prefixes per shared file
 Folders, drag and drop, and several items at once

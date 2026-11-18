@@ -31,6 +31,9 @@ Condividi i modelli tramite un file .ttmdata in una cartella cloud come OneDrive
 Modelli ricchi
 Scrivi con titoli, elenchi, tabelle, colori, blocchi di codice con evidenziazione della sintassi e riquadri informativi. Le modalità Incolla decidono il formato: Automatica sceglie il migliore per l'app di destinazione; HTML/Jira mantiene i riquadri per Jira; HTML, RTF, Markdown e Solo testo incollano esattamente quello.
 
+In più lingue
+Tieni un modello in più lingue, una per scheda, con un solo titolo e un solo insieme di abbreviazioni. La prima lingua viene incollata per impostazione predefinita; Quick Paste e il menu del clic destro incollano o copiano qualsiasi altra, e la traduzione offline può compilare per te una nuova lingua.
+
 Trova e organizza
 Cartelle con trascinamento, più elementi alla volta, espandi e comprimi tutto. Cerca nell'elenco mentre digiti, in modo approssimativo o esatto con caratteri jolly, per titolo, tag o testo del modello.
 
@@ -59,6 +62,7 @@ Quick Paste da qualsiasi app con una scelta rapida globale
 Incolla con un tasto singolo, oppure tieni premuto ALT e digita una sequenza di tasti
 Testo formattato: titoli, elenchi, tabelle, colori, blocchi di codice e riquadri informativi
 Modalità Incolla: Automatica, HTML/Jira, HTML, RTF, Markdown e Solo testo
+Modelli in più lingue, una per scheda; incolla quella che vuoi
 Condividi i modelli con il team tramite un file sincronizzato su OneDrive o in una condivisione di rete
 Cartelle condivise di sola lettura e prefissi per ogni file condiviso
 Cartelle, trascinamento e più elementi alla volta

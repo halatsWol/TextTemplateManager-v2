@@ -31,6 +31,9 @@ Partagez vos modèles grâce à un fichier .ttmdata dans un dossier cloud comme 
 Des modèles riches
 Rédigez avec des titres, des listes, des tableaux, des couleurs, des blocs de code avec coloration syntaxique et des encadrés. Les modes de collage décident du format : Automatique choisit le meilleur pour l'application cible ; HTML/Jira conserve les encadrés pour Jira ; HTML, RTF, Markdown et Texte brut collent exactement cela.
 
+En plusieurs langues
+Gardez un modèle en plusieurs langues, une par onglet, avec un seul titre et un seul jeu d'abréviations. La première langue est collée par défaut ; Quick Paste et le menu contextuel collent ou copient n'importe quelle autre, et la traduction hors ligne peut remplir une nouvelle langue pour vous.
+
 Trouver et organiser
 Dossiers par glisser-déposer, plusieurs éléments à la fois, tout développer et tout réduire. Recherchez dans la liste pendant la saisie, de façon approximative ou exacte avec des caractères génériques, par titre, balises ou texte du modèle.
 
@@ -59,6 +62,7 @@ Quick Paste depuis n'importe quelle application avec un raccourci global
 Collage par touche unique, ou maintenez Alt et tapez une séquence de touches
 Texte enrichi : titres, listes, tableaux, couleurs, blocs de code et encadrés
 Modes de collage : Automatique, HTML/Jira, HTML, RTF, Markdown et Texte brut
+Modèles en plusieurs langues, une par onglet ; collez celle de votre choix
 Partagez vos modèles avec votre équipe grâce à un fichier synchronisé sur OneDrive ou un partage réseau
 Dossiers partagés en lecture seule et préfixes de raccourci par fichier partagé
 Dossiers, glisser-déposer et plusieurs éléments à la fois

@@ -31,6 +31,9 @@ Teile Vorlagen über eine .ttmdata-Datei in einem Cloud-Ordner wie OneDrive oder
 Vielseitige Vorlagen
 Schreib mit Überschriften, Listen, Tabellen, Farben, Codeblöcken mit Syntaxhervorhebung und Hinweisfeldern. Einfügemodi bestimmen das Format: Automatisch wählt das beste für die Ziel-App; HTML/Jira behält Hinweisfelder für Jira; HTML, RTF, Markdown und Nur Text fügen genau das ein.
 
+In mehreren Sprachen
+Halte eine Vorlage in mehreren Sprachen bereit, eine pro Tab, mit einem Titel und einem Satz Kürzel. Die erste Sprache wird standardmäßig eingefügt; Quick Paste und das Rechtsklick-Menü fügen jede andere ein oder kopieren sie, und die Offline-Übersetzung füllt eine neue Sprache für dich.
+
 Finden und ordnen
 Ordner mit Drag & Drop, mehrere Elemente auf einmal, alles ein- und ausklappen. Durchsuche die Liste beim Tippen, unscharf oder genau mit Platzhaltern, nach Titel, Tags oder dem Text der Vorlage.
 
@@ -59,6 +62,7 @@ Quick Paste aus jeder App mit einem globalen Tastenkürzel
 Einfügen per Einzeltaste, oder Alt halten und eine Tastenfolge tippen
 Formatierter Text: Überschriften, Listen, Tabellen, Farben, Codeblöcke und Hinweisfelder
 Einfügemodi: Automatisch, HTML/Jira, HTML, RTF, Markdown und Nur Text
+Vorlagen in mehreren Sprachen, eine pro Tab; jede davon einfügbar
 Vorlagen mit dem Team teilen, über eine synchronisierte Datei auf OneDrive oder einer Netzwerkfreigabe
 Nur lesbare geteilte Ordner und Kürzel-Präfixe pro geteilter Datei
 Ordner, Drag & Drop und mehrere Elemente auf einmal

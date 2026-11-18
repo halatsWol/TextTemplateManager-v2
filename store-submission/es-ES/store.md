@@ -31,6 +31,9 @@ Comparte plantillas mediante un archivo .ttmdata en una carpeta en la nube como 
 Plantillas completas
 Escribe con títulos, listas, tablas, colores, bloques de código con resaltado de sintaxis y paneles destacados. Los modos de pegado deciden el formato: Automático elige el mejor para la aplicación de destino; HTML/Jira conserva los paneles para Jira; HTML, RTF, Markdown y Texto sin formato pegan exactamente eso.
 
+En varios idiomas
+Ten una plantilla en varios idiomas, uno por pestaña, con un solo título y un solo conjunto de abreviaturas. El primer idioma se pega por defecto; Quick Paste y el menú del clic derecho pegan o copian cualquier otro, y la traducción sin conexión puede rellenar un idioma nuevo por ti.
+
 Buscar y organizar
 Carpetas con arrastrar y soltar, varios elementos a la vez, expandir y contraer todo. Busca en la lista mientras escribes, de forma aproximada o exacta con comodines, por título, etiquetas o el texto de la plantilla.
 
@@ -59,6 +62,7 @@ Quick Paste desde cualquier aplicación con un atajo global
 Pega con una tecla única, o mantén pulsada Alt y escribe una secuencia de teclas
 Texto enriquecido: títulos, listas, tablas, colores, bloques de código y paneles destacados
 Modos de pegado: Automático, HTML/Jira, HTML, RTF, Markdown y Texto sin formato
+Plantillas en varios idiomas, uno por pestaña; pega el que quieras
 Comparte plantillas con tu equipo mediante un archivo sincronizado en OneDrive o en un recurso compartido de red
 Carpetas compartidas de solo lectura y prefijos de atajo por archivo compartido
 Carpetas, arrastrar y soltar, y varios elementos a la vez

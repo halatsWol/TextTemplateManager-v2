@@ -31,6 +31,9 @@ Oszd meg a sablonokat egy .ttmdata fájlon keresztül egy felhőmappában, péld
 Gazdag sablonok
 Írj címsorokkal, listákkal, táblázatokkal, színekkel, szintaxiskiemeléses kódblokkokkal és kiemelt panelekkel. A beillesztési módok döntik el a formátumot: az Automatikus a célalkalmazáshoz legjobbat választja; a HTML/Jira megtartja a paneleket a Jirához; a HTML, RTF, Markdown és a Csak szöveg pontosan azt illeszti be.
 
+Több nyelven
+Egy sablont több nyelven is tárolhatsz, nyelvenként egy lapon, egy címmel és egy rövidítéskészlettel. Alapértelmezetten az első nyelv illesztődik be; a Quick Paste és a jobb gombos menü bármelyik másikat beilleszti vagy másolja, az offline fordítás pedig kitölthet neked egy új nyelvet.
+
 Keresés és rendszerezés
 Mappák húzással, egyszerre több elem, minden kibontása és összecsukása. Keress a listában gépelés közben, közelítően vagy pontosan helyettesítő karakterekkel, cím, címkék vagy a sablon szövege alapján.
 
@@ -59,6 +62,7 @@ Quick Paste bármely alkalmazásból egy globális billentyűparanccsal
 Beillesztés egy billentyűvel, vagy az Alt lenyomva tartásával és egy billentyűsor begépelésével
 Formázott szöveg: címsorok, listák, táblázatok, színek, kódblokkok és kiemelt panelek
 Beillesztési módok: Automatikus, HTML/Jira, HTML, RTF, Markdown és Csak szöveg
+Sablonok több nyelven, nyelvenként egy lapon; bármelyik beilleszthető
 Sablonok megosztása a csapattal egy szinkronizált fájlon keresztül OneDrive-on vagy hálózati megosztáson
 Csak olvasható megosztott mappák és parancs-előtagok megosztott fájlonként
 Mappák, húzás és egyszerre több elem
