@@ -240,6 +240,20 @@ namespace TextTemplateManager
 
         // Shows the selected template in the editor (an empty editor for a folder or no selection).
         private void PushTemplateToEditor() => Editor.Show(ViewModel.EditedTemplate, ViewModel.IsSelectedEditable);
+
+        /// <summary>Makes <paramref name="change"/>, a change from outside the window (the browser connector), to
+        /// <paramref name="t"/>: what was typed in the editor is taken first and the editor then shows the change. False,
+        /// with nothing changed, while the template has unsaved edits (autosave off).</summary>
+        public async Task<bool> ChangeFromOutsideAsync(Template t, Action change)
+        {
+            if (!ViewModel.IsShownInEditor(t)) { change(); return true; }
+            await Editor.FlushAsync();
+            if (ViewModel.HasUnsavedChanges || !ReferenceEquals(ViewModel.EditedItem, t))
+                return ViewModel.ChangeUnderDraft(t, change);   // a fresh draft is shown by the EditedItem change
+            change();
+            Editor.Reload();
+            return true;
+        }
         #region Menu Handlers
 
         private void MainHelpButton_Click(object sender, RoutedEventArgs e) => MainHelpTip.IsOpen = true;

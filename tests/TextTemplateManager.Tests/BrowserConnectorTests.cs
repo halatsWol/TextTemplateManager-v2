@@ -15,16 +15,37 @@ public sealed class BrowserConnectorTests : IDisposable
     private sealed class FakeData : IConnectorDataSource
     {
         public List<(string Content, string? Name)> Created { get; } = new();
+        public List<NewTemplateDto> CreatedFull { get; } = new();
+        public List<(string Id, string? Language, string? LanguageId, string Content)> Written { get; } = new();
         public string AppVersion => "9.9.9";
         public IReadOnlyList<PasteModeDto> PasteModes() => new[] { new PasteModeDto("Auto", "Auto") };
         public IReadOnlyList<ConnectorNodeDto> Tree() =>
-            new[] { new ConnectorNodeDto("1", "Hello", "template", "Auto", "local", null) };
-        public TemplateContentDto? Template(string id, string? mode) =>
-            id == "1" ? new TemplateContentDto("1", "Hello", mode ?? "Auto", "text/html", "<p>hi</p>") : null;
-        public Task<CreatedTemplateDto> CreateTemplateAsync(string content, string? name)
+            new[]
+            {
+                new ConnectorNodeDto("1", "Hello", "template", "Auto", "local", null),
+                new ConnectorNodeDto("f", "Folder", "folder", null, "local",
+                    [new ConnectorNodeDto("7", "Offer", "template", "Auto", "local", null, "en", [new("a1a1", "en"), new("b2b2", "de")])]),
+            };
+        public TemplateContentDto? Template(string id, string? mode, string? language = null, string? languageId = null) => id switch
         {
-            Created.Add((content, name));
-            return Task.FromResult(new CreatedTemplateDto("new-id", name ?? "New Template"));
+            "1" => new TemplateContentDto("1", "Hello", mode ?? "Auto", "text/html", "<p>hi</p>"),
+            "7" when language == "de" || languageId == "b2b2" => new TemplateContentDto("7", "Offer", mode ?? "Auto", "text/html", "<p>Hallo</p>", "de", "b2b2"),
+            "7" when language == null && languageId == null => new TemplateContentDto("7", "Offer", mode ?? "Auto", "text/html", "<p>Hello</p>", "en", "a1a1"),
+            "7" => throw new ConnectorRefusal(404, "language not found"),
+            _ => null,
+        };
+        public Task<CreatedTemplateDto> CreateTemplateAsync(NewTemplateDto template)
+        {
+            Created.Add((template.Content, template.Name));
+            CreatedFull.Add(template);
+            return Task.FromResult(new CreatedTemplateDto("new-id", template.Name ?? "New Template",
+                template.Languages is { Count: > 0 } ? [new("a1a1", template.Language!), new("b2b2", template.Languages[0].Language!)] : null));
+        }
+        public Task<LanguageWriteDto> SetLanguageAsync(string id, string? language, string? languageId, string content)
+        {
+            if (id != "7") throw new ConnectorRefusal(404, "not found");
+            Written.Add((id, language, languageId, content));
+            return Task.FromResult(new LanguageWriteDto(id, languageId ?? "c3c3", language ?? "de", languageId == null));
         }
     }
 
@@ -54,10 +75,12 @@ public sealed class BrowserConnectorTests : IDisposable
         return port;
     }
 
-    private async Task<HttpResponseMessage> Send(HttpMethod method, string path, string? token = Token, string? origin = null, string? body = null)
+    private async Task<HttpResponseMessage> Send(HttpMethod method, string path, string? token = Token, string? origin = null, string? body = null,
+        string? protocol = null)
     {
         var req = new HttpRequestMessage(method, $"http://127.0.0.1:{_port}{path}");
         if (token != null) req.Headers.TryAddWithoutValidation(BrowserConnector.TokenHeader, token);
+        if (protocol != null) req.Headers.TryAddWithoutValidation(BrowserConnector.ProtocolHeader, protocol);
         if (origin != null) req.Headers.TryAddWithoutValidation("Origin", origin);
         if (body != null) req.Content = new StringContent(body, Encoding.UTF8, "application/json");
         return await _http.SendAsync(req);
@@ -144,6 +167,98 @@ public sealed class BrowserConnectorTests : IDisposable
         Assert.Equal(HttpStatusCode.BadRequest, (await Send(HttpMethod.Post, "/template", body: "{\"name\":\"x\"}")).StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await Send(HttpMethod.Post, "/template", body: "{nope")).StatusCode);
         Assert.Empty(_data.Created);
+    }
+
+    private async Task<string> Text(HttpResponseMessage res) => await res.Content.ReadAsStringAsync();
+
+    [Theory]
+    [InlineData(null, 2)]
+    [InlineData("2", 2)]
+    [InlineData("1", 2)]
+    [InlineData("abc", 2)]
+    [InlineData("3", 3)]
+    [InlineData("7", 3)]
+    public async Task Ping_answers_with_the_protocol_the_client_asked_for_and_v2_otherwise(string? asked, int expected) =>
+        Assert.Contains($"\"protocol\":{expected}", await Text(await Send(HttpMethod.Get, "/ping", protocol: asked)));
+
+    [Fact]
+    public async Task A_v2_client_gets_the_v2_replies_without_languages()
+    {
+        string tree = await Text(await Send(HttpMethod.Get, "/tree"));
+        string template = await Text(await Send(HttpMethod.Get, "/template?id=7&lang=de"));
+        var create = await Send(HttpMethod.Post, "/template", body: "{\"content\":\"x\",\"language\":\"en\",\"languages\":[{\"language\":\"de\",\"content\":\"y\"}]}");
+        var language = await Send(HttpMethod.Post, "/template/language", body: "{\"id\":\"7\",\"language\":\"fr\",\"content\":\"z\"}");
+
+        Assert.Equal("[{\"id\":\"1\",\"name\":\"Hello\",\"type\":\"template\",\"defaultMode\":\"Auto\",\"source\":\"local\"},"
+            + "{\"id\":\"f\",\"name\":\"Folder\",\"type\":\"folder\",\"source\":\"local\",\"children\":"
+            + "[{\"id\":\"7\",\"name\":\"Offer\",\"type\":\"template\",\"defaultMode\":\"Auto\",\"source\":\"local\"}]}]", tree);
+        Assert.Equal("{\"id\":\"7\",\"name\":\"Offer\",\"mode\":\"Auto\",\"contentType\":\"text/html\",\"content\":\"<p>Hello</p>\"}", template);
+        Assert.Equal("{\"id\":\"new-id\",\"name\":\"New Template\"}", await Text(create));
+        Assert.Null(Assert.Single(_data.CreatedFull).Language);
+        Assert.Null(_data.CreatedFull[0].Languages);
+        Assert.Equal(HttpStatusCode.NotFound, language.StatusCode);
+        Assert.Empty(_data.Written);
+    }
+
+    [Fact]
+    public async Task A_v3_client_gets_the_languages_and_can_ask_for_one()
+    {
+        string tree = await Text(await Send(HttpMethod.Get, "/tree", protocol: "3"));
+        string byCode = await Text(await Send(HttpMethod.Get, "/template?id=7&lang=de", protocol: "3"));
+        string byId = await Text(await Send(HttpMethod.Get, "/template?id=7&langId=b2b2&mode=HTML", protocol: "3"));
+        var missing = await Send(HttpMethod.Get, "/template?id=7&lang=fr", protocol: "3");
+
+        Assert.Contains("\"language\":\"en\",\"languages\":[{\"id\":\"a1a1\",\"language\":\"en\"},{\"id\":\"b2b2\",\"language\":\"de\"}]", tree);
+        Assert.Contains("\"content\":\"<p>Hallo</p>\",\"language\":\"de\",\"languageId\":\"b2b2\"", byCode);
+        Assert.Contains("\"mode\":\"HTML\"", byId);
+        Assert.Contains("<p>Hallo</p>", byId);
+        Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
+        Assert.Equal("{\"error\":\"language not found\"}", await Text(missing));
+    }
+
+    [Fact]
+    public async Task A_v3_create_passes_the_languages_on()
+    {
+        var res = await Send(HttpMethod.Post, "/template", protocol: "3",
+            body: "{\"content\":\"<p>Hello</p>\",\"language\":\"en\",\"languages\":[{\"language\":\"de\",\"content\":\"<p>Hallo</p>\"}]}");
+
+        Assert.Contains("\"languages\":[{\"id\":\"a1a1\",\"language\":\"en\"},{\"id\":\"b2b2\",\"language\":\"de\"}]", await Text(res));
+        var created = Assert.Single(_data.CreatedFull);
+        Assert.Equal("en", created.Language);
+        Assert.Equal(new NewLanguageDto("de", "<p>Hallo</p>"), Assert.Single(created.Languages!));
+        Assert.Equal(HttpStatusCode.BadRequest, (await Send(HttpMethod.Post, "/template", protocol: "3", body: "{\"content\":\"x\",\"languages\":5}")).StatusCode);
+    }
+
+    [Fact]
+    public async Task A_v3_language_write_is_passed_on_and_refusals_come_back_as_their_status()
+    {
+        var added = await Send(HttpMethod.Post, "/template/language", protocol: "3", body: "{\"id\":\"7\",\"language\":\"fr\",\"content\":\"<p>Bonjour</p>\"}");
+        var unknown = await Send(HttpMethod.Post, "/template/language", protocol: "3", body: "{\"id\":\"9\",\"language\":\"fr\",\"content\":\"x\"}");
+
+        Assert.Equal("{\"id\":\"7\",\"languageId\":\"c3c3\",\"language\":\"fr\",\"added\":true}", await Text(added));
+        Assert.Equal(("7", "fr", (string?)null, "<p>Bonjour</p>"), Assert.Single(_data.Written));
+        Assert.Equal(HttpStatusCode.NotFound, unknown.StatusCode);
+        Assert.Equal("{\"error\":\"not found\"}", await Text(unknown));
+    }
+
+    [Theory]
+    [InlineData("{\"language\":\"fr\",\"content\":\"x\"}")]
+    [InlineData("{\"id\":\"7\",\"content\":\"x\"}")]
+    [InlineData("{\"id\":\"7\",\"language\":\"fr\",\"langId\":\"b2b2\",\"content\":\"x\"}")]
+    [InlineData("{\"id\":\"7\",\"language\":\"fr\"}")]
+    [InlineData("{nope")]
+    public async Task A_language_write_without_id_one_language_and_content_is_refused(string body)
+    {
+        Assert.Equal(HttpStatusCode.BadRequest, (await Send(HttpMethod.Post, "/template/language", protocol: "3", body: body)).StatusCode);
+        Assert.Empty(_data.Written);
+    }
+
+    [Fact]
+    public async Task The_protocol_header_is_allowed_for_extension_origins()
+    {
+        var preflight = await Send(HttpMethod.Options, "/tree", token: null, origin: "chrome-extension://abcdef");
+
+        Assert.Contains(BrowserConnector.ProtocolHeader, Assert.Single(preflight.Headers.GetValues("Access-Control-Allow-Headers")));
     }
 
     [Fact]

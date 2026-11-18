@@ -21,17 +21,24 @@ if (Busy (guided tour runs)?) then (yes)
   :503 busy;
   stop
 endif
+:protocol = 3 when x-ttm-protocol asks for 3 or more, else 2;
 switch (path)
 case (/ping)
-  :app, version, protocol 2;
+  :app, version, the protocol;
 case (/pastemodes)
   :modes with labels;
 case (/tree)
-  :AppConnectorData snapshot\n(rebuilt on the UI thread after TreeChanged / DataSaved);
+  :AppConnectorData snapshot\n(rebuilt on the UI thread after TreeChanged / DataSaved)\nv2: without the language fields;
 case (GET /template?id=&mode=)
+  :v3: the tab for lang= / langId= (404 when not pasted);
   :HtmlSanitizer.Sanitize(content)\n-> PasteService.RenderForMode(mode);
 case (POST /template)
+  :v3: languages checked first (400);
   :marshal to the UI thread:\nsanitize, unique title, add to the local root, save;
+case (POST /template/language (v3))
+  :marshal to the UI thread: 404 / 403 read-only / 409 sync file missing;
+  :MainPage: flush the editor; 409 with unsaved edits;
+  :ConnectorLanguages.Write (409 for the default), editor reload, save;
 case ()
   :404;
 endswitch

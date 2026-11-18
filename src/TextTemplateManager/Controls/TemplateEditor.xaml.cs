@@ -69,7 +69,8 @@ public sealed partial class TemplateEditor : UserControl
 
     public TemplateEditor() => InitializeComponent();
 
-    /// <summary>Shows <paramref name="template"/> (null: an empty editor) at its first tab, read-only unless
+    /// <summary>Shows <paramref name="template"/> (null: an empty editor) at its first tab (another template) or the
+    /// tab it was on (the same one again), read-only unless
     /// <paramref name="editable"/>. Before the editor is ready this is remembered and shown once it is.</summary>
     public void Show(Template? template, bool editable)
     {
@@ -77,10 +78,20 @@ public sealed partial class TemplateEditor : UserControl
         {
             if (_requested != null) _requested.PropertyChanged -= Requested_PropertyChanged;
             if (template != null) template.PropertyChanged += Requested_PropertyChanged;
-            _requestedTab = null;
+            // A fresh copy of the same template (new draft, sync refresh) stays on the tab it was on.
+            if (template?.Id != _requested?.Id) _requestedTab = null;
         }
         _requested = template;
         _requestedEditable = editable;
+        BuildTabs();
+        LoadRequested();
+    }
+
+    /// <summary>Shows the template again after a change made outside the editor, without first saving the editor's
+    /// text over it (flush before the change).</summary>
+    public void Reload()
+    {
+        _current = null;
         BuildTabs();
         LoadRequested();
     }

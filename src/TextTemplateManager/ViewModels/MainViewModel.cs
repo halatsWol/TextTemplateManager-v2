@@ -208,6 +208,20 @@ public partial class MainViewModel : ObservableObject
     /// <summary>Puts the edited item back as it was last saved.</summary>
     public void DiscardEdits() => Edit(_draft?.Original ?? SelectedItem);
 
+    /// <summary>The template shown in the editor: the edited one, or the one the edits (autosave off) are for.</summary>
+    public bool IsShownInEditor(Template t) => ReferenceEquals(_draft?.Original ?? EditedItem, t);
+
+    /// <summary>Makes <paramref name="change"/>, from outside the window, to the template the edits are for, and edits
+    /// it afresh; false, with nothing changed, while there are unsaved edits. Without edits, just makes it.</summary>
+    public bool ChangeUnderDraft(Template t, Action change)
+    {
+        if (_draft is not { } draft || !ReferenceEquals(draft.Original, t)) { change(); return true; }
+        if (draft.IsDirty) return false;
+        change();
+        Edit(t);
+        return true;
+    }
+
     /// <summary>After <see cref="LeavingEditedItem"/>: save the edits or drop them, then edit the new selection.</summary>
     public async Task ResolveSwitchAsync(bool save)
     {

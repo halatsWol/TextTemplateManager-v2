@@ -20,7 +20,7 @@ public sealed partial class AboutDialog : ContentDialog
         _email = email;
         VersionText.Text = Loc.Format("General_Version", AppInfo.Version);
         ReleaseText.Text = AppInfo.ReleaseDate.Length > 0 ? Loc.Format("About_Released", AppInfo.ReleaseDate) : Loc.Get("About_DevBuild");
-        ProtocolText.Text = Loc.Format("About_Protocol", BrowserConnector.ProtocolVersion);
+        ProtocolText.Text = Loc.Format("About_Protocol", BrowserConnector.MaxProtocolVersion);
         CopyrightText.Text = $"© {DateTime.Now.Year} Marflow Software";
         WebsiteLink.NavigateUri = new Uri(websiteUrl);
         EmailLink.Content = email;
