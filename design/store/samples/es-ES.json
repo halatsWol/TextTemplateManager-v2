@@ -6,7 +6,8 @@
     "main": "Notas de la versión",
     "pasteMode": "Recordatorio de factura",
     "search": "Ticket cerrado",
-    "translate": "Gracias por su mensaje"
+    "translate": "Gracias por su mensaje",
+    "languages": "Gracias por su mensaje"
   },
   "translate": { "to": "en", "formal": false },
   "teamName": "Equipo",
@@ -14,7 +15,8 @@
   "local": [
     { "folder": "Respuestas a clientes", "items": [
       { "title": "Gracias por su mensaje", "tags": "soporte, respuesta", "single": "T", "multi": "THX", "mode": 4,
-        "content": "<p>Hola:</p><p>gracias por su mensaje. Le responderemos <strong>en un plazo de un día hábil</strong>.</p><p>Saludos cordiales</p>" },
+        "content": "<p>Hola:</p><p>gracias por su mensaje. Le responderemos <strong>en un plazo de un día hábil</strong>.</p><p>Saludos cordiales</p>", "language": "es",
+        "languages": [ { "language": "de", "content": "<p>Hallo,</p><p>vielen Dank für Ihre Nachricht. Wir melden uns <strong>innerhalb eines Werktags</strong> bei Ihnen.</p><p>Freundliche Grüße</p>" } ] },
       { "title": "Ticket cerrado", "tags": "soporte, ticket", "multi": "TC", "mode": 3,
         "content": "<p>Hola:</p><p>hemos cerrado este ticket. Si el problema vuelve a aparecer, envíe una respuesta a este mensaje y se volverá a abrir.</p>" },
       { "title": "Recordatorio de factura", "tags": "facturación, recordatorio", "multi": "INV", "mode": 3,

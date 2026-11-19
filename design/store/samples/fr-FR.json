@@ -6,7 +6,8 @@
     "main": "Notes de version",
     "pasteMode": "Relance de facture",
     "search": "Ticket fermé",
-    "translate": "Merci pour votre message"
+    "translate": "Merci pour votre message",
+    "languages": "Merci pour votre message"
   },
   "translate": { "to": "en", "formal": false },
   "teamName": "Équipe",
@@ -14,7 +15,8 @@
   "local": [
     { "folder": "Réponses clients", "items": [
       { "title": "Merci pour votre message", "tags": "support, réponse", "single": "T", "multi": "THX", "mode": 4,
-        "content": "<p>Bonjour,</p><p>merci pour votre message. Nous reviendrons vers vous <strong>sous un jour ouvré</strong>.</p><p>Cordialement</p>" },
+        "content": "<p>Bonjour,</p><p>merci pour votre message. Nous reviendrons vers vous <strong>sous un jour ouvré</strong>.</p><p>Cordialement</p>", "language": "fr",
+        "languages": [ { "language": "de", "content": "<p>Hallo,</p><p>vielen Dank für Ihre Nachricht. Wir melden uns <strong>innerhalb eines Werktags</strong> bei Ihnen.</p><p>Freundliche Grüße</p>" } ] },
       { "title": "Ticket fermé", "tags": "support, ticket", "multi": "TC", "mode": 3,
         "content": "<p>Bonjour,</p><p>nous avons fermé ce ticket. Si le problème revient, envoyez simplement une réponse à ce message et il sera rouvert.</p>" },
       { "title": "Relance de facture", "tags": "facturation, relance", "multi": "INV", "mode": 3,

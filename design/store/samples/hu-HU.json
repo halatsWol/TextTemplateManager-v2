@@ -6,7 +6,8 @@
     "main": "Kiadási megjegyzések",
     "pasteMode": "Fizetési emlékeztető",
     "search": "Jegy lezárva",
-    "translate": "Köszönjük az üzenetét"
+    "translate": "Köszönjük az üzenetét",
+    "languages": "Köszönjük az üzenetét"
   },
   "translate": { "to": "en", "formal": false },
   "teamName": "Csapat",
@@ -14,7 +15,8 @@
   "local": [
     { "folder": "Ügyfélválaszok", "items": [
       { "title": "Köszönjük az üzenetét", "tags": "támogatás, válasz", "single": "T", "multi": "THX", "mode": 4,
-        "content": "<p>Tisztelt Ügyfelünk!</p><p>Köszönjük az üzenetét. <strong>Egy munkanapon belül</strong> jelentkezünk.</p><p>Üdvözlettel</p>" },
+        "content": "<p>Tisztelt Ügyfelünk!</p><p>Köszönjük az üzenetét. <strong>Egy munkanapon belül</strong> jelentkezünk.</p><p>Üdvözlettel</p>", "language": "hu",
+        "languages": [ { "language": "de", "content": "<p>Hallo,</p><p>vielen Dank für Ihre Nachricht. Wir melden uns <strong>innerhalb eines Werktags</strong> bei Ihnen.</p><p>Freundliche Grüße</p>" } ] },
       { "title": "Jegy lezárva", "tags": "támogatás, jegy", "multi": "TC", "mode": 3,
         "content": "<p>Tisztelt Ügyfelünk!</p><p>Ezt a jegyet lezártuk. Ha a probléma újra jelentkezik, egyszerűen válaszoljon erre az üzenetre, és a jegy újra megnyílik.</p>" },
       { "title": "Fizetési emlékeztető", "tags": "számlázás, emlékeztető", "multi": "INV", "mode": 3,
