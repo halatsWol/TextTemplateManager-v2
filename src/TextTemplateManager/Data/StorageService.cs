@@ -128,7 +128,7 @@ public sealed class StorageService
 
     internal static Folder? ParseTree(byte[] content)
     {
-        try { var reader = JsonReaderFor(content); return UnknownFields.Clean(JsonSerializer.Deserialize(ref reader, Json.Folder)); }
+        try { var reader = JsonReaderFor(content); return TemplateLanguages.Repair(UnknownFields.Clean(JsonSerializer.Deserialize(ref reader, Json.Folder))); }
         catch { return null; }
     }
 
@@ -196,7 +196,7 @@ public sealed class StorageService
     /// <summary>Saves are written again (a restore that failed changed nothing).</summary>
     public void ResumeWrites() => _writesSuspended = false;
 
-    private async Task WithWriteLock(string path, Func<Task> write)
+    internal async Task WithWriteLock(string path, Func<Task> write)
     {
         if (_writesSuspended) return;
         if (_protectedPaths.ContainsKey(path)) return;   // unreadable and couldn't be set aside — never overwrite
@@ -245,7 +245,7 @@ public sealed class StorageService
             try
             {
                 var value = JsonSerializer.Deserialize(await File.ReadAllTextAsync(path), typeInfo);
-                if (value != null) return UnknownFields.Clean(LegacyRtf.ConvertTree(value));
+                if (value != null) return TemplateLanguages.Repair(UnknownFields.Clean(LegacyRtf.ConvertTree(value)));
                 break;
             }
             catch (IOException) when (attempt < 2) { await Task.Delay(200); }   // briefly locked (antivirus, backup tool)
@@ -335,7 +335,7 @@ public sealed class StorageService
         try
         {
             string json = await File.ReadAllTextAsync(filePath);
-            return UnknownFields.Clean(LegacyRtf.ConvertTree(JsonSerializer.Deserialize(json, Json.Folder)));
+            return TemplateLanguages.Repair(UnknownFields.Clean(LegacyRtf.ConvertTree(JsonSerializer.Deserialize(json, Json.Folder))));
         }
         catch (Exception ex)
         {
@@ -362,7 +362,7 @@ public sealed class StorageService
             {
                 using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read,
                     FileShare.ReadWrite | FileShare.Delete);
-                return new(UnknownFields.Clean(LegacyRtf.ConvertTree(await JsonSerializer.DeserializeAsync(fs, Json.Folder))), false);
+                return new(TemplateLanguages.Repair(UnknownFields.Clean(LegacyRtf.ConvertTree(await JsonSerializer.DeserializeAsync(fs, Json.Folder)))), false);
             }
             catch (IOException) { await Task.Delay(150); }        // transient lock -> retry
             catch (Exception ex)
@@ -389,14 +389,37 @@ public sealed class StorageService
     /// <summary>Write a sync file: skip if unchanged, else temp-then-atomic-move, retrying if the
     /// target is briefly locked (OneDrive). Returns why it couldn't be written (read-only file, a share
     /// refusing writes, a lock that outlasts the retries), or null; a failed write leaves no temp file.</summary>
-    public async Task<string?> SaveSharedAsync(string path, Folder root)
+    public async Task<string?> SaveSharedAsync(string path, Folder root) => (await SaveSharedCoreAsync(path, root, null)).Problem;
+
+    /// <summary>A sync file write's outcome: why it failed, or null; <paramref name="SeenWriteUtc"/> is the file's
+    /// write time when it now holds the tree (written, or already equal), null when nothing was written.</summary>
+    public sealed record SharedWrite(string? Problem, DateTime? SeenWriteUtc);
+
+    /// <summary>Like <see cref="SaveSharedAsync"/>, but writes only while the file still has the write time
+    /// <paramref name="lastSeenWriteUtc"/> (when it was last read or written here). A file changed since then holds
+    /// another device's edit that isn't merged yet: it is left alone, and the next merge picks it up.</summary>
+    public Task<SharedWrite> SaveSharedIfUnchangedAsync(string path, Folder root, DateTime lastSeenWriteUtc) =>
+        SaveSharedCoreAsync(path, root, lastSeenWriteUtc);
+
+    /// <summary>The file's last write time, or default when it's missing or can't be checked.</summary>
+    public static DateTime LastWriteUtc(string path)
+    {
+        try { return File.Exists(path) ? File.GetLastWriteTimeUtc(path) : default; }
+        catch { return default; }
+    }
+
+    private async Task<SharedWrite> SaveSharedCoreAsync(string path, Folder root, DateTime? lastSeenWriteUtc)
     {
         string json = JsonSerializer.Serialize(root, Json.Folder);
-        string? problem = null;
+        var result = new SharedWrite(null, null);
         await WithWriteLock(path, async () =>
         {
+            DateTime before = LastWriteUtc(path);
             string? existing = File.Exists(path) ? await ReadAllTextSharedAsync(path) : null;
-            if (string.Equals(existing, json, StringComparison.Ordinal)) return;
+            DateTime after = LastWriteUtc(path);
+            if (lastSeenWriteUtc != null && before != after) return;   // written to while being read
+            if (string.Equals(existing, json, StringComparison.Ordinal)) { result = new(null, after); return; }
+            if (lastSeenWriteUtc != null && after != lastSeenWriteUtc) return;
 
             string tmp = path + ".tmp";
             try
@@ -404,17 +427,23 @@ public sealed class StorageService
                 await WriteTempAsync(tmp, json);
                 for (int attempt = 0; ; attempt++)
                 {
-                    try { File.Move(tmp, path, overwrite: true); Interlocked.Increment(ref _writeCount); return; }
+                    try
+                    {
+                        File.Move(tmp, path, overwrite: true);
+                        Interlocked.Increment(ref _writeCount);
+                        result = new(null, LastWriteUtc(path));
+                        return;
+                    }
                     catch (IOException) when (attempt < 5) { await Task.Delay(200); }   // target locked -> retry
                 }
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
-                problem = ex.Message;
+                result = new(ex.Message, null);
                 try { if (File.Exists(tmp)) File.Delete(tmp); } catch { /* leave temp if even delete fails */ }
             }
         });
-        return problem;
+        return result;
     }
 
     public async Task<AppSettings> LoadSettingsAsync() =>

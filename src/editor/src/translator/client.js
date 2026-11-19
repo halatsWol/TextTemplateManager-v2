@@ -54,6 +54,11 @@ export async function detectLanguage(text, candidates) {
     return (await request({ detect: text, candidates })).code ?? null
 }
 
+// Resolves to { code, sure } or null: like detectLanguage, plus guesses for shorter texts that aren't sure.
+export async function guessLanguage(text, candidates) {
+    return (await request({ detect: text, candidates, guess: true })).guess ?? null
+}
+
 function request(message) {
     if (!worker) start()
     const id = nextId++

@@ -11,12 +11,12 @@ The tour walks through the main window, the settings and Quick Paste on sample d
 | Class | Role |
 | --- | --- |
 | `App.StartTutorialAsync` / `EndTutorial` | Orchestrates: sample store, page swap, input off, both parts, cleanup |
-| `TourSample` | A `DataNode` over a temporary folder with sample templates (callout, code block, tags, single and multi keys), a sample synced folder (its own temp sync file), two sample backups for the Backups page, and a copy of the real settings (so the tour shows the user's own hotkey). `Dispose` deletes the folder. |
+| `TourSample` | A `DataNode` over a temporary folder with sample templates (callout, code block, tags, single and multi keys, one template in two languages), a sample synced folder (its own temp sync file), two sample backups for the Backups page, and a copy of the real settings (so the tour shows the user's own hotkey). `Dispose` deletes the folder. |
 | `MainPage(store, tour: true)` | A second main page over the sample store; its view model's sync polling is stopped at the end |
 | `PasteWindow(store, tour: true)` | Quick Paste over the sample store that never pastes and takes no keys; closing it ends the tour |
 | `TutorialOverlay` | Dims the window except a cutout around the step's target, places the card beside the target (right, left, below, above, sliding along the side) or in a fixed corner, blocks all input except the card; Esc skips. Between the two parts the main window stays dimmed. |
 | `TourStep` | Title, text, target control, `Enter` and `Leave` actions (open a settings page, select an item, show a picture of a menu), optional corner |
-| `MainPage.Tour.cs`, `PasteWindow.Tour.cs` | The steps of each part (14 + 7) |
+| `MainPage.Tour.cs`, `PasteWindow.Tour.cs` | The steps of each part (18 + 7) |
 
 ## Input while the tour runs
 
@@ -32,7 +32,7 @@ The tour walks through the main window, the settings and Quick Paste on sample d
 
 Starting the tour (from the offer or from Help) sets `TutorialOfferDone`; see [9](09-lifecycle.md) for when the tour is offered and when What's new shows instead.
 
-When a feature or a window changes, the tour steps, texts, targets and sample data are updated in the same change. The steps' titles and texts and the samples' titles, tags and contents are in `Strings/<language>/Tour.resw` (see [11](11-platform-build-release.md)), so a new language gets its own samples; the samples' shortcuts stay in `TourSample`, since the steps name them.
+When a feature or a window changes, the tour steps, texts, targets and sample data are updated in the same change. The steps' titles and texts and the samples' titles, tags and contents are in `Strings/<language>/Tour.resw` (see [11](11-platform-build-release.md)), so a new language gets its own samples; the samples' shortcuts stay in `TourSample`, since the steps name them. So does the second language of the thanks sample: German, or English when the app runs in German, with fixed texts that stay in their language.
 
 ---
 

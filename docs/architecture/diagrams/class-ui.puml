@@ -43,6 +43,8 @@ class MainViewModel <<ObservableObject>> {
   +ImportAsync() / ExportAsync()
   +CanExportSelection
   +SaveEditsAsync() / DiscardEdits()
+  +EditsSaved()
+  +FirstLanguage : FirstLanguageDetection
   +ApplyFilter() / ReloadTree()
   +ValidateAllShortcuts()
   +ClickItem(item, ctrl, shift)
@@ -61,7 +63,13 @@ class ItemDraft {
   +IsDirty
   +Commit()
   +RebaseOnto(item)
-  +ContentLoaded(html)
+  +ContentLoaded(html, tabId)
+}
+class FirstLanguageDetection {
+  +Detect : html -> code?
+  +Added(template)
+  +IsPending(template)
+  +RunAsync(template, draftOf) : string?
 }
 class MultiSelection {
   +Items
@@ -76,7 +84,17 @@ class TemplateEditor <<UserControl>> {
   +Show(template, editable)
   +FlushAsync()
   +FocusPart(text)
+  +FocusTabs()
+  +DetectLanguageAsync(html) : string?
+  +GuessLanguageAsync(html) : LanguageGuess?
+  +LanguageTabStrip
+  +ShowDialog
+  +Templates
   +ContentLoaded / SaveRequested / FocusSearchRequested / TabOut
+}
+class LanguagePickerDialog <<ContentDialog>> {
+  +LanguagePickerDialog(title, message, suggested, taken, detected)
+  +PickAsync(show) : string?
 }
 class SettingsView <<UserControl>> {
   +Open(page, parameter)
@@ -109,16 +127,28 @@ class QuickPasteController {
   +SingleKey(c) : PasteRequest
   +AltDown() / TypeMulti(c) / AltUp() : PasteRequest
   +CommitHighlighted() / CommitMulti()
+  +StepLanguage(delta) / HighlightedRow
   +SetSearch(text, inContent, strict)
 }
-class ShortcutRow <<record>>
-class PasteRequest <<record>>
+class ShortcutRow <<record>> {
+  +Languages : RowLanguages
+}
+class RowLanguages {
+  +Index / Chosen / Text
+  +Step(delta) / Reset()
+}
+class PasteRequest <<record>> {
+  +Template / PlainText / LanguageId
+}
+ShortcutRow *-- RowLanguages
 
 App --> MainPage
 App --> PasteWindow : warm instance
 App ..> TutorialOverlay : via MainPage / PasteWindow
 MainPage *-- MainViewModel
 MainPage *-- TemplateEditor
+TemplateEditor ..> LanguagePickerDialog : add / change language
+TemplateEditor ..> TemplateTabs
 MainPage *-- SettingsView
 MainPage *-- ConflictPanel
 MainPage *-- SearchOptionsButton
@@ -126,6 +156,8 @@ MainPage *-- TutorialOverlay
 MainViewModel "1" *-- "*" TreeNode
 MainViewModel o-- ItemDraft : autosave off
 MainViewModel *-- MultiSelection
+MainViewModel *-- FirstLanguageDetection
+FirstLanguageDetection ..> TemplateEditor : Detect = DetectLanguageAsync
 MainViewModel ..> ConflictReport
 ConflictPanel ..> ConflictReport
 SettingsView o-- GeneralSettingsPage

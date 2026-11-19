@@ -28,14 +28,18 @@ else multi key
   PasteWindow -> Ctrl : AltDown() (multi-key tab, top row highlighted)
   User -> PasteWindow : T, H, X (Alt held)
   PasteWindow -> Ctrl : TypeMulti(c) (refused when no shortcut starts with it)
+  opt template in several languages
+    User -> PasteWindow : Left / Right (Alt held)
+    PasteWindow -> Ctrl : StepLanguage(±1) (preview follows)
+  end
   User -> PasteWindow : Alt up
   PasteWindow -> Ctrl : AltUp()
-  Ctrl --> PasteWindow : PasteRequest(highlighted row, plain text if '_')
+  Ctrl --> PasteWindow : PasteRequest(highlighted row, plain text if '_',\nchosen language)
 else tree or list
-  User -> PasteWindow : Enter / double-click / Paste As
+  User -> PasteWindow : Enter / double-click / Paste As / Paste Language
 end
 
-PasteWindow -> PasteWindow : ExecutePaste(template, mode)\n(never in the tour)
+PasteWindow -> PasteWindow : ExecutePaste(template, mode, language)\n(never in the tour; content = ContentFor(language))
 PasteWindow -> PasteWindow : (deferred) remove hook, Close() the window
 PasteWindow -> PasteService : HandlePaste(content, mode)
 activate PasteService

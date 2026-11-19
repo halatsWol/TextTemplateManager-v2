@@ -55,11 +55,13 @@ package "Services.Platform" {
     +AppVersion
     +PasteModes()
     +Tree()
-    +Template(id, mode)
-    +CreateTemplateAsync(content, name)
+    +Template(id, mode, language, languageId)
+    +CreateTemplateAsync(template)
+    +SetLanguageAsync(id, language, languageId, content)
   }
   class BrowserConnector {
-    +{static} ProtocolVersion = 2
+    +{static} ProtocolVersion = 2  (default)
+    +{static} MaxProtocolVersion = 3  (x-ttm-protocol)
     +Start(port, token) / Stop()
     +Busy : bool
     -AcceptLoopAsync()
@@ -67,8 +69,16 @@ package "Services.Platform" {
   }
   class AppConnectorData {
     +Rebuild()  (snapshot, UI thread)
+    +ChangeTemplate  (MainPage: editor flush/reload)
+  }
+  class ConnectorLanguages <<static>> {
+    +Code(language) / Describe(offered)
+    +Find(offered, language, languageId)
+    +ApplyNew(template, language, languages)
+    +Write(template, language, languageId, content)
   }
   IConnectorDataSource <|.. AppConnectorData
+  AppConnectorData ..> ConnectorLanguages
   BrowserConnector --> IConnectorDataSource
   class LogExport <<static>> {
     +Export(zipPath, dataDirectory, events, redactor, now)
@@ -214,6 +224,18 @@ package "Services.Translation" {
     +TickAsync() : once a day, if on
     +CheckAsync() : notice or install
   }
+  class LanguageCatalog <<static>> {
+    +All : string[]
+    +Suggested(uiLanguages, translatorLanguages)
+    +Choices(suggested, taken, filter)
+    +PickerChoices(detected, suggested, taken, filter)
+    +DetectionCandidates(suggested, templates)
+  }
+  class LanguageGuess <<record>> {
+    +Code
+    +Sure
+  }
+  LanguageCatalog ..> TranslationLanguage : NameOf
   TranslationUpdater ..> ModelCatalog : daily
   TranslationUpdater ..> ModelStore : downloads newer
   ModelCatalog ..> ModelPair

@@ -191,6 +191,15 @@
   <data name="CreateTemplate" xml:space="preserve">
     <value>Create new template</value>
   </data>
+  <data name="AddAsLanguage" xml:space="preserve">
+    <value>Add as language</value>
+  </data>
+  <data name="FromTab" xml:space="preserve">
+    <value>This text ({0})</value>
+  </data>
+  <data name="LanguageTaken" xml:space="preserve">
+    <value>This template already has {0}.</value>
+  </data>
   <data name="ReplaceSelection" xml:space="preserve">
     <value>Replace selection</value>
   </data>

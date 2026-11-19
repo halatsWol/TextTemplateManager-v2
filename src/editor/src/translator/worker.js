@@ -2,7 +2,7 @@
 // folder (translator host), the installed language models from the models host, one folder per pair
 // ("en-de") with a model.json naming its files. Both are virtual hosts the editor's WebView2 maps.
 import { Engine, route } from './engine.js'
-import { detectLanguage } from './detect.js'
+import { detectLanguage, guessLanguage } from './detect.js'
 
 const ENGINE = 'https://ttm-translator.example/'
 const MODELS = 'https://ttm-models.example/'
@@ -56,7 +56,8 @@ self.onmessage = ({ data }) => {
     const { id, html, from, to, address } = data
     // Detection needs no engine and doesn't wait for translations.
     if (data.detect != null) {
-        self.postMessage({ id, code: detectLanguage(data.detect, data.candidates) })
+        if (data.guess) self.postMessage({ id, guess: guessLanguage(data.detect, data.candidates) })
+        else self.postMessage({ id, code: detectLanguage(data.detect, data.candidates) })
         return
     }
     queue = queue.then(async () => {

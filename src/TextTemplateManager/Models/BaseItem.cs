@@ -46,6 +46,9 @@ namespace TextTemplateManager.Models
                     DefaultPasteMode = t.DefaultPasteMode,
                     SingleKeyShortcut = t.SingleKeyShortcut,
                     MultiKeyShortcut = t.MultiKeyShortcut,
+                    Language = t.Language,
+                    LanguageId = t.LanguageId,
+                    AltLanguages = t.AltLanguages,
                 }
                 : new Folder { Title = title };
             if (UnknownFields != null) copy.UnknownFields = new(UnknownFields);

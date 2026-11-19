@@ -3,6 +3,7 @@ using Microsoft.UI;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.Web.WebView2.Core;
@@ -241,6 +242,20 @@ namespace TextTemplateManager
             }
             finally { _rendering = false; }
             UpdateBufferUI();
+            PreviewHighlightedRow();
+        }
+
+        // The preview shows the highlighted shortcut row, in the language it would paste; with no row
+        // highlighted (search box or tree focused) it keeps what the tree put there.
+        private (Template, string?)? _previewedRow;
+
+        private void PreviewHighlightedRow()
+        {
+            if (_entry.HighlightedRow is not { } row) return;
+            var shown = (row.Template, row.Languages.Chosen.Id);
+            if (_previewedRow == shown) return;
+            UpdatePreview(row.Template.ContentFor(row.Languages.Index > 0 ? row.Languages.Chosen.Id : null));
+            _previewedRow = shown;
         }
 
         private static void ShowHighlight(ListView list, int index)
@@ -463,6 +478,13 @@ namespace TextTemplateManager
                 if (_entry.CommitHighlighted() is { } highlighted) { e.Handled = true; ExecutePaste(highlighted); }
                 return;
             }
+            if (e.Key is VirtualKey.Left or VirtualKey.Right && !IsSingleTabActive())
+            {
+                e.Handled = true;
+                StepLanguage(e.Key == VirtualKey.Right ? 1 : -1);
+                Render();
+                return;
+            }
 
             // A single-key shortcut pastes immediately in shortcut mode. (A SearchBox.Text check isn't
             // enough to gate this — the text is still empty on the FIRST keystroke into search, so that
@@ -495,6 +517,8 @@ namespace TextTemplateManager
             // where it left off). Enter commits the highlighted row even with nothing typed.
             if (key == VirtualKey.Up || key == VirtualKey.Down)
                 _entry.MoveMultiHighlight(key == VirtualKey.Down ? 1 : -1);
+            else if (key is VirtualKey.Left or VirtualKey.Right)
+                StepLanguage(key == VirtualKey.Right ? 1 : -1);
             else if (key == VirtualKey.Enter)
             {
                 if (_entry.CommitMulti(requireBuffer: false) is { } paste) ExecutePaste(paste);
@@ -505,6 +529,14 @@ namespace TextTemplateManager
             else if ((TryGetSpecialChar(key, out char c) || TryGetCharKey(key, out c)) && !_entry.TypeMulti(c))
                 PlayNoMatchBeep();   // would no longer begin any shortcut
             Render();
+        }
+
+        // The highlighted multi-key row's next or previous language; Narrator hears the new one.
+        private void StepLanguage(int delta)
+        {
+            if (!_entry.StepLanguage(delta) || _entry.HighlightedRow is not { } row) return;
+            FrameworkElementAutomationPeer.FromElement(MultiKeyList)?.RaiseNotificationEvent(
+                AutomationNotificationKind.ActionCompleted, AutomationNotificationProcessing.MostRecent, row.Languages.ChosenName, "QuickPasteLanguage");
         }
 
         private void OnKeyUp(object sender, KeyRoutedEventArgs e)
@@ -620,17 +652,18 @@ namespace TextTemplateManager
 
         private bool _hasExecuted = false;
 
-        private void ExecutePaste(PasteRequest paste) => ExecutePaste(paste.Template, paste.PlainText);
+        private void ExecutePaste(PasteRequest paste) =>
+            ExecutePaste(paste.Template, paste.PlainText ? PasteMode.Plaintext : paste.Template.DefaultPasteMode, paste.LanguageId);
 
         private void ExecutePaste(Template item, bool forcePlain)
             => ExecutePaste(item, forcePlain ? PasteMode.Plaintext : item.DefaultPasteMode);
 
-        private void ExecutePaste(Template item, PasteMode mode)
+        private void ExecutePaste(Template item, PasteMode mode, string? languageId = null)
         {
             if (_hasExecuted || _tour) return;   // guard double-trigger; the tour never pastes
             _hasExecuted = true;
 
-            string content = item.Content;   // capture before the window is torn down
+            string content = item.ContentFor(languageId);   // capture before the window is torn down
 
             // Defer out of the current input event so a mouse double-click finishes settling, then
             // CLOSE (destroy) the window rather than hide it: a merely-hidden window can still be
@@ -742,10 +775,10 @@ namespace TextTemplateManager
             try
             {
                 await PreviewWebView.EnsureCoreWebView2Async(await WebViewEnvironment.GetAsync());
-                if (_previewConfigured) return;
+                // Null when the window closed meanwhile (quitting); the exception would stop a debugger on every exit.
+                if (_previewConfigured || PreviewWebView.CoreWebView2 is not { } core) return;
                 _previewConfigured = true;
 
-                var core = PreviewWebView.CoreWebView2;
                 core.Settings.AreDefaultContextMenusEnabled = false;
                 core.Settings.IsStatusBarEnabled = false;
                 core.WebMessageReceived += Preview_WebMessageReceived;
@@ -797,6 +830,7 @@ namespace TextTemplateManager
 
         private void ClearPreview()
         {
+            _previewedRow = null;
             _pendingPreviewHtml = "<p></p>";
             PushPreview("<p></p>");
         }
@@ -833,6 +867,7 @@ namespace TextTemplateManager
             if (args is TreeViewSelectionChangedEventArgs selection && selection.AddedItems.Count > 0)
             {
                 var item = selection.AddedItems[0];
+                _previewedRow = null;
                 if (item is TreeViewNode node && node.Content is Template t) UpdatePreview(t.Content);
                 else if (item is Template temp) UpdatePreview(temp.Content);
             }
@@ -856,6 +891,27 @@ namespace TextTemplateManager
             _contextTemplate = (sender is FrameworkElement fe && fe.DataContext is TreeViewNode node)
                 ? node.Content as Template
                 : null;
+        }
+
+        // The menu is shared by the tree and the shortcut rows: its target's data says which template it is for. A
+        // template in several languages gets Paste Language, the default first.
+        private void ContextMenu_Opening(object? sender, object e)
+        {
+            if (sender is not MenuFlyout menu) return;
+            if (menu.Target is FrameworkElement { DataContext: var data })
+                _contextTemplate = data switch { TreeViewNode node => node.Content as Template, ShortcutRow row => row.Template, _ => _contextTemplate };
+            if (menu.Items.OfType<MenuFlyoutSubItem>().FirstOrDefault(i => i.Tag as string == "Languages") is not { } languages) return;
+            languages.Items.Clear();
+            var offered = _contextTemplate != null ? TemplateLanguages.Offered(_contextTemplate) : [];
+            languages.Visibility = offered.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
+            for (int i = 0; i < offered.Count && offered.Count > 1; i++)
+            {
+                string name = offered[i].Language is { } code ? Services.Translation.TranslationLanguage.NameOf(code) : Loc.Get("LanguageTabs_NoLanguage");
+                string? id = i == 0 ? null : offered[i].Id;
+                var item = new MenuFlyoutItem { Text = i == 0 ? Loc.Format("Main_CopyLanguageDefault", name) : name };
+                item.Click += (_, _) => { if (_contextTemplate is { } t) ExecutePaste(t, t.DefaultPasteMode, id); };
+                languages.Items.Add(item);
+            }
         }
 
         private void CtxPaste_Click(object sender, RoutedEventArgs e)
@@ -894,8 +950,8 @@ namespace TextTemplateManager
 
         private void ShortcutItem_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            if (sender is FrameworkElement fe && fe.DataContext is ShortcutRow row)
-                ExecutePaste(row.Template, false);   // default paste — same as pressing the shortcut
+            if (sender is FrameworkElement fe && fe.DataContext is ShortcutRow row)   // as pressing the shortcut, in the row's language
+                ExecutePaste(row.Template, row.Template.DefaultPasteMode, row.Languages.Index > 0 ? row.Languages.Chosen.Id : null);
         }
         #endregion
     }

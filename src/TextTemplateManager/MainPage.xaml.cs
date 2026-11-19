@@ -17,6 +17,7 @@ using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
 using TextTemplateManager.Services.Pasting;
 using TextTemplateManager.Services.Platform;
+using TextTemplateManager.Services.Translation;
 using TextTemplateManager.ViewModels;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
@@ -108,12 +109,16 @@ namespace TextTemplateManager
             Editor.TabOut += Editor_TabOut;
             TreeToolbar.GotFocus += (_, e) => { if (e.OriginalSource is Button button) _lastToolbarButton = button; };
             Editor.ContentLoaded += ViewModel.EditorLoaded;
+            Editor.ShowDialog = ShowDialogAsync;
+            Editor.Templates = () => store.AllItems;
+            ViewModel.FirstLanguage.Detect = Editor.DetectLanguageAsync;
         }
 
         private async Task SaveAsync()
         {
             await Editor.FlushAsync();   // what was typed in the last moment, not reported yet
             await ViewModel.SaveEditsAsync();
+            ViewModel.EditsSaved();
         }
 
         private async void Save_Click(object sender, RoutedEventArgs e) => await SaveAsync();
@@ -235,6 +240,20 @@ namespace TextTemplateManager
 
         // Shows the selected template in the editor (an empty editor for a folder or no selection).
         private void PushTemplateToEditor() => Editor.Show(ViewModel.EditedTemplate, ViewModel.IsSelectedEditable);
+
+        /// <summary>Makes <paramref name="change"/>, a change from outside the window (the browser connector), to
+        /// <paramref name="t"/>: what was typed in the editor is taken first and the editor then shows the change. False,
+        /// with nothing changed, while the template has unsaved edits (autosave off).</summary>
+        public async Task<bool> ChangeFromOutsideAsync(Template t, Action change)
+        {
+            if (!ViewModel.IsShownInEditor(t)) { change(); return true; }
+            await Editor.FlushAsync();
+            if (ViewModel.HasUnsavedChanges || !ReferenceEquals(ViewModel.EditedItem, t))
+                return ViewModel.ChangeUnderDraft(t, change);   // a fresh draft is shown by the EditedItem change
+            change();
+            Editor.Reload();
+            return true;
+        }
         #region Menu Handlers
 
         private void MainHelpButton_Click(object sender, RoutedEventArgs e) => MainHelpTip.IsOpen = true;
@@ -295,6 +314,22 @@ namespace TextTemplateManager
                     copyAs.Items.Add(mi);
                 }
                 flyout.Items.Add(copyAs);
+
+                // The languages that are pasted, in the default paste mode; Copy and Ctrl+C copy the first one.
+                var languages = TemplateLanguages.Offered(t);
+                if (languages.Count > 1)
+                {
+                    var copyLanguage = new MenuFlyoutSubItem { Text = Loc.Get("Main_CopyLanguageItem") };
+                    for (int i = 0; i < languages.Count; i++)
+                    {
+                        string name = languages[i].Language is { } code ? TranslationLanguage.NameOf(code) : Loc.Get("LanguageTabs_NoLanguage");
+                        string content = languages[i].Content;
+                        var mi = new MenuFlyoutItem { Text = i == 0 ? Loc.Format("Main_CopyLanguageDefault", name) : name };
+                        mi.Click += (_, _) => _ = PasteService.CopyToClipboardAsync(content, t.DefaultPasteMode);
+                        copyLanguage.Items.Add(mi);
+                    }
+                    flyout.Items.Add(copyLanguage);
+                }
             }
 
             if (!item.IsSyncRoot)   // a pinned sync folder already is a file
@@ -1086,6 +1121,7 @@ namespace TextTemplateManager
             var next = cycle[SearchNavigation.NextInCycle(current, cycle.Count, back)];
             if (ReferenceEquals(next, ItemTreeView)) FocusTree();
             else if (ReferenceEquals(next, TreeToolbar)) FocusToolbar();
+            else if (ReferenceEquals(next, Editor.LanguageTabStrip)) Editor.FocusTabs();
             else if (ReferenceEquals(next, Editor)) Editor.FocusPart(text: back);   // forward: its toolbar; back: its text
             else if (next is Control control) control.Focus(FocusState.Keyboard);
         }
@@ -1099,6 +1135,7 @@ namespace TextTemplateManager
             if (TemplatePanel.Visibility == Visibility.Visible)
             {
                 if (TemplateTitleBox.IsEnabled) cycle.Add(TemplateTitleBox);
+                cycle.Add(Editor.LanguageTabStrip);
                 cycle.Add(Editor);
                 cycle.AddRange(new Control[] { SingleKeyBox, MultiKeyBox, TagsBox, PasteModeBox }.Where(c => c.IsEnabled));
             }

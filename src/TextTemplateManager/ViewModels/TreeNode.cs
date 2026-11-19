@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.UI.Xaml.Controls;
 using System.Collections.ObjectModel;
 using TextTemplateManager.Helpers;
 using TextTemplateManager.Models;
@@ -21,7 +20,7 @@ public sealed partial class TreeNode(BaseItem item) : ObservableObject
     [ObservableProperty]
     public partial bool IsMultiSelected { get; set; }
 
-    public Symbol Icon => ItemIconConverter.For(Item);
+    public string Icon => ItemIconConverter.For(Item);
 
     // The tree row's accessible name (what a screen reader announces), instead of the class name.
     public override string ToString() => Item.Title;

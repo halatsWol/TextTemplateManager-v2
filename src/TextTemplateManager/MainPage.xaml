@@ -158,9 +158,9 @@
                     <!-- Buttons: add and delete on the left, expand/collapse all on the right -->
                     <Grid x:Name="TreeToolbar" Margin="10,10,10,5">
                         <StackPanel Orientation="Horizontal" Spacing="4">
-                            <!-- The tree's item icons (Symbol.Document / Symbol.Folder), as glyphs to match the other buttons' size. -->
-                            <Button x:Name="AddTemplateButton" x:Uid="MainPage_AddTemplateButton" Content="&#xE8A5;" FontFamily="Segoe MDL2 Assets" Click="AddTemplate_Click" IsEnabled="{x:Bind ViewModel.CanAddHere, Mode=OneWay}"/>
-                            <Button x:Name="AddFolderButton" x:Uid="MainPage_AddFolderButton" Content="&#xE8B7;" FontFamily="Segoe MDL2 Assets" Click="AddFolder_Click" IsEnabled="{x:Bind ViewModel.CanAddHere, Mode=OneWay}"/>
+                            <!-- The tree's item glyphs (ItemIconConverter), in the same symbol font. -->
+                            <Button x:Name="AddTemplateButton" x:Uid="MainPage_AddTemplateButton" Content="&#xE8A5;" FontFamily="{ThemeResource SymbolThemeFontFamily}" Click="AddTemplate_Click" IsEnabled="{x:Bind ViewModel.CanAddHere, Mode=OneWay}"/>
+                            <Button x:Name="AddFolderButton" x:Uid="MainPage_AddFolderButton" Content="&#xE8B7;" FontFamily="{ThemeResource SymbolThemeFontFamily}" Click="AddFolder_Click" IsEnabled="{x:Bind ViewModel.CanAddHere, Mode=OneWay}"/>
                             <Button x:Name="DeleteButton" x:Uid="MainPage_DeleteButton" Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" Click="DeleteItem_Click"
                                     IsEnabled="{x:Bind ViewModel.CanDeleteSelection, Mode=OneWay}"/>
                         </StackPanel>
@@ -220,7 +220,7 @@
                                     <Grid Background="Transparent">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
                                         <Grid VerticalAlignment="Center" Width="20" Height="20">
-                                            <SymbolIcon Symbol="{x:Bind Icon}"/>
+                                            <FontIcon Glyph="{x:Bind Icon}" FontSize="16"/>
                                             <Border Visibility="{x:Bind Item.IsSyncRoot, Converter={StaticResource BoolToVis}}"
                                                     HorizontalAlignment="Right" VerticalAlignment="Bottom"
                                                     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" CornerRadius="5">

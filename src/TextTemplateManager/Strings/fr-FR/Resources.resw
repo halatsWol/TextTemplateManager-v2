@@ -867,13 +867,13 @@
     <value>Conflits :</value>
   </data>
   <data name="MainPage_GuideConflictsText.Text" xml:space="preserve">
-    <value> une abréviation en double dans une même zone est bloquée (un panneau en haut à droite la signale) ; entre zones, ce n'est qu'un avertissement que vous pouvez masquer.</value>
+    <value> une abréviation en double dans une même zone est bloquée (un panneau en haut à droite la signale) ; entre zones, ce n'est qu'un avertissement que vous pouvez masquer. Le panneau signale aussi un modèle ayant la même langue sur deux onglets ; seul le premier est collé.</value>
   </data>
   <data name="MainPage_GuideRightClickLabel.Text" xml:space="preserve">
     <value>Clic droit :</value>
   </data>
   <data name="MainPage_GuideRightClickText.Text" xml:space="preserve">
-    <value> sur un modèle pour Dupliquer / Copier ; sur un modèle ou un dossier pour Exporter ou Supprimer. Faites glisser un élément dans l'espace vide sous la liste pour le placer au premier niveau.</value>
+    <value> sur un modèle pour Dupliquer / Copier / Copier la langue ; sur un modèle ou un dossier pour Exporter ou Supprimer. Faites glisser un élément dans l'espace vide sous la liste pour le placer au premier niveau.</value>
   </data>
   <data name="MainPage_GuideSearchLabel.Text" xml:space="preserve">
     <value>Rechercher :</value>
@@ -885,7 +885,7 @@
     <value>Éditeur :</value>
   </data>
   <data name="MainPage_GuideEditorText.Text" xml:space="preserve">
-    <value> mettez en forme avec la barre d'outils — titres, listes, tableaux, couleurs et panneaux Info/Note/Réussite/Avertissement/Erreur. Utilisez le mode de collage HTML/Jira pour coller les panneaux dans Jira.</value>
+    <value> mettez en forme avec la barre d'outils — titres, listes, tableaux, couleurs et panneaux Info/Note/Réussite/Avertissement/Erreur. Utilisez le mode de collage HTML/Jira pour coller les panneaux dans Jira. Les onglets au-dessus de la barre contiennent le modèle en plusieurs langues : + en ajoute une, un clic droit sur un onglet en propose plus ; le premier est collé par défaut.</value>
   </data>
   <data name="MainPage_GuideQuickPasteLabel.Text" xml:space="preserve">
     <value>Quick Paste :</value>
@@ -949,6 +949,12 @@
   </data>
   <data name="Main_CopyAsItem" xml:space="preserve">
     <value>Copier en tant que</value>
+  </data>
+  <data name="Main_CopyLanguageItem" xml:space="preserve">
+    <value>Copier la langue</value>
+  </data>
+  <data name="Main_CopyLanguageDefault" xml:space="preserve">
+    <value>{0} (par défaut)</value>
   </data>
   <data name="Main_ExportItem" xml:space="preserve">
     <value>Exporter…</value>
@@ -1361,8 +1367,20 @@ Les modèles n'ont pas été touchés. La mise à jour reste prête ; vous pouv
   <data name="Conflicts_Shortcut" xml:space="preserve">
     <value>Abréviation : {0}</value>
   </data>
+  <data name="Conflicts_LanguageHeading" xml:space="preserve">
+    <value>Conflits de langues</value>
+  </data>
+  <data name="Conflicts_Language" xml:space="preserve">
+    <value>{0} sur plus d'un onglet dans le modèle :</value>
+  </data>
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, abréviation {1}, {2}</value>
+  </data>
+  <data name="QuickPaste_RowNameLanguages" xml:space="preserve">
+    <value>{0}, abréviation {1}, {2}, langues {3}</value>
+  </data>
+  <data name="QuickPaste_PasteLanguageItem.Text" xml:space="preserve">
+    <value>Coller la langue</value>
   </data>
   <data name="QuickPaste_LocalSource" xml:space="preserve">
     <value>local</value>
@@ -1389,7 +1407,7 @@ Les modèles n'ont pas été touchés. La mise à jour reste prête ; vous pouv
     <value>Adresse copiée dans le Presse-papiers</value>
   </data>
   <data name="ConflictPanel_Title.Text" xml:space="preserve">
-    <value>⚠ Conflits d'abréviations</value>
+    <value>⚠ Conflits</value>
   </data>
   <data name="ConflictPanel_DismissButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Masquer</value>
@@ -1527,7 +1545,7 @@ Les modèles n'ont pas été touchés. La mise à jour reste prête ; vous pouv
     <value>Séquence de touches :</value>
   </data>
   <data name="QuickPaste_GuideMultiText.Text" xml:space="preserve">
-    <value> maintenez Alt et tapez l'abréviation (celles synchronisées ont un préfixe, par exemple and-msg ; séparateurs - _ . autorisés). Relâchez Alt pour coller la correspondance en surbrillance — une saisie partielle suffit. ↑/↓ déplacent la surbrillance, Entrée la colle.</value>
+    <value> maintenez Alt et tapez l'abréviation (celles synchronisées ont un préfixe, par exemple and-msg ; séparateurs - _ . autorisés). Relâchez Alt pour coller la correspondance en surbrillance — une saisie partielle suffit. ↑/↓ déplacent la surbrillance, Entrée la colle ; ←/→ changent la langue du modèle en surbrillance.</value>
   </data>
   <data name="QuickPaste_GuidePlaintextLabel.Text" xml:space="preserve">
     <value>Texte brut :</value>
@@ -1551,7 +1569,7 @@ Les modèles n'ont pas été touchés. La mise à jour reste prête ; vous pouv
     <value>Clic droit :</value>
   </data>
   <data name="QuickPaste_GuideRightClickText.Text" xml:space="preserve">
-    <value> Coller, ou Coller en tant que — Texte brut, Markdown, RTF, HTML, HTML/Jira ou Automatique.</value>
+    <value> Coller, ou Coller en tant que — Texte brut, Markdown, RTF, HTML, HTML/Jira ou Automatique ; Coller la langue pour un modèle en plusieurs langues. Aussi dans les listes d'abréviations.</value>
   </data>
   <data name="QuickPaste_GuideSearchLabel.Text" xml:space="preserve">
     <value>Rechercher :</value>
@@ -1852,5 +1870,83 @@ Remplacer : le fichier reçoit la copie de la sauvegarde, pour tous ceux qui l'
   </data>
   <data name="MailHint_HelpLink.Content" xml:space="preserve">
     <value>Aide pas à pas</value>
+  </data>
+  <data name="TemplateEditor_LanguageTabs.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Langues</value>
+  </data>
+  <data name="TemplateEditor_AddLanguageButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Ajouter une langue</value>
+  </data>
+  <data name="TemplateEditor_AddLanguageButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Ajouter une langue</value>
+  </data>
+  <data name="LanguageTabs_NoLanguage" xml:space="preserve">
+    <value>Aucune langue</value>
+  </data>
+  <data name="LanguageTabs_DefaultLanguageTip" xml:space="preserve">
+    <value>Langue par défaut : collée si aucune autre n'est choisie</value>
+  </data>
+  <data name="LanguageTabs_UnsetLanguageTip" xml:space="preserve">
+    <value>Aucune langue : pas proposée au collage</value>
+  </data>
+  <data name="LanguageTabs_DuplicateLanguageTip" xml:space="preserve">
+    <value>Même langue qu'un onglet précédent : pas proposée au collage</value>
+  </data>
+  <data name="LanguageTabs_AddLanguage" xml:space="preserve">
+    <value>Ajouter une langue</value>
+  </data>
+  <data name="LanguageTabs_ChangeLanguage" xml:space="preserve">
+    <value>Changer de langue…</value>
+  </data>
+  <data name="LanguageTabs_MakeDefault" xml:space="preserve">
+    <value>Définir par défaut</value>
+  </data>
+  <data name="LanguageTabs_MoveLeft" xml:space="preserve">
+    <value>Déplacer à gauche</value>
+  </data>
+  <data name="LanguageTabs_MoveRight" xml:space="preserve">
+    <value>Déplacer à droite</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguage" xml:space="preserve">
+    <value>Supprimer la langue</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageTitle" xml:space="preserve">
+    <value>Supprimer {0} ?</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageText" xml:space="preserve">
+    <value>Le texte en {0} est supprimé de ce modèle.</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageButton" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="LanguagePicker_FilterBox.PlaceholderText" xml:space="preserve">
+    <value>Rechercher des langues</value>
+  </data>
+  <data name="LanguagePicker_FilterBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Rechercher des langues</value>
+  </data>
+  <data name="LanguagePicker_List.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Langues</value>
+  </data>
+  <data name="LanguagePicker_ChooseButton" xml:space="preserve">
+    <value>Choisir</value>
+  </data>
+  <data name="LanguagePicker_Suggested" xml:space="preserve">
+    <value>Suggérées</value>
+  </data>
+  <data name="LanguagePicker_All" xml:space="preserve">
+    <value>Toutes les langues</value>
+  </data>
+  <data name="LanguagePicker_Detected" xml:space="preserve">
+    <value>Détectée dans le texte</value>
+  </data>
+  <data name="LanguagePicker_FirstTitle" xml:space="preserve">
+    <value>Langue de ce texte</value>
+  </data>
+  <data name="LanguagePicker_FirstMessage" xml:space="preserve">
+    <value>Avant d'ajouter une autre langue, choisissez la langue dans laquelle ce modèle est écrit. Ce texte reste celui par défaut, collé si aucune autre langue n'est choisie.</value>
+  </data>
+  <data name="LanguagePicker_ChangeTitle" xml:space="preserve">
+    <value>Changer de langue</value>
   </data>
 </root>

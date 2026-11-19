@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -13,20 +14,36 @@ namespace TextTemplateManager.Services.Platform;
 
 // ---- Wire DTOs (serialized as camelCase JSON) ----
 public sealed record PasteModeDto(string Id, string Label);
-public sealed record ConnectorNodeDto(string Id, string Name, string Type, string? DefaultMode, string? Source, List<ConnectorNodeDto>? Children);
-public sealed record TemplateContentDto(string Id, string Name, string Mode, string ContentType, string Content);
-public sealed record CreatedTemplateDto(string Id, string Name);
+public sealed record LanguageDto(string Id, string Language);
+public sealed record ConnectorNodeDto(string Id, string Name, string Type, string? DefaultMode, string? Source, List<ConnectorNodeDto>? Children,
+    string? Language = null, List<LanguageDto>? Languages = null);
+public sealed record TemplateContentDto(string Id, string Name, string Mode, string ContentType, string Content,
+    string? Language = null, string? LanguageId = null);
+public sealed record CreatedTemplateDto(string Id, string Name, List<LanguageDto>? Languages = null);
+public sealed record NewLanguageDto(string? Language, string? Content);
+public sealed record NewTemplateDto(string Content, string? Name, string? Language = null, IReadOnlyList<NewLanguageDto>? Languages = null);
+public sealed record LanguageWriteDto(string Id, string LanguageId, string Language, bool Added);
+
+/// <summary>A request the data source turns down, answered with <see cref="Status"/> and {"error": message}.</summary>
+public sealed class ConnectorRefusal(int status, string error) : Exception(error)
+{
+    public int Status { get; } = status;
+}
 
 /// <summary>Data the connector serves. The app implements this over its live templates; a test
 /// harness can implement it with fixtures. Read methods run on the connector's background threads
-/// (implementations read an immutable snapshot); CreateTemplateAsync marshals to the UI thread itself.</summary>
+/// (implementations read an immutable snapshot); the writes marshal to the UI thread themselves.
+/// Replies carry the protocol 3 fields (languages); the connector drops them for older clients.</summary>
 public interface IConnectorDataSource
 {
     string AppVersion { get; }
     IReadOnlyList<PasteModeDto> PasteModes();
     IReadOnlyList<ConnectorNodeDto> Tree();
-    TemplateContentDto? Template(string id, string? mode);   // null when the id is unknown
-    Task<CreatedTemplateDto> CreateTemplateAsync(string content, string? name);   // adds a template to the local area
+    /// <summary>Null when the id is unknown; a refusal (404) for a language the template doesn't paste.</summary>
+    TemplateContentDto? Template(string id, string? mode, string? language = null, string? languageId = null);
+    Task<CreatedTemplateDto> CreateTemplateAsync(NewTemplateDto template);   // adds a template to the local area
+    /// <summary>Adds a language to a template or replaces the text of one of its other languages, never the default's.</summary>
+    Task<LanguageWriteDto> SetLanguageAsync(string id, string? language, string? languageId, string content);
 }
 
 /// <summary>
@@ -37,8 +54,12 @@ public interface IConnectorDataSource
 /// </summary>
 public sealed class BrowserConnector : IDisposable
 {
-    public const int ProtocolVersion = 2;   // v2 adds POST /template (create)
+    // v2 adds POST /template (create), v3 a template's languages. A client asks for v3 with ProtocolHeader; any
+    // other gets exactly the v2 replies, which the extensions released so far check for.
+    public const int ProtocolVersion = 2;
+    public const int MaxProtocolVersion = 3;
     public const string TokenHeader = "x-ttm-token";
+    public const string ProtocolHeader = "x-ttm-protocol";
 
     private readonly IConnectorDataSource _data;
     private readonly TimeSpan _connectionTimeout;
@@ -262,23 +283,33 @@ public sealed class BrowserConnector : IDisposable
             return new Response(401, "{\"error\":\"unauthorized\"}", corsOrigin);
         if (Busy) return new Response(503, "{\"error\":\"busy\"}", corsOrigin);
 
+        bool v3 = Protocol(req) >= 3;
         try
         {
             switch (req.Path)
             {
                 case "/ping":
-                    return Ok(new { app = "TextTemplateManager", version = _data.AppVersion, protocol = ProtocolVersion }, corsOrigin);
+                    return Ok(new { app = "TextTemplateManager", version = _data.AppVersion, protocol = Protocol(req) }, corsOrigin);
                 case "/pastemodes":
                     return Ok(_data.PasteModes(), corsOrigin);
                 case "/tree":
-                    return Ok(_data.Tree(), corsOrigin);
+                    return Ok(v3 ? _data.Tree() : WithoutLanguages(_data.Tree()), corsOrigin);
                 case "/template" when req.Method == "POST":
-                    return await CreateTemplateAsync(req, corsOrigin);
+                    return await CreateTemplateAsync(req, v3, corsOrigin);
+                case "/template/language" when req.Method == "POST" && v3:
+                    return await SetLanguageAsync(req, corsOrigin);
                 case "/template":
                     if (!req.Query.TryGetValue("id", out string? id) || string.IsNullOrWhiteSpace(id))
                         return new Response(400, "{\"error\":\"missing id\"}", corsOrigin);
                     req.Query.TryGetValue("mode", out string? mode);
-                    var tpl = _data.Template(id, mode);
+                    TemplateContentDto? tpl;
+                    if (v3)
+                    {
+                        req.Query.TryGetValue("lang", out string? lang);
+                        req.Query.TryGetValue("langId", out string? langId);
+                        tpl = _data.Template(id, mode, NullIfBlank(lang), NullIfBlank(langId));
+                    }
+                    else tpl = _data.Template(id, mode) is { } full ? full with { Language = null, LanguageId = null } : null;
                     return tpl == null
                         ? new Response(404, "{\"error\":\"not found\"}", corsOrigin)
                         : Ok(tpl, corsOrigin);
@@ -286,36 +317,86 @@ public sealed class BrowserConnector : IDisposable
                     return new Response(404, "{\"error\":\"unknown endpoint\"}", corsOrigin);
             }
         }
+        catch (ConnectorRefusal refusal)
+        {
+            return Error(refusal.Status, refusal.Message, corsOrigin);
+        }
         catch
         {
             return new Response(500, "{\"error\":\"internal\"}", corsOrigin);
         }
     }
 
-    // POST /template — body {"content": "...", "name"?: "..."}. Adds a template to the local area
-    // (name defaults to "New Template", incremented on collision) and returns {"id","name"}.
-    private async Task<Response> CreateTemplateAsync(Request req, string corsOrigin)
+    // The protocol the client asked for with ProtocolHeader, at most ours; the default without one.
+    private static int Protocol(Request req) =>
+        req.Headers.TryGetValue(ProtocolHeader, out var asked) && int.TryParse(asked, out int v) && v > ProtocolVersion
+            ? Math.Min(v, MaxProtocolVersion) : ProtocolVersion;
+
+    private static List<ConnectorNodeDto> WithoutLanguages(IEnumerable<ConnectorNodeDto> nodes) =>
+        nodes.Select(n => n with { Language = null, Languages = null, Children = n.Children == null ? null : WithoutLanguages(n.Children) }).ToList();
+
+    private static string? NullIfBlank(string? s) => string.IsNullOrWhiteSpace(s) ? null : s;
+
+    private static JsonElement? ParseBody(Request req)
     {
-        string? content = null, name = null;
         try
         {
             using var doc = JsonDocument.Parse(string.IsNullOrWhiteSpace(req.Body) ? "{}" : req.Body);
-            if (doc.RootElement.ValueKind == JsonValueKind.Object)
-            {
-                if (doc.RootElement.TryGetProperty("content", out var c)) content = c.GetString();
-                if (doc.RootElement.TryGetProperty("name", out var n)) name = n.GetString();
-            }
+            return doc.RootElement.ValueKind == JsonValueKind.Object ? doc.RootElement.Clone() : null;
         }
-        catch { return new Response(400, "{\"error\":\"invalid json\"}", corsOrigin); }
+        catch (JsonException) { return null; }
+    }
 
-        if (string.IsNullOrEmpty(content))
-            return new Response(400, "{\"error\":\"missing content\"}", corsOrigin);
+    private static string? StringOf(JsonElement body, string name) =>
+        body.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
 
-        return Ok(await _data.CreateTemplateAsync(content, name), corsOrigin);
+    // POST /template — body {"content": "...", "name"?: "..."}, from v3 also "language"?: code of the content and
+    // "languages"?: [{"language", "content"}]. Adds a template to the local area (name defaults to "New Template",
+    // incremented on collision) and returns {"id","name"} (v3: plus "languages" for one in several languages).
+    private async Task<Response> CreateTemplateAsync(Request req, bool v3, string corsOrigin)
+    {
+        if (ParseBody(req) is not { } body) return Error(400, "invalid json", corsOrigin);
+        string? content = StringOf(body, "content");
+        if (string.IsNullOrEmpty(content)) return Error(400, "missing content", corsOrigin);
+
+        var template = new NewTemplateDto(content, StringOf(body, "name"));
+        if (v3)
+        {
+            List<NewLanguageDto>? languages = null;
+            if (body.TryGetProperty("languages", out var list) && list.ValueKind != JsonValueKind.Null)
+            {
+                if (list.ValueKind != JsonValueKind.Array) return Error(400, "invalid languages", corsOrigin);
+                languages = new();
+                foreach (var entry in list.EnumerateArray())
+                {
+                    if (entry.ValueKind != JsonValueKind.Object) return Error(400, "invalid languages", corsOrigin);
+                    languages.Add(new NewLanguageDto(StringOf(entry, "language"), StringOf(entry, "content")));
+                }
+            }
+            template = template with { Language = NullIfBlank(StringOf(body, "language")), Languages = languages };
+        }
+
+        var created = await _data.CreateTemplateAsync(template);
+        return Ok(v3 ? created : created with { Languages = null }, corsOrigin);
+    }
+
+    // POST /template/language (v3) — body {"id", "language" or "langId", "content"}.
+    private async Task<Response> SetLanguageAsync(Request req, string corsOrigin)
+    {
+        if (ParseBody(req) is not { } body) return Error(400, "invalid json", corsOrigin);
+        string? id = NullIfBlank(StringOf(body, "id")), language = NullIfBlank(StringOf(body, "language")),
+            languageId = NullIfBlank(StringOf(body, "langId")), content = StringOf(body, "content");
+        if (id == null) return Error(400, "missing id", corsOrigin);
+        if ((language == null) == (languageId == null)) return Error(400, "language or langId", corsOrigin);
+        if (string.IsNullOrEmpty(content)) return Error(400, "missing content", corsOrigin);
+        return Ok(await _data.SetLanguageAsync(id, language, languageId, content), corsOrigin);
     }
 
     private static Response Ok(object payload, string origin) =>
         new(200, JsonSerializer.Serialize(payload, Json), origin);
+
+    private static Response Error(int status, string error, string origin) =>
+        new(status, JsonSerializer.Serialize(new { error }, Json), origin);
 
     // The expected "the client hung up" exceptions: a reset/aborted socket, a disposed stream, or
     // cooperative cancellation on shutdown. A browser routinely aborts in-flight loopback requests
@@ -335,7 +416,7 @@ public sealed class BrowserConnector : IDisposable
         {
             head.Append("Access-Control-Allow-Origin: ").Append(res.Origin).Append("\r\n");
             head.Append("Vary: Origin\r\n");
-            head.Append("Access-Control-Allow-Headers: ").Append(TokenHeader).Append(", Content-Type\r\n");
+            head.Append("Access-Control-Allow-Headers: ").Append(TokenHeader).Append(", ").Append(ProtocolHeader).Append(", Content-Type\r\n");
             head.Append("Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n");
             head.Append("Access-Control-Max-Age: 600\r\n");
         }
@@ -359,6 +440,6 @@ public sealed class BrowserConnector : IDisposable
     private static string Reason(int code) => code switch
     {
         200 => "OK", 204 => "No Content", 400 => "Bad Request", 401 => "Unauthorized",
-        403 => "Forbidden", 404 => "Not Found", 503 => "Service Unavailable", _ => "Error",
+        403 => "Forbidden", 404 => "Not Found", 409 => "Conflict", 503 => "Service Unavailable", _ => "Error",
     };
 }

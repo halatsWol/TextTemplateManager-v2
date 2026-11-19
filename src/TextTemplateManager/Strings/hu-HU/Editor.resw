@@ -191,6 +191,15 @@
   <data name="CreateTemplate" xml:space="preserve">
     <value>Új sablon létrehozása</value>
   </data>
+  <data name="AddAsLanguage" xml:space="preserve">
+    <value>Hozzáadás nyelvként</value>
+  </data>
+  <data name="FromTab" xml:space="preserve">
+    <value>Ez a szöveg ({0})</value>
+  </data>
+  <data name="LanguageTaken" xml:space="preserve">
+    <value>Ez a sablon már tartalmazza ezt a nyelvet: {0}.</value>
+  </data>
   <data name="ReplaceSelection" xml:space="preserve">
     <value>Kijelölés cseréje</value>
   </data>

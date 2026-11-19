@@ -18,7 +18,7 @@ import { lowlight, LANGUAGES, DEFAULT_LANGUAGE } from './languages.js'
 import { DOMParser as PMDOMParser, DOMSerializer, Fragment, Slice } from '@tiptap/pm/model'
 import { TextSelection, EditorState, Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
-import { detectLanguage, FORMAL_LANGUAGES, translateHtml } from './translator/client.js'
+import { detectLanguage, FORMAL_LANGUAGES, guessLanguage, translateHtml } from './translator/client.js'
 
 // UI text from the app (Strings\<language>\Editor.resw), set before this script runs; a missing key shows itself.
 const STRINGS = window.ttmStrings ?? {}
@@ -466,12 +466,15 @@ const host = window.chrome && window.chrome.webview ? window.chrome.webview : nu
 const post = (msg) => { try { host && host.postMessage(JSON.stringify(msg)) } catch (_) {} }
 
 let suppressChange = false
+// The template and tab shown ("<template id>/<tab id>"): a change reports it, so the host can drop one that arrives
+// after a switch.
+let tabKey = null
 const debounce = (fn, ms) => {
     let t
     return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms) }
 }
 const emitChange = debounce(() => {
-    if (!suppressChange) post({ type: 'change', html: getCleanHtml() })
+    if (!suppressChange) post({ type: 'change', html: getCleanHtml(), key: tabKey })
 }, 250)
 
 // ---- Editor -------------------------------------------------------------------
@@ -635,16 +638,29 @@ function normalizeMarkBoundaries(html) {
 
 function getCleanHtml() { return normalizeMarkBoundaries(editor.getHTML()) }
 
+// Each tab of the template shown keeps its own undo history while switching between them; another template starts
+// them afresh. A tab whose text changed meanwhile (a sync) starts afresh too.
+const tabStates = new Map()
+const templateOf = (key) => key == null ? null : key.slice(0, key.indexOf('/'))
+
 window.editorApi = {
-    setContent(html) {
+    setContent(html, key = null) {
+        if (tabKey != null && key != null && templateOf(tabKey) === templateOf(key)) tabStates.set(tabKey, { state: editor.state, html: getCleanHtml() })
+        else tabStates.clear()
+        tabKey = key
         suppressChange = true
-        editor.commands.setContent(normalizeBreaks(html), false)
-        // Per-template history: recreating the state re-inits the history plugin (empty undo/redo),
-        // so "back" can't cross into the previously loaded template.
-        editor.view.updateState(EditorState.create({
-            doc: editor.state.doc,
-            plugins: editor.state.plugins,
-        }))
+        const saved = key != null ? tabStates.get(key) : null
+        if (saved && saved.html === html) {
+            editor.view.updateState(saved.state)
+        } else {
+            editor.commands.setContent(normalizeBreaks(html), false)
+            // Recreating the state re-inits the history plugin (empty undo/redo), so "back" can't cross into the
+            // previously loaded template or tab.
+            editor.view.updateState(EditorState.create({
+                doc: editor.state.doc,
+                plugins: editor.state.plugins,
+            }))
+        }
         suppressChange = false
     },
     getContent() { return getCleanHtml() },
@@ -745,14 +761,16 @@ document.addEventListener('keydown', (e) => {
     btn?.focus()
 })
 
-// Ctrl+F and Ctrl+S never reach the host's XAML accelerators while the WebView has focus, so forward them.
+// Ctrl+F, Ctrl+S and Ctrl+PgUp/PgDn (the language tabs) never reach the host's XAML accelerators while the WebView
+// has focus, so forward them.
 window.addEventListener('keydown', (e) => {
     if (!e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) return
-    const type = { f: 'focusSearch', s: 'save' }[e.key.toLowerCase()]
+    const step = { PageUp: -1, PageDown: 1 }[e.key]
+    const type = step ? 'switchTab' : { f: 'focusSearch', s: 'save' }[e.key.toLowerCase()]
     if (!type) return
     e.preventDefault()
     e.stopPropagation()
-    post({ type })
+    post(step ? { type, step } : { type })
 }, true)
 
 // Show `pop` under `btn`, clamped to the viewport so a right-edge button (e.g. the symbol
@@ -1148,9 +1166,10 @@ popupButton(ICONS.dateTime, t('InsertDateTime'), (pop, close) => {
 })
 
 // Translate: From (Detect or an installed language) and To, then translate the template or the selection in place,
-// as one undo step. The languages come from the host each time the menu opens, so ones installed meanwhile in
-// Settings show up; the choice is remembered there. The text can't be edited while a translation runs. It sits at
-// the right end of the toolbar, apart from the formatting buttons.
+// as one undo step, or the tab into a new template or a new language tab. The languages come from the host each time
+// the menu opens, so ones installed meanwhile in Settings show up; the choice is remembered there. Detect takes the
+// tab's own language when it has one. The text can't be edited while a translation runs. It sits at the right end of
+// the toolbar, apart from the formatting buttons.
 ;(function addTranslateControl() {
     const b = button(ICONS.translate + '<span class="caret">▾</span>', t('Translate'), () => {})
     b.classList.add('tb-end')
@@ -1160,7 +1179,7 @@ popupButton(ICONS.dateTime, t('InsertDateTime'), (pop, close) => {
     const pop = document.createElement('div')
     pop.className = 'popup hidden translate-popup'
 
-    let state = { sources: [], targets: [], from: 'detect', to: null, formal: false }
+    let state = { sources: [], targets: [], from: 'detect', to: null, formal: false, tab: null }
     let busy = false
     let message = ''
 
@@ -1179,10 +1198,16 @@ popupButton(ICONS.dateTime, t('InsertDateTime'), (pop, close) => {
     // while the worker works it out, null when it can't tell.
     let detected
     let detectRun = 0
+    const tabLanguage = () => state.sources.some(s => s.code === state.tab?.language) ? state.tab.language : null
     async function runDetect() {
         if (state.from !== 'detect' || state.sources.length === 0) return
         const run = ++detectRun
-        detected = undefined
+        detected = tabLanguage() ?? undefined
+        if (detected) {
+            // The menu may already show "Detecting" from an earlier run that this one replaced.
+            if (openPopup === pop && !busy) render()
+            return
+        }
         const doc = editor.state.doc
         const codes = state.sources.map(s => s.code)
         const r = selectionRange()
@@ -1240,6 +1265,7 @@ popupButton(ICONS.dateTime, t('InsertDateTime'), (pop, close) => {
         const detecting = state.from === 'detect' && detected === undefined
         const detectName = state.from !== 'detect' ? t('Detect')
             : detecting ? t('Detecting')
+            : detected && detected === tabLanguage() ? t('FromTab', nameOf(detected))
             : detected ? t('Detected', nameOf(detected)) : t('DetectUnsure')
         select(t('From'), [{ code: 'detect', name: detectName }, ...state.sources], state.from, (v) => choose({ from: v }))
         const to = resolvedTo()
@@ -1261,7 +1287,9 @@ popupButton(ICONS.dateTime, t('InsertDateTime'), (pop, close) => {
         const ready = !!from && !!to && from !== to
         menuSep()
         item(t('ReplaceTemplate'), () => translate(false), ready)
-        item(t('CreateTemplate'), () => translate(false, true), ready)
+        item(t('CreateTemplate'), () => translate(false, 'template'), ready)
+        const taken = ready && state.tab?.editable && state.tab.languages.includes(to)
+        if (state.tab?.editable) item(t('AddAsLanguage'), () => translate(false, 'language'), ready && !taken)
         if (selectionRange()) item(t('ReplaceSelection'), () => translate(true), ready)
         menuSep()
         item(t('ManageLanguages'), manage)
@@ -1271,6 +1299,7 @@ popupButton(ICONS.dateTime, t('InsertDateTime'), (pop, close) => {
             : detecting ? ''
             : !from ? t('LanguageUnknown')
             : from === to ? t('SameLanguage')
+            : taken ? t('LanguageTaken', nameOf(to))
             : ''
         const status = el('div', 'translate-note', note)
         status.setAttribute('role', 'status')
@@ -1297,8 +1326,9 @@ popupButton(ICONS.dateTime, t('InsertDateTime'), (pop, close) => {
         return { inline, html: inline ? `<p>${box.innerHTML}</p>` : box.innerHTML }
     }
 
-    // asCopy: the whole template, given to the app as a new template; this one stays as it is.
-    async function translate(selectionOnly, asCopy = false) {
+    // asCopy: the whole tab, given to the app as a new 'template' or a new 'language' tab of this template (the tab
+    // it came from named by its key); this one stays as it is.
+    async function translate(selectionOnly, asCopy = null) {
         const from = resolvedFrom()
         const to = resolvedTo()
         if (!from || !to || from === to || busy) return
@@ -1306,6 +1336,7 @@ popupButton(ICONS.dateTime, t('InsertDateTime'), (pop, close) => {
         if (selectionOnly && !range) return
         const part = range ? selectionHtml(range) : { inline: false, html: getCleanHtml() }
         const text = range ? editor.state.doc.textBetween(range.from, range.to, ' ') : ''
+        const sourceKey = tabKey
 
         const wasEditable = editor.isEditable
         busy = true
@@ -1316,7 +1347,9 @@ popupButton(ICONS.dateTime, t('InsertDateTime'), (pop, close) => {
             const result = await translateHtml(part.html, from, to, FORMAL_LANGUAGES.has(to) ? (state.formal ? 'formal' : 'informal') : null)
             let html = result.html
             editor.setEditable(wasEditable)
-            if (asCopy) {
+            if (asCopy === 'language') {
+                post({ type: 'translationAddLanguage', html, from, to, key: sourceKey })
+            } else if (asCopy) {
                 post({ type: 'translationCreate', html, from, to })
             } else if (range) {
                 if (part.inline) {
@@ -1349,7 +1382,7 @@ popupButton(ICONS.dateTime, t('InsertDateTime'), (pop, close) => {
     }
 
     window.editorApi.setTranslation = (s) => {
-        state = { sources: s.sources || [], targets: s.targets || [], from: s.from || 'detect', to: s.to || null, formal: !!s.formal }
+        state = { sources: s.sources || [], targets: s.targets || [], from: s.from || 'detect', to: s.to || null, formal: !!s.formal, tab: s.tab || null }
         if (openPopup === pop && !busy) render()
         runDetect()
     }
@@ -1371,6 +1404,13 @@ popupButton(ICONS.dateTime, t('InsertDateTime'), (pop, close) => {
     toolbar.appendChild(b)
     toolbar.appendChild(pop)
 })()
+
+// The host asks which of `candidates` a tab's text is written in (the language picker, a new template's first tab);
+// the answer comes back as a message with the same id: the code and whether it is sure, or no code.
+window.editorApi.detectLanguage = (id, text, candidates) => {
+    guessLanguage(text, candidates).catch(() => null)
+        .then(guess => post({ type: 'detected', id, code: guess?.code ?? null, sure: !!guess?.sure }))
+}
 
 // ---- Keyboard: the main window's Tab cycle runs through the toolbar and the text ----------
 // The toolbar is one Tab stop (roving tabindex): Left/Right/Home/End move between its buttons, Tab goes to the end

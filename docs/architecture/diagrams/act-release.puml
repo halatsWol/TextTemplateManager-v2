@@ -23,7 +23,7 @@ if (tag?) then (yes)
   :read the annotated tag message:\n"publish: none" / "draft" / "store" (default);
 endif
 :tag only: build/Release-Notes.ps1 -NotesChangedSince\n(previous tag; a language's notes unchanged: fail);
-:setup .NET 8 + 10;
+:setup .NET 10;
 :tests/run-tests.ps1;
 :build/Build-Release.ps1\n-> x64 .msixupload (StoreBuild), Manual.pdf, AdminManual.pdf;
 :build/Release-Notes.ps1\n-> GitHub notes (store-submission/en-US/release.md\n   + generated changelog), store-listing/<language>/\n   (every field + screenshots; limits or fail);

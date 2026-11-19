@@ -33,6 +33,9 @@ Share templates through a .ttmdata file in a cloud folder such as OneDrive or on
 Rich templates
 Write with headings, lists, tables, colors, code blocks with syntax highlighting and callout panels. Paste modes decide the format: Auto picks the best one for the target app; HTML/Jira keeps callout panels for Jira; HTML, RTF, Markdown and plain text paste just that.
 
+In several languages
+Keep a template in several languages, one tab each, with one title and one set of shortcuts. The first language is pasted by default; Quick Paste and the right-click menu paste or copy any other, and the offline translation can fill a new language for you.
+
 Find and organize
 Folders with drag and drop, several items at once, collapse and expand all. Search the tree as you type, fuzzy or strict with wildcards, by title, tags or the template text.
 
@@ -61,6 +64,7 @@ Quick Paste from any app with a global hotkey
 Paste by single key, or hold Alt and type a multi-key shortcut
 Rich text: headings, lists, tables, colors, code blocks and callout panels
 Paste modes: Auto, HTML/Jira, HTML, RTF, Markdown and plain text
+Templates in several languages, one tab each; paste any of them
 Share templates with your team through a synced file on OneDrive or a network share
 Read-only shared folders and shortcut prefixes per shared file
 Folders, drag and drop, and several items at once
@@ -104,6 +108,7 @@ From `screenshots/` in this folder (2560x1440 PNG, one colour scheme), uploaded 
 07  Automatic backups you can restore: after your changes, every two hours and daily.
 08  A guided tour gets you started, on sample templates; yours stay untouched.
 09  Translate templates on your PC, offline in over 50 languages, formal German included (experimental).
+10  One template in several languages: one tab each, and Quick Paste pastes the one you pick.
 ```
 
 ### Screenshot images
@@ -120,6 +125,7 @@ The text in each screenshot, one line per image: file name | capture | caption |
 07-backups|store-backups | Automatic backups you can restore | After your changes, every two hours and daily
 08-tour|store-tour | A guided tour gets you started | On sample templates; yours stay untouched
 09-translate|store-translate | Translate templates on your PC | Offline in over 50 languages, formal German included (experimental)
+10-languages|store-languages | One template, several languages | One tab per language; Quick Paste pastes the one you pick
 ```
 
 ### Copyright and trademark info
@@ -135,6 +141,7 @@ Copyright © 2026 Marflow Software
 This block is the Store's "What's new" (Microsoft asks for it on updates only). It lists only what changed since the previous release; keep it in step with `release.md` in this folder.
 
 ```text
-New: templates and folders keep what a newer TextTemplateManager stores in them, in shared sync files too. Please update every PC that shares a sync file to this version.
-Fixed: the app opens again when a sync file holds the same item ID twice.
+New: templates in several languages. A template can hold its text in more than one language, one tab each, with one title and one set of shortcuts. Translate into a new tab, and paste or copy any language from Quick Paste and the tree. Every PC that saves a shared file needs version 2.7 or newer to keep them.
+Improved: runs on .NET 10, which Microsoft supplies with security updates until November 2028. Templates, settings and how you work stay the same. Folders and templates have clearer icons.
+Fixed: saving to a shared file no longer overwrites changes another PC made to it in the meantime. Quitting waits for a settings save already in progress.
 ```

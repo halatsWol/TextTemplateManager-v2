@@ -6,7 +6,8 @@
     "main": "Note di rilascio",
     "pasteMode": "Sollecito di pagamento",
     "search": "Ticket chiuso",
-    "translate": "Grazie per il messaggio"
+    "translate": "Grazie per il messaggio",
+    "languages": "Grazie per il messaggio"
   },
   "translate": { "to": "en", "formal": false },
   "teamName": "Team",
@@ -14,7 +15,8 @@
   "local": [
     { "folder": "Risposte ai clienti", "items": [
       { "title": "Grazie per il messaggio", "tags": "supporto, risposta", "single": "T", "multi": "THX", "mode": 4,
-        "content": "<p>Buongiorno,</p><p>grazie per il suo messaggio. Le risponderemo <strong>entro un giorno lavorativo</strong>.</p><p>Cordiali saluti</p>" },
+        "content": "<p>Buongiorno,</p><p>grazie per il suo messaggio. Le risponderemo <strong>entro un giorno lavorativo</strong>.</p><p>Cordiali saluti</p>", "language": "it",
+        "languages": [ { "language": "de", "content": "<p>Hallo,</p><p>vielen Dank für Ihre Nachricht. Wir melden uns <strong>innerhalb eines Werktags</strong> bei Ihnen.</p><p>Freundliche Grüße</p>" } ] },
       { "title": "Ticket chiuso", "tags": "supporto, ticket", "multi": "TC", "mode": 3,
         "content": "<p>Buongiorno,</p><p>abbiamo chiuso questo ticket. Se il problema si ripresenta, basta inviare una risposta a questo messaggio e il ticket verrà riaperto.</p>" },
       { "title": "Sollecito di pagamento", "tags": "fatturazione, sollecito", "multi": "INV", "mode": 3,

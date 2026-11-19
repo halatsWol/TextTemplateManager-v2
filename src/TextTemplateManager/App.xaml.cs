@@ -357,7 +357,18 @@ namespace TextTemplateManager
 
             if (_connectorData == null)
             {
-                _connectorData = new AppConnectorData(_store);
+                _connectorData = new AppConnectorData(_store)
+                {
+                    ChangeTemplate = async (t, change) =>
+                    {
+                        MainPage? page;
+                        try { page = MainWindow?.Content as MainPage; }
+                        catch (System.Runtime.InteropServices.COMException) { page = null; }   // the window is closed already
+                        if (page != null) return await page.ChangeFromOutsideAsync(t, change);
+                        change();
+                        return true;
+                    },
+                };
                 _store.TreeChanged += RebuildConnectorSnapshot;
                 _store.DataSaved += RebuildConnectorSnapshot;
             }

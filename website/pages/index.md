@@ -21,7 +21,7 @@ Press the hotkey wherever you type, then a template's key: the text is pasted wh
 
 ### Rich templates
 
-Headings, lists, tables, colors, code blocks and callout panels. Paste as HTML, Jira, RTF, Markdown or plain text.
+Headings, lists, tables, colors, code blocks and callout panels, in one language or several. Paste as HTML, Jira, RTF, Markdown or plain text.
 </div>
 
 <div class="mf-feature" markdown>

@@ -203,7 +203,7 @@ public class DataNodeTests
         await new StorageService(TestEnvironment.NewScratchDir()).SaveSharedAsync(path, new Folder
         {
             Title = "Root",
-            Children = { new Template { Title = "Shared one", Content = "<p>s</p>" }, new Template { Title = "Added outside", Content = "<p>o</p>" } },
+            Children = { new Template { Title = "Shared one", Content = "<p>s</p>" }, new Template { ParentId = Guid.Empty, Title = "Added outside", Content = "<p>o</p>" } },
         });
         File.SetLastWriteTimeUtc(path, DateTime.UtcNow.AddMinutes(1));
         using (new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None))
@@ -251,6 +251,81 @@ public class DataNodeTests
         Assert.False(source.HasWriteProblem);
         Assert.False(folder.HasSyncWriteProblem);
         Assert.Contains("edited here", await File.ReadAllTextAsync(path));
+    }
+
+    // A writable synced folder with one template, loaded; the file as another PC would rewrite it.
+    private static async Task<(DataNode node, string path)> NodeWithWritableSyncFileAsync()
+    {
+        string dir = TestEnvironment.NewScratchDir();
+        var storage = new StorageService(dir);
+        string path = Path.Combine(dir, "shared", "team.ttmdata");
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        await storage.SaveSharedAsync(path, OutsideFile(withAdded: false));
+        await storage.SaveSyncSettingsAsync(new SyncSettings { Sources = { new SyncSource { Name = "Team", Path = path, IsActive = true, AllowSave = true } } });
+        var node = new DataNode(storage);
+        await node.InitializeAsync();
+        return (node, path);
+    }
+
+    private static readonly Guid SharedOneId = Guid.NewGuid();
+
+    private static Folder OutsideFile(bool withAdded)
+    {
+        var root = new Folder { Id = Guid.Empty, Title = "Root", LastChange = "20260101000000" };
+        root.Children.Add(new Template { Id = SharedOneId, ParentId = Guid.Empty, Title = "Shared one", Content = "<p>s</p>", LastChange = "20260101000000" });
+        if (withAdded) root.Children.Add(new Template { ParentId = Guid.Empty, Title = "Added outside", Content = "<p>o</p>", LastChange = "20260102000000" });
+        return root;
+    }
+
+    private static string WriteOutsideChange(string path)
+    {
+        File.WriteAllBytes(path, StorageService.SerializeTree(OutsideFile(withAdded: true)));
+        File.SetLastWriteTimeUtc(path, DateTime.UtcNow.AddMinutes(1));
+        return File.ReadAllText(path);
+    }
+
+    [Fact]
+    public async Task A_sync_file_changed_between_the_merge_and_the_save_is_not_written_over()
+    {
+        var (node, path) = await NodeWithWritableSyncFileAsync();
+        await node.CheckSyncFilesForChangesAsync();
+
+        // The poll re-applies after an outside change; the other PC writes again before the save that follows.
+        File.SetLastWriteTimeUtc(path, DateTime.UtcNow.AddMinutes(-1));
+        string outside = "";
+        Action rewrite = () => outside = WriteOutsideChange(path);
+        node.TreeChanged += rewrite;
+        await node.CheckSyncFilesForChangesAsync();
+        node.TreeChanged -= rewrite;
+
+        Assert.Equal(outside, await File.ReadAllTextAsync(path));
+
+        await node.CheckSyncFilesForChangesAsync();
+
+        Assert.Contains("Added outside", node.LocalItems[0].Children.Select(c => c.Title));
+        Assert.Equal(outside, await File.ReadAllTextAsync(path));   // merged without a rewrite
+    }
+
+    [Fact]
+    public async Task A_local_save_before_the_poll_notices_an_outside_change_keeps_both()
+    {
+        var (node, path) = await NodeWithWritableSyncFileAsync();
+        var folder = (Folder)node.LocalItems[0];
+        string outside = WriteOutsideChange(path);
+
+        ((Template)folder.Children[0]).Content = "<p>edited here</p>";
+        await node.AddItemAsync(new Template { Title = "Added here", Content = "<p>h</p>" }, folder);
+        await node.FlushPendingSaveAsync();
+
+        Assert.Equal(outside, await File.ReadAllTextAsync(path));
+        Assert.Contains("Added here", folder.Children.Select(c => c.Title));
+
+        await node.CheckSyncFilesForChangesAsync();
+
+        var file = await StorageService.LoadRootSharedAsync(path);
+        Assert.Equal(new[] { "Shared one", "Added here", "Added outside" }.Order(), file!.Children.Select(c => c.Title).Order());
+        Assert.Equal("<p>edited here</p>", ((Template)file.Children.Single(c => c.Title == "Shared one")).Content);
+        Assert.Equal(file.Children.Count, folder.Children.Count);
     }
 
     [Fact]
@@ -665,6 +740,25 @@ public class DataNodeTests
         var saved = await node.Storage.LoadSettingsAsync();
         Assert.Equal(48000, saved.BrowserConnectorPort);
         Assert.True(saved.HideCrossAreaShortcutWarnings);
+    }
+
+    [Fact]
+    public async Task A_flush_waits_for_a_settings_save_already_writing()
+    {
+        var (node, _) = await NewNodeAsync();
+        node.SettingsSaveDelay = TimeSpan.Zero;
+        var release = new TaskCompletionSource();
+        var holder = node.Storage.WithWriteLock(node.Storage.GetSettingsPath(), () => release.Task);
+
+        node.CurrentSettings.BrowserConnectorPort = 48000;   // its delayed save starts and waits for the file
+        var flush = node.FlushPendingSaveAsync();
+        await Task.Delay(300);
+        Assert.False(flush.IsCompleted);
+
+        release.SetResult();
+        await holder;
+        await flush;
+        Assert.Equal(48000, (await node.Storage.LoadSettingsAsync()).BrowserConnectorPort);
     }
 
     [Theory]

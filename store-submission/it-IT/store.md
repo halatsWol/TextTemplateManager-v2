@@ -31,6 +31,9 @@ Condividi i modelli tramite un file .ttmdata in una cartella cloud come OneDrive
 Modelli ricchi
 Scrivi con titoli, elenchi, tabelle, colori, blocchi di codice con evidenziazione della sintassi e riquadri informativi. Le modalità Incolla decidono il formato: Automatica sceglie il migliore per l'app di destinazione; HTML/Jira mantiene i riquadri per Jira; HTML, RTF, Markdown e Solo testo incollano esattamente quello.
 
+In più lingue
+Tieni un modello in più lingue, una per scheda, con un solo titolo e un solo insieme di abbreviazioni. La prima lingua viene incollata per impostazione predefinita; Quick Paste e il menu del clic destro incollano o copiano qualsiasi altra, e la traduzione offline può compilare per te una nuova lingua.
+
 Trova e organizza
 Cartelle con trascinamento, più elementi alla volta, espandi e comprimi tutto. Cerca nell'elenco mentre digiti, in modo approssimativo o esatto con caratteri jolly, per titolo, tag o testo del modello.
 
@@ -59,6 +62,7 @@ Quick Paste da qualsiasi app con una scelta rapida globale
 Incolla con un tasto singolo, oppure tieni premuto ALT e digita una sequenza di tasti
 Testo formattato: titoli, elenchi, tabelle, colori, blocchi di codice e riquadri informativi
 Modalità Incolla: Automatica, HTML/Jira, HTML, RTF, Markdown e Solo testo
+Modelli in più lingue, una per scheda; incolla quella che vuoi
 Condividi i modelli con il team tramite un file sincronizzato su OneDrive o in una condivisione di rete
 Cartelle condivise di sola lettura e prefissi per ogni file condiviso
 Cartelle, trascinamento e più elementi alla volta
@@ -100,6 +104,7 @@ testi ricorrenti
 07  Backup automatici da ripristinare: dopo le tue modifiche, ogni due ore e ogni giorno.
 08  Un tour ti aiuta a iniziare, sui modelli di esempio; i tuoi restano intatti.
 09  Traduci i modelli sul tuo PC, offline in oltre 50 lingue, tedesco formale compreso (sperimentale).
+10  Un modello in più lingue: una scheda per lingua, e Quick Paste incolla quella scelta.
 ```
 
 ### Screenshot images
@@ -116,6 +121,7 @@ The text in each screenshot, one line per image: file name | capture | caption |
 07-backups|store-backups | Backup automatici da ripristinare | Dopo le tue modifiche, ogni due ore e ogni giorno
 08-tour|store-tour | Un tour ti aiuta a iniziare | Sui modelli di esempio; i tuoi restano intatti
 09-translate|store-translate | Traduci i modelli sul tuo PC | Offline in oltre 50 lingue, tedesco formale compreso (sperimentale)
+10-languages|store-languages | Un modello, più lingue | Una scheda per lingua; Quick Paste incolla quella scelta
 ```
 
 ### Copyright and trademark info
@@ -129,6 +135,7 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Novità: modelli e cartelle conservano ciò che una versione più recente di TextTemplateManager vi memorizza, anche nei file di sincronizzazione condivisi. Aggiorna a questa versione ogni PC che condivide un file di sincronizzazione.
-Correzioni: l'app si apre di nuovo quando un file di sincronizzazione contiene due volte lo stesso ID di elemento.
+Novità: modelli in più lingue. Un modello può contenere il suo testo in più lingue, una per scheda, con un solo titolo e un solo insieme di abbreviazioni. Traduci in una nuova scheda e incolla o copia qualsiasi lingua da Quick Paste e dall'elenco. Ogni PC che salva un file condiviso richiede la versione 2.7 o successiva per conservarle.
+Miglioramenti: funziona con .NET 10, per cui Microsoft fornisce aggiornamenti di sicurezza fino a novembre 2028. Modelli, impostazioni e uso restano gli stessi. Cartelle e modelli hanno icone più chiare.
+Correzioni: il salvataggio in un file condiviso non sovrascrive più le modifiche fatte nel frattempo da un altro PC. All'uscita l'app attende un salvataggio delle impostazioni già in corso.
 ```

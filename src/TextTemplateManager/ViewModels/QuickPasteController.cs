@@ -7,12 +7,14 @@ namespace TextTemplateManager.ViewModels;
 
 public enum ShortcutTab { Single, Multi }
 
-/// <summary>A paste Quick Paste asks for: the template, and whether to paste it as plain text.</summary>
-public sealed record PasteRequest(Template Template, bool PlainText);
+/// <summary>A paste Quick Paste asks for: the template, whether to paste it as plain text, and the language tab
+/// (null for the first one).</summary>
+public sealed record PasteRequest(Template Template, bool PlainText, string? LanguageId = null);
 
 /// <summary>Quick Paste's shortcut entry, without the window: the two shortcut lists and their highlighted
 /// row, the active tab, and the multi-key entry typed while Alt is held ('-' and '.' separate a sync prefix,
-/// a trailing '_' pastes as plain text). The window feeds it keys and shows its state.</summary>
+/// a trailing '_' pastes as plain text). The highlighted multi-key row's language can be switched; it goes back to
+/// the default when the highlight moves. The window feeds it keys and shows its state.</summary>
 public sealed class QuickPasteController(
     Func<IReadOnlyList<ShortcutValidator.Entry>> entries,
     Func<IReadOnlyList<SyncSource>> sources,
@@ -30,7 +32,21 @@ public sealed class QuickPasteController(
     public IReadOnlyList<ShortcutRow> SingleRows { get; private set; } = Array.Empty<ShortcutRow>();
     public IReadOnlyList<ShortcutRow> MultiRows { get; private set; } = Array.Empty<ShortcutRow>();
     public int SingleIndex { get; private set; } = -1;
-    public int MultiIndex { get; private set; } = -1;
+    private int _multiIndex = -1;
+
+    public int MultiIndex
+    {
+        get => _multiIndex;
+        private set
+        {
+            if (_multiIndex == value) return;
+            if (RowAt(MultiRows, _multiIndex) is { } left) left.Languages.Reset();
+            _multiIndex = value;
+        }
+    }
+
+    /// <summary>The highlighted row of the visible list, if any.</summary>
+    public ShortcutRow? HighlightedRow => Tab == ShortcutTab.Single ? RowAt(SingleRows, SingleIndex) : RowAt(MultiRows, MultiIndex);
 
     /// <summary>The typed multi key without the plain-text marker.</summary>
     public string BufferKey => Buffer.TrimEnd('_');
@@ -93,12 +109,17 @@ public sealed class QuickPasteController(
         if (single) SingleIndex = next; else MultiIndex = next;
     }
 
-    /// <summary>Enter in shortcut mode: the highlighted row of the visible list.</summary>
+    /// <summary>Enter in shortcut mode: the highlighted row of the visible list, a multi-key row in its chosen language.</summary>
     public PasteRequest? CommitHighlighted()
     {
-        var (rows, index) = Tab == ShortcutTab.Single ? (SingleRows, SingleIndex) : (MultiRows, MultiIndex);
-        return index >= 0 && index < rows.Count ? new PasteRequest(rows[index].Template, false) : null;
+        if (Tab == ShortcutTab.Multi) return Request(RowAt(MultiRows, MultiIndex), false);
+        return RowAt(SingleRows, SingleIndex) is { } row ? new PasteRequest(row.Template, false) : null;
     }
+
+    /// <summary>Left/Right on the multi-key list (Alt held, or its tab shown in shortcut mode): the highlighted row's
+    /// next or previous language. False when nothing changed (single-key list, no row, one language).</summary>
+    public bool StepLanguage(int delta) =>
+        Tab == ShortcutTab.Multi && RowAt(MultiRows, MultiIndex) is { } row && row.Languages.Step(delta);
 
     /// <summary>A letter or digit in shortcut mode: the template with that single key (local first), or
     /// null when none has it.</summary>
@@ -142,9 +163,13 @@ public sealed class QuickPasteController(
     public PasteRequest? CommitMulti(bool requireBuffer)
     {
         if (requireBuffer && Buffer.Length == 0) return null;
-        if (MultiIndex < 0 || MultiIndex >= MultiRows.Count) return null;
-        return new PasteRequest(MultiRows[MultiIndex].Template, IsPlainText);
+        return Request(RowAt(MultiRows, MultiIndex), IsPlainText);
     }
+
+    private static ShortcutRow? RowAt(IReadOnlyList<ShortcutRow> rows, int index) => index >= 0 && index < rows.Count ? rows[index] : null;
+
+    private static PasteRequest? Request(ShortcutRow? row, bool plainText) =>
+        row == null ? null : new PasteRequest(row.Template, plainText, row.Languages.Index > 0 ? row.Languages.Chosen.Id : null);
 
     /// <summary>Alt released: pastes what was typed, or else puts the previous tab back and clears the entry.</summary>
     public PasteRequest? AltUp()

@@ -31,6 +31,9 @@ Comparte plantillas mediante un archivo .ttmdata en una carpeta en la nube como 
 Plantillas completas
 Escribe con títulos, listas, tablas, colores, bloques de código con resaltado de sintaxis y paneles destacados. Los modos de pegado deciden el formato: Automático elige el mejor para la aplicación de destino; HTML/Jira conserva los paneles para Jira; HTML, RTF, Markdown y Texto sin formato pegan exactamente eso.
 
+En varios idiomas
+Ten una plantilla en varios idiomas, uno por pestaña, con un solo título y un solo conjunto de abreviaturas. El primer idioma se pega por defecto; Quick Paste y el menú del clic derecho pegan o copian cualquier otro, y la traducción sin conexión puede rellenar un idioma nuevo por ti.
+
 Buscar y organizar
 Carpetas con arrastrar y soltar, varios elementos a la vez, expandir y contraer todo. Busca en la lista mientras escribes, de forma aproximada o exacta con comodines, por título, etiquetas o el texto de la plantilla.
 
@@ -59,6 +62,7 @@ Quick Paste desde cualquier aplicación con un atajo global
 Pega con una tecla única, o mantén pulsada Alt y escribe una secuencia de teclas
 Texto enriquecido: títulos, listas, tablas, colores, bloques de código y paneles destacados
 Modos de pegado: Automático, HTML/Jira, HTML, RTF, Markdown y Texto sin formato
+Plantillas en varios idiomas, uno por pestaña; pega el que quieras
 Comparte plantillas con tu equipo mediante un archivo sincronizado en OneDrive o en un recurso compartido de red
 Carpetas compartidas de solo lectura y prefijos de atajo por archivo compartido
 Carpetas, arrastrar y soltar, y varios elementos a la vez
@@ -100,6 +104,7 @@ textos frecuentes
 07  Copias de seguridad automáticas que puedes restaurar: después de tus cambios, cada dos horas y a diario.
 08  Un recorrido te ayuda a empezar, con plantillas de ejemplo; las tuyas no se tocan.
 09  Traduce plantillas en tu PC, sin conexión a más de 50 idiomas, con alemán formal incluido (experimental).
+10  Una plantilla en varios idiomas: una pestaña por idioma, y Quick Paste pega el que elijas.
 ```
 
 ### Screenshot images
@@ -116,6 +121,7 @@ The text in each screenshot, one line per image: file name | capture | caption |
 07-backups|store-backups | Copias de seguridad que puedes restaurar | Después de tus cambios, cada dos horas y a diario
 08-tour|store-tour | Un recorrido te ayuda a empezar | Con plantillas de ejemplo; las tuyas no se tocan
 09-translate|store-translate | Traduce plantillas en tu PC | Sin conexión a más de 50 idiomas, con alemán formal incluido (experimental)
+10-languages|store-languages | Una plantilla, varios idiomas | Una pestaña por idioma; Quick Paste pega el que elijas
 ```
 
 ### Copyright and trademark info
@@ -129,6 +135,7 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Nuevo: las plantillas y carpetas mantienen lo que una versión más reciente de TextTemplateManager guarda en ellas, también en los archivos de sincronización compartidos. Actualiza a esta versión cada PC que comparta un archivo de sincronización.
-Corregido: la aplicación vuelve a abrirse cuando un archivo de sincronización contiene dos veces el mismo identificador de elemento.
+Nuevo: plantillas en varios idiomas. Una plantilla puede tener su texto en varios idiomas, uno por pestaña, con un solo título y un solo conjunto de abreviaturas. Traduce a una nueva pestaña y pega o copia cualquier idioma desde Quick Paste y la lista. Cada equipo que guarda un archivo compartido necesita la versión 2.7 o posterior para conservarlos.
+Mejorado: funciona con .NET 10, para el que Microsoft ofrece actualizaciones de seguridad hasta noviembre de 2028. Plantillas, configuración y uso siguen igual. Las carpetas y las plantillas tienen iconos más claros.
+Corregido: guardar en un archivo compartido ya no sobrescribe los cambios que otro equipo hizo mientras tanto. Al salir, la aplicación espera a que termine un guardado de la configuración ya en curso.
 ```

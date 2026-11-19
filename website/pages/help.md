@@ -45,6 +45,10 @@ If TextTemplateManager runs both on your computer and on a remote computer you c
 
 On the old PC, **Settings ▸ Backups ▸ Export backup…** saves everything (templates, settings, sync settings) as one `.zip` file. On the new PC, **Settings ▸ Backups ▸ Restore from file…** picks that file and restores it. Shared sync files stay where they are; if one isn't reachable from the new PC, the restore asks what to do. Details in the manual under [Restoring a backup](manual.md#restoring-a-backup).
 
+### A shared template lost its other languages
+
+TextTemplateManager 1 and 2.6 or older don't know templates in several languages: when one of them saves a shared sync file, the other languages of its templates are gone from the file. Update TextTemplateManager on every PC that saves the file to 2.7 or newer. A PC that knew the languages keeps them and writes them back the next time the template is changed there. Details in the manual under [Sync](manual.md#sync).
+
 ### Resetting or removing the app
 
 Windows **Settings ▸ Apps ▸ Installed apps ▸ TextTemplateManager ▸ …**: **Advanced options ▸ Repair** fixes the app's files and keeps your data, **Advanced options ▸ Reset** starts the app as on the first day, **Uninstall** removes it. Reset and Uninstall delete the app's data folder but keep the backups in `Documents\TextTemplateManager\Backups`. Details in the manual under [Resetting or removing the app](manual.md#resetting-or-removing-the-app).

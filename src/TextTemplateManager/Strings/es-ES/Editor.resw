@@ -191,6 +191,15 @@
   <data name="CreateTemplate" xml:space="preserve">
     <value>Crear una plantilla nueva</value>
   </data>
+  <data name="AddAsLanguage" xml:space="preserve">
+    <value>Añadir como idioma</value>
+  </data>
+  <data name="FromTab" xml:space="preserve">
+    <value>Este texto ({0})</value>
+  </data>
+  <data name="LanguageTaken" xml:space="preserve">
+    <value>Esta plantilla ya tiene el idioma {0}.</value>
+  </data>
   <data name="ReplaceSelection" xml:space="preserve">
     <value>Reemplazar la selección</value>
   </data>

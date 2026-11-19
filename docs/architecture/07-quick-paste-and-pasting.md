@@ -20,7 +20,7 @@
 
 ## Input: PasteWindow and QuickPasteController
 
-`QuickPasteController` is Quick Paste's input logic without the window (and unit-tested without it): the single-key and multi-key lists (`ShortcutRow`s, local first, then sync order), the highlighted row of each, the active tab, and the multi key typed while Alt is held. `PasteWindow` feeds it keys and focus changes, renders its state, and executes the `PasteRequest` it returns. Screen readers name the tree rows (`TreeViewNode.Content` is the `BaseItem`) and the list rows by `ToString()`, so `BaseItem` returns its title and `ShortcutRow` "title, shortcut key, source".
+`QuickPasteController` is Quick Paste's input logic without the window (and unit-tested without it): the single-key and multi-key lists (`ShortcutRow`s, local first, then sync order), the highlighted row of each, the active tab, and the multi key typed while Alt is held. `PasteWindow` feeds it keys and focus changes, renders its state, and executes the `PasteRequest` it returns. Screen readers name the tree rows (`TreeViewNode.Content` is the `BaseItem`) and the list rows by `ToString()`, so `BaseItem` returns its title and `ShortcutRow` "title, shortcut key, source" (plus "languages English, German" for a template in several languages).
 
 ![Quick Paste input](diagrams/state-quick-paste-input.svg)
 
@@ -30,6 +30,9 @@ Rules worth knowing:
 
 - Quick Paste opens in **shortcut mode** (the root grid has focus, not the search box), so a single key pastes at once.
 - Holding **Alt** switches to the multi-key list; typed characters are accepted only while some effective multi key still starts with them (`IsMultiKeyPrefix`). Releasing Alt pastes the highlighted row when something was typed, otherwise the previous tab comes back. A trailing `_` (Alt+Shift+-) pastes as plain text.
+- **Languages.** Each row carries `RowLanguages`: the languages it pastes (`TemplateLanguages.Offered`, the default first) and the one chosen. On the multi-key list (Alt held, or its tab shown in shortcut mode) Left/Right switch the highlighted row's language, wrapping at both ends (`StepLanguage`); the row's Language column shows it ("‹ German ›", empty for a template in one language) and Narrator hears the new one (a notification on the list). Moving the highlight, or a new list, puts the row back to its default. `PasteRequest.LanguageId` names the chosen tab and the paste takes `Template.ContentFor(id)`. A double-click on a row pastes its chosen language; a single key and the single-key list always paste the default. Left/Right aren't taken on the single-key list or in the tree (where they collapse and expand).
+- **Preview.** It shows the highlighted row of the shown list, in the language that row would paste (`HighlightedRow`); while the search box or the tree has focus no row is highlighted and the preview shows the tree's selection.
+- **Right-click.** The tree and both shortcut lists share one menu: Paste, Paste As, and Paste Language for a template in several languages (the default marked "(default)"), filled when the menu opens from the row it was opened on.
 - The search box filters the tree and both lists with the same `TemplateSearch` as the main window; it isn't applied while a multi key is being typed.
 - If the window loses focus mid-entry, the Alt release never arrives, so the entry and Alt state are reset (`CancelEntry(altReleased: true)`).
 - The tour's own `PasteWindow` (`tour: true`) never pastes and ignores keys.
@@ -55,7 +58,7 @@ Rules worth knowing:
 
 Conversions: `PanelHtml` (callout panels per target), `HtmlToRtfHelper` (paragraphs, headings, lists, emphasis, code blocks; non-cp1252 characters as `\uN?`), `HtmlToMarkdown` (headings, emphasis, code, links, nested lists, GitHub tables, panels as labelled blockquotes), `HtmlUtils` (plain text, colours).
 
-`PasteService.CopyToClipboardAsync` (tree "Copy" / "Copy As") puts the same formats on the clipboard without pasting. `RenderForMode` returns the content as a string with a MIME type for the browser connector.
+`PasteService.CopyToClipboardAsync` (tree "Copy" / "Copy As", Ctrl+C) puts the same formats on the clipboard without pasting; these copy the first tab (the default language). A template with more than one language that is pasted (`TemplateLanguages.Offered`) also gets "Copy Language" in its menu: one entry per such language, the first marked "(default)", each copying that tab's text in the default paste mode. `RenderForMode` returns the content as a string with a MIME type for the browser connector.
 
 ---
 

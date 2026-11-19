@@ -867,13 +867,13 @@
     <value>Ütközések:</value>
   </data>
   <data name="MainPage_GuideConflictsText.Text" xml:space="preserve">
-    <value> az azonos területen belül ismétlődő rövidítés le van tiltva (a jobb felső panel listázza); területek között csak figyelmeztetés, amelyet elrejthetsz.</value>
+    <value> az azonos területen belül ismétlődő rövidítés le van tiltva (a jobb felső panel listázza); területek között csak figyelmeztetés, amelyet elrejthetsz. A panel azt a sablont is listázza, amelynek két lapja ugyanazon a nyelven van; ezek közül csak az első kerül beillesztésre.</value>
   </data>
   <data name="MainPage_GuideRightClickLabel.Text" xml:space="preserve">
     <value>Jobb gomb:</value>
   </data>
   <data name="MainPage_GuideRightClickText.Text" xml:space="preserve">
-    <value> sablonon: Duplikálás / Másolás; sablonon vagy mappán: Exportálás vagy Törlés. Húzz egy elemet a lista alatti üres területre, hogy a legfelső szintre kerüljön.</value>
+    <value> sablonon: Duplikálás / Másolás / Nyelv másolása; sablonon vagy mappán: Exportálás vagy Törlés. Húzz egy elemet a lista alatti üres területre, hogy a legfelső szintre kerüljön.</value>
   </data>
   <data name="MainPage_GuideSearchLabel.Text" xml:space="preserve">
     <value>Keresés:</value>
@@ -885,7 +885,7 @@
     <value>Szerkesztő:</value>
   </data>
   <data name="MainPage_GuideEditorText.Text" xml:space="preserve">
-    <value> formázz az eszköztárral — címsorok, listák, táblázatok, színek és Információ/Megjegyzés/Siker/Figyelmeztetés/Hiba panelek. A HTML/Jira beillesztési móddal a paneleket a Jirába is beillesztheted.</value>
+    <value> formázz az eszköztárral — címsorok, listák, táblázatok, színek és Információ/Megjegyzés/Siker/Figyelmeztetés/Hiba panelek. A HTML/Jira beillesztési móddal a paneleket a Jirába is beillesztheted. Az eszköztár feletti lapokon a sablon több nyelven is szerepelhet: a + újat ad hozzá, egy lapra jobb gombbal kattintva több lehetőség nyílik; alapértelmezetten az első lap illesztődik be.</value>
   </data>
   <data name="MainPage_GuideQuickPasteLabel.Text" xml:space="preserve">
     <value>Quick Paste:</value>
@@ -949,6 +949,12 @@
   </data>
   <data name="Main_CopyAsItem" xml:space="preserve">
     <value>Másolás másként</value>
+  </data>
+  <data name="Main_CopyLanguageItem" xml:space="preserve">
+    <value>Nyelv másolása</value>
+  </data>
+  <data name="Main_CopyLanguageDefault" xml:space="preserve">
+    <value>{0} (alapértelmezett)</value>
   </data>
   <data name="Main_ExportItem" xml:space="preserve">
     <value>Exportálás…</value>
@@ -1364,8 +1370,20 @@ A sablonokat ez nem érintette. A frissítés készen áll; újra megpróbálhat
   <data name="Conflicts_Shortcut" xml:space="preserve">
     <value>Rövidítés: {0}</value>
   </data>
+  <data name="Conflicts_LanguageHeading" xml:space="preserve">
+    <value>Ütközések: nyelv</value>
+  </data>
+  <data name="Conflicts_Language" xml:space="preserve">
+    <value>{0} több lapon is ebben a sablonban:</value>
+  </data>
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, rövidítés: {1}, {2}</value>
+  </data>
+  <data name="QuickPaste_RowNameLanguages" xml:space="preserve">
+    <value>{0}, rövidítés: {1}, {2}, nyelvek: {3}</value>
+  </data>
+  <data name="QuickPaste_PasteLanguageItem.Text" xml:space="preserve">
+    <value>Nyelv beillesztése</value>
   </data>
   <data name="QuickPaste_LocalSource" xml:space="preserve">
     <value>helyi</value>
@@ -1392,7 +1410,7 @@ A sablonokat ez nem érintette. A frissítés készen áll; újra megpróbálhat
     <value>A cím a vágólapra került</value>
   </data>
   <data name="ConflictPanel_Title.Text" xml:space="preserve">
-    <value>⚠ Rövidítésütközések</value>
+    <value>⚠ Ütközések</value>
   </data>
   <data name="ConflictPanel_DismissButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Elrejtés</value>
@@ -1530,7 +1548,7 @@ A sablonokat ez nem érintette. A frissítés készen áll; újra megpróbálhat
     <value>Billentyűsor:</value>
   </data>
   <data name="QuickPaste_GuideMultiText.Text" xml:space="preserve">
-    <value> tartsd lenyomva az ALT billentyűt, és írd be a rövidítést (a szinkronizáltaknak előtagjuk van, például and-msg; elválasztó: - _ .). Az ALT felengedésekor a kiemelt találat beillesztődik — elég a rövidítés egy része. A ↑/↓ mozgatja a kiemelést, az Enter beilleszti.</value>
+    <value> tartsd lenyomva az ALT billentyűt, és írd be a rövidítést (a szinkronizáltaknak előtagjuk van, például and-msg; elválasztó: - _ .). Az ALT felengedésekor a kiemelt találat beillesztődik — elég a rövidítés egy része. A ↑/↓ mozgatja a kiemelést, az Enter beilleszti; a ←/→ váltja a kiemelt sablon nyelvét.</value>
   </data>
   <data name="QuickPaste_GuidePlaintextLabel.Text" xml:space="preserve">
     <value>Csak szöveg:</value>
@@ -1554,7 +1572,7 @@ A sablonokat ez nem érintette. A frissítés készen áll; újra megpróbálhat
     <value>Jobb gomb:</value>
   </data>
   <data name="QuickPaste_GuideRightClickText.Text" xml:space="preserve">
-    <value> Beillesztés vagy Beillesztés másként — Csak szöveg, Markdown, RTF, HTML, HTML/Jira vagy Automatikus.</value>
+    <value> Beillesztés vagy Beillesztés másként — Csak szöveg, Markdown, RTF, HTML, HTML/Jira vagy Automatikus; több nyelvű sablonnál Nyelv beillesztése. A rövidítéslistákban is.</value>
   </data>
   <data name="QuickPaste_GuideSearchLabel.Text" xml:space="preserve">
     <value>Keresés:</value>
@@ -1855,5 +1873,83 @@ Felülírás: a fájl a biztonsági másolatban lévő példányt kapja meg, min
   </data>
   <data name="MailHint_HelpLink.Content" xml:space="preserve">
     <value>Részletes útmutató</value>
+  </data>
+  <data name="TemplateEditor_LanguageTabs.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Nyelvek</value>
+  </data>
+  <data name="TemplateEditor_AddLanguageButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Nyelv hozzáadása</value>
+  </data>
+  <data name="TemplateEditor_AddLanguageButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Nyelv hozzáadása</value>
+  </data>
+  <data name="LanguageTabs_NoLanguage" xml:space="preserve">
+    <value>Nincs nyelv</value>
+  </data>
+  <data name="LanguageTabs_DefaultLanguageTip" xml:space="preserve">
+    <value>Alapértelmezett nyelv: ez kerül beillesztésre, ha nincs más kiválasztva</value>
+  </data>
+  <data name="LanguageTabs_UnsetLanguageTip" xml:space="preserve">
+    <value>Nincs nyelv: nem ajánlott fel beillesztésre</value>
+  </data>
+  <data name="LanguageTabs_DuplicateLanguageTip" xml:space="preserve">
+    <value>Ugyanaz a nyelv, mint egy korábbi lapé: nem ajánlott fel beillesztésre</value>
+  </data>
+  <data name="LanguageTabs_AddLanguage" xml:space="preserve">
+    <value>Nyelv hozzáadása</value>
+  </data>
+  <data name="LanguageTabs_ChangeLanguage" xml:space="preserve">
+    <value>Nyelv módosítása…</value>
+  </data>
+  <data name="LanguageTabs_MakeDefault" xml:space="preserve">
+    <value>Beállítás alapértelmezettként</value>
+  </data>
+  <data name="LanguageTabs_MoveLeft" xml:space="preserve">
+    <value>Mozgatás balra</value>
+  </data>
+  <data name="LanguageTabs_MoveRight" xml:space="preserve">
+    <value>Mozgatás jobbra</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguage" xml:space="preserve">
+    <value>Nyelv törlése</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageTitle" xml:space="preserve">
+    <value>Törli: {0}?</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageText" xml:space="preserve">
+    <value>A(z) {0} nyelvű szöveg törlődik ebből a sablonból.</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageButton" xml:space="preserve">
+    <value>Törlés</value>
+  </data>
+  <data name="LanguagePicker_FilterBox.PlaceholderText" xml:space="preserve">
+    <value>Nyelvek keresése</value>
+  </data>
+  <data name="LanguagePicker_FilterBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Nyelvek keresése</value>
+  </data>
+  <data name="LanguagePicker_List.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Nyelvek</value>
+  </data>
+  <data name="LanguagePicker_ChooseButton" xml:space="preserve">
+    <value>Kiválasztás</value>
+  </data>
+  <data name="LanguagePicker_Suggested" xml:space="preserve">
+    <value>Javasolt</value>
+  </data>
+  <data name="LanguagePicker_All" xml:space="preserve">
+    <value>Minden nyelv</value>
+  </data>
+  <data name="LanguagePicker_Detected" xml:space="preserve">
+    <value>A szövegben felismert</value>
+  </data>
+  <data name="LanguagePicker_FirstTitle" xml:space="preserve">
+    <value>A szöveg nyelve</value>
+  </data>
+  <data name="LanguagePicker_FirstMessage" xml:space="preserve">
+    <value>Újabb nyelv hozzáadása előtt válaszd ki, milyen nyelven íródott ez a sablon. Ez a szöveg marad az alapértelmezett, ez kerül beillesztésre, ha nincs más nyelv kiválasztva.</value>
+  </data>
+  <data name="LanguagePicker_ChangeTitle" xml:space="preserve">
+    <value>Nyelv módosítása</value>
   </data>
 </root>

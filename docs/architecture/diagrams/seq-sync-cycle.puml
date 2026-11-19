@@ -12,7 +12,7 @@ database "sync file" as SyncFile
 loop every 4 s
   Timer -> DataNode : CheckSyncFilesForChangesAsync()
   DataNode -> SyncFile : File.GetLastWriteTimeUtc (no open, no lock)
-  alt write time differs from the last one seen\n(own writes and reads update the remembered time)
+  alt write time differs from the last one seen\n(only own writes and reads update the remembered time)
     DataNode -> DataNode : ReapplySyncAsync()\n(serialized by _syncApplyLock)
     activate DataNode
     DataNode -> StorageService : LoadRootSharedAsync(path)
@@ -20,6 +20,13 @@ loop every 4 s
     DataNode -> MainViewModel : TreeChanged
     MainViewModel -> MainViewModel : (UI thread) ApplyFilter() or ReloadTree()\nwhen the synced folders' order changed;\nkeep the selection; ValidateAllShortcuts()
     DataNode -> DataNode : SaveDataAsync()\n(cache in data.ttmdata, write back newer local edits)
+    DataNode -> StorageService : SaveSharedIfUnchangedAsync(path, tree, last seen time)
+    alt file written again since the merge read it
+      StorageService --> DataNode : skipped (nothing written,\nfresh SyncIds taken back)
+      note right of DataNode : the next poll sees the newer time,\nmerges it, then writes
+    else
+      StorageService -> SyncFile : skip if unchanged, else temp + move
+    end
     deactivate DataNode
   end
 end

@@ -867,13 +867,13 @@
     <value>Konflikte:</value>
   </data>
   <data name="MainPage_GuideConflictsText.Text" xml:space="preserve">
-    <value> ein doppeltes Kürzel im selben Bereich wird blockiert (ein Feld oben rechts listet es auf); über Bereiche hinweg ist es nur ein Hinweis, den du ausblenden kannst.</value>
+    <value> ein doppeltes Kürzel im selben Bereich wird blockiert (ein Feld oben rechts listet es auf); über Bereiche hinweg ist es nur ein Hinweis, den du ausblenden kannst. Das Feld listet auch eine Vorlage mit derselben Sprache auf zwei Tabs; eingefügt wird nur der erste davon.</value>
   </data>
   <data name="MainPage_GuideRightClickLabel.Text" xml:space="preserve">
     <value>Rechtsklick:</value>
   </data>
   <data name="MainPage_GuideRightClickText.Text" xml:space="preserve">
-    <value> auf eine Vorlage zum Duplizieren / Kopieren; auf eine Vorlage oder einen Ordner zum Exportieren oder Löschen. Zieh ein Element auf die freie Fläche unter der Liste, um es auf die oberste Ebene zu verschieben.</value>
+    <value> auf eine Vorlage zum Duplizieren / Kopieren / Sprache kopieren; auf eine Vorlage oder einen Ordner zum Exportieren oder Löschen. Zieh ein Element auf die freie Fläche unter der Liste, um es auf die oberste Ebene zu verschieben.</value>
   </data>
   <data name="MainPage_GuideSearchLabel.Text" xml:space="preserve">
     <value>Suche:</value>
@@ -885,7 +885,7 @@
     <value>Editor:</value>
   </data>
   <data name="MainPage_GuideEditorText.Text" xml:space="preserve">
-    <value> formatiere mit der Symbolleiste — Überschriften, Listen, Tabellen, Farben und die Felder Info/Hinweis/Erfolg/Warnung/Fehler. Mit dem Einfügemodus HTML/Jira fügst du Felder in Jira ein.</value>
+    <value> formatiere mit der Symbolleiste — Überschriften, Listen, Tabellen, Farben und die Felder Info/Hinweis/Erfolg/Warnung/Fehler. Mit dem Einfügemodus HTML/Jira fügst du Felder in Jira ein. Die Tabs über der Symbolleiste enthalten die Vorlage in mehreren Sprachen: + fügt eine hinzu, Rechtsklick auf einen Tab bietet mehr; der erste wird standardmäßig eingefügt.</value>
   </data>
   <data name="MainPage_GuideQuickPasteLabel.Text" xml:space="preserve">
     <value>Quick Paste:</value>
@@ -949,6 +949,12 @@
   </data>
   <data name="Main_CopyAsItem" xml:space="preserve">
     <value>Kopieren als</value>
+  </data>
+  <data name="Main_CopyLanguageItem" xml:space="preserve">
+    <value>Sprache kopieren</value>
+  </data>
+  <data name="Main_CopyLanguageDefault" xml:space="preserve">
+    <value>{0} (Standard)</value>
   </data>
   <data name="Main_ExportItem" xml:space="preserve">
     <value>Exportieren…</value>
@@ -1361,8 +1367,20 @@ Die Vorlagen sind nicht betroffen. Das Update bleibt bereit; du kannst es noch e
   <data name="Conflicts_Shortcut" xml:space="preserve">
     <value>Kürzel: {0}</value>
   </data>
+  <data name="Conflicts_LanguageHeading" xml:space="preserve">
+    <value>Konflikte bei Sprachen</value>
+  </data>
+  <data name="Conflicts_Language" xml:space="preserve">
+    <value>{0} auf mehr als einem Tab in Vorlage:</value>
+  </data>
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, Kürzel {1}, {2}</value>
+  </data>
+  <data name="QuickPaste_RowNameLanguages" xml:space="preserve">
+    <value>{0}, Kürzel {1}, {2}, Sprachen {3}</value>
+  </data>
+  <data name="QuickPaste_PasteLanguageItem.Text" xml:space="preserve">
+    <value>Sprache einfügen</value>
   </data>
   <data name="QuickPaste_LocalSource" xml:space="preserve">
     <value>lokal</value>
@@ -1389,7 +1407,7 @@ Die Vorlagen sind nicht betroffen. Das Update bleibt bereit; du kannst es noch e
     <value>Adresse in die Zwischenablage kopiert</value>
   </data>
   <data name="ConflictPanel_Title.Text" xml:space="preserve">
-    <value>⚠ Kürzelkonflikte</value>
+    <value>⚠ Konflikte</value>
   </data>
   <data name="ConflictPanel_DismissButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Ausblenden</value>
@@ -1527,7 +1545,7 @@ Die Vorlagen sind nicht betroffen. Das Update bleibt bereit; du kannst es noch e
     <value>Tastenfolge:</value>
   </data>
   <data name="QuickPaste_GuideMultiText.Text" xml:space="preserve">
-    <value> halte ALT gedrückt und tippe das Kürzel (synchronisierte haben ein Präfix, z. B. and-msg; Trennzeichen - _ . erlaubt). Lass ALT los, um den markierten Treffer einzufügen — ein Teil der Eingabe genügt. ↑/↓ verschieben die Markierung, Eingabe fügt ein.</value>
+    <value> halte ALT gedrückt und tippe das Kürzel (synchronisierte haben ein Präfix, z. B. and-msg; Trennzeichen - _ . erlaubt). Lass ALT los, um den markierten Treffer einzufügen — ein Teil der Eingabe genügt. ↑/↓ verschieben die Markierung, Eingabe fügt ein; ←/→ wechseln die Sprache der markierten Vorlage.</value>
   </data>
   <data name="QuickPaste_GuidePlaintextLabel.Text" xml:space="preserve">
     <value>Nur Text:</value>
@@ -1551,7 +1569,7 @@ Die Vorlagen sind nicht betroffen. Das Update bleibt bereit; du kannst es noch e
     <value>Rechtsklick:</value>
   </data>
   <data name="QuickPaste_GuideRightClickText.Text" xml:space="preserve">
-    <value> Einfügen oder Einfügen als — Nur Text, Markdown, RTF, HTML, HTML/Jira oder Automatisch.</value>
+    <value> Einfügen oder Einfügen als — Nur Text, Markdown, RTF, HTML, HTML/Jira oder Automatisch; Sprache einfügen bei einer Vorlage in mehreren Sprachen. Auch in den Kürzellisten.</value>
   </data>
   <data name="QuickPaste_GuideSearchLabel.Text" xml:space="preserve">
     <value>Suche:</value>
@@ -1852,5 +1870,83 @@ Behalten: Der Ordner zeigt die Datei so, wie sie jetzt ist.
   </data>
   <data name="MailHint_HelpLink.Content" xml:space="preserve">
     <value>Schritt-für-Schritt-Hilfe</value>
+  </data>
+  <data name="TemplateEditor_LanguageTabs.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Sprachen</value>
+  </data>
+  <data name="TemplateEditor_AddLanguageButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Sprache hinzufügen</value>
+  </data>
+  <data name="TemplateEditor_AddLanguageButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Sprache hinzufügen</value>
+  </data>
+  <data name="LanguageTabs_NoLanguage" xml:space="preserve">
+    <value>Keine Sprache</value>
+  </data>
+  <data name="LanguageTabs_DefaultLanguageTip" xml:space="preserve">
+    <value>Standardsprache: wird eingefügt, wenn keine andere gewählt ist</value>
+  </data>
+  <data name="LanguageTabs_UnsetLanguageTip" xml:space="preserve">
+    <value>Keine Sprache: wird nicht zum Einfügen angeboten</value>
+  </data>
+  <data name="LanguageTabs_DuplicateLanguageTip" xml:space="preserve">
+    <value>Gleiche Sprache wie ein Tab davor: wird nicht zum Einfügen angeboten</value>
+  </data>
+  <data name="LanguageTabs_AddLanguage" xml:space="preserve">
+    <value>Sprache hinzufügen</value>
+  </data>
+  <data name="LanguageTabs_ChangeLanguage" xml:space="preserve">
+    <value>Sprache ändern…</value>
+  </data>
+  <data name="LanguageTabs_MakeDefault" xml:space="preserve">
+    <value>Als Standard festlegen</value>
+  </data>
+  <data name="LanguageTabs_MoveLeft" xml:space="preserve">
+    <value>Nach links verschieben</value>
+  </data>
+  <data name="LanguageTabs_MoveRight" xml:space="preserve">
+    <value>Nach rechts verschieben</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguage" xml:space="preserve">
+    <value>Sprache löschen</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageTitle" xml:space="preserve">
+    <value>{0} löschen?</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageText" xml:space="preserve">
+    <value>Der Text in der Sprache {0} wird aus dieser Vorlage gelöscht.</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageButton" xml:space="preserve">
+    <value>Löschen</value>
+  </data>
+  <data name="LanguagePicker_FilterBox.PlaceholderText" xml:space="preserve">
+    <value>Sprachen suchen</value>
+  </data>
+  <data name="LanguagePicker_FilterBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Sprachen suchen</value>
+  </data>
+  <data name="LanguagePicker_List.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Sprachen</value>
+  </data>
+  <data name="LanguagePicker_ChooseButton" xml:space="preserve">
+    <value>Auswählen</value>
+  </data>
+  <data name="LanguagePicker_Suggested" xml:space="preserve">
+    <value>Vorgeschlagen</value>
+  </data>
+  <data name="LanguagePicker_All" xml:space="preserve">
+    <value>Alle Sprachen</value>
+  </data>
+  <data name="LanguagePicker_Detected" xml:space="preserve">
+    <value>Im Text erkannt</value>
+  </data>
+  <data name="LanguagePicker_FirstTitle" xml:space="preserve">
+    <value>Sprache dieses Textes</value>
+  </data>
+  <data name="LanguagePicker_FirstMessage" xml:space="preserve">
+    <value>Bevor du eine weitere Sprache hinzufügst, wähle die Sprache, in der diese Vorlage geschrieben ist. Dieser Text bleibt der Standard und wird eingefügt, wenn keine andere Sprache gewählt ist.</value>
+  </data>
+  <data name="LanguagePicker_ChangeTitle" xml:space="preserve">
+    <value>Sprache ändern</value>
   </data>
 </root>

@@ -118,6 +118,87 @@ public class QuickPasteControllerTests
         Assert.Same(_mail, _entry.CommitHighlighted()!.Template);
     }
 
+    // Offer: English (default), German, a tab without a language (not pasted), French.
+    private static Template Offer() => new()
+    {
+        Title = "Offer", SingleKeyShortcut = "O", MultiKeyShortcut = "OFF", Content = "<p>Hello</p>", Language = "en", LanguageId = "a1a1",
+        AltLanguages =
+        [
+            new() { Id = "b2b2", Language = "de", Content = "<p>Hallo</p>" },
+            new() { Id = "c3c3", Content = "<p>Ciao</p>" },
+            new() { Id = "d4d4", Language = "fr", Content = "<p>Bonjour</p>" },
+        ],
+    };
+
+    private static QuickPasteController Controller(params Template[] templates)
+    {
+        var entries = templates.Select(t => new Entry(t, Guid.Empty, t.MultiKeyShortcut)).ToArray();
+        var controller = new QuickPasteController(() => entries, () => Array.Empty<SyncSource>(), _ => null);
+        controller.Open();
+        return controller;
+    }
+
+    [Fact]
+    public void Left_and_right_switch_the_highlighted_multi_key_rows_language_and_the_paste_follows()
+    {
+        var offer = Offer();
+        var entry = Controller(offer);
+        entry.AltDown();
+        foreach (char c in "of") entry.TypeMulti(c);
+
+        Assert.True(entry.StepLanguage(1));
+        Assert.Equal("de", entry.HighlightedRow!.Languages.Chosen.Language);
+        var paste = entry.AltUp();
+
+        Assert.Same(offer, paste!.Template);
+        Assert.Equal("b2b2", paste.LanguageId);
+        Assert.Equal("<p>Hallo</p>", offer.ContentFor(paste.LanguageId));
+    }
+
+    [Fact]
+    public void Switching_skips_tabs_that_arent_pasted_and_wraps_at_both_ends()
+    {
+        var entry = Controller(Offer());
+        entry.AltDown();
+
+        entry.StepLanguage(-1);
+        Assert.Equal("d4d4", entry.CommitMulti(requireBuffer: false)!.LanguageId);
+        entry.StepLanguage(1);
+        Assert.Null(entry.CommitMulti(requireBuffer: false)!.LanguageId);
+    }
+
+    [Fact]
+    public void Moving_the_highlight_puts_the_row_back_to_its_default_language()
+    {
+        var entry = Controller(Offer(), Offer());
+        entry.AltDown();
+        entry.StepLanguage(1);
+
+        entry.MoveMultiHighlight(1);
+        entry.MoveMultiHighlight(-1);
+
+        Assert.Equal(0, entry.HighlightedRow!.Languages.Index);
+        Assert.Null(entry.CommitMulti(requireBuffer: false)!.LanguageId);
+    }
+
+    [Fact]
+    public void The_language_is_switched_only_on_the_multi_key_list_and_for_a_template_in_several_languages()
+    {
+        var entry = Controller(Offer(), new Template { Title = "Plain", MultiKeyShortcut = "PL", Language = "en" });
+
+        Assert.False(entry.StepLanguage(1));   // the single-key list is shown
+        Assert.Null(entry.CommitHighlighted()!.LanguageId);
+
+        entry.SelectTab(ShortcutTab.Multi);
+        entry.MoveHighlight(1);
+        Assert.Equal("Plain", entry.HighlightedRow!.Title);
+        Assert.False(entry.StepLanguage(1));
+
+        entry.MoveHighlight(1);
+        Assert.True(entry.StepLanguage(1));
+        Assert.Equal("b2b2", entry.CommitHighlighted()!.LanguageId);
+    }
+
     [Fact]
     public void A_single_key_pastes_its_template()
     {

@@ -336,6 +336,9 @@ public sealed class RestoreService
                 current.DefaultPasteMode = restored.DefaultPasteMode;
                 current.SingleKeyShortcut = restored.SingleKeyShortcut;
                 current.MultiKeyShortcut = restored.MultiKeyShortcut;
+                current.Language = restored.Language;
+                current.LanguageId = restored.LanguageId;
+                current.AltLanguages = restored.AltLanguages;
                 current.LastChange = restored.LastChange;
                 current.UnknownFields = restored.UnknownFields;
             }

@@ -31,6 +31,9 @@ Partagez vos modèles grâce à un fichier .ttmdata dans un dossier cloud comme 
 Des modèles riches
 Rédigez avec des titres, des listes, des tableaux, des couleurs, des blocs de code avec coloration syntaxique et des encadrés. Les modes de collage décident du format : Automatique choisit le meilleur pour l'application cible ; HTML/Jira conserve les encadrés pour Jira ; HTML, RTF, Markdown et Texte brut collent exactement cela.
 
+En plusieurs langues
+Gardez un modèle en plusieurs langues, une par onglet, avec un seul titre et un seul jeu d'abréviations. La première langue est collée par défaut ; Quick Paste et le menu contextuel collent ou copient n'importe quelle autre, et la traduction hors ligne peut remplir une nouvelle langue pour vous.
+
 Trouver et organiser
 Dossiers par glisser-déposer, plusieurs éléments à la fois, tout développer et tout réduire. Recherchez dans la liste pendant la saisie, de façon approximative ou exacte avec des caractères génériques, par titre, balises ou texte du modèle.
 
@@ -59,6 +62,7 @@ Quick Paste depuis n'importe quelle application avec un raccourci global
 Collage par touche unique, ou maintenez Alt et tapez une séquence de touches
 Texte enrichi : titres, listes, tableaux, couleurs, blocs de code et encadrés
 Modes de collage : Automatique, HTML/Jira, HTML, RTF, Markdown et Texte brut
+Modèles en plusieurs langues, une par onglet ; collez celle de votre choix
 Partagez vos modèles avec votre équipe grâce à un fichier synchronisé sur OneDrive ou un partage réseau
 Dossiers partagés en lecture seule et préfixes de raccourci par fichier partagé
 Dossiers, glisser-déposer et plusieurs éléments à la fois
@@ -100,6 +104,7 @@ textes récurrents
 07  Des sauvegardes automatiques à restaurer : après vos modifications, toutes les deux heures et chaque jour.
 08  Une visite guidée vous aide à démarrer, sur des modèles d'exemple ; les vôtres restent intacts.
 09  Traduisez vos modèles sur votre PC, hors ligne dans plus de 50 langues, allemand formel compris (expérimental).
+10  Un modèle en plusieurs langues : un onglet par langue, et Quick Paste colle celle de votre choix.
 ```
 
 ### Screenshot images
@@ -116,6 +121,7 @@ The text in each screenshot, one line per image: file name | capture | caption |
 07-backups|store-backups | Des sauvegardes automatiques à restaurer | Après vos modifications, toutes les deux heures et chaque jour
 08-tour|store-tour | Une visite guidée pour démarrer | Sur des modèles d'exemple ; les vôtres restent intacts
 09-translate|store-translate | Traduisez vos modèles sur votre PC | Hors ligne dans plus de 50 langues, allemand formel compris (expérimental)
+10-languages|store-languages | Un modèle, plusieurs langues | Un onglet par langue ; Quick Paste colle celle de votre choix
 ```
 
 ### Copyright and trademark info
@@ -129,6 +135,7 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Nouveau : les modèles et les dossiers gardent ce qu'une version plus récente de TextTemplateManager y enregistre, y compris dans les fichiers de synchronisation partagés. Veuillez mettre à jour vers cette version chaque PC qui partage un fichier de synchronisation.
-Corrigé : l'application s'ouvre de nouveau lorsqu'un fichier de synchronisation contient deux fois le même identifiant d'élément.
+Nouveau : modèles en plusieurs langues. Un modèle peut contenir son texte en plusieurs langues, une par onglet, avec un seul titre et un seul jeu d'abréviations. Traduisez dans un nouvel onglet, et collez ou copiez n'importe quelle langue depuis Quick Paste et la liste. Chaque PC qui enregistre un fichier partagé doit avoir la version 2.7 ou plus récente pour les conserver.
+Amélioré : fonctionne avec .NET 10, pour lequel Microsoft fournit des mises à jour de sécurité jusqu'en novembre 2028. Modèles, paramètres et utilisation ne changent pas. Les dossiers et les modèles ont des icônes plus claires.
+Corrigé : l'enregistrement dans un fichier partagé n'écrase plus les modifications faites entre-temps par un autre PC. En quittant, l'application attend un enregistrement des paramètres déjà en cours.
 ```

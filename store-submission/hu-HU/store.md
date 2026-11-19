@@ -31,6 +31,9 @@ Oszd meg a sablonokat egy .ttmdata fájlon keresztül egy felhőmappában, péld
 Gazdag sablonok
 Írj címsorokkal, listákkal, táblázatokkal, színekkel, szintaxiskiemeléses kódblokkokkal és kiemelt panelekkel. A beillesztési módok döntik el a formátumot: az Automatikus a célalkalmazáshoz legjobbat választja; a HTML/Jira megtartja a paneleket a Jirához; a HTML, RTF, Markdown és a Csak szöveg pontosan azt illeszti be.
 
+Több nyelven
+Egy sablont több nyelven is tárolhatsz, nyelvenként egy lapon, egy címmel és egy rövidítéskészlettel. Alapértelmezetten az első nyelv illesztődik be; a Quick Paste és a jobb gombos menü bármelyik másikat beilleszti vagy másolja, az offline fordítás pedig kitölthet neked egy új nyelvet.
+
 Keresés és rendszerezés
 Mappák húzással, egyszerre több elem, minden kibontása és összecsukása. Keress a listában gépelés közben, közelítően vagy pontosan helyettesítő karakterekkel, cím, címkék vagy a sablon szövege alapján.
 
@@ -59,6 +62,7 @@ Quick Paste bármely alkalmazásból egy globális billentyűparanccsal
 Beillesztés egy billentyűvel, vagy az Alt lenyomva tartásával és egy billentyűsor begépelésével
 Formázott szöveg: címsorok, listák, táblázatok, színek, kódblokkok és kiemelt panelek
 Beillesztési módok: Automatikus, HTML/Jira, HTML, RTF, Markdown és Csak szöveg
+Sablonok több nyelven, nyelvenként egy lapon; bármelyik beilleszthető
 Sablonok megosztása a csapattal egy szinkronizált fájlon keresztül OneDrive-on vagy hálózati megosztáson
 Csak olvasható megosztott mappák és parancs-előtagok megosztott fájlonként
 Mappák, húzás és egyszerre több elem
@@ -100,6 +104,7 @@ szövegblokkok
 07  Visszaállítható automatikus biztonsági másolatok: a változtatásaid után, kétóránként és naponta.
 08  Egy bemutató segít az indulásban, mintasablonokon; a sajátjaidhoz nem nyúl.
 09  Fordíts sablonokat a gépeden, offline több mint 50 nyelvre, német magázó formával is (kísérleti).
+10  Egy sablon több nyelven: nyelvenként egy lap, és a Quick Paste a választottat illeszti be.
 ```
 
 ### Screenshot images
@@ -116,6 +121,7 @@ The text in each screenshot, one line per image: file name | capture | caption |
 07-backups|store-backups | Visszaállítható biztonsági másolatok | A változtatások után, kétóránként és naponta
 08-tour|store-tour | Egy bemutató segít az indulásban | Mintasablonokon; a sajátjaidhoz nem nyúl
 09-translate|store-translate | Sablonok fordítása a gépeden | Offline több mint 50 nyelvre, német magázó formával is (kísérleti)
+10-languages|store-languages | Egy sablon, több nyelv | Nyelvenként egy lap; a Quick Paste a választottat illeszti be
 ```
 
 ### Copyright and trademark info
@@ -129,6 +135,7 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Új: a sablonok és mappák megőrzik, amit egy újabb TextTemplateManager tárol bennük, a megosztott szinkronizálási fájlokban is. Kérjük, frissíts erre a verzióra minden számítógépet, amely szinkronizálási fájlt használ közösen.
-Javítva: az alkalmazás ismét megnyílik, ha egy szinkronizálási fájl kétszer tartalmazza ugyanazt az elemazonosítót.
+Új: sablonok több nyelven. Egy sablon több nyelven is tartalmazhatja a szövegét, nyelvenként egy lapon, egy címmel és egy rövidítéskészlettel. Fordíts új lapra, és bármelyik nyelvet beillesztheted vagy másolhatod a Quick Paste-ből és a listából. Minden gépen, amely megosztott fájlt ment, 2.7-es vagy újabb verzió kell, hogy a nyelvek megmaradjanak.
+Továbbfejlesztve: .NET 10-en fut, amelyhez a Microsoft 2028 novemberéig ad biztonsági frissítéseket. A sablonok, a beállítások és a használat nem változik. A mappák és a sablonok ikonjai jobban megkülönböztethetők.
+Javítva: a megosztott fájlba mentés már nem írja felül, amit közben egy másik gép módosított. Kilépéskor az alkalmazás megvárja a beállítások folyamatban lévő mentését.
 ```

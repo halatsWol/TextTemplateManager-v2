@@ -867,13 +867,13 @@
     <value>Conflicts:</value>
   </data>
   <data name="MainPage_GuideConflictsText.Text" xml:space="preserve">
-    <value> a duplicate shortcut inside the same area is blocked (a panel top-right lists it); across areas it's just a note you can dismiss.</value>
+    <value> a duplicate shortcut inside the same area is blocked (a panel top-right lists it); across areas it's just a note you can dismiss. The panel also lists a template with the same language on two tabs; only the first of them is pasted.</value>
   </data>
   <data name="MainPage_GuideRightClickLabel.Text" xml:space="preserve">
     <value>Right-click:</value>
   </data>
   <data name="MainPage_GuideRightClickText.Text" xml:space="preserve">
-    <value> a template to Duplicate / Copy; a template or folder to Export or Delete. Drag an item to the empty space below the tree to move it to the top level.</value>
+    <value> a template to Duplicate / Copy / Copy Language; a template or folder to Export or Delete. Drag an item to the empty space below the tree to move it to the top level.</value>
   </data>
   <data name="MainPage_GuideSearchLabel.Text" xml:space="preserve">
     <value>Search:</value>
@@ -885,7 +885,7 @@
     <value>Editor:</value>
   </data>
   <data name="MainPage_GuideEditorText.Text" xml:space="preserve">
-    <value> format with the toolbar — headings, lists, tables, colors, and Info/Note/Success/Warning/Error panels. Use the HTML/Jira paste mode to paste panels into Jira.</value>
+    <value> format with the toolbar — headings, lists, tables, colors, and Info/Note/Success/Warning/Error panels. Use the HTML/Jira paste mode to paste panels into Jira. The tabs above the toolbar hold the template in several languages: + adds one, right-click a tab for more; the first one is pasted by default.</value>
   </data>
   <data name="MainPage_GuideQuickPasteLabel.Text" xml:space="preserve">
     <value>Quick Paste:</value>
@@ -949,6 +949,12 @@
   </data>
   <data name="Main_CopyAsItem" xml:space="preserve">
     <value>Copy As</value>
+  </data>
+  <data name="Main_CopyLanguageItem" xml:space="preserve">
+    <value>Copy Language</value>
+  </data>
+  <data name="Main_CopyLanguageDefault" xml:space="preserve">
+    <value>{0} (default)</value>
   </data>
   <data name="Main_ExportItem" xml:space="preserve">
     <value>Export…</value>
@@ -1361,8 +1367,20 @@ Your templates weren't affected. The update stays ready; you can try again.</val
   <data name="Conflicts_Shortcut" xml:space="preserve">
     <value>Shortcut: {0}</value>
   </data>
+  <data name="Conflicts_LanguageHeading" xml:space="preserve">
+    <value>Language Conflicts</value>
+  </data>
+  <data name="Conflicts_Language" xml:space="preserve">
+    <value>{0} on more than one tab in template:</value>
+  </data>
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, shortcut {1}, {2}</value>
+  </data>
+  <data name="QuickPaste_RowNameLanguages" xml:space="preserve">
+    <value>{0}, shortcut {1}, {2}, languages {3}</value>
+  </data>
+  <data name="QuickPaste_PasteLanguageItem.Text" xml:space="preserve">
+    <value>Paste Language</value>
   </data>
   <data name="QuickPaste_LocalSource" xml:space="preserve">
     <value>local</value>
@@ -1389,7 +1407,7 @@ Your templates weren't affected. The update stays ready; you can try again.</val
     <value>Address copied to clipboard</value>
   </data>
   <data name="ConflictPanel_Title.Text" xml:space="preserve">
-    <value>⚠ Shortcut Conflicts</value>
+    <value>⚠ Conflicts</value>
   </data>
   <data name="ConflictPanel_DismissButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Dismiss</value>
@@ -1527,7 +1545,7 @@ Your templates weren't affected. The update stays ready; you can try again.</val
     <value>Multi-key:</value>
   </data>
   <data name="QuickPaste_GuideMultiText.Text" xml:space="preserve">
-    <value> hold ALT and type the shortcut (synced ones are prefixed, e.g. and-msg; separators - _ . allowed). Release ALT to paste the highlighted match — a partial entry is enough. ↑/↓ move the highlight, Enter pastes it.</value>
+    <value> hold ALT and type the shortcut (synced ones are prefixed, e.g. and-msg; separators - _ . allowed). Release ALT to paste the highlighted match — a partial entry is enough. ↑/↓ move the highlight, Enter pastes it; ←/→ switch the highlighted template's language.</value>
   </data>
   <data name="QuickPaste_GuidePlaintextLabel.Text" xml:space="preserve">
     <value>Plaintext:</value>
@@ -1551,7 +1569,7 @@ Your templates weren't affected. The update stays ready; you can try again.</val
     <value>Right-click:</value>
   </data>
   <data name="QuickPaste_GuideRightClickText.Text" xml:space="preserve">
-    <value> Paste, or Paste As — Plaintext, Markdown, RTF, HTML, HTML/Jira or Auto.</value>
+    <value> Paste, or Paste As — Plaintext, Markdown, RTF, HTML, HTML/Jira or Auto; Paste Language for a template in several languages. Also on the shortcut lists.</value>
   </data>
   <data name="QuickPaste_GuideSearchLabel.Text" xml:space="preserve">
     <value>Search:</value>
@@ -1852,5 +1870,83 @@ Overwrite it: the file gets the backup's copy, for everyone who uses it.</value>
   </data>
   <data name="MailHint_HelpLink.Content" xml:space="preserve">
     <value>Step-by-step help</value>
+  </data>
+  <data name="TemplateEditor_LanguageTabs.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Languages</value>
+  </data>
+  <data name="TemplateEditor_AddLanguageButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Add language</value>
+  </data>
+  <data name="TemplateEditor_AddLanguageButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Add language</value>
+  </data>
+  <data name="LanguageTabs_NoLanguage" xml:space="preserve">
+    <value>No language</value>
+  </data>
+  <data name="LanguageTabs_DefaultLanguageTip" xml:space="preserve">
+    <value>Default language: pasted unless another one is chosen</value>
+  </data>
+  <data name="LanguageTabs_UnsetLanguageTip" xml:space="preserve">
+    <value>No language: not offered for pasting</value>
+  </data>
+  <data name="LanguageTabs_DuplicateLanguageTip" xml:space="preserve">
+    <value>Same language as an earlier tab: not offered for pasting</value>
+  </data>
+  <data name="LanguageTabs_AddLanguage" xml:space="preserve">
+    <value>Add language</value>
+  </data>
+  <data name="LanguageTabs_ChangeLanguage" xml:space="preserve">
+    <value>Change language…</value>
+  </data>
+  <data name="LanguageTabs_MakeDefault" xml:space="preserve">
+    <value>Make default</value>
+  </data>
+  <data name="LanguageTabs_MoveLeft" xml:space="preserve">
+    <value>Move left</value>
+  </data>
+  <data name="LanguageTabs_MoveRight" xml:space="preserve">
+    <value>Move right</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguage" xml:space="preserve">
+    <value>Delete language</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageTitle" xml:space="preserve">
+    <value>Delete {0}?</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageText" xml:space="preserve">
+    <value>The text in {0} is deleted from this template.</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageButton" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="LanguagePicker_FilterBox.PlaceholderText" xml:space="preserve">
+    <value>Search languages</value>
+  </data>
+  <data name="LanguagePicker_FilterBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Search languages</value>
+  </data>
+  <data name="LanguagePicker_List.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Languages</value>
+  </data>
+  <data name="LanguagePicker_ChooseButton" xml:space="preserve">
+    <value>Choose</value>
+  </data>
+  <data name="LanguagePicker_Suggested" xml:space="preserve">
+    <value>Suggested</value>
+  </data>
+  <data name="LanguagePicker_All" xml:space="preserve">
+    <value>All languages</value>
+  </data>
+  <data name="LanguagePicker_Detected" xml:space="preserve">
+    <value>Detected in the text</value>
+  </data>
+  <data name="LanguagePicker_FirstTitle" xml:space="preserve">
+    <value>Language of this text</value>
+  </data>
+  <data name="LanguagePicker_FirstMessage" xml:space="preserve">
+    <value>Before adding another language, choose the language this template is written in. This text stays the default, pasted unless another language is chosen.</value>
+  </data>
+  <data name="LanguagePicker_ChangeTitle" xml:space="preserve">
+    <value>Change language</value>
   </data>
 </root>

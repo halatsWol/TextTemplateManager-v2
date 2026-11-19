@@ -118,9 +118,13 @@ public partial class MainViewModel : ObservableObject
 
     private bool Autosave => _dataNode.CurrentSettings.Autosave;
 
+    /// <summary>Templates added here get their first language detected; the page supplies the detector.</summary>
+    public FirstLanguageDetection FirstLanguage { get; } = new();
+
     // The pane edits item: directly with autosave on, otherwise a fresh draft of it.
     private void Edit(BaseItem? item)
     {
+        if ((_draft?.Original ?? EditedItem) is Template left && !ReferenceEquals(left, item)) DetectFirstLanguage(left);
         if (item != null && !Autosave) { Adopt(ItemDraft.For(item)); return; }
         if (_draft != null) _draft.DirtyChanged -= OnDraftDirtyChanged;
         _draft = null;
@@ -185,8 +189,38 @@ public partial class MainViewModel : ObservableObject
         await _dataNode.FlushPendingSaveAsync();
     }
 
+    /// <summary>The edited template was saved: a new one gets its language now if it can be told.</summary>
+    public void EditsSaved() => DetectFirstLanguage(_draft?.Original as Template ?? EditedTemplate);
+
+    private async void DetectFirstLanguage(Template? t)
+    {
+        if (t == null || !FirstLanguage.IsPending(t)) return;
+        try
+        {
+            await FirstLanguage.RunAsync(t, () => _draft is { } d && ReferenceEquals(d.Original, t) ? d.Edited as Template : null);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Language] detecting a new template's language failed: {ex.Message}");
+        }
+    }
+
     /// <summary>Puts the edited item back as it was last saved.</summary>
     public void DiscardEdits() => Edit(_draft?.Original ?? SelectedItem);
+
+    /// <summary>The template shown in the editor: the edited one, or the one the edits (autosave off) are for.</summary>
+    public bool IsShownInEditor(Template t) => ReferenceEquals(_draft?.Original ?? EditedItem, t);
+
+    /// <summary>Makes <paramref name="change"/>, from outside the window, to the template the edits are for, and edits
+    /// it afresh; false, with nothing changed, while there are unsaved edits. Without edits, just makes it.</summary>
+    public bool ChangeUnderDraft(Template t, Action change)
+    {
+        if (_draft is not { } draft || !ReferenceEquals(draft.Original, t)) { change(); return true; }
+        if (draft.IsDirty) return false;
+        change();
+        Edit(t);
+        return true;
+    }
 
     /// <summary>After <see cref="LeavingEditedItem"/>: save the edits or drop them, then edit the new selection.</summary>
     public async Task ResolveSwitchAsync(bool save)
@@ -201,10 +235,11 @@ public partial class MainViewModel : ObservableObject
         if (_draft != null) SelectedItem = _draft.Original;
     }
 
-    /// <summary>The editor shows the edited template's content as <paramref name="html"/> after loading it.</summary>
-    public void EditorLoaded(Template shown, string html)
+    /// <summary>The editor shows tab <paramref name="tabId"/> of the edited template as <paramref name="html"/> after
+    /// loading it.</summary>
+    public void EditorLoaded(Template shown, string? tabId, string html)
     {
-        if (_draft is { } draft && ReferenceEquals(draft.Edited, shown)) draft.ContentLoaded(html);
+        if (_draft is { } draft && ReferenceEquals(draft.Edited, shown)) draft.ContentLoaded(html, tabId);
     }
 
     #endregion
@@ -424,6 +459,7 @@ public partial class MainViewModel : ObservableObject
             Id = Guid.NewGuid(),
             DefaultPasteMode = _dataNode.CurrentSettings.DefaultPasteMode
         };
+        FirstLanguage.Added(item);
 
         Expand(parent);   // reveal the new item
 

@@ -17,7 +17,8 @@
         <Grid.Resources>
             <helpers:BoolToVisibilityConverter x:Key="BoolToVis"/>
             <helpers:ItemIconConverter x:Key="ItemIcon"/>
-            <MenuFlyout x:Key="TreeItemContextMenu">
+            <!-- Shared by the tree and the shortcut rows; Opening finds the row it was opened on. -->
+            <MenuFlyout x:Key="TreeItemContextMenu" Opening="ContextMenu_Opening">
                 <MenuFlyoutItem x:Uid="QuickPaste_PasteItem" Click="CtxPaste_Click" Icon="Paste"/>
                 <MenuFlyoutSubItem x:Uid="QuickPaste_PasteAsItem">
                     <MenuFlyoutItem x:Uid="QuickPaste_PasteAsAuto" Tag="Auto" Click="CtxPasteAs_Click"/>
@@ -27,6 +28,7 @@
                     <MenuFlyoutItem Text="Markdown" Tag="Markdown" Click="CtxPasteAs_Click"/>
                     <MenuFlyoutItem x:Uid="QuickPaste_PasteAsPlaintext" Tag="Plaintext" Click="CtxPasteAs_Click"/>
                 </MenuFlyoutSubItem>
+                <MenuFlyoutSubItem x:Uid="QuickPaste_PasteLanguageItem" Tag="Languages"/>
             </MenuFlyout>
 
             <!-- Compact tree rows; stretch content so the whole row (not just the text) is a
@@ -107,7 +109,7 @@
                               DoubleTapped="Tree_DoubleTapped" RightTapped="Tree_RightTapped">
                             <StackPanel Orientation="Horizontal" Spacing="10">
                                 <Grid VerticalAlignment="Center" Width="20" Height="20">
-                                    <SymbolIcon Symbol="{Binding Content, Converter={StaticResource ItemIcon}}" />
+                                    <FontIcon Glyph="{Binding Content, Converter={StaticResource ItemIcon}}" FontSize="16"/>
                                     <Border Visibility="{Binding Content.IsSyncRoot, Converter={StaticResource BoolToVis}}"
                                             HorizontalAlignment="Right" VerticalAlignment="Bottom"
                                             Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="5">
@@ -228,7 +230,7 @@
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="viewmodels:ShortcutRow">
                                 <!-- Background=Transparent so the whole row is hit-testable, not just the text. -->
-                                <Grid Padding="12,6" Background="Transparent" DoubleTapped="ShortcutItem_DoubleTapped">
+                                <Grid Padding="12,6" Background="Transparent" ContextFlyout="{StaticResource TreeItemContextMenu}" DoubleTapped="ShortcutItem_DoubleTapped">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="80"/>
                                         <ColumnDefinition Width="*"/>
@@ -259,15 +261,19 @@
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="viewmodels:ShortcutRow">
                                 <!-- Background=Transparent so the whole row is hit-testable, not just the text. -->
-                                <Grid Padding="12,6" Background="Transparent" DoubleTapped="ShortcutItem_DoubleTapped">
+                                <Grid Padding="12,6" Background="Transparent" ContextFlyout="{StaticResource TreeItemContextMenu}" DoubleTapped="ShortcutItem_DoubleTapped">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="80"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{x:Bind Key}" FontWeight="Bold" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
                                     <TextBlock Grid.Column="1" Text="{x:Bind Title}" Margin="10,0,0,0"/>
-                                    <TextBlock Grid.Column="2" Text="{x:Bind Source}" FontStyle="{x:Bind SourceStyle}" Margin="10,0,0,0"
+                                    <!-- The language Enter or the Alt release pastes; Left/Right switch it on the highlighted row. -->
+                                    <TextBlock Grid.Column="2" Text="{x:Bind Languages.Text, Mode=OneWay}" Margin="10,0,0,0"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="3" Text="{x:Bind Source}" FontStyle="{x:Bind SourceStyle}" Margin="10,0,0,0"
                                                VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                 </Grid>
                             </DataTemplate>

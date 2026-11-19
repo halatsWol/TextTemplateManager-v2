@@ -31,6 +31,9 @@ Teile Vorlagen über eine .ttmdata-Datei in einem Cloud-Ordner wie OneDrive oder
 Vielseitige Vorlagen
 Schreib mit Überschriften, Listen, Tabellen, Farben, Codeblöcken mit Syntaxhervorhebung und Hinweisfeldern. Einfügemodi bestimmen das Format: Automatisch wählt das beste für die Ziel-App; HTML/Jira behält Hinweisfelder für Jira; HTML, RTF, Markdown und Nur Text fügen genau das ein.
 
+In mehreren Sprachen
+Halte eine Vorlage in mehreren Sprachen bereit, eine pro Tab, mit einem Titel und einem Satz Kürzel. Die erste Sprache wird standardmäßig eingefügt; Quick Paste und das Rechtsklick-Menü fügen jede andere ein oder kopieren sie, und die Offline-Übersetzung füllt eine neue Sprache für dich.
+
 Finden und ordnen
 Ordner mit Drag & Drop, mehrere Elemente auf einmal, alles ein- und ausklappen. Durchsuche die Liste beim Tippen, unscharf oder genau mit Platzhaltern, nach Titel, Tags oder dem Text der Vorlage.
 
@@ -59,6 +62,7 @@ Quick Paste aus jeder App mit einem globalen Tastenkürzel
 Einfügen per Einzeltaste, oder Alt halten und eine Tastenfolge tippen
 Formatierter Text: Überschriften, Listen, Tabellen, Farben, Codeblöcke und Hinweisfelder
 Einfügemodi: Automatisch, HTML/Jira, HTML, RTF, Markdown und Nur Text
+Vorlagen in mehreren Sprachen, eine pro Tab; jede davon einfügbar
 Vorlagen mit dem Team teilen, über eine synchronisierte Datei auf OneDrive oder einer Netzwerkfreigabe
 Nur lesbare geteilte Ordner und Kürzel-Präfixe pro geteilter Datei
 Ordner, Drag & Drop und mehrere Elemente auf einmal
@@ -100,6 +104,7 @@ Textbaustein-Verwaltung
 07  Automatische Sicherungen zum Wiederherstellen: nach deinen Änderungen, alle zwei Stunden und täglich.
 08  Eine Tour hilft dir beim Einstieg, mit Beispielvorlagen; deine eigenen bleiben unberührt.
 09  Übersetze Vorlagen auf deinem PC, offline in über 50 Sprachen, Deutsch mit Sie oder du (experimentell).
+10  Eine Vorlage in mehreren Sprachen: ein Tab pro Sprache, und Quick Paste fügt die gewählte ein.
 ```
 
 ### Screenshot images
@@ -116,6 +121,7 @@ The text in each screenshot, one line per image: file name | capture | caption |
 07-backups|store-backups | Automatische Sicherungen zum Wiederherstellen | Nach deinen Änderungen, alle zwei Stunden und täglich
 08-tour|store-tour | Eine Tour hilft beim Einstieg | Mit Beispielvorlagen; deine eigenen bleiben unberührt
 09-translate|store-translate | Vorlagen auf deinem PC übersetzen | Offline in über 50 Sprachen, Deutsch mit Sie oder du (experimentell)
+10-languages|store-languages | Eine Vorlage, mehrere Sprachen | Ein Tab pro Sprache; Quick Paste fügt die gewählte ein
 ```
 
 ### Copyright and trademark info
@@ -129,6 +135,7 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Neu: Vorlagen und Ordner behalten, was ein neueres TextTemplateManager in ihnen speichert, auch in geteilten Sync-Dateien. Bitte aktualisiere jeden PC, der eine Sync-Datei mitbenutzt, auf diese Version.
-Behoben: Die App öffnet sich wieder, wenn eine Sync-Datei dieselbe Element-ID zweimal enthält.
+Neu: Vorlagen in mehreren Sprachen. Eine Vorlage kann ihren Text in mehreren Sprachen enthalten, eine pro Tab, mit einem Titel und einem Satz Kürzel. Übersetze in einen neuen Tab und füge jede Sprache aus Quick Paste und der Liste ein oder kopiere sie. Jeder PC, der eine gemeinsame Datei speichert, braucht Version 2.7 oder neuer, damit sie erhalten bleiben.
+Verbessert: läuft mit .NET 10, für das Microsoft bis November 2028 Sicherheitsupdates liefert. Vorlagen, Einstellungen und Bedienung bleiben gleich. Ordner und Vorlagen haben deutlichere Symbole.
+Behoben: Speichern in eine gemeinsame Datei überschreibt keine Änderungen mehr, die ein anderer PC inzwischen gemacht hat. Beim Beenden wird auf ein laufendes Speichern der Einstellungen gewartet.
 ```

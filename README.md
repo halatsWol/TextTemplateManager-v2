@@ -2,7 +2,7 @@
 
 A hotkey-driven text-template paste tool for Windows: organize reusable snippets in folders, give them shortcuts, and paste them into any application from a global Quick Paste window.
 
-> Made by **Marflow Software**. Built with WinUI 3 (Windows App SDK) and .NET 8, distributed through the [Microsoft Store](https://apps.microsoft.com/detail/9NMBSZLLLN6V).
+> Made by **Marflow Software**. Built with WinUI 3 (Windows App SDK) and .NET 10, distributed through the [Microsoft Store](https://apps.microsoft.com/detail/9NMBSZLLLN6V).
 
 [![Tests](https://github.com/halatsWol/TextTemplateManager-v2/actions/workflows/tests.yml/badge.svg)](https://github.com/halatsWol/TextTemplateManager-v2/actions/workflows/tests.yml) [![CodeQL](https://github.com/halatsWol/TextTemplateManager-v2/actions/workflows/codeql.yml/badge.svg)](https://github.com/halatsWol/TextTemplateManager-v2/actions/workflows/codeql.yml)
 
@@ -40,10 +40,11 @@ Version 1 shipped as a per-user installer from GitHub with its own updater. Vers
 - **Paste modes**: Auto, HTML/Jira, HTML, RTF, Markdown, Plaintext. Callout panels adapt to each mode: native panels in Jira, colored boxes in HTML/RTF, a labeled quote in Markdown. Pastes are kept out of the clipboard history.
 - **Search**: fuzzy by default, or **strict** (exactly as typed, with `*` and `.` as wildcards); optionally also in the template text.
 - **Translation** (experimental): translate a template or a selection on the PC, offline, with Mozilla's [Bergamot](https://github.com/mozilla/translations) engine; languages are downloaded once in Settings from Mozilla's servers (Firefox Translations models), and a translated copy gets the language on its title and multi-key shortcut.
+- **Templates in several languages**: one template holds its text in several languages, one editor tab each, with one title and one set of shortcuts; the first tab is pasted by default, Quick Paste and the tree's menu paste or copy the others, and **Translate ▸ Add as language** fills a new tab.
 - **Automatic backups**: after changes, every two hours and daily; restore all or part of a backup, or export one to move to another PC.
 - **Import and export** of `.ttmdata` files.
 - **Guided tour** on sample templates, and an in-app **manual** (PDF).
-- **Browser connector**: an opt-in local API for the companion extension [TTM-Connect](https://github.com/halatsWol/TTM-Connect) to list, paste and create templates ([API docs](docs/user/BrowserConnectorApi.md)); content going in and out is sanitized. Available on:
+- **Browser connector**: an opt-in local API for the companion extension [TTM-Connect](https://github.com/halatsWol/TTM-Connect) to list, paste and create templates, and from protocol 3 on to read and add a template's languages ([API docs](docs/user/BrowserConnectorApi.md)); content going in and out is sanitized. Available on:
   - [Chrome Web Store](https://chrome.google.com/webstore/detail/jclopjpjdldbknjdhmjldehlkgbihlmi)
   - [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/ttm-connect/fbpmhopmnaoedcnbegdkpfblekhaindm)
   - [Firefox Add-ons](https://addons.mozilla.org/addon/ttm-connect/)
@@ -79,7 +80,7 @@ Get **TextTemplateManager** from the [Microsoft Store](https://apps.microsoft.co
 
 Prerequisites:
 
-- [.NET 10 SDK](https://dotnet.microsoft.com/download) (the app targets .NET 8 and uses C# 14)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download) (the app targets .NET 10 and uses C# 14)
 - Windows 10 19041+ / Windows 11
 - [Node.js](https://nodejs.org/), only to rebuild the editor after changing `src/editor` (the bundle in the app's assets is committed)
 

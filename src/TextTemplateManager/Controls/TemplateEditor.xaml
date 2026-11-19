@@ -4,5 +4,36 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <WebView2 x:Name="EditorWebView" x:Uid="TemplateEditor_WebView" Loaded="EditorWebView_Loaded"/>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- One tab per language; the tabs are headers only, the single WebView below shows the selected one. -->
+        <TabView x:Name="LanguageTabs" x:Uid="TemplateEditor_LanguageTabs"
+                 TabWidthMode="SizeToContent"
+                 IsAddTabButtonVisible="False"
+                 CanReorderTabs="True" CanDragTabs="False" AllowDropTabs="True"
+                 SelectionChanged="LanguageTabs_SelectionChanged"
+                 TabItemsChanged="LanguageTabs_TabItemsChanged">
+            <TabView.Resources>
+                <SolidColorBrush x:Key="TabViewBackground" Color="Transparent"/>
+            </TabView.Resources>
+            <TabView.KeyboardAccelerators>
+                <KeyboardAccelerator Modifiers="Control" Key="PageUp" Invoked="PreviousTab_Invoked"/>
+                <KeyboardAccelerator Modifiers="Control" Key="PageDown" Invoked="NextTab_Invoked"/>
+            </TabView.KeyboardAccelerators>
+            <TabView.TabStripFooter>
+                <Button x:Name="AddLanguageButton" x:Uid="TemplateEditor_AddLanguageButton"
+                        Click="AddLanguage_Click"
+                        Background="Transparent" BorderThickness="0" Padding="8,4" Margin="2,0,0,0"
+                        VerticalAlignment="Center">
+                    <FontIcon Glyph="&#xE710;" FontSize="12"/>
+                </Button>
+            </TabView.TabStripFooter>
+        </TabView>
+
+        <WebView2 x:Name="EditorWebView" x:Uid="TemplateEditor_WebView" Grid.Row="1" Loaded="EditorWebView_Loaded"/>
+    </Grid>
 </UserControl>

@@ -6,7 +6,8 @@
     "main": "Versionshinweise",
     "pasteMode": "Zahlungserinnerung",
     "search": "Ticket geschlossen",
-    "translate": "Danke für Ihre Nachricht"
+    "translate": "Danke für Ihre Nachricht",
+    "languages": "Danke für Ihre Nachricht"
   },
   "translate": { "to": "en", "formal": false },
   "teamName": "Team",
@@ -14,7 +15,8 @@
   "local": [
     { "folder": "Kundenantworten", "items": [
       { "title": "Danke für Ihre Nachricht", "tags": "support, antwort", "single": "T", "multi": "THX", "mode": 4,
-        "content": "<p>Guten Tag,</p><p>vielen Dank für Ihre Nachricht. Wir melden uns <strong>innerhalb eines Werktags</strong> bei Ihnen.</p><p>Freundliche Grüße</p>" },
+        "content": "<p>Guten Tag,</p><p>vielen Dank für Ihre Nachricht. Wir melden uns <strong>innerhalb eines Werktags</strong> bei Ihnen.</p><p>Freundliche Grüße</p>", "language": "de",
+        "languages": [ { "language": "fr", "content": "<p>Bonjour,</p><p>merci pour votre message. Nous reviendrons vers vous <strong>sous un jour ouvré</strong>.</p><p>Cordialement</p>" } ] },
       { "title": "Ticket geschlossen", "tags": "support, ticket", "multi": "TC", "mode": 3,
         "content": "<p>Guten Tag,</p><p>wir haben dieses Ticket geschlossen. Falls das Problem wieder auftritt, antworten Sie einfach auf diese Nachricht, dann wird es wieder geöffnet.</p>" },
       { "title": "Zahlungserinnerung", "tags": "rechnung, erinnerung", "multi": "INV", "mode": 3,

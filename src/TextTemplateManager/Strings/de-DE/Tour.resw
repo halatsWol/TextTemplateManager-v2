@@ -45,6 +45,12 @@
   <data name="StepTranslating_Text" xml:space="preserve">
     <value>Die Schaltfläche Übersetzen am rechten Ende der Editor-Symbolleiste übersetzt eine Vorlage auf diesem PC: Ersetze ihren Text, nur die Auswahl oder erstelle eine übersetzte Kopie. Deutsch kann förmlich sein (Sie). Prüf jede Übersetzung; maschinelle Übersetzung macht Fehler.</value>
   </data>
+  <data name="StepLanguages_Title" xml:space="preserve">
+    <value>Sprachen</value>
+  </data>
+  <data name="StepLanguages_Text" xml:space="preserve">
+    <value>Eine Vorlage kann ihren Text in mehreren Sprachen enthalten, eine pro Tab; diese hat zwei. + fügt eine Sprache hinzu; mit Rechtsklick auf einen Tab änderst du seine Sprache, legst ihn als Standard fest, verschiebst oder löschst ihn. Der erste Tab ist der Standard und wird eingefügt, solange du keine andere Sprache wählst. Übersetzen ▸ Als Sprache hinzufügen übersetzt in einen neuen Tab, und Sprache kopieren im Rechtsklick-Menü der Liste kopiert eine der anderen.</value>
+  </data>
   <data name="StepShortcuts_Title" xml:space="preserve">
     <value>Kürzel und Tags</value>
   </data>
@@ -136,7 +142,7 @@
     <value>Kürzel mit Tastenfolge</value>
   </data>
   <data name="StepMultiKey_Text" xml:space="preserve">
-    <value>Halte Alt gedrückt und tippe eine Tastenfolge (Alt + T, H, X): Die Liste wird beim Tippen kürzer, und wenn du Alt loslässt, wird das markierte Kürzel eingefügt. Eingabe fügt ebenfalls die in dieser Liste ausgewählte Zeile ein. Alt + Rücktaste korrigiert, Alt + Esc bricht ab.</value>
+    <value>Halte Alt gedrückt und tippe eine Tastenfolge (Alt + T, H, X): Die Liste wird beim Tippen kürzer, und wenn du Alt loslässt, wird das markierte Kürzel eingefügt. Eingabe fügt ebenfalls die in dieser Liste ausgewählte Zeile ein. Alt + Rücktaste korrigiert, Alt + Esc bricht ab. Bei einer Vorlage in mehreren Sprachen wählen ← / → die Sprache der markierten Zeile.</value>
   </data>
   <data name="StepPlainText_Title" xml:space="preserve">
     <value>Als reiner Text</value>
@@ -154,7 +160,7 @@
     <value>Durchsuchen und einfügen</value>
   </data>
   <data name="StepBrowse_Text" xml:space="preserve">
-    <value>Wähle eine Vorlage in der Liste aus, um sie in der Vorschau zu sehen; Eingabe oder Doppelklick fügt sie ein. Klick mit der rechten Maustaste für Einfügen als, um sie in einem anderen Einfügemodus einzufügen. Esc schließt Quick Paste.</value>
+    <value>Wähle eine Vorlage in der Liste aus, um sie in der Vorschau zu sehen; Eingabe oder Doppelklick fügt sie ein. Klick mit der rechten Maustaste für Einfügen als, um sie in einem anderen Einfügemodus einzufügen, oder Sprache einfügen, um eine ihrer anderen Sprachen einzufügen. Esc schließt Quick Paste.</value>
   </data>
   <data name="StepEnd_Title" xml:space="preserve">
     <value>Das war's</value>

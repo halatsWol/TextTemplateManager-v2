@@ -11,8 +11,12 @@ namespace TextTemplateManager.Models
     /// survives. With <c>allowSave</c>, the newer LastChange wins; otherwise the file wins.</summary>
     public static class SyncEngine
     {
-        public static void Merge(Folder target, Folder fileRoot, string name, Guid sourceId, bool allowSave)
+        /// <remarks>Items in <paramref name="unwritten"/> without a SyncId were added here and aren't in the file
+        /// yet (their write was skipped or failed): with <c>allowSave</c> they stay where they are.</remarks>
+        public static void Merge(Folder target, Folder fileRoot, string name, Guid sourceId, bool allowSave,
+            IReadOnlySet<BaseItem>? unwritten = null)
         {
+            var keep = allowSave ? unwritten : null;
             // A queue per id: a file can hold an id twice (hand edits, merged conflict copies), and one object in two
             // places breaks the tree. Each occurrence takes its own cached item, in tree order.
             var cache = new Dictionary<Guid, Queue<BaseItem>>();
@@ -23,7 +27,7 @@ namespace TextTemplateManager.Models
                     items.Enqueue(item);
                 }
 
-            var merged = fileRoot.Children.Select(fc => BuildMerged(fc, cache, allowSave)).ToList();
+            var merged = WithUnwritten(target.Children, fileRoot.Children.Select(fc => BuildMerged(fc, cache, allowSave, keep)).ToList(), keep);
 
             target.Id = sourceId;
             target.SyncId = fileRoot.Id;   // the sync file's root id (usually Guid.Empty)
@@ -38,7 +42,8 @@ namespace TextTemplateManager.Models
             SyncChildren(target.Children, merged);
         }
 
-        private static BaseItem BuildMerged(BaseItem fileItem, Dictionary<Guid, Queue<BaseItem>> cache, bool allowSave)
+        private static BaseItem BuildMerged(BaseItem fileItem, Dictionary<Guid, Queue<BaseItem>> cache, bool allowSave,
+            IReadOnlySet<BaseItem>? keep)
         {
             BaseItem? cached = null;
             if (cache.TryGetValue(fileItem.Id, out var items)) items.TryDequeue(out cached);
@@ -52,7 +57,11 @@ namespace TextTemplateManager.Models
             {
                 // Reuse the existing object so its tree identity (expansion/selection) is preserved.
                 result = cached;
-                if (!cacheWins) CopyContent(fileItem, result); // adopt the file's newer content
+                if (!cacheWins)   // adopt the file's newer content
+                {
+                    if (cached is Template ct && fileItem is Template ft && KeepsLanguages(ct, ft)) CopyKeepingLanguages(ft, ct);
+                    else CopyContent(fileItem, result);
+                }
             }
             else
             {
@@ -64,10 +73,37 @@ namespace TextTemplateManager.Models
 
             result.SyncId = fileItem.Id;
 
-            var mergedChildren = fileItem.Children.Select(fc => BuildMerged(fc, cache, allowSave)).ToList();
-            SyncChildren(result.Children, mergedChildren);
+            var mergedChildren = fileItem.Children.Select(fc => BuildMerged(fc, cache, allowSave, keep)).ToList();
+            SyncChildren(result.Children, WithUnwritten(result.Children, mergedChildren, keep));
 
             return result;
+        }
+
+        private static List<BaseItem> WithUnwritten(IList<BaseItem> current, List<BaseItem> merged, IReadOnlySet<BaseItem>? keep)
+        {
+            if (keep == null || keep.Count == 0) return merged;
+            for (int i = 0; i < current.Count; i++)
+                if (current[i].SyncId == null && keep.Contains(current[i]))
+                    merged.Insert(Math.Min(i, merged.Count), current[i]);
+            return merged;
+        }
+
+        // A file item without any language fields, for a template that has them here, was written by a version that
+        // doesn't know them (1.x, 2.6 and older). Its other tabs are kept; a first tab's language alone only while the
+        // file brings no newer edit. A newer version always writes Language, so dropping it means an older writer.
+        private static bool KeepsLanguages(Template cached, Template file) =>
+            file.Language == null && file.LanguageId == null && file.AltLanguages == null
+            && (cached.AltLanguages != null
+                || (cached.Language != null && string.CompareOrdinal(cached.LastChange ?? "", file.LastChange ?? "") == 0));
+
+        private static void CopyKeepingLanguages(Template from, Template to)
+        {
+            var (language, languageId, alts) = (to.Language, to.LanguageId, to.AltLanguages);
+            bool newDefault = to.Content != from.Content;
+            CopyContent(from, to);
+            (to.Language, to.LanguageId, to.AltLanguages) = (language, languageId, alts);
+            to.LanguagesKeptLocally = true;
+            if (newDefault && alts != null) to.DefaultChangedSinceLanguages = true;
         }
 
         private static void CopyContent(BaseItem from, BaseItem to)
@@ -82,6 +118,11 @@ namespace TextTemplateManager.Models
                 tt.MultiKeyShortcut = ft.MultiKeyShortcut;
                 tt.TagsCsv = ft.TagsCsv;
                 tt.DefaultPasteMode = ft.DefaultPasteMode;
+                tt.Language = ft.Language;
+                tt.LanguageId = ft.LanguageId;
+                tt.AltLanguages = ft.AltLanguages;
+                tt.LanguagesKeptLocally = false;
+                tt.DefaultChangedSinceLanguages = false;
             }
         }
 

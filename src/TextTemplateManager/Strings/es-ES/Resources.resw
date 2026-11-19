@@ -867,13 +867,13 @@
     <value>Conflictos:</value>
   </data>
   <data name="MainPage_GuideConflictsText.Text" xml:space="preserve">
-    <value> una abreviatura duplicada dentro de la misma área se bloquea (un panel arriba a la derecha la muestra); entre áreas es solo un aviso que puedes ocultar.</value>
+    <value> una abreviatura duplicada dentro de la misma área se bloquea (un panel arriba a la derecha la muestra); entre áreas es solo un aviso que puedes ocultar. El panel también muestra una plantilla con el mismo idioma en dos pestañas; solo se pega la primera.</value>
   </data>
   <data name="MainPage_GuideRightClickLabel.Text" xml:space="preserve">
     <value>Clic derecho:</value>
   </data>
   <data name="MainPage_GuideRightClickText.Text" xml:space="preserve">
-    <value> en una plantilla para Duplicar / Copiar; en una plantilla o carpeta para Exportar o Eliminar. Arrastra un elemento al espacio vacío bajo la lista para moverlo al nivel superior.</value>
+    <value> en una plantilla para Duplicar / Copiar / Copiar idioma; en una plantilla o carpeta para Exportar o Eliminar. Arrastra un elemento al espacio vacío bajo la lista para moverlo al nivel superior.</value>
   </data>
   <data name="MainPage_GuideSearchLabel.Text" xml:space="preserve">
     <value>Buscar:</value>
@@ -885,7 +885,7 @@
     <value>Editor:</value>
   </data>
   <data name="MainPage_GuideEditorText.Text" xml:space="preserve">
-    <value> da formato con la barra de herramientas — títulos, listas, tablas, colores y paneles Información/Nota/Correcto/Advertencia/Error. Usa el modo de pegado HTML/Jira para pegar paneles en Jira.</value>
+    <value> da formato con la barra de herramientas — títulos, listas, tablas, colores y paneles Información/Nota/Correcto/Advertencia/Error. Usa el modo de pegado HTML/Jira para pegar paneles en Jira. Las pestañas sobre la barra contienen la plantilla en varios idiomas: + añade uno, el clic derecho en una pestaña ofrece más; por defecto se pega la primera.</value>
   </data>
   <data name="MainPage_GuideQuickPasteLabel.Text" xml:space="preserve">
     <value>Quick Paste:</value>
@@ -949,6 +949,12 @@
   </data>
   <data name="Main_CopyAsItem" xml:space="preserve">
     <value>Copiar como</value>
+  </data>
+  <data name="Main_CopyLanguageItem" xml:space="preserve">
+    <value>Copiar idioma</value>
+  </data>
+  <data name="Main_CopyLanguageDefault" xml:space="preserve">
+    <value>{0} (predeterminado)</value>
   </data>
   <data name="Main_ExportItem" xml:space="preserve">
     <value>Exportar…</value>
@@ -1361,8 +1367,20 @@ Las plantillas no se vieron afectadas. La actualización sigue lista; puedes vol
   <data name="Conflicts_Shortcut" xml:space="preserve">
     <value>Abreviatura: {0}</value>
   </data>
+  <data name="Conflicts_LanguageHeading" xml:space="preserve">
+    <value>Conflictos de idioma</value>
+  </data>
+  <data name="Conflicts_Language" xml:space="preserve">
+    <value>{0} en más de una pestaña en la plantilla:</value>
+  </data>
   <data name="QuickPaste_RowName" xml:space="preserve">
     <value>{0}, abreviatura {1}, {2}</value>
+  </data>
+  <data name="QuickPaste_RowNameLanguages" xml:space="preserve">
+    <value>{0}, abreviatura {1}, {2}, idiomas {3}</value>
+  </data>
+  <data name="QuickPaste_PasteLanguageItem.Text" xml:space="preserve">
+    <value>Pegar idioma</value>
   </data>
   <data name="QuickPaste_LocalSource" xml:space="preserve">
     <value>local</value>
@@ -1389,7 +1407,7 @@ Las plantillas no se vieron afectadas. La actualización sigue lista; puedes vol
     <value>Dirección copiada al Portapapeles</value>
   </data>
   <data name="ConflictPanel_Title.Text" xml:space="preserve">
-    <value>⚠ Conflictos de abreviaturas</value>
+    <value>⚠ Conflictos</value>
   </data>
   <data name="ConflictPanel_DismissButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
     <value>Descartar</value>
@@ -1527,7 +1545,7 @@ Las plantillas no se vieron afectadas. La actualización sigue lista; puedes vol
     <value>Secuencia de teclas:</value>
   </data>
   <data name="QuickPaste_GuideMultiText.Text" xml:space="preserve">
-    <value> mantén presionada ALT y escribe la abreviatura (las sincronizadas llevan un prefijo, por ejemplo, and-msg; separadores - _ . permitidos). Suelta ALT para pegar la coincidencia resaltada — basta con una parte. ↑/↓ mueven el resaltado y Entrar lo pega.</value>
+    <value> mantén presionada ALT y escribe la abreviatura (las sincronizadas llevan un prefijo, por ejemplo, and-msg; separadores - _ . permitidos). Suelta ALT para pegar la coincidencia resaltada — basta con una parte. ↑/↓ mueven el resaltado y Entrar lo pega; ←/→ cambian el idioma de la plantilla resaltada.</value>
   </data>
   <data name="QuickPaste_GuidePlaintextLabel.Text" xml:space="preserve">
     <value>Texto sin formato:</value>
@@ -1551,7 +1569,7 @@ Las plantillas no se vieron afectadas. La actualización sigue lista; puedes vol
     <value>Clic derecho:</value>
   </data>
   <data name="QuickPaste_GuideRightClickText.Text" xml:space="preserve">
-    <value> Pegar o Pegar como — Texto sin formato, Markdown, RTF, HTML, HTML/Jira o Automático.</value>
+    <value> Pegar o Pegar como — Texto sin formato, Markdown, RTF, HTML, HTML/Jira o Automático; Pegar idioma para una plantilla en varios idiomas. También en las listas de abreviaturas.</value>
   </data>
   <data name="QuickPaste_GuideSearchLabel.Text" xml:space="preserve">
     <value>Buscar:</value>
@@ -1852,5 +1870,83 @@ Sobrescribir: el archivo recibe la copia de la copia de seguridad, para todos lo
   </data>
   <data name="MailHint_HelpLink.Content" xml:space="preserve">
     <value>Ayuda paso a paso</value>
+  </data>
+  <data name="TemplateEditor_LanguageTabs.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Idiomas</value>
+  </data>
+  <data name="TemplateEditor_AddLanguageButton.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Añadir idioma</value>
+  </data>
+  <data name="TemplateEditor_AddLanguageButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Añadir idioma</value>
+  </data>
+  <data name="LanguageTabs_NoLanguage" xml:space="preserve">
+    <value>Sin idioma</value>
+  </data>
+  <data name="LanguageTabs_DefaultLanguageTip" xml:space="preserve">
+    <value>Idioma predeterminado: se pega si no se elige otro</value>
+  </data>
+  <data name="LanguageTabs_UnsetLanguageTip" xml:space="preserve">
+    <value>Sin idioma: no se ofrece para pegar</value>
+  </data>
+  <data name="LanguageTabs_DuplicateLanguageTip" xml:space="preserve">
+    <value>Mismo idioma que una pestaña anterior: no se ofrece para pegar</value>
+  </data>
+  <data name="LanguageTabs_AddLanguage" xml:space="preserve">
+    <value>Añadir idioma</value>
+  </data>
+  <data name="LanguageTabs_ChangeLanguage" xml:space="preserve">
+    <value>Cambiar idioma…</value>
+  </data>
+  <data name="LanguageTabs_MakeDefault" xml:space="preserve">
+    <value>Establecer como predeterminado</value>
+  </data>
+  <data name="LanguageTabs_MoveLeft" xml:space="preserve">
+    <value>Mover a la izquierda</value>
+  </data>
+  <data name="LanguageTabs_MoveRight" xml:space="preserve">
+    <value>Mover a la derecha</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguage" xml:space="preserve">
+    <value>Eliminar idioma</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageTitle" xml:space="preserve">
+    <value>¿Eliminar {0}?</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageText" xml:space="preserve">
+    <value>El texto en {0} se elimina de esta plantilla.</value>
+  </data>
+  <data name="LanguageTabs_DeleteLanguageButton" xml:space="preserve">
+    <value>Eliminar</value>
+  </data>
+  <data name="LanguagePicker_FilterBox.PlaceholderText" xml:space="preserve">
+    <value>Buscar idiomas</value>
+  </data>
+  <data name="LanguagePicker_FilterBox.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Buscar idiomas</value>
+  </data>
+  <data name="LanguagePicker_List.[using:Microsoft.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve">
+    <value>Idiomas</value>
+  </data>
+  <data name="LanguagePicker_ChooseButton" xml:space="preserve">
+    <value>Elegir</value>
+  </data>
+  <data name="LanguagePicker_Suggested" xml:space="preserve">
+    <value>Sugeridos</value>
+  </data>
+  <data name="LanguagePicker_All" xml:space="preserve">
+    <value>Todos los idiomas</value>
+  </data>
+  <data name="LanguagePicker_Detected" xml:space="preserve">
+    <value>Detectado en el texto</value>
+  </data>
+  <data name="LanguagePicker_FirstTitle" xml:space="preserve">
+    <value>Idioma de este texto</value>
+  </data>
+  <data name="LanguagePicker_FirstMessage" xml:space="preserve">
+    <value>Antes de añadir otro idioma, elige el idioma en el que está escrita esta plantilla. Este texto sigue siendo el predeterminado y se pega si no se elige otro idioma.</value>
+  </data>
+  <data name="LanguagePicker_ChangeTitle" xml:space="preserve">
+    <value>Cambiar idioma</value>
   </data>
 </root>

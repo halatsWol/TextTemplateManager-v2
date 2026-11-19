@@ -11,6 +11,7 @@ The tree is made of `BaseItem`s: `Folder`s and `Template`s. A folder holds any i
 - `Content`: HTML as the TipTap editor writes it (callout panels are `div[data-panel-type]`, code blocks `pre > code.language-*`). Early 1.x versions stored RTF; `LegacyRtf.ConvertTree` converts such templates to HTML once, when a file is read, so everything after loading only sees HTML.
 - `SingleKeyShortcut`, `MultiKeyShortcut`: cleaned on every set by `Template.CleanShortcut` (trimmed, uppercase, `A-Z` and `0-9` only). `-` and `.` are reserved as the separator between a sync folder's prefix and a shortcut.
 - `TagsCsv`, `DefaultPasteMode`.
+- `Language`, `LanguageId`, `AltLanguages`: the template's languages (see [Languages](#languages)).
 - `HasSingleKeyConflict` / `HasMultiKeyConflict` (written to the file, part of the format) and the transient cross-area warnings, all computed by `ShortcutValidator`. Changing them doesn't count as an edit (no `LastChange`, no save).
 
 `LastChange` (`yyyyMMddHHmmss`, local time) is set by `DataNode` whenever a persisted property changes. It decides which side wins in sync merges and in "overwrite only where more recent" imports.
@@ -34,11 +35,22 @@ An **area** is either "local" (`Guid.Empty`) or one sync source (its `Id`). `Dat
 - `ShortcutValidator.Apply` takes every template with its area and effective multi key (`DataNode.ShortcutEntries()`): the same key twice in one area is a **conflict** (shown in the conflict panel, must be resolved); the same key in different areas is a **cross-area warning** (allowed, dismissible).
 - Moving items into another area (`DataNode.MoveItemsAsync`) clears a clashing single key and suffixes a clashing multi key (`MSG` becomes `MSG1`), and drops the moved items' `SyncId`s so the next sync write assigns fresh file ids.
 
+### Languages
+
+A template can hold its text in several languages, one tab each in the editor. The first tab is `Content`, with its language in `Language` (null while unknown). The other tabs are `AltLanguages`, a list of `TemplateLanguage` records (`Id`, `Language`, `Content`) in tab order, null when there are none; the list is always replaced as a whole, so an edit reaches the template's change tracking.
+
+- **Ids.** Every tab has a 4-character lowercase hex id, unique only within its template: `LanguageId` for the first tab, `TemplateLanguage.Id` for the others. Moving a tab to the front swaps it into `Content`, `Language` and `LanguageId`, so a tab keeps its id. `LanguageId` exists only while there are other tabs.
+- **Codes.** `TemplateLanguages.NormalizeCode` stores a code in one form: lowercase language, title-case script, uppercase region (`de`, `zh-Hant`, `pt-BR`), legacy codes replaced (`iw` is `he`, `in` is `id`, `no` is `nb`).
+- **Repair at load.** `TemplateLanguages.Repair` runs on every loaded tree, after `UnknownFields.Clean`: codes normalized, a missing, malformed or repeated id replaced, a `LanguageId` without other tabs dropped. A file already in order is left exactly as it was; a repaired one is written in its new form at the next save, without a new `LastChange`.
+- **Pasting.** The first tab always pastes, whether its language is known or not. Of the others, `TemplateLanguages.Offered` lists those with a language no earlier tab has; `Template.ContentFor(id)` gives a tab's text (the first tab's for null or an unknown id).
+- **Editing.** `TemplateTabs` adds, moves, renames and deletes tabs (see [6](06-main-window.md#language-tabs)). A second tab needs the first tab's language, which can then be changed but not removed; the first tab always has a language while there are others. A template added in the main window gets its first language detected from its text when it is first saved with text; no other template's language is ever set without the user.
+- **The same language twice** stays in the data, but only the first such tab is offered; `Template.HasLanguageConflict` (transient) flags it, and the conflict panel lists it under its own heading ("German on more than one tab in template:", then the templates).
+
 ### Search
 
 `TemplateSearch.Matches` is used by both windows:
 
-- **Normal**: every word of the query must appear in the item's title or tags (and, with `SearchInContent`, its plain text), in any order; a word's letters only have to appear in order (`mtg` finds *Meeting*).
+- **Normal**: every word of the query must appear in the item's title or tags (and, with `SearchInContent`, its plain text, in any of its languages), in any order; a word's letters only have to appear in order (`mtg` finds *Meeting*).
 - **Strict** (`StrictSearch`): the query is one phrase as typed, matched against each field on its own (title, tags, text), case ignored; `*` matches any characters, `.` exactly one, a backslash escapes. In the tags the words may come in any order, each in one of the tags.
 - `TemplateSearch.Prune` cuts a tree down to the matches and their ancestors.
 
@@ -108,7 +120,7 @@ A tree file looks like this (polymorphism through the `$type` discriminator, `Ti
 
 ### Fields of newer versions
 
-`BaseItem.UnknownFields` (`[JsonExtensionData]`) holds the fields this version doesn't know, on templates, folders and the root, and writes them back behind `Title`. A tree file from a newer version therefore loads and saves byte-identically (`format-future.ttmdata`). It is a `Dictionary<string, JsonElement>`: a `JsonObject` writes a keyless nested object on .NET 8. Settings files don't keep unknown fields; they stay on one PC. 1.x and 2.6.x don't keep them either and drop them when they write.
+`BaseItem.UnknownFields` (`[JsonExtensionData]`) holds the fields this version doesn't know, on templates, folders and the root, and writes them back behind `Title`; `TemplateLanguage.UnknownFields` does the same for a language tab, behind its `Content`. A tree file from a newer version therefore loads and saves byte-identically (`format-future.ttmdata`). It is a `Dictionary<string, JsonElement>`: a `JsonObject` writes a keyless nested object on .NET 8. Settings files don't keep unknown fields; they stay on one PC. 1.x and 2.6.x don't keep them either and drop them when they write.
 
 `UnknownFields.Clean` runs on every loaded tree and drops what can't be kept, so a file can never stop the app from saving: a value the JSON writer refuses (a lone surrogate escape) or one nested more than 32 levels (a cached or imported copy sits deeper in its file than the original did), and a `$` name on a root. The rest of the item stays, and the next write of the file leaves them out.
 
@@ -116,7 +128,7 @@ Whatever copies an item's fields carries them: `SyncEngine.Merge` (items and the
 
 - **The whole item wins.** The winner of a sync merge, an import overwrite or a restore merge overwrite brings its unknown fields, or none if it has none: overwriting from an old file clears them.
 - **A folder matched by name in an import or restore merge** keeps its own, like its other fields.
-- **`TranslatedCopy.Of` doesn't take them**: they may describe the original's language.
+- **`TranslatedCopy.Of` doesn't take them**: they may describe the original's language. It doesn't take the original's languages either; the copy's `Language` is the target language.
 - **`ItemDraft` doesn't need them**: the draft is never saved, `Commit` copies the edited fields onto the item.
 
 Rules for every new field in a tree file:
@@ -125,7 +137,7 @@ Rules for every new field in a tree file:
 - Fields are only added: never removed, renamed or retyped. A removed field would become an unknown one in the newer version and move to the end.
 - No new `$type`: `BaseItem` is abstract, so an unknown discriminator makes older versions fail on the whole file. New data becomes fields on existing items.
 - No name starting with `$`: on an item it makes the whole file fail to load, on a root it is dropped.
-- No name of a `[JsonIgnore]` property (`IsSyncRoot`, `SyncFileMissing`, the cross-area warnings, ...) and not `UnknownFields`: the serializer takes those as its own, so older versions don't keep them.
+- No name of a `[JsonIgnore]` property (`IsSyncRoot`, `SyncFileMissing`, the cross-area warnings, `HasLanguageConflict`, `LanguagesKeptLocally`, ...) and not `UnknownFields`: the serializer takes those as its own, so older versions don't keep them.
 - Values stay within 32 levels of nesting.
 - No derived or cached values: an older version that edits `Content` bumps `LastChange` and writes the unknown fields back unchanged, so they must stay valid.
 - It must make sense on a duplicate. If it must not be copied, the newer version notices the duplicate and fixes it on its side.

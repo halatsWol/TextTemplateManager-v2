@@ -7,7 +7,7 @@ TextTemplateManager stores reusable text templates (rich text as HTML) in a tree
 | Area | Choice |
 | --- | --- |
 | UI | WinUI 3 (Windows App SDK 1.8), XAML with code-behind and view models (CommunityToolkit.Mvvm, partial `[ObservableProperty]` properties) |
-| Runtime | .NET 8, C# 14 (built with the .NET 10 SDK), x64 only |
+| Runtime | .NET 10, C# 14, x64 only |
 | Rich-text editor | TipTap in a WebView2 (`src/editor`, bundled by esbuild into single HTML pages under `Assets/editor`) |
 | Translation | Bergamot (Firefox Translations, wasm) in a worker of the editor's WebView2; language models in the package's LocalCache |
 | Persistence | JSON files via `System.Text.Json` source generation (`StorageJsonContext`) |
