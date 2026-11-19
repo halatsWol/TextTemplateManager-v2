@@ -332,7 +332,8 @@ public sealed class UpdateService : IDisposable
 
             if (result.Outcome == DownloadOutcome.Completed && await IsStagedAsync(offer))
                 Set(new UpdateStatus(UpdateStage.Ready, offer.Version));
-            else if (result.Outcome == DownloadOutcome.Completed && await Task.Run(_switcher.FindStaged) is { } staged)
+            // Failed too: the Store stages the package, then its own install fails with 0x80073D02 while TTM runs (2.8.0, 2026-11-19).
+            else if (result.Outcome is DownloadOutcome.Completed or DownloadOutcome.Failed && await Task.Run(_switcher.FindStaged) is { } staged)
             {
                 _offer = new UpdateOffer(staged);
                 _log.Write($"{staged} is staged");

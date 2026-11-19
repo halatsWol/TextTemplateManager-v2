@@ -553,6 +553,19 @@ public class UpdateServiceTests
         Assert.Equal((UpdateStage.Ready, Newer), (service.Status.Stage, service.Status.Version));
     }
 
+    [Fact]
+    public async Task A_failed_download_whose_version_got_staged_is_ready()
+    {
+        var (service, source, switcher, _) = Create(UpdatePolicy.FromValues(null, null, null, null));
+        source.NamesVersion = false;
+        source.Result = new DownloadResult(DownloadOutcome.Failed, "queue item error 0x80073D02", "0x80073D02");
+        service.Changed += s => { if (s.Stage == UpdateStage.Downloading) switcher.StagedElsewhere = Newer; };
+
+        await service.CheckAsync(userInitiated: true);
+
+        Assert.Equal((UpdateStage.Ready, Newer), (service.Status.Stage, service.Status.Version));
+    }
+
     [Theory]
     [InlineData("Deployment Stage operation with target volume C: on Package MarflowSoftware.TextTemplateManager_2.3.2.0_x64__eb1r5ey0kd4ny from:  (370fa352ec3f09d456d2ce925e8de69925e90076)  finished successfully.", "2.3.2.0")]
     [InlineData("Deployment Stage operation with target volume C: on Package MarflowSoftware.TextTemplateManager_2.3.2.0_neutral_~_eb1r5ey0kd4ny from:  (370fa352ec3f09d456d2ce925e8de69925e90076)  finished successfully.", null)]

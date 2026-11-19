@@ -13,7 +13,7 @@ Checking --> Downloading : newer, silent download allowed,\nor Check for updates
 Checking --> Available : newer, consent needed\nor notice only
 Available --> Downloading : Download\n(Store consent dialog)
 Downloading --> Available : consent download failed\n(hint: Windows Update)
-Downloading --> Ready : staged
+Downloading --> Ready : staged\n(also after an error)
 Downloading --> Failed : error
 Downloading --> Available : canceled
 Failed --> Checking : Try again
