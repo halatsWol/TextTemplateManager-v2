@@ -108,6 +108,7 @@ From `screenshots/` in this folder (2560x1440 PNG, one colour scheme), uploaded 
 07  Automatic backups you can restore: after your changes, every two hours and daily.
 08  A guided tour gets you started, on sample templates; yours stay untouched.
 09  Translate templates on your PC, offline in over 50 languages, formal German included (experimental).
+10  One template in several languages: one tab each, and Quick Paste pastes the one you pick.
 ```
 
 ### Screenshot images
@@ -124,6 +125,7 @@ The text in each screenshot, one line per image: file name | capture | caption |
 07-backups|store-backups | Automatic backups you can restore | After your changes, every two hours and daily
 08-tour|store-tour | A guided tour gets you started | On sample templates; yours stay untouched
 09-translate|store-translate | Translate templates on your PC | Offline in over 50 languages, formal German included (experimental)
+10-languages|store-languages | One template, several languages | One tab per language; Quick Paste pastes the one you pick
 ```
 
 ### Copyright and trademark info

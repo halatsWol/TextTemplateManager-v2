@@ -104,6 +104,7 @@ textos frecuentes
 07  Copias de seguridad automáticas que puedes restaurar: después de tus cambios, cada dos horas y a diario.
 08  Un recorrido te ayuda a empezar, con plantillas de ejemplo; las tuyas no se tocan.
 09  Traduce plantillas en tu PC, sin conexión a más de 50 idiomas, con alemán formal incluido (experimental).
+10  Una plantilla en varios idiomas: una pestaña por idioma, y Quick Paste pega el que elijas.
 ```
 
 ### Screenshot images
@@ -120,6 +121,7 @@ The text in each screenshot, one line per image: file name | capture | caption |
 07-backups|store-backups | Copias de seguridad que puedes restaurar | Después de tus cambios, cada dos horas y a diario
 08-tour|store-tour | Un recorrido te ayuda a empezar | Con plantillas de ejemplo; las tuyas no se tocan
 09-translate|store-translate | Traduce plantillas en tu PC | Sin conexión a más de 50 idiomas, con alemán formal incluido (experimental)
+10-languages|store-languages | Una plantilla, varios idiomas | Una pestaña por idioma; Quick Paste pega el que elijas
 ```
 
 ### Copyright and trademark info

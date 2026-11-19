@@ -104,6 +104,7 @@ textes récurrents
 07  Des sauvegardes automatiques à restaurer : après vos modifications, toutes les deux heures et chaque jour.
 08  Une visite guidée vous aide à démarrer, sur des modèles d'exemple ; les vôtres restent intacts.
 09  Traduisez vos modèles sur votre PC, hors ligne dans plus de 50 langues, allemand formel compris (expérimental).
+10  Un modèle en plusieurs langues : un onglet par langue, et Quick Paste colle celle de votre choix.
 ```
 
 ### Screenshot images
@@ -120,6 +121,7 @@ The text in each screenshot, one line per image: file name | capture | caption |
 07-backups|store-backups | Des sauvegardes automatiques à restaurer | Après vos modifications, toutes les deux heures et chaque jour
 08-tour|store-tour | Une visite guidée pour démarrer | Sur des modèles d'exemple ; les vôtres restent intacts
 09-translate|store-translate | Traduisez vos modèles sur votre PC | Hors ligne dans plus de 50 langues, allemand formel compris (expérimental)
+10-languages|store-languages | Un modèle, plusieurs langues | Un onglet par langue ; Quick Paste colle celle de votre choix
 ```
 
 ### Copyright and trademark info

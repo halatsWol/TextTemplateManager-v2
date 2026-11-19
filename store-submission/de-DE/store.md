@@ -104,6 +104,7 @@ Textbaustein-Verwaltung
 07  Automatische Sicherungen zum Wiederherstellen: nach deinen Änderungen, alle zwei Stunden und täglich.
 08  Eine Tour hilft dir beim Einstieg, mit Beispielvorlagen; deine eigenen bleiben unberührt.
 09  Übersetze Vorlagen auf deinem PC, offline in über 50 Sprachen, Deutsch mit Sie oder du (experimentell).
+10  Eine Vorlage in mehreren Sprachen: ein Tab pro Sprache, und Quick Paste fügt die gewählte ein.
 ```
 
 ### Screenshot images
@@ -120,6 +121,7 @@ The text in each screenshot, one line per image: file name | capture | caption |
 07-backups|store-backups | Automatische Sicherungen zum Wiederherstellen | Nach deinen Änderungen, alle zwei Stunden und täglich
 08-tour|store-tour | Eine Tour hilft beim Einstieg | Mit Beispielvorlagen; deine eigenen bleiben unberührt
 09-translate|store-translate | Vorlagen auf deinem PC übersetzen | Offline in über 50 Sprachen, Deutsch mit Sie oder du (experimentell)
+10-languages|store-languages | Eine Vorlage, mehrere Sprachen | Ein Tab pro Sprache; Quick Paste fügt die gewählte ein
 ```
 
 ### Copyright and trademark info

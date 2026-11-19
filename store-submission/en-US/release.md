@@ -14,7 +14,7 @@ Coming from TextTemplateManager 1: your templates and settings are backed up at 
 
 #### New
 
-- **Templates in several languages:** a template can now hold its text in more than one language, one tab each above the editor's toolbar, with one title and one set of shortcuts. **+** adds a language (recognized from the text where possible), and **Translate ▸ Add as language** translates into a new tab. The first tab is the default that is pasted; **Copy Language** in the tree's right-click menu, **Paste Language** in Quick Paste and **← / →** on Quick Paste's Multi Key list pick another one. Search looks through every language.
+- **Templates in several languages:** a template can now hold its text in more than one language, one tab each above the editor's toolbar, with one title and one set of shortcuts. **+** adds a language, and **Translate ▸ Add as language** translates into a new tab. The first tab is the default that is pasted; **Copy Language** in the tree's right-click menu, **Paste Language** in Quick Paste and **← / →** on Quick Paste's Multi Key list pick another one. Search looks through every language.
 - **Browser extension:** with TTM-Connect 1.2 or newer you can also paste a template's other languages and save a selection as a language of a template. Older versions of the extension keep working as before.
 - **Synced folders:** templates in several languages need TextTemplateManager 2.7 or newer on every PC that saves a shared file; TextTemplateManager 1 and 2.6 or older drop the other languages when they save it.
 

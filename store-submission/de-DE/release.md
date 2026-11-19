@@ -2,7 +2,7 @@
 
 #### Neu
 
-- **Vorlagen in mehreren Sprachen:** Eine Vorlage kann ihren Text jetzt in mehreren Sprachen enthalten, eine pro Tab über der Symbolleiste des Editors, mit einem Titel und einem Satz Kürzel. **+** fügt eine Sprache hinzu (aus dem Text erkannt, wo möglich), und **Übersetzen ▸ Als Sprache hinzufügen** übersetzt in einen neuen Tab. Der erste Tab ist der Standard, der eingefügt wird; **Sprache kopieren** im Rechtsklick-Menü der Liste, **Sprache einfügen** in Quick Paste und **← / →** in der Tastenfolge-Liste von Quick Paste wählen eine andere. Die Suche durchsucht alle Sprachen.
+- **Vorlagen in mehreren Sprachen:** Eine Vorlage kann ihren Text jetzt in mehreren Sprachen enthalten, eine pro Tab über der Symbolleiste des Editors, mit einem Titel und einem Satz Kürzel. **+** fügt eine Sprache hinzu, und **Übersetzen ▸ Als Sprache hinzufügen** übersetzt in einen neuen Tab. Der erste Tab ist der Standard, der eingefügt wird; **Sprache kopieren** im Rechtsklick-Menü der Liste, **Sprache einfügen** in Quick Paste und **← / →** in der Tastenfolge-Liste von Quick Paste wählen eine andere. Die Suche durchsucht alle Sprachen.
 - **Browsererweiterung:** Mit TTM-Connect 1.2 oder neuer fügst du auch die anderen Sprachen einer Vorlage ein und speicherst eine Auswahl als Sprache einer Vorlage. Ältere Versionen der Erweiterung funktionieren weiter wie bisher.
 - **Synchronisierte Ordner:** Vorlagen in mehreren Sprachen brauchen auf jedem PC, der eine gemeinsame Datei speichert, TextTemplateManager 2.7 oder neuer; TextTemplateManager 1 und 2.6 oder älter entfernen die anderen Sprachen beim Speichern.
 

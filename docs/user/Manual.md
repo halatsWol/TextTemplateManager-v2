@@ -159,15 +159,22 @@ Machine translation makes mistakes: it can change the meaning, leave out words, 
 
 A template can hold its text in several languages, for example a reply in English and German, so it keeps one title, one set of shortcuts and one place in the tree. Each language has a tab above the editor's toolbar.
 
-- **+** after the tabs adds a language: choose it in the list that opens, which you can search by name. It lists **Detected in the text** first (when the app recognizes the language), then **Suggested** (the app's languages, the installed translation languages and languages your templates already use), then **All languages**; languages the template already has aren't listed. The new tab starts empty.
-- Before the second language is added, the template's own language must be known. If it isn't set yet, **+** sets it from the text when the app can tell for sure; otherwise it asks first (**Language of this text**), with its guess chosen when it has one. Cancel adds nothing.
+- **+** after the tabs adds an empty tab without a language (**No language**). Write or paste the text, then right-click the tab and choose **Change language…** to give it its language; until then the tab isn't pasted.
+- **Change language…** opens a list you can search by name. It lists **Detected in the text** first (when the app recognizes the tab's language), then **Suggested** (the app's languages, the installed translation languages and languages your templates already use), then **All languages**; languages the template already has aren't listed.
+- Before the second tab is added, the template's own language must be known. If it isn't set yet, **+** sets it from the text when the app can tell for sure; otherwise it asks first (**Language of this text**), with its guess chosen when it has one. Cancel adds nothing.
 - Right-click a tab for **Change language…**, **Make default**, **Move left**, **Move right** and **Delete language** (asked first). Tabs can also be dragged into another order.
 - The first tab is the **default language**, marked with a star. It is what **Copy**, **Ctrl + C**, single-key and multi-key shortcuts and the browser extension paste unless you choose another language. **Make default** (or moving a tab to the front) makes another language the default. Once a template has a language, its default can be changed but not removed.
 - **Ctrl + PgUp** and **Ctrl + PgDn** switch to the previous and next tab. **Ctrl + Z** undoes the changes of the tab you're on.
 
+![Thanks for your message in English and German: the star marks English as the default, the German tab is open, + adds another tab.](../../src/TextTemplateManager/Assets/ManualImages/TTM_LanguageTabs.png)
+
+![Change language… on a new tab: the list searched for "fr".](../../src/TextTemplateManager/Assets/ManualImages/TTM_LanguagePicker.png)
+
 A new template gets its language on its first save with text, when the app recognizes it from the text; existing templates are never changed this way. **Change language…** on the first tab sets or corrects it.
 
 To translate a template into a new tab, use **Translate ▸ Add as language** (see *Translating a template*). In the tree, right-click a template and choose **Copy Language** to copy one of its other languages. Quick Paste pastes them too (see *Inserting a template*), and **Search template text** looks through every language.
+
+![Right-clicking a template in the tree: Copy Language lists English (the default) and German.](../../src/TextTemplateManager/Assets/ManualImages/TTM_CopyLanguage.png)
 
 A tab without a language (**No language**) or with the same language as an earlier tab is kept but never pasted; pointing at the tab says so. Two tabs with the same language usually come from changes made on two PCs at the same time: they're listed under **Language Conflicts** in the conflicts panel (see *Keyboard shortcuts and conflicts*) until you change or delete one of them. For templates in a synced folder, see *Sync*.
 
@@ -254,7 +261,7 @@ on the last row returns to the first, and **↑** on the first row jumps to the 
 
 ![Quick Paste, Single Key tab: press the listed key to paste; the area (here, local) is shown on the right.](../../src/TextTemplateManager/Assets/ManualImages/TTM_QuickPaste_SingleKeyView.png)
 
-![Quick Paste while Alt is held and T is typed: the Multi Key list narrows to the matching shortcuts. Synced ones carry their folder's prefix (TEAM.REL), local ones don't (THX).](../../src/TextTemplateManager/Assets/ManualImages/TTM_QuickPaste_multiKeyView.png)
+![Quick Paste while Alt is held and T is typed: the Multi Key list narrows to the matching shortcuts. Synced ones carry their folder's prefix (team.REL), local ones don't (THX); THX is in several languages and shows the one that will be pasted (‹ English ›).](../../src/TextTemplateManager/Assets/ManualImages/TTM_QuickPaste_multiKeyView.png)
 
 To paste with a format other than the template's default just this once, right-click it (in the 
 tree or a shortcut list) and choose **Paste As**:

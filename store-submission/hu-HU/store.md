@@ -104,6 +104,7 @@ szövegblokkok
 07  Visszaállítható automatikus biztonsági másolatok: a változtatásaid után, kétóránként és naponta.
 08  Egy bemutató segít az indulásban, mintasablonokon; a sajátjaidhoz nem nyúl.
 09  Fordíts sablonokat a gépeden, offline több mint 50 nyelvre, német magázó formával is (kísérleti).
+10  Egy sablon több nyelven: nyelvenként egy lap, és a Quick Paste a választottat illeszti be.
 ```
 
 ### Screenshot images
@@ -120,6 +121,7 @@ The text in each screenshot, one line per image: file name | capture | caption |
 07-backups|store-backups | Visszaállítható biztonsági másolatok | A változtatások után, kétóránként és naponta
 08-tour|store-tour | Egy bemutató segít az indulásban | Mintasablonokon; a sajátjaidhoz nem nyúl
 09-translate|store-translate | Sablonok fordítása a gépeden | Offline több mint 50 nyelvre, német magázó formával is (kísérleti)
+10-languages|store-languages | Egy sablon, több nyelv | Nyelvenként egy lap; a Quick Paste a választottat illeszti be
 ```
 
 ### Copyright and trademark info

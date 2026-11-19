@@ -104,6 +104,7 @@ testi ricorrenti
 07  Backup automatici da ripristinare: dopo le tue modifiche, ogni due ore e ogni giorno.
 08  Un tour ti aiuta a iniziare, sui modelli di esempio; i tuoi restano intatti.
 09  Traduci i modelli sul tuo PC, offline in oltre 50 lingue, tedesco formale compreso (sperimentale).
+10  Un modello in più lingue: una scheda per lingua, e Quick Paste incolla quella scelta.
 ```
 
 ### Screenshot images
@@ -120,6 +121,7 @@ The text in each screenshot, one line per image: file name | capture | caption |
 07-backups|store-backups | Backup automatici da ripristinare | Dopo le tue modifiche, ogni due ore e ogni giorno
 08-tour|store-tour | Un tour ti aiuta a iniziare | Sui modelli di esempio; i tuoi restano intatti
 09-translate|store-translate | Traduci i modelli sul tuo PC | Offline in oltre 50 lingue, tedesco formale compreso (sperimentale)
+10-languages|store-languages | Un modello, più lingue | Una scheda per lingua; Quick Paste incolla quella scelta
 ```
 
 ### Copyright and trademark info

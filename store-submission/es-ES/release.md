@@ -2,7 +2,7 @@
 
 #### Nuevo
 
-- **Plantillas en varios idiomas:** una plantilla ahora puede tener su texto en varios idiomas, uno por pestaña sobre la barra de herramientas del editor, con un solo título y un solo conjunto de abreviaturas. **+** añade un idioma (reconocido a partir del texto cuando es posible) y **Traducir ▸ Añadir como idioma** traduce a una nueva pestaña. La primera pestaña es la predeterminada, la que se pega; **Copiar idioma** en el menú del clic derecho de la lista, **Pegar idioma** en Quick Paste y **← / →** en la lista de secuencias de teclas de Quick Paste eligen otro. La búsqueda abarca todos los idiomas.
+- **Plantillas en varios idiomas:** una plantilla ahora puede tener su texto en varios idiomas, uno por pestaña sobre la barra de herramientas del editor, con un solo título y un solo conjunto de abreviaturas. **+** añade un idioma y **Traducir ▸ Añadir como idioma** traduce a una nueva pestaña. La primera pestaña es la predeterminada, la que se pega; **Copiar idioma** en el menú del clic derecho de la lista, **Pegar idioma** en Quick Paste y **← / →** en la lista de secuencias de teclas de Quick Paste eligen otro. La búsqueda abarca todos los idiomas.
 - **Extensión del navegador:** con TTM-Connect 1.2 o posterior también puedes pegar los demás idiomas de una plantilla y guardar una selección como idioma de una plantilla. Las versiones anteriores de la extensión siguen funcionando como antes.
 - **Carpetas sincronizadas:** las plantillas en varios idiomas necesitan TextTemplateManager 2.7 o posterior en cada equipo que guarda un archivo compartido; TextTemplateManager 1 y las versiones 2.6 o anteriores eliminan los demás idiomas al guardarlo.
 
