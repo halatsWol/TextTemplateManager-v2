@@ -84,7 +84,7 @@ public class TemplateLanguageTests
         }
         """;
 
-    private static string As27Writes() => WrittenBy27.Replace("\n", "\r\n").Replace("\\u00E4", "ä");
+    private static string As27Writes() => WrittenBy27.ReplaceLineEndings("\r\n").Replace("\\u00E4", "ä");
 
     [Fact]
     public void A_file_as_older_versions_write_it_back_round_trips_to_the_same_bytes()
