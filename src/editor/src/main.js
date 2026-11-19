@@ -1203,7 +1203,11 @@ popupButton(ICONS.dateTime, t('InsertDateTime'), (pop, close) => {
         if (state.from !== 'detect' || state.sources.length === 0) return
         const run = ++detectRun
         detected = tabLanguage() ?? undefined
-        if (detected) return
+        if (detected) {
+            // The menu may already show "Detecting" from an earlier run that this one replaced.
+            if (openPopup === pop && !busy) render()
+            return
+        }
         const doc = editor.state.doc
         const codes = state.sources.map(s => s.code)
         const r = selectionRange()
