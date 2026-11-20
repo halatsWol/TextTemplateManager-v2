@@ -49,7 +49,7 @@
     <value>Langues</value>
   </data>
   <data name="StepLanguages_Text" xml:space="preserve">
-    <value>Un modèle peut contenir son texte en plusieurs langues, une par onglet ; celui-ci en a deux. + ajoute une langue ; cliquez avec le bouton droit sur un onglet pour changer sa langue, le définir par défaut, le déplacer ou le supprimer. Le premier onglet est celui par défaut, collé tant que vous ne choisissez pas une autre langue. Traduire ▸ Ajouter comme langue traduit dans un nouvel onglet, et Copier la langue dans le menu contextuel de la liste copie l'une des autres.</value>
+    <value>Un modèle peut contenir son texte en plusieurs langues, une par onglet ; celui-ci en a deux. + ajoute une langue ; cliquez avec le bouton droit sur un onglet (ou utilisez la clé de la barre d'outils) pour changer sa langue, le définir par défaut, le déplacer ou le supprimer. Le premier onglet est celui par défaut, collé tant que vous ne choisissez pas une autre langue. Traduire ▸ Ajouter comme langue traduit dans un nouvel onglet, et Copier la langue dans le menu contextuel de la liste copie l'une des autres.</value>
   </data>
   <data name="StepShortcuts_Title" xml:space="preserve">
     <value>Abréviations et étiquettes</value>

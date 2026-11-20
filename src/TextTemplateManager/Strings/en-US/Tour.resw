@@ -49,7 +49,7 @@
     <value>Languages</value>
   </data>
   <data name="StepLanguages_Text" xml:space="preserve">
-    <value>A template can hold its text in several languages, one tab each; this one has two. + adds a language; right-click a tab to change its language, make it the default, move or delete it. The first tab is the default, pasted unless you choose another language. Translate ▸ Add as language translates into a new tab, and Copy Language in the tree's right-click menu copies one of the others.</value>
+    <value>A template can hold its text in several languages, one tab each; this one has two. + adds a language; right-click a tab (or use the wrench in the toolbar) to change its language, make it the default, move or delete it. The first tab is the default, pasted unless you choose another language. Translate ▸ Add as language translates into a new tab, and Copy Language in the tree's right-click menu copies one of the others.</value>
   </data>
   <data name="StepShortcuts_Title" xml:space="preserve">
     <value>Shortcuts and tags</value>

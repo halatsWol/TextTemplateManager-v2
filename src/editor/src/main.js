@@ -707,6 +707,8 @@ const ICONS = {
     symbol: svg('<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>'),
     // Phosphor "translate" (regular weight, MIT); filled, on its own 256 grid.
     translate: `<svg viewBox="0 0 256 256" width="18" height="18" fill="currentColor"><path d="M247.15,212.42l-56-112a8,8,0,0,0-14.31,0l-21.71,43.43A88,88,0,0,1,108,126.93,103.65,103.65,0,0,0,135.69,64H160a8,8,0,0,0,0-16H104V32a8,8,0,0,0-16,0V48H32a8,8,0,0,0,0,16h87.63A87.76,87.76,0,0,1,96,116.35a87.74,87.74,0,0,1-19-31,8,8,0,1,0-15.08,5.34A103.63,103.63,0,0,0,84,127a87.55,87.55,0,0,1-52,17,8,8,0,0,0,0,16,103.46,103.46,0,0,0,64-22.08,104.18,104.18,0,0,0,51.44,21.31l-26.6,53.19a8,8,0,0,0,14.31,7.16L148.94,192h70.11l13.79,27.58A8,8,0,0,0,240,224a8,8,0,0,0,7.15-11.58ZM156.94,176,184,121.89,211.05,176Z"/></svg>`,
+    // Feather "tool", mirrored: the handle runs to the bottom right.
+    wrench: svg('<path transform="matrix(-1 0 0 1 24 0)" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>'),
     dateTime: svg('<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="12 13 12 16 14 16"/>'),
     // Filled quote glyph (Material "format_quote"), vertically centered in the 24x24 box.
     quote: '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z"/></svg>',
@@ -1165,6 +1167,29 @@ popupButton(ICONS.dateTime, t('InsertDateTime'), (pop, close) => {
     item(t('YearItem'), '$[YEAR]')
 })
 
+let translateButton = null
+
+// The language tab's menu (the host's, as on right-clicking the tab), opened under the button.
+;(function addTabMenuButton() {
+    const b = button(ICONS.wrench, t('LanguageMenu'), () => {})
+    b.classList.add('tb-end')
+    b.setAttribute('aria-haspopup', 'menu')
+    b.onclick = (e) => {
+        e.preventDefault()
+        closePopup()
+        const rect = b.getBoundingClientRect()
+        post({ type: 'tabMenu', x: rect.left, y: rect.bottom + 2 })
+    }
+    const s = sep()
+    toolbar.appendChild(b)
+    toolbar.appendChild(s)
+    // No template shown: no tab to act on. The Translate button then takes the right end.
+    window.editorApi.setTabMenu = (on) => {
+        b.style.display = s.style.display = on ? '' : 'none'
+        translateButton.classList.toggle('tb-end', !on)
+    }
+})()
+
 // Translate: From (Detect or an installed language) and To, then translate the template or the selection in place,
 // as one undo step, or the tab into a new template or a new language tab. The languages come from the host each time
 // the menu opens, so ones installed meanwhile in Settings show up; the choice is remembered there. Detect takes the
@@ -1172,7 +1197,7 @@ popupButton(ICONS.dateTime, t('InsertDateTime'), (pop, close) => {
 // the toolbar, apart from the formatting buttons.
 ;(function addTranslateControl() {
     const b = button(ICONS.translate + '<span class="caret">▾</span>', t('Translate'), () => {})
-    b.classList.add('tb-end')
+    translateButton = b
     b.dataset.pop = '1'
     b.setAttribute('aria-haspopup', 'true')
     b.setAttribute('aria-expanded', 'false')

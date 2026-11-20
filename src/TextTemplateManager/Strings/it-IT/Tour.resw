@@ -49,7 +49,7 @@
     <value>Lingue</value>
   </data>
   <data name="StepLanguages_Text" xml:space="preserve">
-    <value>Un modello può contenere il suo testo in più lingue, una per scheda; questo ne ha due. + aggiunge una lingua; fai clic destro su una scheda per cambiarne la lingua, impostarla come predefinita, spostarla o eliminarla. La prima scheda è quella predefinita, incollata a meno che tu non scelga un'altra lingua. Traduci ▸ Aggiungi come lingua traduce in una nuova scheda, e Copia lingua nel menu del clic destro dell'elenco copia una delle altre.</value>
+    <value>Un modello può contenere il suo testo in più lingue, una per scheda; questo ne ha due. + aggiunge una lingua; fai clic destro su una scheda (o usa la chiave inglese nella barra degli strumenti) per cambiarne la lingua, impostarla come predefinita, spostarla o eliminarla. La prima scheda è quella predefinita, incollata a meno che tu non scelga un'altra lingua. Traduci ▸ Aggiungi come lingua traduce in una nuova scheda, e Copia lingua nel menu del clic destro dell'elenco copia una delle altre.</value>
   </data>
   <data name="StepShortcuts_Title" xml:space="preserve">
     <value>Abbreviazioni e tag</value>

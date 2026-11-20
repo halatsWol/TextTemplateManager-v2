@@ -49,7 +49,7 @@
     <value>Nyelvek</value>
   </data>
   <data name="StepLanguages_Text" xml:space="preserve">
-    <value>Egy sablon több nyelven is tartalmazhatja a szövegét, nyelvenként egy lapon; ez kettőt tartalmaz. A + új nyelvet ad hozzá; egy lapra jobb gombbal kattintva módosíthatod a nyelvét, beállíthatod alapértelmezettként, áthelyezheted vagy törölheted. Az első lap az alapértelmezett: ezt illeszti be az alkalmazás, hacsak nem választasz másik nyelvet. A Fordítás ▸ Hozzáadás nyelvként új lapra fordít, a lista jobb gombos menüjében a Nyelv másolása pedig a többi nyelv egyikét másolja.</value>
+    <value>Egy sablon több nyelven is tartalmazhatja a szövegét, nyelvenként egy lapon; ez kettőt tartalmaz. A + új nyelvet ad hozzá; egy lapra jobb gombbal kattintva (vagy az eszköztár csavarkulcsával) módosíthatod a nyelvét, beállíthatod alapértelmezettként, áthelyezheted vagy törölheted. Az első lap az alapértelmezett: ezt illeszti be az alkalmazás, hacsak nem választasz másik nyelvet. A Fordítás ▸ Hozzáadás nyelvként új lapra fordít, a lista jobb gombos menüjében a Nyelv másolása pedig a többi nyelv egyikét másolja.</value>
   </data>
   <data name="StepShortcuts_Title" xml:space="preserve">
     <value>Rövidítések és címkék</value>

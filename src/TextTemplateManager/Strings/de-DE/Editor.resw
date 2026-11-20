@@ -164,6 +164,9 @@
   <data name="YearItem" xml:space="preserve">
     <value>Jahr</value>
   </data>
+  <data name="LanguageMenu" xml:space="preserve">
+    <value>Sprachoptionen</value>
+  </data>
   <data name="Translate" xml:space="preserve">
     <value>Übersetzen</value>
   </data>

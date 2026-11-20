@@ -280,6 +280,11 @@ public sealed partial class TemplateEditor : UserControl
             {
                 SelectNeighbourTab(doc.RootElement.TryGetProperty("step", out var st) && st.TryGetInt32(out int step) ? step : 1);
             }
+            else if (type == "tabMenu")
+            {
+                var root = doc.RootElement;
+                ShowTabMenu(root.TryGetProperty("x", out var x) ? x.GetDouble() : 0, root.TryGetProperty("y", out var y) ? y.GetDouble() : 0);
+            }
             else if (type == "openLink")
             {
                 var href = doc.RootElement.TryGetProperty("href", out var u) ? u.GetString() : null;
@@ -350,6 +355,8 @@ public sealed partial class TemplateEditor : UserControl
             _currentTab = null;
             _currentKey = null;
             await SetHtmlAsync("<p></p>", null);
+            try { await EditorWebView.CoreWebView2.ExecuteScriptAsync("window.editorApi.setTabMenu(false)"); }
+            catch { }
             return;
         }
 
@@ -366,7 +373,7 @@ public sealed partial class TemplateEditor : UserControl
         try
         {
             await EditorWebView.CoreWebView2.ExecuteScriptAsync(
-                $"window.editorApi && window.editorApi.setEditable({(_requestedEditable ? "true" : "false")})");
+                $"window.editorApi && window.editorApi.setEditable({(_requestedEditable ? "true" : "false")}); window.editorApi.setTabMenu(true)");
         }
         catch { }
     }
@@ -573,6 +580,17 @@ public sealed partial class TemplateEditor : UserControl
             delete.IsEnabled = TemplateTabs.CanRemove(t, id);
         };
         return menu;
+    }
+
+    // The toolbar's wrench: the shown tab's menu under the button (page coordinates, which are the WebView's DIPs).
+    private void ShowTabMenu(double x, double y)
+    {
+        if (!_requestedEditable || LanguageTabs.SelectedItem is not TabViewItem { ContextFlyout: MenuFlyout menu }) return;
+        menu.ShowAt(EditorWebView, new Microsoft.UI.Xaml.Controls.Primitives.FlyoutShowOptions
+        {
+            Position = new Windows.Foundation.Point(x, y),
+            Placement = Microsoft.UI.Xaml.Controls.Primitives.FlyoutPlacementMode.BottomEdgeAlignedLeft,
+        });
     }
 
     private static Task Moved(Template t, string? id, int to)

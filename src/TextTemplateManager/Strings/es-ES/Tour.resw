@@ -49,7 +49,7 @@
     <value>Idiomas</value>
   </data>
   <data name="StepLanguages_Text" xml:space="preserve">
-    <value>Una plantilla puede tener su texto en varios idiomas, uno por pestaña; esta tiene dos. + añade un idioma; haz clic derecho en una pestaña para cambiar su idioma, establecerla como predeterminada, moverla o eliminarla. La primera pestaña es la predeterminada, la que se pega salvo que elijas otro idioma. Traducir ▸ Añadir como idioma traduce a una nueva pestaña, y Copiar idioma en el menú del clic derecho de la lista copia uno de los demás.</value>
+    <value>Una plantilla puede tener su texto en varios idiomas, uno por pestaña; esta tiene dos. + añade un idioma; haz clic derecho en una pestaña (o usa la llave inglesa de la barra de herramientas) para cambiar su idioma, establecerla como predeterminada, moverla o eliminarla. La primera pestaña es la predeterminada, la que se pega salvo que elijas otro idioma. Traducir ▸ Añadir como idioma traduce a una nueva pestaña, y Copiar idioma en el menú del clic derecho de la lista copia uno de los demás.</value>
   </data>
   <data name="StepShortcuts_Title" xml:space="preserve">
     <value>Abreviaturas y etiquetas</value>

@@ -49,7 +49,7 @@
     <value>Sprachen</value>
   </data>
   <data name="StepLanguages_Text" xml:space="preserve">
-    <value>Eine Vorlage kann ihren Text in mehreren Sprachen enthalten, eine pro Tab; diese hat zwei. + fügt eine Sprache hinzu; mit Rechtsklick auf einen Tab änderst du seine Sprache, legst ihn als Standard fest, verschiebst oder löschst ihn. Der erste Tab ist der Standard und wird eingefügt, solange du keine andere Sprache wählst. Übersetzen ▸ Als Sprache hinzufügen übersetzt in einen neuen Tab, und Sprache kopieren im Rechtsklick-Menü der Liste kopiert eine der anderen.</value>
+    <value>Eine Vorlage kann ihren Text in mehreren Sprachen enthalten, eine pro Tab; diese hat zwei. + fügt eine Sprache hinzu; mit Rechtsklick auf einen Tab (oder dem Schraubenschlüssel in der Symbolleiste) änderst du seine Sprache, legst ihn als Standard fest, verschiebst oder löschst ihn. Der erste Tab ist der Standard und wird eingefügt, solange du keine andere Sprache wählst. Übersetzen ▸ Als Sprache hinzufügen übersetzt in einen neuen Tab, und Sprache kopieren im Rechtsklick-Menü der Liste kopiert eine der anderen.</value>
   </data>
   <data name="StepShortcuts_Title" xml:space="preserve">
     <value>Kürzel und Tags</value>
