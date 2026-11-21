@@ -277,8 +277,16 @@ body {
 }
 
 /* Pushed to the right end of its toolbar row. */
-.tb-btn.tb-end {
+.tb-end {
     margin-left: auto;
+}
+
+/* Buttons that stay on one row together when the toolbar wraps. */
+.tb-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    align-self: stretch;
 }
 
 /* ---- Translate popup ---- */

@@ -1167,12 +1167,14 @@ popupButton(ICONS.dateTime, t('InsertDateTime'), (pop, close) => {
     item(t('YearItem'), '$[YEAR]')
 })
 
-let translateButton = null
+// The wrench and Translate at the right end of the toolbar, wrapping onto the next row together.
+const endGroup = document.createElement('div')
+endGroup.className = 'tb-group tb-end'
+toolbar.appendChild(endGroup)
 
 // The language tab's menu (the host's, as on right-clicking the tab), opened under the button.
 ;(function addTabMenuButton() {
     const b = button(ICONS.wrench, t('LanguageMenu'), () => {})
-    b.classList.add('tb-end')
     b.setAttribute('aria-haspopup', 'menu')
     b.onclick = (e) => {
         e.preventDefault()
@@ -1181,13 +1183,10 @@ let translateButton = null
         post({ type: 'tabMenu', x: rect.left, y: rect.bottom + 2 })
     }
     const s = sep()
-    toolbar.appendChild(b)
-    toolbar.appendChild(s)
-    // No template shown: no tab to act on. The Translate button then takes the right end.
-    window.editorApi.setTabMenu = (on) => {
-        b.style.display = s.style.display = on ? '' : 'none'
-        translateButton.classList.toggle('tb-end', !on)
-    }
+    endGroup.appendChild(b)
+    endGroup.appendChild(s)
+    // No template shown: no tab to act on.
+    window.editorApi.setTabMenu = (on) => { b.style.display = s.style.display = on ? '' : 'none' }
 })()
 
 // Translate: From (Detect or an installed language) and To, then translate the template or the selection in place,
@@ -1197,7 +1196,6 @@ let translateButton = null
 // the toolbar, apart from the formatting buttons.
 ;(function addTranslateControl() {
     const b = button(ICONS.translate + '<span class="caret">▾</span>', t('Translate'), () => {})
-    translateButton = b
     b.dataset.pop = '1'
     b.setAttribute('aria-haspopup', 'true')
     b.setAttribute('aria-expanded', 'false')
@@ -1426,7 +1424,7 @@ let translateButton = null
         runDetect()
         post({ type: 'translationRefresh' })
     }
-    toolbar.appendChild(b)
+    endGroup.appendChild(b)
     toolbar.appendChild(pop)
 })()
 
@@ -1442,7 +1440,8 @@ window.editorApi.detectLanguage = (id, text, candidates) => {
 // of the text, Shift+Tab back to the host (the title). In the text, Tab nests list items, moves between table cells
 // and indents code; anywhere else Tab hands back to the host (the shortcuts) and Shift+Tab goes to the toolbar.
 // Ctrl+Tab always leaves the text.
-const rowButtons = () => [...toolbar.children].filter(el => el.classList.contains('tb-btn'))
+const rowButtons = () => [...toolbar.querySelectorAll(':scope > .tb-btn, :scope > .tb-group > .tb-btn')]
+const isRowButton = (el) => el.classList.contains('tb-btn') && (el.parentElement === toolbar || el.parentElement === endGroup)
 const usableButtons = () => document.body.classList.contains('readonly') ? [] : rowButtons().filter(b => !b.disabled && b.offsetParent !== null)
 function setRoving(active) { for (const b of rowButtons()) b.tabIndex = b === active ? 0 : -1 }
 setRoving(rowButtons()[0])
@@ -1456,10 +1455,10 @@ function focusToolbarOrLeave() {
 window.editorApi.focusTextEnd = focusTextEnd
 window.editorApi.focusToolbar = () => usableButtons().length ? focusToolbarOrLeave() : focusTextEnd()
 
-toolbar.addEventListener('focusin', (e) => { if (e.target.parentElement === toolbar && e.target.classList.contains('tb-btn')) setRoving(e.target) })
+toolbar.addEventListener('focusin', (e) => { if (isRowButton(e.target)) setRoving(e.target) })
 toolbar.addEventListener('keydown', (e) => {
     const btn = e.target
-    if (btn.parentElement !== toolbar || !btn.classList.contains('tb-btn') || e.altKey || e.metaKey) return
+    if (!isRowButton(btn) || e.altKey || e.metaKey) return
     const buttons = usableButtons()
     const at = buttons.indexOf(btn)
     const to = { ArrowRight: at + 1, ArrowLeft: at - 1, Home: 0, End: buttons.length - 1 }[e.key]
