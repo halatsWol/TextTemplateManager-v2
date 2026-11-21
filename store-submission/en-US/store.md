@@ -141,7 +141,5 @@ Copyright © 2026 Marflow Software
 This block is the Store's "What's new" (Microsoft asks for it on updates only). It lists only what changed since the previous release; keep it in step with `release.md` in this folder.
 
 ```text
-New: templates in several languages. A template can hold its text in more than one language, one tab each, with one title and one set of shortcuts. Translate into a new tab, and paste or copy any language from Quick Paste and the tree. Every PC that saves a shared file needs version 2.7 or newer to keep them.
-Improved: runs on .NET 10, which Microsoft supplies with security updates until November 2028. Templates, settings and how you work stay the same. Folders and templates have clearer icons.
-Fixed: saving to a shared file no longer overwrites changes another PC made to it in the meantime. Quitting waits for a settings save already in progress.
+Fixed: an update the Store had already downloaded no longer shows Update problem; Restart to update installs it. The language tab menu (change language, make default, move, delete) is now also on a wrench button next to Translate in the editor's toolbar.
 ```

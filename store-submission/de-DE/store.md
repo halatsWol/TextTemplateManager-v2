@@ -135,7 +135,5 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Neu: Vorlagen in mehreren Sprachen. Eine Vorlage kann ihren Text in mehreren Sprachen enthalten, eine pro Tab, mit einem Titel und einem Satz Kürzel. Übersetze in einen neuen Tab und füge jede Sprache aus Quick Paste und der Liste ein oder kopiere sie. Jeder PC, der eine gemeinsame Datei speichert, braucht Version 2.7 oder neuer, damit sie erhalten bleiben.
-Verbessert: läuft mit .NET 10, für das Microsoft bis November 2028 Sicherheitsupdates liefert. Vorlagen, Einstellungen und Bedienung bleiben gleich. Ordner und Vorlagen haben deutlichere Symbole.
-Behoben: Speichern in eine gemeinsame Datei überschreibt keine Änderungen mehr, die ein anderer PC inzwischen gemacht hat. Beim Beenden wird auf ein laufendes Speichern der Einstellungen gewartet.
+Behoben: Ein Update, das der Store schon heruntergeladen hatte, zeigt nicht mehr Problem beim Update; Jetzt aktualisieren installiert es. Das Menü der Sprach-Tabs (Sprache ändern, als Standard festlegen, verschieben, löschen) gibt es jetzt auch über einen Schraubenschlüssel neben Übersetzen in der Symbolleiste des Editors.
 ```

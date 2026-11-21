@@ -135,7 +135,5 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Új: sablonok több nyelven. Egy sablon több nyelven is tartalmazhatja a szövegét, nyelvenként egy lapon, egy címmel és egy rövidítéskészlettel. Fordíts új lapra, és bármelyik nyelvet beillesztheted vagy másolhatod a Quick Paste-ből és a listából. Minden gépen, amely megosztott fájlt ment, 2.7-es vagy újabb verzió kell, hogy a nyelvek megmaradjanak.
-Továbbfejlesztve: .NET 10-en fut, amelyhez a Microsoft 2028 novemberéig ad biztonsági frissítéseket. A sablonok, a beállítások és a használat nem változik. A mappák és a sablonok ikonjai jobban megkülönböztethetők.
-Javítva: a megosztott fájlba mentés már nem írja felül, amit közben egy másik gép módosított. Kilépéskor az alkalmazás megvárja a beállítások folyamatban lévő mentését.
+Javítva: a Store által már letöltött frissítés nem mutat többé Frissítési hiba üzenetet; a Frissítés most telepíti. A nyelvi lapok menüje (nyelv módosítása, beállítás alapértelmezettként, áthelyezés, törlés) most már a szerkesztő eszköztárán a Fordítás melletti csavarkulcs gombbal is elérhető.
 ```

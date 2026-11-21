@@ -135,7 +135,5 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Novità: modelli in più lingue. Un modello può contenere il suo testo in più lingue, una per scheda, con un solo titolo e un solo insieme di abbreviazioni. Traduci in una nuova scheda e incolla o copia qualsiasi lingua da Quick Paste e dall'elenco. Ogni PC che salva un file condiviso richiede la versione 2.7 o successiva per conservarle.
-Miglioramenti: funziona con .NET 10, per cui Microsoft fornisce aggiornamenti di sicurezza fino a novembre 2028. Modelli, impostazioni e uso restano gli stessi. Cartelle e modelli hanno icone più chiare.
-Correzioni: il salvataggio in un file condiviso non sovrascrive più le modifiche fatte nel frattempo da un altro PC. All'uscita l'app attende un salvataggio delle impostazioni già in corso.
+Correzioni: un aggiornamento già scaricato dallo Store non mostra più Problema con l'aggiornamento; Aggiorna ora lo installa. Il menu delle schede delle lingue (cambia lingua, imposta come predefinita, sposta, elimina) è ora anche su un pulsante con la chiave inglese accanto a Traduci nella barra degli strumenti dell'editor.
 ```

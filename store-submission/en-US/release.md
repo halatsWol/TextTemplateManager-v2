@@ -12,21 +12,10 @@ Coming from TextTemplateManager 1: your templates and settings are backed up at 
 
 ### What's new in this release
 
-#### New
-
-- **Templates in several languages:** a template can now hold its text in more than one language, one tab each above the editor's toolbar, with one title and one set of shortcuts. **+** adds a language, and **Translate ▸ Add as language** translates into a new tab. The first tab is the default that is pasted; **Copy Language** in the tree's right-click menu, **Paste Language** in Quick Paste and **← / →** on Quick Paste's Multi Key list pick another one. Search looks through every language.
-- **Browser extension:** with TTM-Connect 1.2 or newer you can also paste a template's other languages and save a selection as a language of a template. Older versions of the extension keep working as before.
-- **Synced folders:** templates in several languages need TextTemplateManager 2.7 or newer on every PC that saves a shared file; TextTemplateManager 1 and 2.6 or older drop the other languages when they save it.
-
-#### Improved
-
-- **Runs on .NET 10:** TextTemplateManager now runs on .NET 10, which Microsoft supplies with security updates until November 2028. .NET 8, used by earlier versions, no longer gets any since November 10, 2026. Your templates, settings and the way you work stay the same.
-- **Clearer icons:** folders and templates are easier to tell apart in the tree and on the buttons that add them.
-
 #### Fixed
 
-- **Shared files:** saving to a synced file no longer overwrites changes another PC made to it since it was read; they are merged at the next check instead.
-- **Exit:** quitting now waits for a settings save that is already in progress.
+- **Updates:** an update the Store had already downloaded showed **Update problem** when Windows' own install of it failed while TextTemplateManager was running; it now shows as ready, and **Restart to update** installs it.
+- **Language tabs:** a tab's menu (Change language, Make default, Move, Delete language) is now also on the wrench button left of **Translate** in the editor's toolbar, not only on a right-click on the tab.
 
 {{CHANGELOG}}
 
