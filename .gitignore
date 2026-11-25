@@ -17,6 +17,7 @@ BundleArtifacts/
 *.msixupload
 *.appxupload
 _pkginfo.txt
+dist/
 
 # ---- Visual Studio ----
 .vs/
