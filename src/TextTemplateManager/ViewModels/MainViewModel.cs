@@ -395,8 +395,10 @@ public partial class MainViewModel : ObservableObject
         foreach (var gone in _nodes.Keys.Where(i => !present.Contains(i)).ToList()) _nodes.Remove(gone);
     }
 
-    /// <summary>In-place add/remove/move so TreeView containers (and expansion state) survive,
-    /// which a wholesale collection swap would destroy.</summary>
+    /// <summary>In-place add/remove so TreeView containers (and expansion state) survive,
+    /// which a wholesale collection swap would destroy. A reorder is a remove plus insert: the
+    /// TreeView ignores Move on a child collection, so the rows kept the old order and no longer
+    /// matched their items.</summary>
     private static void SyncCollection(ObservableCollection<TreeNode> target, IList<TreeNode> desired)
     {
         for (int i = target.Count - 1; i >= 0; i--)
@@ -413,7 +415,10 @@ public partial class MainViewModel : ObservableObject
             if (currentIndex < 0)
                 target.Insert(i, item);
             else if (currentIndex != i)
-                target.Move(currentIndex, i);
+            {
+                target.RemoveAt(currentIndex);
+                target.Insert(i, item);
+            }
         }
     }
 
