@@ -8,14 +8,17 @@ namespace TextTemplateManager.Models
 {
     /// <summary>Merges a loaded sync file into the app-side folder. Items are matched by
     /// <see cref="BaseItem.SyncId"/> and reused in place, so tree identity (expansion/selection)
-    /// survives. With <c>allowSave</c>, the newer LastChange wins; otherwise the file wins.</summary>
+    /// survives. With <c>allowSave</c>, an item with a copy in <c>lastSynced</c> is merged field by field
+    /// (<see cref="SyncMerge"/>), any other the newer LastChange wins; without it, the file wins.</summary>
     public static class SyncEngine
     {
         /// <remarks>Items in <paramref name="unwritten"/> without a SyncId were added here and aren't in the file
-        /// yet (their write was skipped or failed): with <c>allowSave</c> they stay where they are.</remarks>
+        /// yet (their write was skipped or failed): with <c>allowSave</c> they stay where they are.
+        /// <paramref name="lastSynced"/> holds the file's items as last read or written here, by file id.</remarks>
         public static void Merge(Folder target, Folder fileRoot, string name, Guid sourceId, bool allowSave,
-            IReadOnlySet<BaseItem>? unwritten = null)
+            IReadOnlySet<BaseItem>? unwritten = null, IReadOnlyDictionary<Guid, BaseItem>? lastSynced = null)
         {
+            var synced = allowSave ? lastSynced : null;
             var keep = allowSave ? unwritten : null;
             // A queue per id: a file can hold an id twice (hand edits, merged conflict copies), and one object in two
             // places breaks the tree. Each occurrence takes its own cached item, in tree order.
@@ -27,7 +30,7 @@ namespace TextTemplateManager.Models
                     items.Enqueue(item);
                 }
 
-            var merged = WithUnwritten(target.Children, fileRoot.Children.Select(fc => BuildMerged(fc, cache, allowSave, keep)).ToList(), keep);
+            var merged = WithUnwritten(target.Children, fileRoot.Children.Select(fc => BuildMerged(fc, cache, allowSave, keep, synced)).ToList(), keep);
 
             target.Id = sourceId;
             target.SyncId = fileRoot.Id;   // the sync file's root id (usually Guid.Empty)
@@ -43,7 +46,7 @@ namespace TextTemplateManager.Models
         }
 
         private static BaseItem BuildMerged(BaseItem fileItem, Dictionary<Guid, Queue<BaseItem>> cache, bool allowSave,
-            IReadOnlySet<BaseItem>? keep)
+            IReadOnlySet<BaseItem>? keep, IReadOnlyDictionary<Guid, BaseItem>? lastSynced)
         {
             BaseItem? cached = null;
             if (cache.TryGetValue(fileItem.Id, out var items)) items.TryDequeue(out cached);
@@ -57,9 +60,18 @@ namespace TextTemplateManager.Models
             {
                 // Reuse the existing object so its tree identity (expansion/selection) is preserved.
                 result = cached;
-                if (!cacheWins)   // adopt the file's newer content
+                bool keepsLanguages = cached is Template ct && fileItem is Template ft && KeepsLanguages(ct, ft);
+                if (!keepsLanguages && lastSynced != null && lastSynced.TryGetValue(fileItem.Id, out var synced)
+                    && synced.GetType() == fileItem.GetType() && cached.GetType() == fileItem.GetType())
                 {
-                    if (cached is Template ct && fileItem is Template ft && KeepsLanguages(ct, ft)) CopyKeepingLanguages(ft, ct);
+                    // A cached copy older than the last sync holds no edit made here (e.g. a local save lost in a
+                    // crash after the file was written): the file is taken as it is.
+                    if (string.CompareOrdinal(cached.LastChange ?? "", synced.LastChange ?? "") < 0) CopyContent(fileItem, result);
+                    else SyncMerge.Into(synced, cached, fileItem);
+                }
+                else if (!cacheWins)   // adopt the file's newer content
+                {
+                    if (keepsLanguages) CopyKeepingLanguages((Template)fileItem, (Template)cached);
                     else CopyContent(fileItem, result);
                 }
             }
@@ -73,7 +85,7 @@ namespace TextTemplateManager.Models
 
             result.SyncId = fileItem.Id;
 
-            var mergedChildren = fileItem.Children.Select(fc => BuildMerged(fc, cache, allowSave, keep)).ToList();
+            var mergedChildren = fileItem.Children.Select(fc => BuildMerged(fc, cache, allowSave, keep, lastSynced)).ToList();
             SyncChildren(result.Children, WithUnwritten(result.Children, mergedChildren, keep));
 
             return result;

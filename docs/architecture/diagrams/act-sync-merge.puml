@@ -6,15 +6,23 @@ start
 :file item (Id = its SyncId in the file);
 if (cached item with that SyncId?) then (yes)
   :reuse the cached object\n(keeps tree identity: expansion, selection);
-  if (source.AllowSave and cached.LastChange > file.LastChange?) then (yes)
-    :keep the cached content\n(a local edit not written back yet);
-  else (no)
-    if (file item has no language fields,\ncached template has some?) then (yes)
+  if (file item has no language fields,\ncached template has some?) then (yes)
+    if (source.AllowSave and cached.LastChange > file.LastChange?) then (yes)
+      :keep the cached content;
+    else (no)
       :copy the rest from the file,\nkeep the cached languages\n(an older version dropped them);
       :LanguagesKeptLocally: written back\nwithout them until edited here;
-    else (no)
-      :copy title, content, tags,\nshortcuts, paste mode, languages,\nLastChange, unknown fields from the file;
     endif
+  elseif (source.AllowSave and a last synced copy\nof the item (DataNode._lastSynced)?) then (yes)
+    if (cached.LastChange < last synced copy's?) then (yes)
+      :copy everything from the file\n(the cached copy holds no edit made here);
+    else (no)
+      :SyncMerge: each field and language tab\nfrom the side that changed it since the\nlast synced copy; changed on both sides:\nthe newer LastChange wins it;
+    endif
+  elseif (source.AllowSave and cached.LastChange > file.LastChange?) then (yes)
+    :keep the cached content\n(a local edit not written back yet);
+  else (no)
+    :copy title, content, tags,\nshortcuts, paste mode, languages,\nLastChange, unknown fields from the file;
   endif
 else (no)
   :new Template/Folder with a fresh app Id,\ncontent from the file;

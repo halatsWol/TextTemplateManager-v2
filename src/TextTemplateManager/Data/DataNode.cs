@@ -51,6 +51,21 @@ public class DataNode
     /// <summary>Last observed write time per source, so the poller ignores our own writes.</summary>
     private readonly Dictionary<Guid, DateTime> _lastSeenWrite = new();
 
+    /// <summary>Per source, its file's items as last read or written here (by file id), what the merge compares both
+    /// sides with. Tied to the file path, so a source pointed at another file starts without one.</summary>
+    private readonly Dictionary<Guid, (string Path, Dictionary<Guid, BaseItem> Items)> _lastSynced = new();
+
+    private void RememberSynced(SyncSource source, Folder fileRoot)
+    {
+        var items = new Dictionary<Guid, BaseItem>();
+        foreach (var item in fileRoot.Children.Descendants()) items.TryAdd(item.Id, item);
+        _lastSynced[source.Id] = (source.Path, items);
+    }
+
+    private IReadOnlyDictionary<Guid, BaseItem>? LastSynced(SyncSource source) =>
+        _lastSynced.TryGetValue(source.Id, out var synced) && string.Equals(synced.Path, source.Path, StringComparison.OrdinalIgnoreCase)
+            ? synced.Items : null;
+
     public DataNode(StorageService storage)
     {
         Storage = storage;
@@ -711,7 +726,8 @@ public class DataNode
 
             if (fileRoot != null)
             {
-                SyncEngine.Merge(folder, fileRoot, source.Name, source.Id, source.AllowSave, _unwritten);
+                SyncEngine.Merge(folder, fileRoot, source.Name, source.Id, source.AllowSave, _unwritten, LastSynced(source));
+                RememberSynced(source, fileRoot);
                 folder.SyncFileMissing = false;
             }
             else
@@ -749,11 +765,11 @@ public class DataNode
                 continue;
             }
             var assigned = new List<BaseItem>();
+            var tree = BuildFileTree(folder, assigned);
             StorageService.SharedWrite result;
             try
             {
-                result = await Storage.SaveSharedIfUnchangedAsync(source.Path, BuildFileTree(folder, assigned),
-                    _lastSeenWrite.GetValueOrDefault(source.Id));
+                result = await Storage.SaveSharedIfUnchangedAsync(source.Path, tree, _lastSeenWrite.GetValueOrDefault(source.Id));
             }
             catch (Exception ex) { result = new(ex.Message, null); }
 
@@ -761,6 +777,7 @@ public class DataNode
             {
                 _lastSeenWrite[source.Id] = seen;   // don't treat our write as external
                 _unwritten.ExceptWith(assigned);
+                RememberSynced(source, tree);
             }
             else
             {
