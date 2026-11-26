@@ -135,5 +135,5 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Behoben: Ein Update, das der Store schon heruntergeladen hatte, zeigt nicht mehr Problem beim Update; Jetzt aktualisieren installiert es. Das Menü der Sprach-Tabs (Sprache ändern, als Standard festlegen, verschieben, löschen) gibt es jetzt auch über einen Schraubenschlüssel neben Übersetzen in der Symbolleiste des Editors.
+Behoben: Wird ein Element innerhalb eines Ordners verschoben, zeigt die Liste die neue Reihenfolge jetzt sofort. Synchronisierte Ordner: Wird eine Vorlage auf zwei PCs gleichzeitig geändert, bleiben Änderungen an verschiedenen Sprachen oder Feldern jetzt beide erhalten, statt dass die neuere Vorlage die andere ersetzt; aktualisiere jeden PC, der die gemeinsame Datei speichert.
 ```

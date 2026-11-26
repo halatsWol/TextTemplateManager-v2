@@ -135,5 +135,5 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Corregido: una actualización que la Store ya había descargado ya no muestra Problema con la actualización; Actualizar ahora la instala. El menú de las pestañas de idioma (cambiar idioma, establecer como predeterminado, mover, eliminar) está ahora también en un botón con una llave inglesa junto a Traducir en la barra de herramientas del editor.
+Corregido: mover un elemento dentro de una carpeta muestra ahora el nuevo orden al instante. Carpetas sincronizadas: cuando una plantilla se cambia en dos equipos a la vez, los cambios en idiomas o campos distintos se conservan ahora todos, en lugar de que la plantilla más reciente reemplace a la otra; actualiza cada equipo que guarda el archivo compartido.
 ```

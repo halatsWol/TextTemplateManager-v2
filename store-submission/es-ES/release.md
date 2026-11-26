@@ -2,5 +2,5 @@
 
 #### Corregido
 
-- **Actualizaciones:** una actualización que la Store ya había descargado mostraba **Problema con la actualización** cuando su instalación por parte de Windows fallaba mientras TextTemplateManager estaba abierto; ahora aparece como lista y **Actualizar ahora** la instala.
-- **Pestañas de idioma:** el menú de una pestaña (Cambiar idioma, Establecer como predeterminado, Mover, Eliminar idioma) está ahora también en el botón de la llave inglesa a la izquierda de **Traducir** en la barra de herramientas del editor, no solo con clic derecho en la pestaña.
+- **Reordenar:** al arrastrar un elemento a otro lugar de la misma carpeta, también en una carpeta sincronizada, la lista muestra ahora el nuevo orden al instante; antes solo aparecía tras reiniciar o tras abrir la Configuración.
+- **Carpetas sincronizadas:** cuando la misma plantilla se cambiaba en dos equipos antes de que uno viera el cambio del otro, el cambio más reciente reemplazaba toda la plantilla. Ahora los cambios en idiomas o campos distintos (como el título, las etiquetas, las abreviaturas o el modo de pegado) se conservan todos; solo donde ambos equipos cambiaron lo mismo gana el cambio más reciente. Los equipos que aún no están actualizados siguen reemplazando plantillas enteras, así que actualiza cada equipo que guarda el archivo compartido.

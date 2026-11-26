@@ -141,5 +141,5 @@ Copyright © 2026 Marflow Software
 This block is the Store's "What's new" (Microsoft asks for it on updates only). It lists only what changed since the previous release; keep it in step with `release.md` in this folder.
 
 ```text
-Fixed: an update the Store had already downloaded no longer shows Update problem; Restart to update installs it. The language tab menu (change language, make default, move, delete) is now also on a wrench button next to Translate in the editor's toolbar.
+Fixed: moving an item within a folder now shows the new order right away. Synced folders: when a template is changed on two PCs at the same time, changes to different languages or fields are now both kept instead of the newer template replacing the other; update every PC that saves the shared file.
 ```

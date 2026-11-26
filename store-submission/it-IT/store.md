@@ -135,5 +135,5 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Correzioni: un aggiornamento già scaricato dallo Store non mostra più Problema con l'aggiornamento; Aggiorna ora lo installa. Il menu delle schede delle lingue (cambia lingua, imposta come predefinita, sposta, elimina) è ora anche su un pulsante con la chiave inglese accanto a Traduci nella barra degli strumenti dell'editor.
+Correzioni: spostando un elemento all'interno di una cartella, il nuovo ordine compare subito. Cartelle sincronizzate: quando un modello viene modificato su due PC contemporaneamente, le modifiche a lingue o campi diversi vengono ora mantenute entrambe, invece che il modello più recente sostituisca l'altro; aggiorna ogni PC che salva il file condiviso.
 ```

@@ -135,5 +135,5 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Corrigé : une mise à jour déjà téléchargée par le Store n'affiche plus Problème de mise à jour ; Mettre à jour maintenant l'installe. Le menu des onglets de langue (changer de langue, définir par défaut, déplacer, supprimer) est maintenant aussi accessible par un bouton en forme de clé à côté de Traduire dans la barre d'outils de l'éditeur.
+Corrigé : déplacer un élément dans un dossier affiche maintenant tout de suite le nouvel ordre. Dossiers synchronisés : lorsqu'un modèle est modifié sur deux PC en même temps, les modifications de langues ou de champs différents sont maintenant toutes conservées, au lieu que le modèle le plus récent remplace l'autre ; mettez à jour chaque PC qui enregistre le fichier partagé.
 ```

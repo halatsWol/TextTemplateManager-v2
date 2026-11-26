@@ -135,5 +135,5 @@ Copyright © 2026 Marflow Software
 ## What's new in this version
 
 ```text
-Javítva: a Store által már letöltött frissítés nem mutat többé Frissítési hiba üzenetet; a Frissítés most telepíti. A nyelvi lapok menüje (nyelv módosítása, beállítás alapértelmezettként, áthelyezés, törlés) most már a szerkesztő eszköztárán a Fordítás melletti csavarkulcs gombbal is elérhető.
+Javítva: ha egy elemet egy mappán belül áthelyezel, a lista most azonnal mutatja az új sorrendet. Szinkronizált mappák: ha egy sablont két gépen egyszerre módosítanak, a különböző nyelvek vagy mezők módosításai most mind megmaradnak, ahelyett hogy az újabb sablon lecserélné a másikat; frissíts minden gépet, amely menti a megosztott fájlt.
 ```

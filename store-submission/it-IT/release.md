@@ -2,5 +2,5 @@
 
 #### Correzioni
 
-- **Aggiornamenti:** un aggiornamento già scaricato dallo Store mostrava **Problema con l'aggiornamento** quando la sua installazione da parte di Windows non riusciva mentre TextTemplateManager era aperto; ora risulta pronto e **Aggiorna ora** lo installa.
-- **Schede delle lingue:** il menu di una scheda (Cambia lingua, Imposta come predefinita, Sposta, Elimina lingua) è ora anche sul pulsante con la chiave inglese a sinistra di **Traduci** nella barra degli strumenti dell'editor, non solo con il clic destro sulla scheda.
+- **Riordino:** trascinando un elemento in un altro punto della stessa cartella, anche in una cartella sincronizzata, l'elenco mostra subito il nuovo ordine; prima lo mostrava solo dopo un riavvio o dopo aver aperto le Impostazioni.
+- **Cartelle sincronizzate:** quando lo stesso modello veniva modificato su due PC prima che uno vedesse la modifica dell'altro, la modifica più recente sostituiva l'intero modello. Ora le modifiche a lingue o campi diversi (come titolo, tag, abbreviazioni o modalità Incolla) vengono mantenute entrambe; solo dove entrambi i PC hanno modificato la stessa cosa prevale la modifica più recente. I PC non ancora aggiornati continuano a sostituire interi modelli, quindi aggiorna ogni PC che salva il file condiviso.

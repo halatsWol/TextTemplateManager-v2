@@ -14,8 +14,8 @@ Coming from TextTemplateManager 1: your templates and settings are backed up at 
 
 #### Fixed
 
-- **Updates:** an update the Store had already downloaded showed **Update problem** when Windows' own install of it failed while TextTemplateManager was running; it now shows as ready, and **Restart to update** installs it.
-- **Language tabs:** a tab's menu (Change language, Make default, Move, Delete language) is now also on the wrench button left of **Translate** in the editor's toolbar, not only on a right-click on the tab.
+- **Reordering:** dragging an item to another place in the same folder, a synced folder included, now shows the new order in the tree right away; before, it only showed after a restart or after opening Settings.
+- **Synced folders:** when the same template was changed on two PCs before one of them saw the other's change, the newer change replaced the whole template. Now changes to different languages or fields (such as the title, tags, shortcuts or paste mode) are both kept; only where both PCs changed the same one does the later change win. PCs that aren't updated yet still replace whole templates, so update every PC that saves the shared file.
 
 {{CHANGELOG}}
 
