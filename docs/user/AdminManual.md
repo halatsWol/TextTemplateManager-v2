@@ -46,7 +46,7 @@ The first time version 2 finds version 1's data (`%LocalAppData%\Marflow Softwar
 
 If version 1 is still installed, the user is asked once whether to remove it; **Remove TextTemplateManager 1** runs version 1's own uninstaller, which leaves its data folder in place.
 
-Version 1 and version 2 can share the same sync files at the same time; the file format is the same. Templates in several languages (from 2.8) are the exception: version 1 and 2.6 or older drop a template's other languages when they save a shared file, while 2.7 keeps them. Where shared files hold such templates, every PC that saves them should run 2.7 or newer.
+Version 1 and version 2 can share the same sync files at the same time; the file format is the same. Templates in several languages (from 2.8) are the exception: version 1 and 2.6 or older drop a template's other languages when they save a shared file, while 2.7 keeps them. Where shared files hold such templates, every PC that saves them should run 2.7 or newer. When two PCs change the same template before seeing each other's change, the current version keeps changes to different languages or fields from both; 2.8.1 and older replace the whole template with the newer one, so that only works fully when every PC that saves the file is up to date.
 
 The last version 1 release (1.10.0) points its users to the Store and removes itself once version 2 is installed. For a damaged or half-removed version 1 install, the **TextTemplateManager-Support-Cleanup** utility is still available from the [version 1 releases](https://github.com/halatsWol/TextTemplateManager/releases); it only handles version 1.
 

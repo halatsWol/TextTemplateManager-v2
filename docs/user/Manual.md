@@ -443,6 +443,8 @@ source; if the file is already linked it is simply shown here, and the app's own
 added. (TextTemplateManager runs as a single instance, so opening a file always uses the window that
 is already running.)
 
+When the same template is changed on two PCs before either has seen the other's change, changes to different languages or fields (title, text, tags, shortcuts, paste mode) are both kept; where both PCs changed the same one, the later change wins. TextTemplateManager 2.8.1 and older replace the whole template with the newer one instead, so keep every PC that saves a shared file up to date.
+
 Templates in several languages (see *Templates in several languages*) can be shared like any other. Every PC that writes the shared file needs TextTemplateManager 2.7 or newer: TextTemplateManager 1 and 2.6 or older drop a template's other languages when they save the file. If that happens, this PC keeps the languages it knew and writes them back the next time the template is changed here; other PCs don't get them back until then.
 
 ### Translation
