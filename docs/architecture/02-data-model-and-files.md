@@ -65,6 +65,7 @@ All files are UTF-8 JSON without BOM (a BOM is accepted when reading), written i
 | `sync.ttmsettings` | `SyncSettings` | Data folder |
 | `ui-language.txt` | Text: the language chosen in Settings ▸ General (absent: the Windows language); per device, in no backup (see [11](11-platform-build-release.md)) | Data folder |
 | `crash.log` | Text, appended | Data folder |
+| `SyncState\<source id>-<path hash>.json` | `Folder`: a sync file as last read or written here, what the sync merge compares both sides with (see [4](04-sync.md#applying-sync)); per device, in no backup | Data folder |
 | `update.log`, `update-checks.txt`, `update-attempt.json`, `update-watchdog.ps1` / `.xml` | The updater's log, its check times (Store limits), the switch in progress, the watchdog task (see [13](13-updates.md)) | Data folder |
 | sync file (`*.ttmdata`) | `Folder` root as written by `DataNode.BuildFileTree` | Anywhere (OneDrive, share) |
 | exported file (`*.ttmdata`) | `Folder`: a folder export has that folder as root, a full or multi-item export a plain root (multi-item: tree order, folder copies down from the shared level, `DataNode.ExportTree`); no `SyncId`s | Anywhere |

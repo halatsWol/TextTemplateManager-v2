@@ -13,7 +13,7 @@ if (cached item with that SyncId?) then (yes)
       :copy the rest from the file,\nkeep the cached languages\n(an older version dropped them);
       :LanguagesKeptLocally: written back\nwithout them until edited here;
     endif
-  elseif (source.AllowSave and a last synced copy\nof the item (DataNode._lastSynced)?) then (yes)
+  elseif (source.AllowSave and a last synced copy\nof the item (DataNode._lastSynced,\nsaved in SyncState)?) then (yes)
     if (cached.LastChange < last synced copy's?) then (yes)
       :copy everything from the file\n(the cached copy holds no edit made here);
     else (no)

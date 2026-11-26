@@ -17,6 +17,7 @@ node "Windows PC" {
     file "settings.ttmsettings"
     file "sync.ttmsettings"
     file "crash.log"
+    folder "SyncState (last synced copy per sync file)"
     file "update.log, update-attempt.json"
     folder "restore-work (only during a restore)"
   }

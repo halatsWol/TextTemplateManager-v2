@@ -52,19 +52,51 @@ public class DataNode
     private readonly Dictionary<Guid, DateTime> _lastSeenWrite = new();
 
     /// <summary>Per source, its file's items as last read or written here (by file id), what the merge compares both
-    /// sides with. Tied to the file path, so a source pointed at another file starts without one.</summary>
-    private readonly Dictionary<Guid, (string Path, Dictionary<Guid, BaseItem> Items)> _lastSynced = new();
+    /// sides with. Tied to the file path, so a source pointed at another file starts without one. Kept on disk
+    /// (<see cref="StorageService.SyncStateDirectory"/>), so a restart doesn't lose it.</summary>
+    private readonly Dictionary<Guid, (string Path, Folder Root, Dictionary<Guid, BaseItem> Items)> _lastSynced = new();
 
-    private void RememberSynced(SyncSource source, Folder fileRoot)
+    /// <summary>Sources whose last synced copy changed since it was saved.</summary>
+    private readonly HashSet<Guid> _lastSyncedUnsaved = new();
+    private string? _lastSyncedFiles;
+
+    private void RememberSynced(SyncSource source, Folder fileRoot, bool saved = false)
     {
         var items = new Dictionary<Guid, BaseItem>();
         foreach (var item in fileRoot.Children.Descendants()) items.TryAdd(item.Id, item);
-        _lastSynced[source.Id] = (source.Path, items);
+        _lastSynced[source.Id] = (source.Path, fileRoot, items);
+        if (!saved) _lastSyncedUnsaved.Add(source.Id);
     }
 
     private IReadOnlyDictionary<Guid, BaseItem>? LastSynced(SyncSource source) =>
         _lastSynced.TryGetValue(source.Id, out var synced) && string.Equals(synced.Path, source.Path, StringComparison.OrdinalIgnoreCase)
             ? synced.Items : null;
+
+    private async Task LoadLastSyncedAsync()
+    {
+        foreach (var source in CurrentSyncSettings.Sources.Where(s => s.IsActive && !string.IsNullOrWhiteSpace(s.Path)).ToList())
+            if (await Storage.LoadSyncStateAsync(source.Id, source.Path) is { } root) RememberSynced(source, root, saved: true);
+    }
+
+    // Saved after the data file: a crash in between leaves a copy older than the data, which the next merge
+    // handles. A newer one would make edits in the data look like they were taken back here.
+    private async Task SaveLastSyncedAsync()
+    {
+        var active = CurrentSyncSettings.Sources.Where(s => s.IsActive && !string.IsNullOrWhiteSpace(s.Path)).ToList();
+        foreach (var id in _lastSynced.Keys.Where(id => !active.Exists(s => s.Id == id)).ToList()) _lastSynced.Remove(id);
+
+        foreach (var source in active)
+            if (_lastSyncedUnsaved.Remove(source.Id)
+                && _lastSynced.TryGetValue(source.Id, out var synced)
+                && string.Equals(synced.Path, source.Path, StringComparison.OrdinalIgnoreCase))
+                await Storage.SaveSyncStateAsync(source.Id, source.Path, synced.Root);
+
+        var files = active.Select(s => Storage.GetSyncStatePath(s.Id, s.Path)).ToList();
+        string key = string.Join("|", files);
+        if (key == _lastSyncedFiles) return;
+        Storage.DeleteSyncStatesExcept(files);
+        _lastSyncedFiles = key;
+    }
 
     public DataNode(StorageService storage)
     {
@@ -110,6 +142,7 @@ public class DataNode
             await SaveSyncSettingsAsync();
         }
 
+        await LoadLastSyncedAsync();
         // Merge active sources; guard the churn from autosaving.
         using (SuppressSaves()) await ApplySyncAsync();
         foreach (var item in RootFolder.Children) AttachChangeTracking(item);
@@ -557,6 +590,7 @@ public class DataNode
         {
             await Storage.SaveAsync(_localDataPath, RootFolder);
             await WriteSyncSourcesAsync();
+            await SaveLastSyncedAsync();
             saved = true;
         }
         finally

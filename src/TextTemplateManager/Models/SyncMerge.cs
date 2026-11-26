@@ -18,7 +18,7 @@ namespace TextTemplateManager.Models
         /// <paramref name="cached"/>. All three must be the same kind of item.</summary>
         public static void Into(BaseItem synced, BaseItem cached, BaseItem file)
         {
-            bool cacheNewer = string.CompareOrdinal(cached.LastChange ?? "", file.LastChange ?? "") > 0;
+            bool cacheNewer = string.CompareOrdinal(cached.LastChange, file.LastChange) > 0;
 
             string title = Pick(synced.Title, cached.Title, file.Title, cacheNewer);
             var unknown = Pick(synced.UnknownFields, cached.UnknownFields, file.UnknownFields, cacheNewer, SameFields);

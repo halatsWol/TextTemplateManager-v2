@@ -239,10 +239,12 @@ public class SyncMergeTests
 
     // ---- two devices on one sync file ----
 
-    private static async Task<DataNode> DeviceAsync(string sharedPath)
+    // A device on its own data folder; a data folder that is already set up is started again (an app restart).
+    private static async Task<DataNode> DeviceAsync(string sharedPath, string? dataDir = null)
     {
-        var storage = new StorageService(TestEnvironment.NewScratchDir());
-        await storage.SaveSyncSettingsAsync(new SyncSettings { Sources = { new SyncSource { Id = SourceId, Name = "Team", Path = sharedPath, IsActive = true, AllowSave = true } } });
+        var storage = new StorageService(dataDir ?? TestEnvironment.NewScratchDir());
+        if (dataDir == null)
+            await storage.SaveSyncSettingsAsync(new SyncSettings { Sources = { new SyncSource { Id = SourceId, Name = "Team", Path = sharedPath, IsActive = true, AllowSave = true } } });
         var node = new DataNode(storage);
         await node.InitializeAsync();
         return node;
@@ -251,6 +253,40 @@ public class SyncMergeTests
     private static readonly Guid SourceId = Guid.NewGuid();
 
     private static Template MailOn(DataNode node) => (Template)node.LocalItems[0].Children.Single();
+
+    private static async Task<string> SharedMailAsync()
+    {
+        string shared = Path.Combine(TestEnvironment.NewScratchDir(), "team.ttmdata");
+        var root = new Folder { Id = Guid.Empty, Title = "Root", LastChange = Synced };
+        root.Children.Add(Mail());
+        await new StorageService(Path.GetDirectoryName(shared)!).SaveSharedAsync(shared, root);
+        return shared;
+    }
+
+    private static string Now(int addMinutes = 0) => DateTime.Now.AddMinutes(addMinutes).ToString("yyyyMMddHHmmss");
+
+    // What 2.7 and 2.8.x do: merge without a last synced copy (the newer template wins), then write the result.
+    private static async Task<Folder> OldVersionMergeAndWriteAsync(string shared, Folder cache)
+    {
+        var file = await StorageService.LoadRootSharedAsync(shared);
+        SyncEngine.Merge(cache, file!, "Team", SourceId, allowSave: true);
+        var written = new Folder { Id = Guid.Empty, Title = "Root", LastChange = file!.LastChange };
+        foreach (var t in cache.Children.OfType<Template>())
+            written.Children.Add(new Template
+            {
+                Id = t.SyncId!.Value, Title = t.Title, Content = t.Content, Language = t.Language, LanguageId = t.LanguageId,
+                AltLanguages = t.AltLanguages, LastChange = t.LastChange,
+            });
+        await new StorageService(Path.GetDirectoryName(shared)!).SaveSharedAsync(shared, written);
+        return cache;
+    }
+
+    private static async Task<Folder> OldVersionDeviceAsync(string shared)
+    {
+        var cache = new Folder();
+        SyncEngine.Merge(cache, (await StorageService.LoadRootSharedAsync(shared))!, "Team", SourceId, allowSave: true);
+        return cache;
+    }
 
     [Fact]
     public async Task Two_devices_editing_different_languages_of_one_template_keep_both_edits()
@@ -275,5 +311,93 @@ public class SyncMergeTests
         Assert.Equal(both, Tabs((Template)file!.Children.Single()));
         Assert.Equal(both, Tabs(MailOn(a)));
         Assert.Equal(both, Tabs(MailOn(b)));
+    }
+
+    [Fact]
+    public async Task The_last_synced_copy_survives_a_restart()
+    {
+        string shared = await SharedMailAsync();
+        var a = await DeviceAsync(shared);
+        var b = await DeviceAsync(shared);
+
+        MailOn(a).Content = "<p>Hello from A</p>";
+        await a.FlushPendingSaveAsync();
+        MailOn(b).AltLanguages = [Alt("c3d4", "de", "<p>Hallo von B</p>")];
+        await b.FlushPendingSaveAsync();   // the file changed since B read it: not written, and B is closed
+
+        var restarted = await DeviceAsync(shared, b.Storage.DataDirectory);
+
+        const string both = "a1b2:en:<p>Hello from A</p> | c3d4:de:<p>Hallo von B</p>";
+        Assert.Equal(both, Tabs(MailOn(restarted)));
+        var file = await StorageService.LoadRootSharedAsync(shared);
+        Assert.Equal(both, Tabs((Template)file!.Children.Single()));
+    }
+
+    [Fact]
+    public async Task Last_synced_copies_of_old_paths_and_inactive_sources_are_deleted()
+    {
+        string shared = await SharedMailAsync();
+        var node = await DeviceAsync(shared);
+        var source = node.CurrentSyncSettings.Sources.Single();
+        string first = node.Storage.GetSyncStatePath(source.Id, shared);
+        Assert.True(File.Exists(first));
+
+        string moved = Path.Combine(TestEnvironment.NewScratchDir(), "team.ttmdata");
+        File.Copy(shared, moved);
+        source.Path = moved;
+        await node.ReapplySyncAsync();
+        Assert.False(File.Exists(first));
+        Assert.True(File.Exists(node.Storage.GetSyncStatePath(source.Id, moved)));
+
+        source.IsActive = false;
+        await node.ReapplySyncAsync();
+        Assert.Empty(Directory.EnumerateFiles(node.Storage.SyncStateDirectory));
+    }
+
+    [Fact]
+    public async Task An_older_version_takes_the_merged_template_of_a_newer_one()
+    {
+        string shared = await SharedMailAsync();
+        var n = await DeviceAsync(shared);
+        var old = await OldVersionDeviceAsync(shared);
+
+        var oldMail = (Template)old.Children.Single();
+        oldMail.Content = "<p>Hello from the old PC</p>";
+        oldMail.LastChange = Now();
+        await OldVersionMergeAndWriteAsync(shared, old);
+        MailOn(n).AltLanguages = [Alt("c3d4", "de", "<p>Hallo vom neuen PC</p>")];
+        await n.FlushPendingSaveAsync();   // the file changed since N read it: not written yet
+
+        await n.CheckSyncFilesForChangesAsync();   // N merges field by field and writes both
+        await OldVersionMergeAndWriteAsync(shared, old);
+
+        const string both = "a1b2:en:<p>Hello from the old PC</p> | c3d4:de:<p>Hallo vom neuen PC</p>";
+        Assert.Equal(both, Tabs(MailOn(n)));
+        Assert.Equal(both, Tabs(oldMail));
+        Assert.Equal(both, Tabs((Template)(await StorageService.LoadRootSharedAsync(shared))!.Children.Single()));
+    }
+
+    [Fact]
+    public async Task An_older_version_merging_first_wins_with_its_whole_template_on_every_device()
+    {
+        string shared = await SharedMailAsync();
+        var n = await DeviceAsync(shared);
+        var old = await OldVersionDeviceAsync(shared);
+
+        MailOn(n).AltLanguages = [Alt("c3d4", "de", "<p>Hallo vom neuen PC</p>")];
+        await n.FlushPendingSaveAsync();   // written
+        var oldMail = (Template)old.Children.Single();
+        oldMail.Content = "<p>Hello from the old PC</p>";
+        oldMail.LastChange = Now(1);
+        await OldVersionMergeAndWriteAsync(shared, old);   // newer: its whole template replaces N's
+
+        await n.CheckSyncFilesForChangesAsync();
+
+        // The new version can't tell an older version's whole-template write from an edit: the German edit is lost,
+        // as with the old rule, and every device ends up with the same template.
+        const string olds = "a1b2:en:<p>Hello from the old PC</p> | c3d4:de:<p>Hallo</p>";
+        Assert.Equal(olds, Tabs(MailOn(n)));
+        Assert.Equal(olds, Tabs(oldMail));
+        Assert.Equal(olds, Tabs((Template)(await StorageService.LoadRootSharedAsync(shared))!.Children.Single()));
     }
 }

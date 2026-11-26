@@ -277,6 +277,45 @@ public sealed class StorageService
     public string GetSettingsPath() => Path.Combine(_baseDirectory, SettingsFileName);
     public string GetSyncSettingsPath() => Path.Combine(_baseDirectory, SyncSettingsFileName);
 
+    /// <summary>Per sync source, its file as last read or written here, what the sync merge compares both sides
+    /// with. Only for this PC: not synced and not in backups.</summary>
+    public string SyncStateDirectory => Path.Combine(_baseDirectory, "SyncState");
+
+    /// <summary>The last synced copy of a source's file, named by the source and its path, so a source pointed at
+    /// another file doesn't find the old one's.</summary>
+    public string GetSyncStatePath(Guid sourceId, string sourcePath)
+    {
+        byte[] hash = System.Security.Cryptography.SHA256.HashData(Encoding.UTF8.GetBytes(sourcePath.ToUpperInvariant()));
+        return Path.Combine(SyncStateDirectory, $"{sourceId:N}-{Convert.ToHexString(hash, 0, 8)}.json");
+    }
+
+    /// <summary>A source's last synced copy, or null when there is none or it doesn't load (it is then just
+    /// written again).</summary>
+    public async Task<Folder?> LoadSyncStateAsync(Guid sourceId, string sourcePath)
+    {
+        string path = GetSyncStatePath(sourceId, sourcePath);
+        try { return File.Exists(path) ? ParseTree(await File.ReadAllBytesAsync(path)) : null; }
+        catch { return null; }
+    }
+
+    public async Task SaveSyncStateAsync(Guid sourceId, string sourcePath, Folder root)
+    {
+        if (_writesSuspended) return;
+        Directory.CreateDirectory(SyncStateDirectory);
+        await SaveAsync(GetSyncStatePath(sourceId, sourcePath), root);
+    }
+
+    /// <summary>Deletes the last synced copies other than <paramref name="keep"/> (removed or inactive sources,
+    /// old paths).</summary>
+    public void DeleteSyncStatesExcept(IEnumerable<string> keep)
+    {
+        if (_writesSuspended || !Directory.Exists(SyncStateDirectory)) return;
+        var kept = new HashSet<string>(keep, StringComparer.OrdinalIgnoreCase);
+        foreach (string file in Directory.EnumerateFiles(SyncStateDirectory))
+            if (!kept.Contains(file))
+                try { File.Delete(file); } catch { /* tried again at the next change of sources */ }
+    }
+
     /// <summary>Append-only log for otherwise-fatal unhandled exceptions.</summary>
     public string GetCrashLogPath() => Path.Combine(_baseDirectory, "crash.log");
 
